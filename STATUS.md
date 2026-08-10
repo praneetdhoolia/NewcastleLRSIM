@@ -20,7 +20,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P0 Scoping | ✅ complete | Base year 2026, zone system, scenario list S0–S6 settled. Scope calls closing proposal §10 are recorded in [`DECISIONS.md`](DECISIONS.md) §1. |
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
-| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 runnable scenario×day-type input sets. 497 package checks pass. |
+| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 runnable scenario×day-type input sets. 528 package checks pass. |
 | P4 Calibration | ⬜ next | 67 calibration targets built; 143 held out. Mode share is seeded near HTS but **not calibrated** — that is P4's job ([`DECISIONS.md`](DECISIONS.md) §9.3). |
 | P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run.** |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
@@ -190,6 +190,33 @@ trip-weighted 16.96 AUD/h) and the crowding multipliers. See
 
 ---
 
+## P3 stage 3 — assumptions replaced by measurement where the data allows
+
+Three P3 constants are no longer typed in. `src/build/measure_network_factors.py`
+derives them from layers already in the package and writes
+[`params/C2_network_factors.json`](params/C2_network_factors.json):
+
+| Value | Was | Now | Measured from |
+|---|---|---|---|
+| Detour factor (straight-line → network) | assumed 1.30 | **1.3376**, sweep 1.25–1.42 | 551 population-weighted zone pairs routed over the observed A1 road graph |
+| Weekday vs weekend travel | assumed, implied 0.825 | **0.7521**, sweep 0.709–0.816 | RMS traffic counts' own `WEEKDAYS`/`WEEKENDS` periods, 551 station-years |
+| Work-attendance lower bound | none | **0.651** | Census G62 — bounds the `P_MANDATORY` sweep, and is **not** allowed to set the value, because census night was August 2021 with 19.2% working from home ([`DECISIONS.md`](DECISIONS.md) §2.4) |
+
+**Seven parameters breached proposal §8.1** by carrying no sweep range. They now
+carry one, and `check_package.py` **tests the rule** instead of relying on discipline.
+
+**What is genuinely not localisable, and is labelled so:** MATSim's `performing`,
+monetary distance rate, typical activity durations and replanning weights are
+properties of the scoring formulation, not observable quantities of Newcastle.
+
+**What is localisable but not yet available:** `EXTERNAL_INTERACTION_RATE` needs the
+ABS journey-to-work origin-destination table (SA2 usual residence × SA2 place of
+work). The package has the place-of-work side but not the pairing — added to
+[`DECISIONS.md`](DECISIONS.md) §13 as a standard TableBuilder extract, not a formal
+request.
+
+---
+
 ## Open for P5 — the run load does not fit one machine
 
 Sizing done during P3 planning, recorded here so P5 does not rediscover it:
@@ -215,6 +242,6 @@ measure a real per-iteration cost before picking fractions.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **497 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **528 checks**. Run it before declaring any phase
    complete.
 5. Branch as `<git-handle>/<short-kebab-description>` (never `claude/*`).

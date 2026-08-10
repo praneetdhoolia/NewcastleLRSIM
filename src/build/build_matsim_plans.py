@@ -73,6 +73,9 @@ HTS_MODE_SHARE_PCT = {'car': 57.46, 'ride': 21.46, 'walk': 16.14, 'pt': 3.39,
 ACT_TYPES = ('home', 'work', 'education', 'shopping', 'other', 'business')
 TYPICAL_DURATION_S = {'home': 12 * 3600, 'work': 8 * 3600, 'education': 6 * 3600,
                       'shopping': 1 * 3600, 'other': 2 * 3600, 'business': 1 * 3600}
+# Proportional sweep on every typical duration. Not Newcastle-specific: this is
+# MATSim's scoring shape parameter, not an observable local quantity.
+TYPICAL_DURATION_SWEEP = 0.25
 
 
 def hhmmss(s):
@@ -237,6 +240,7 @@ def main(seed=SEED, day_types=None):
                 seed_mode_sweep=SEED_MODE_SWEEP,
                 hts_mode_share_pct=HTS_MODE_SHARE_PCT,
                 typical_duration_s=TYPICAL_DURATION_S,
+                typical_duration_sweep=TYPICAL_DURATION_SWEEP,
                 note='Seed modes are initial conditions for MATSim co-evolution, '
                      'drawn per tour so chain-based modes stay conserved. They are '
                      'not a mode-share prediction and not calibrated here; the '

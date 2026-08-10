@@ -102,6 +102,7 @@ python src/build/build_sumo_corridor.py         # SUMO corridor, 4 road variants
 
 # --- P3 demand synthesis (needs the P2 build above: one build, shared by all
 #     scenarios - see DECISIONS.md 3.5) ---
+python src/build/measure_network_factors.py     # C2: detour factor, day-type split (~70 s)
 python src/build/build_activity_chains.py       # B2 tours, 3 day types (~90 s, 790 MB out)
 python src/build/build_matsim_plans.py          # MATSim population per day type (~45 s)
 python src/build/build_matsim_run_inputs.py     # 30 runnable scenario x day-type sets (~45 s)

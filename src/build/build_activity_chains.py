@@ -71,15 +71,25 @@ ACT_TYPE = {'HW': 'work', 'HE': 'education', 'HS': 'shopping',
 # ---------------------------------------------------------------------------
 
 # Day-type shape. The HTS LGA tables have no day-of-week dimension (checked in
-# the raw workbook: FINANCIAL_YEAR / LGA / MODE / PURPOSE only), so the relative
-# profile is assumed. The absolute level is *not* assumed: RATE_SHAPE is
-# rescaled at run time so 5xWEEKDAY + SAT + SUN reproduces the HTS week average.
-DAY_RATE_SHAPE = {'WEEKDAY': 1.06, 'SAT': 0.95, 'SUN': 0.80}
-DAY_RATE_SWEEP = {'WEEKDAY': (1.00, 1.12), 'SAT': (0.85, 1.05), 'SUN': (0.70, 0.92)}
+# the raw workbook: FINANCIAL_YEAR / LGA / MODE / PURPOSE only), but the RMS
+# traffic counts do - they publish a WEEKDAYS and a WEEKENDS figure per
+# station-year. `measure_network_factors.py` reads the weekend/weekday ratio off
+# them (0.752 over 551 station-years) and it is loaded here, so the weekday
+# against weekend split is **observed Newcastle data**, not an assumption.
+#
+# What the counts cannot settle is how the weekend divides between Saturday and
+# Sunday: they report one WEEKENDS figure. That ratio alone stays assumed, and
+# is swept. The absolute level is not free either - the shape is rescaled so
+# 5xWEEKDAY + SAT + SUN reproduces the HTS week average exactly.
+SAT_TO_SUN_RATE = 1.1875
+SAT_TO_SUN_SWEEP = (1.00, 1.45)
 
 # How the purpose mix shifts by day type, as a multiplier on the weekday rate
 # for that purpose. Commute and education collapse at the weekend; shopping and
 # social rise. Assumed.
+# Swept because the weekend collapse of commute and education is assumed: the
+# multiplier on each weekend purpose may move by this factor either way.
+DAY_PURPOSE_MIX_SWEEP = 0.30
 DAY_PURPOSE_MIX = {
     'WEEKDAY': {'HW': 1.00, 'HE': 1.00, 'HS': 0.90, 'HO': 0.90, 'WB': 1.00, 'NHB': 1.00},
     'SAT':     {'HW': 0.25, 'HE': 0.05, 'HS': 1.60, 'HO': 1.50, 'WB': 0.15, 'NHB': 1.10},
@@ -87,7 +97,14 @@ DAY_PURPOSE_MIX = {
 }
 
 # Probability that a person with the relevant status makes their mandatory tour
-# on a given day type. Assumed.
+# on a given day type. Assumed, but the weekday work figure is now bounded from
+# below by observation: census G62 records that 65.1% of employed residents
+# travelled to work on census night. That night was August 2021 with 19.2%
+# working from home, so it carries the lockdown with it and cannot set the
+# value (DECISIONS.md 2.4 rules G62 out as a behavioural rate) - it bounds the
+# sweep instead. The upper bound allows for leave and illness.
+P_MANDATORY_WORK_SWEEP = (None, 0.90)     # lower bound filled from C2 at load
+P_MANDATORY_EDUCATION_SWEEP = (0.70, 0.95)
 P_MANDATORY = {
     'WEEKDAY': {'work': 0.78, 'education': 0.85},
     'SAT': {'work': 0.16, 'education': 0.03},
@@ -99,19 +116,27 @@ P_MANDATORY = {
 # vary within a day rather than for the whole day at once. Assumed.
 P_INTERMEDIATE_STOP = {'HW': 0.22, 'HE': 0.12, 'HS': 0.18, 'HO': 0.20, 'WB': 0.30}
 P_SECOND_STOP = 0.25          # given a first intermediate stop
+P_SECOND_STOP_SWEEP = (0.12, 0.40)
 # Share of an under-12's drawn secondary tours that are actually made alone.
 # Applied as per-tour thinning, not as a scaling of the count.
 CHILD_TOUR_RETENTION = 0.4
+CHILD_TOUR_RETENTION_SWEEP = (0.25, 0.60)
 P_INTERMEDIATE_SWEEP = (0.10, 0.35)
 
-# Straight-line to network distance. Used only to compare the gravity model's
-# realised distances against the HTS journey distances, which are network
-# distances. Assumed.
+# Straight-line to network distance, used to compare the gravity model against
+# the HTS journey distances, which are network distances. **Measured**, not
+# assumed: `measure_network_factors.py` routes population-weighted zone pairs
+# over the observed A1 road graph and takes the aggregate ratio. Loaded from
+# params/C2_network_factors.json; the fallback below is only used if that file
+# is missing, and the build says so when it falls back.
 DETOUR_FACTOR = 1.30
 DETOUR_SWEEP = (1.20, 1.40)
+DETOUR_SOURCE = 'assumed - C2 factors file not found'
+NETWORK_FACTORS = 'params/C2_network_factors.json'
 
 # Mean activity duration in minutes by purpose (carried from P1, DECISIONS 9).
 ACT_DURATION = {'HW': 465, 'HE': 360, 'HS': 45, 'HO': 90, 'WB': 60, 'NHB': 20}
+ACT_DURATION_SWEEP = 0.25       # proportional, applied to every mean duration
 DURATION_CV = 0.30
 
 # The day closes. Chains are compressed rather than allowed to run past this.
@@ -303,12 +328,44 @@ def calibrate_decay(X, Y, ATTR, meandist, prod):
     return CUM, diag
 
 
-def solve_day_rates(total_rate):
-    """Scale the assumed day-type shape so the week average matches the HTS."""
+def load_network_factors():
+    """Pull in the factors measured from Newcastle data, if they exist.
+
+    Sets the module-level detour factor, the day-type shape and the observed
+    lower bound on the work-attendance sweep. Falls back loudly rather than
+    silently: a build that could not find the measurements says so, and the
+    report records which values were measured and which were assumed.
+    """
+    global DETOUR_FACTOR, DETOUR_SWEEP, DETOUR_SOURCE
+    global P_MANDATORY_WORK_SWEEP
+    shape = {'WEEKDAY': 1.0, 'SAT': 0.95, 'SUN': 0.80}
+    shape_source = 'assumed - C2 factors file not found'
+    if os.path.exists(NETWORK_FACTORS):
+        c2 = json.load(open(NETWORK_FACTORS, encoding='utf-8'))
+        d = c2['detour_factor']
+        DETOUR_FACTOR = float(d['value'])
+        DETOUR_SWEEP = tuple(d['sweep'])
+        DETOUR_SOURCE = d['source']
+        # weekend/weekday is observed; the split inside the weekend is not
+        ratio = float(c2['day_type']['weekend_to_weekday'])
+        sun = 2.0 * ratio / (SAT_TO_SUN_RATE + 1.0)
+        shape = {'WEEKDAY': 1.0, 'SAT': sun * SAT_TO_SUN_RATE, 'SUN': sun}
+        shape_source = ('measured weekend/weekday from RMS traffic counts '
+                        '(%.4f over %d station-years); the Saturday:Sunday '
+                        'split within the weekend is assumed %.4f, swept %s'
+                        % (ratio, c2['day_type']['station_years'],
+                           SAT_TO_SUN_RATE, list(SAT_TO_SUN_SWEEP)))
+        att = float(c2['work_attendance']['census_day_attendance'])
+        P_MANDATORY_WORK_SWEEP = (att, P_MANDATORY_WORK_SWEEP[1])
+    return shape, shape_source
+
+
+def solve_day_rates(total_rate, shape):
+    """Scale the day-type shape so the week average matches the HTS."""
     wk = sum(DAYS_PER_WEEK.values())
-    avg = sum(DAYS_PER_WEEK[d] * DAY_RATE_SHAPE[d] for d in DAY_TYPES) / wk
+    avg = sum(DAYS_PER_WEEK[d] * shape[d] for d in DAY_TYPES) / wk
     k = total_rate / avg
-    return {d: DAY_RATE_SHAPE[d] * k for d in DAY_TYPES}
+    return {d: shape[d] * k for d in DAY_TYPES}
 
 
 def legs_per_tour(purpose):
@@ -671,6 +728,12 @@ def main(seed=SEED, max_persons=None, day_types=None):
     ATTR = {p: norm(core['attr_' + p].to_numpy()) for p in PURPOSES}
     zone_arr = (X, Y, X, Y, RAD, SA1)
 
+    day_shape, day_shape_source = load_network_factors()
+    print('detour factor %.4f  [%s]' % (DETOUR_FACTOR, DETOUR_SOURCE), flush=True)
+    print('day-type shape %s' % {k: round(v, 4) for k, v in day_shape.items()},
+          flush=True)
+    print('   [%s]' % day_shape_source, flush=True)
+
     yr, _total, share, meandist = hts_rates()
     print('HTS %s | purpose share %s'
           % (yr, {k: round(v, 3) for k, v in share.items()}), flush=True)
@@ -727,13 +790,32 @@ def main(seed=SEED, max_persons=None, day_types=None):
     # non-employed full-time students
     student_frac = float((stu & ~emp).mean())
     child_frac = float((age < 12).mean())
-    day_rate = solve_day_rates(HTS_RATE_PER_PERSON_DAY)
+    day_rate = solve_day_rates(HTS_RATE_PER_PERSON_DAY, day_shape)
     stats = dict(seed=seed, hts_year=yr,
                  hts_rate_per_person_day=HTS_RATE_PER_PERSON_DAY,
                  day_rate={k: round(v, 4) for k, v in day_rate.items()},
-                 day_rate_shape=DAY_RATE_SHAPE, day_rate_sweep=DAY_RATE_SWEEP,
-                 day_purpose_mix=DAY_PURPOSE_MIX, decay=decay,
-                 detour_factor=DETOUR_FACTOR, detour_sweep=DETOUR_SWEEP,
+                 day_rate_shape={k: round(v, 4) for k, v in day_shape.items()},
+                 day_rate_shape_source=day_shape_source,
+                 sat_to_sun_rate=SAT_TO_SUN_RATE,
+                 sat_to_sun_sweep=list(SAT_TO_SUN_SWEEP),
+                 day_purpose_mix=DAY_PURPOSE_MIX,
+                 day_purpose_mix_sweep=DAY_PURPOSE_MIX_SWEEP,
+                 p_mandatory=P_MANDATORY,
+                 p_mandatory_work_sweep=list(P_MANDATORY_WORK_SWEEP),
+                 p_mandatory_education_sweep=list(P_MANDATORY_EDUCATION_SWEEP),
+                 p_intermediate_stop=P_INTERMEDIATE_STOP,
+                 p_intermediate_sweep=list(P_INTERMEDIATE_SWEEP),
+                 p_second_stop=P_SECOND_STOP,
+                 p_second_stop_sweep=list(P_SECOND_STOP_SWEEP),
+                 child_tour_retention=CHILD_TOUR_RETENTION,
+                 child_tour_retention_sweep=list(CHILD_TOUR_RETENTION_SWEEP),
+                 act_duration_min=ACT_DURATION,
+                 act_duration_sweep=ACT_DURATION_SWEEP,
+                 external_interaction_rate=EXTERNAL_INTERACTION_RATE,
+                 external_interaction_sweep=list(EXTERNAL_INTERACTION_SWEEP),
+                 decay=decay,
+                 detour_factor=DETOUR_FACTOR, detour_sweep=list(DETOUR_SWEEP),
+                 detour_source=DETOUR_SOURCE,
                  attractors=n_attractors,
                  zones_with_attractor={p: len(store[p]) for p in PURPOSES},
                  persons=n_persons, by_day={},

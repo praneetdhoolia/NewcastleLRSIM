@@ -1,18 +1,18 @@
 {
   "project": "Newcastle Light Rail counterfactual microsimulation (Project Wickham)",
-  "generated": "2026-08-10T20:48:47",
+  "generated": "2026-08-10T21:18:44",
   "base_year": 2026,
   "crs": "EPSG:28356 (GDA2020 / MGA Zone 56)",
-  "n_files": 357,
-  "total_bytes": 3486200710,
-  "total_gib": 3.25,
+  "n_files": 358,
+  "total_bytes": 3456656397,
+  "total_gib": 3.22,
   "by_stage": {
     "raw": 61,
-    "processed": 296
+    "processed": 297
   },
   "bytes_by_stage": {
     "raw": 1956136023,
-    "processed": 1530064687
+    "processed": 1500520374
   },
   "files": [
     {
@@ -1913,9 +1913,9 @@
     },
     {
       "path": "demand/plans/B2_activity_trips_SAT.csv",
-      "bytes": 265601046,
-      "rows": 1995697,
-      "sha256": "387dad9d89b8c612fb138d2e9bc80f9530271e4fc726178bbe79255377892d26",
+      "bytes": 247632170,
+      "rows": 1861017,
+      "sha256": "c2d0ee875705f51cfa4bf8c9c87589affc335b24ccdfa4cc6deb277c570af10b",
       "stage": "processed",
       "produced_by": "src/build/build_activity_chains.py",
       "source": "",
@@ -1925,9 +1925,9 @@
     },
     {
       "path": "demand/plans/B2_activity_trips_SUN.csv",
-      "bytes": 224972278,
-      "rows": 1691188,
-      "sha256": "752eca09cb016e00a424be34ef143c179e1fbbde1b406cf26c89e0ccce189921",
+      "bytes": 209624596,
+      "rows": 1575989,
+      "sha256": "c07c2b4b88b07ebe592d519f5e109bf9aa34134dbd9e76998ea98e1c6c490775",
       "stage": "processed",
       "produced_by": "src/build/build_activity_chains.py",
       "source": "",
@@ -1937,9 +1937,9 @@
     },
     {
       "path": "demand/plans/B2_activity_trips_WEEKDAY.csv",
-      "bytes": 298736216,
-      "rows": 2188436,
-      "sha256": "0b2884484009d0bd61208eddc3fec7c260bf68637cee20710cd2a0abe7bb4272",
+      "bytes": 305432992,
+      "rows": 2237373,
+      "sha256": "7d6736a000f92aa59fe0ea46d8cb525376ed674a2487816dc496877fc09c576e",
       "stage": "processed",
       "produced_by": "src/build/build_activity_chains.py",
       "source": "",
@@ -1949,9 +1949,9 @@
     },
     {
       "path": "demand/plans/_activity_chains_report.json",
-      "bytes": 4896,
+      "bytes": 6027,
       "rows": null,
-      "sha256": "3249934fc5191ecb93c572fc1055a8d753292a7bd1a723462b44a3857090d0af",
+      "sha256": "9c665abfcc0fafda69db284174e225ca405b1c005e77cda6eb819a67fc5e7dc0",
       "stage": "processed",
       "produced_by": "src/build/build_activity_chains.py",
       "source": "",
@@ -1961,9 +1961,9 @@
     },
     {
       "path": "demand/plans/matsim/_plans_report.json",
-      "bytes": 2632,
+      "bytes": 2669,
       "rows": null,
-      "sha256": "0c4252b26bc5be4dee9a2fa06c84cd0c99353977d9dc1b1f89714bbd3afa5bcf",
+      "sha256": "279dbe2adb6ab77f0650dea82d63e38568c7f6891f451979eb2fb680c3c659fb",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",
@@ -1973,9 +1973,9 @@
     },
     {
       "path": "demand/plans/matsim/population_SAT.xml.gz",
-      "bytes": 32385940,
+      "bytes": 30519574,
       "rows": null,
-      "sha256": "408ae85f81e5e6b2739bddf074b542a115bf152590a1c1863a4ba8def5df1f20",
+      "sha256": "82adf078dc1b5136975ccbc0551d95d78e80bb1d19c9b2215d5e73656a9f57c1",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",
@@ -1985,9 +1985,9 @@
     },
     {
       "path": "demand/plans/matsim/population_SUN.xml.gz",
-      "bytes": 28182442,
+      "bytes": 26529811,
       "rows": null,
-      "sha256": "37650cf19a417a54db64637682cb4b412b43879905309ab5e296631bfa9a3ba7",
+      "sha256": "31b07076c146817ad6ae74351f86cdad87b34663f4c22c9049789f181eea07f3",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",
@@ -1997,9 +1997,9 @@
     },
     {
       "path": "demand/plans/matsim/population_WEEKDAY.xml.gz",
-      "bytes": 36223382,
+      "bytes": 36814849,
       "rows": null,
-      "sha256": "75d913bc6e20045c26d6d039a5de9ae7c3282881224ab1353e681aa06d98d702",
+      "sha256": "c0c9ad852f348dff2aa78c31f7eeaa7e054087f78b60c1642adda5c674edd1f4",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",
@@ -2072,6 +2072,18 @@
       "bytes": 3555,
       "rows": 140,
       "sha256": "b51d0d68b4e8f853f5cdc268f36d953c1f8c44e31ac678b62097cc4e9678e3e7",
+      "stage": "processed",
+      "produced_by": "src/build/build_params.py",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "params/C2_network_factors.json",
+      "bytes": 1346,
+      "rows": null,
+      "sha256": "10605a6736eb59af5483f6a7209a54eef5992bfac5e6231d0ea11f5856325ad7",
       "stage": "processed",
       "produced_by": "src/build/build_params.py",
       "source": "",
@@ -2237,9 +2249,9 @@
     },
     {
       "path": "scenarios/matsim/_run_inputs_report.json",
-      "bytes": 9171,
+      "bytes": 9656,
       "rows": null,
-      "sha256": "3f04d0bece1a0c787f3086d7dfb072e9aaa942314a95539af495f819205685da",
+      "sha256": "2d208b213fc33f5dd076edd392f25478c7f18707bcfe74cbf5d203e3400cf565",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_run_inputs.py",
       "source": "",

@@ -52,8 +52,11 @@ OUT = 'scenarios/matsim'
 DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 
 # MATSim's opportunity cost of time, utils per hour. Conventional value; the
-# whole scoring scale is relative to it. Assumed.
+# whole scoring scale is relative to it. Assumed, and **not Newcastle-specific**:
+# it is a property of the scoring formulation, not of this study area, so there
+# is nothing local to derive it from. Swept.
 PERFORMING_UTILS_PER_H = 6.0
+PERFORMING_SWEEP = (4.0, 8.0)
 MARGINAL_UTILITY_OF_MONEY = 1.0        # utils per AUD, definitional anchor
 
 LINK_BLOCK_RE = re.compile(r'<link\b.*?(?:/>|</link>)', re.S)
@@ -231,6 +234,11 @@ def scoring_from_c1(c1, purpose_share):
     tp = c1['transfer_penalty']['base']
     return dict(
         performing_utils_per_h=perf,
+        performing_sweep=list(PERFORMING_SWEEP),
+        monetary_distance_rate=MONETARY_DISTANCE_RATE,
+        monetary_distance_rate_sweep=list(MONETARY_DISTANCE_RATE_SWEEP),
+        strategies=dict(STRATEGIES),
+        subtour_mode_choice_weight_sweep=list(SUBTOUR_MODE_CHOICE_WEIGHT_SWEEP),
         marginal_utility_of_money=mm,
         vot_aud_hr_used=round(vot_avg, 3),
         vot_aud_hr_by_purpose=vot,
@@ -349,9 +357,15 @@ STRATEGY_BLOCK = """\t\t<parameterset type="strategysettings">
 # ownership within the day.
 MONETARY_DISTANCE_RATE = {'car': -0.00018, 'ride': -0.00009,
                           'pt': 0.0, 'walk': 0.0, 'bike': 0.0}
+# AUD/m for car. Fuel and tyres vary with national prices, not with Newcastle,
+# so this is swept rather than localised.
+MONETARY_DISTANCE_RATE_SWEEP = (-0.00025, -0.00012)
 
 STRATEGIES = [('ChangeExpBeta', 0.70), ('ReRoute', 0.15),
               ('SubtourModeChoice', 0.10), ('TimeAllocationMutator', 0.05)]
+# The mode-choice innovation weight is the one that matters for how far the
+# co-evolution can move mode share; swept. Not Newcastle-specific.
+SUBTOUR_MODE_CHOICE_WEIGHT_SWEEP = (0.05, 0.20)
 
 TYPICAL_DURATION_S = {'home': 12 * 3600, 'work': 8 * 3600, 'education': 6 * 3600,
                       'shopping': 1 * 3600, 'other': 2 * 3600, 'business': 1 * 3600}

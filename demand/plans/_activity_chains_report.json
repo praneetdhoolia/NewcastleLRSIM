@@ -3,29 +3,21 @@
   "hts_year": "2024/25",
   "hts_rate_per_person_day": 3.473,
   "day_rate": {
-    "WEEKDAY": 3.6553,
-    "SAT": 3.276,
-    "SUN": 2.7587
+    "WEEKDAY": 3.7377,
+    "SAT": 3.0521,
+    "SUN": 2.5702
   },
   "day_rate_shape": {
-    "WEEKDAY": 1.06,
-    "SAT": 0.95,
-    "SUN": 0.8
+    "WEEKDAY": 1.0,
+    "SAT": 0.8166,
+    "SUN": 0.6876
   },
-  "day_rate_sweep": {
-    "WEEKDAY": [
-      1.0,
-      1.12
-    ],
-    "SAT": [
-      0.85,
-      1.05
-    ],
-    "SUN": [
-      0.7,
-      0.92
-    ]
-  },
+  "day_rate_shape_source": "measured weekend/weekday from RMS traffic counts (0.7521 over 551 station-years); the Saturday:Sunday split within the weekend is assumed 1.1875, swept [1.0, 1.45]",
+  "sat_to_sun_rate": 1.1875,
+  "sat_to_sun_sweep": [
+    1.0,
+    1.45
+  ],
   "day_purpose_mix": {
     "WEEKDAY": {
       "HW": 1.0,
@@ -52,55 +44,114 @@
       "NHB": 1.0
     }
   },
+  "day_purpose_mix_sweep": 0.3,
+  "p_mandatory": {
+    "WEEKDAY": {
+      "work": 0.78,
+      "education": 0.85
+    },
+    "SAT": {
+      "work": 0.16,
+      "education": 0.03
+    },
+    "SUN": {
+      "work": 0.09,
+      "education": 0.01
+    }
+  },
+  "p_mandatory_work_sweep": [
+    0.6508,
+    0.9
+  ],
+  "p_mandatory_education_sweep": [
+    0.7,
+    0.95
+  ],
+  "p_intermediate_stop": {
+    "HW": 0.22,
+    "HE": 0.12,
+    "HS": 0.18,
+    "HO": 0.2,
+    "WB": 0.3
+  },
+  "p_intermediate_sweep": [
+    0.1,
+    0.35
+  ],
+  "p_second_stop": 0.25,
+  "p_second_stop_sweep": [
+    0.12,
+    0.4
+  ],
+  "child_tour_retention": 0.4,
+  "child_tour_retention_sweep": [
+    0.25,
+    0.6
+  ],
+  "act_duration_min": {
+    "HW": 465,
+    "HE": 360,
+    "HS": 45,
+    "HO": 90,
+    "WB": 60,
+    "NHB": 20
+  },
+  "act_duration_sweep": 0.25,
+  "external_interaction_rate": 0.08,
+  "external_interaction_sweep": [
+    0.04,
+    0.15
+  ],
   "decay": {
     "HW": {
-      "beta": 0.08453,
-      "target_straight_km": 13.66,
-      "realised_straight_km": 13.66,
+      "beta": 0.08925,
+      "target_straight_km": 13.28,
+      "realised_straight_km": 13.28,
       "hts_network_km": 17.76,
       "realised_network_km": 17.76
     },
     "HE": {
-      "beta": 0.29531,
-      "target_straight_km": 4.95,
-      "realised_straight_km": 4.95,
+      "beta": 0.30477,
+      "target_straight_km": 4.81,
+      "realised_straight_km": 4.81,
       "hts_network_km": 6.44,
       "realised_network_km": 6.44
     },
     "HS": {
-      "beta": 0.37375,
-      "target_straight_km": 5.48,
-      "realised_straight_km": 5.48,
+      "beta": 0.38773,
+      "target_straight_km": 5.33,
+      "realised_straight_km": 5.33,
       "hts_network_km": 7.13,
       "realised_network_km": 7.13
     },
     "HO": {
-      "beta": 0.22402,
-      "target_straight_km": 7.82,
-      "realised_straight_km": 7.82,
+      "beta": 0.23107,
+      "target_straight_km": 7.6,
+      "realised_straight_km": 7.6,
       "hts_network_km": 10.16,
       "realised_network_km": 10.16
     },
     "WB": {
-      "beta": 0.03471,
-      "target_straight_km": 17.71,
-      "realised_straight_km": 17.71,
+      "beta": 0.04239,
+      "target_straight_km": 17.21,
+      "realised_straight_km": 17.21,
       "hts_network_km": 23.02,
       "realised_network_km": 23.02
     },
     "NHB": {
-      "beta": 0.33008,
-      "target_straight_km": 6.03,
-      "realised_straight_km": 6.03,
+      "beta": 0.34161,
+      "target_straight_km": 5.86,
+      "realised_straight_km": 5.86,
       "hts_network_km": 7.84,
       "realised_network_km": 7.84
     }
   },
-  "detour_factor": 1.3,
+  "detour_factor": 1.3376,
   "detour_sweep": [
-    1.2,
-    1.4
+    1.25,
+    1.423
   ],
+  "detour_source": "measured - shortest path over the observed A1 road graph",
   "attractors": 22940,
   "zones_with_attractor": {
     "HW": 1135,
@@ -114,70 +165,70 @@
   "by_day": {
     "WEEKDAY": {
       "external_agents": 5632,
-      "external_legs": 10752,
-      "legs": 2177684,
-      "tours": 970065,
-      "travelling_persons": 512560,
-      "legs_per_person": 3.554,
-      "tours_per_traveller": 1.893,
-      "tours_dropped_over_horizon": 15215,
+      "external_legs": 10770,
+      "legs": 2226603,
+      "tours": 991947,
+      "travelling_persons": 516117,
+      "legs_per_person": 3.634,
+      "tours_per_traveller": 1.922,
+      "tours_dropped_over_horizon": 15231,
       "by_purpose": {
-        "HW": 414490,
-        "HO": 997194,
-        "NHB": 230600,
-        "HS": 343000,
-        "WB": 46526,
-        "HE": 145874
+        "HW": 413548,
+        "NHB": 235463,
+        "HO": 1030070,
+        "HS": 353731,
+        "HE": 145635,
+        "WB": 48156
       }
     },
     "SAT": {
       "external_agents": 2254,
-      "external_legs": 4204,
-      "legs": 1991493,
-      "tours": 887526,
-      "travelling_persons": 462627,
-      "legs_per_person": 3.251,
-      "tours_per_traveller": 1.918,
-      "tours_dropped_over_horizon": 6127,
+      "external_legs": 4214,
+      "legs": 1856803,
+      "tours": 827664,
+      "travelling_persons": 448666,
+      "legs_per_person": 3.031,
+      "tours_per_traveller": 1.845,
+      "tours_dropped_over_horizon": 5412,
       "by_purpose": {
-        "HO": 1210135,
-        "HS": 471352,
-        "HW": 82552,
-        "NHB": 215596,
-        "HE": 5908,
-        "WB": 5950
+        "HO": 1122845,
+        "NHB": 200626,
+        "HS": 438371,
+        "HW": 83386,
+        "WB": 5576,
+        "HE": 5999
       }
     },
     "SUN": {
       "external_agents": 1697,
-      "external_legs": 3186,
-      "legs": 1688002,
-      "tours": 751564,
-      "travelling_persons": 427665,
-      "legs_per_person": 2.755,
-      "tours_per_traveller": 1.757,
-      "tours_dropped_over_horizon": 3405,
+      "external_legs": 3210,
+      "legs": 1572779,
+      "tours": 700141,
+      "travelling_persons": 412408,
+      "legs_per_person": 2.567,
+      "tours_per_traveller": 1.698,
+      "tours_dropped_over_horizon": 2942,
       "by_purpose": {
-        "HS": 293691,
-        "HO": 1157335,
-        "NHB": 184349,
-        "HW": 47012,
-        "WB": 3734,
-        "HE": 1881
+        "HO": 1075188,
+        "NHB": 171941,
+        "HS": 273572,
+        "HE": 1945,
+        "HW": 46575,
+        "WB": 3558
       }
     }
   },
   "placement": {
-    "poi": 3163277,
-    "home": 2609155,
-    "jitter": 84747
+    "poi": 3052526,
+    "home": 2519752,
+    "jitter": 83907
   },
   "tours_dropped_over_horizon": 0,
   "rate_solution": {
     "WEEKDAY": {
-      "day_rate_target": 3.6553,
+      "day_rate_target": 3.7377,
       "mandatory_legs": 1.1527,
-      "secondary_target_legs": 2.5026,
+      "secondary_target_legs": 2.5851,
       "child_thinning_factor": 0.9443,
       "purpose_weights": {
         "HW": 0.1487,
@@ -188,15 +239,15 @@
         "NHB": 0.178
       },
       "tour_lambda": {
-        "HS": 0.2581,
-        "HO": 0.851,
-        "WB": 0.0752
+        "HS": 0.2666,
+        "HO": 0.8791,
+        "WB": 0.0777
       }
     },
     "SAT": {
-      "day_rate_target": 3.276,
+      "day_rate_target": 3.0521,
       "mandatory_legs": 0.1925,
-      "secondary_target_legs": 3.0834,
+      "secondary_target_legs": 2.8596,
       "child_thinning_factor": 0.9443,
       "purpose_weights": {
         "HW": 0.0325,
@@ -207,15 +258,15 @@
         "NHB": 0.171
       },
       "tour_lambda": {
-        "HS": 0.3877,
-        "HO": 1.065,
-        "WB": 0.0095
+        "HS": 0.3596,
+        "HO": 0.9876,
+        "WB": 0.0088
       }
     },
     "SUN": {
-      "day_rate_target": 2.7587,
+      "day_rate_target": 2.5702,
       "mandatory_legs": 0.1062,
-      "secondary_target_legs": 2.6525,
+      "secondary_target_legs": 2.464,
       "child_thinning_factor": 0.9443,
       "purpose_weights": {
         "HW": 0.0257,
@@ -226,11 +277,11 @@
         "NHB": 0.1708
       },
       "tour_lambda": {
-        "HS": 0.2266,
-        "HO": 1.0241,
-        "WB": 0.0059
+        "HS": 0.2105,
+        "HO": 0.9514,
+        "WB": 0.0055
       }
     }
   },
-  "realised_week_trip_rate": 3.397
+  "realised_week_trip_rate": 3.395
 }

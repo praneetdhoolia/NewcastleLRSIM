@@ -1141,7 +1141,7 @@ Appendix A of the proposal.
 
 ### `demand/plans/B2_activity_trips_SAT.csv`
 
-1995697 rows, 22 columns
+1861017 rows, 22 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -1153,15 +1153,15 @@ Appendix A of the proposal.
 | `tour_purpose` | str | HO | 401/401 |
 | `dest_activity_type` | str | other | 401/401 |
 | `origin_sa1` | int | 10601110701 | 401/401 |
-| `dest_sa1` | int | 10602161537 | 401/401 |
+| `dest_sa1` | int | 10602161507 | 401/401 |
 | `origin_x` | float | 348659.1 | 401/401 |
 | `origin_y` | float | 6383994.3 | 401/401 |
-| `dest_x` | float | 361856.7 | 401/401 |
-| `dest_y` | float | 6379774.8 | 401/401 |
-| `dep_time_s` | int | 54609 | 401/401 |
-| `arr_time_s` | int | 56767 | 401/401 |
-| `straight_dist_km` | float | 13.856 | 401/401 |
-| `activity_duration_s` | int | 5330 | 401/401 |
+| `dest_x` | float | 362372.1 | 401/401 |
+| `dest_y` | float | 6381129.7 | 401/401 |
+| `dep_time_s` | int | 49539 | 401/401 |
+| `arr_time_s` | int | 51718 | 401/401 |
+| `straight_dist_km` | float | 14.009 | 401/401 |
+| `activity_duration_s` | int | 4352 | 401/401 |
 | `is_tour_anchor` | int | 1 | 401/401 |
 | `party_size` | int | 1 | 401/401 |
 | `time_flexibility_band` | str | flexible | 401/401 |
@@ -1170,7 +1170,7 @@ Appendix A of the proposal.
 
 ### `demand/plans/B2_activity_trips_SUN.csv`
 
-1691188 rows, 22 columns
+1575989 rows, 22 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -1178,19 +1178,19 @@ Appendix A of the proposal.
 | `day_type` | str | SUN | 401/401 |
 | `tour_id` | int | 1 | 401/401 |
 | `trip_seq` | int | 1 | 401/401 |
-| `purpose` | str | HS | 401/401 |
-| `tour_purpose` | str | HS | 401/401 |
-| `dest_activity_type` | str | shopping | 401/401 |
+| `purpose` | str | HO | 401/401 |
+| `tour_purpose` | str | HO | 401/401 |
+| `dest_activity_type` | str | other | 401/401 |
 | `origin_sa1` | int | 10601110701 | 401/401 |
-| `dest_sa1` | int | 10601110732 | 401/401 |
+| `dest_sa1` | int | 10602161512 | 401/401 |
 | `origin_x` | float | 348659.1 | 401/401 |
 | `origin_y` | float | 6383994.3 | 401/401 |
-| `dest_x` | float | 345400.2 | 401/401 |
-| `dest_y` | float | 6384020.7 | 401/401 |
-| `dep_time_s` | int | 38515 | 401/401 |
-| `arr_time_s` | int | 39488 | 401/401 |
-| `straight_dist_km` | float | 3.259 | 401/401 |
-| `activity_duration_s` | int | 2828 | 401/401 |
+| `dest_x` | float | 361001.4 | 401/401 |
+| `dest_y` | float | 6380488.0 | 401/401 |
+| `dep_time_s` | int | 38708 | 401/401 |
+| `arr_time_s` | int | 41834 | 401/401 |
+| `straight_dist_km` | float | 12.831 | 401/401 |
+| `activity_duration_s` | int | 6338 | 401/401 |
 | `is_tour_anchor` | int | 1 | 401/401 |
 | `party_size` | int | 1 | 401/401 |
 | `time_flexibility_band` | str | flexible | 401/401 |
@@ -1199,7 +1199,7 @@ Appendix A of the proposal.
 
 ### `demand/plans/B2_activity_trips_WEEKDAY.csv`
 
-2188436 rows, 22 columns
+2237373 rows, 22 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -1211,15 +1211,15 @@ Appendix A of the proposal.
 | `tour_purpose` | str | HW | 401/401 |
 | `dest_activity_type` | str | work | 401/401 |
 | `origin_sa1` | int | 10601110701 | 401/401 |
-| `dest_sa1` | int | 10602161611 | 401/401 |
+| `dest_sa1` | int | 11102121507 | 401/401 |
 | `origin_x` | float | 348659.1 | 401/401 |
 | `origin_y` | float | 6383994.3 | 401/401 |
-| `dest_x` | float | 360614.0 | 401/401 |
-| `dest_y` | float | 6379776.7 | 401/401 |
+| `dest_x` | float | 370216.3 | 401/401 |
+| `dest_y` | float | 6347295.1 | 401/401 |
 | `dep_time_s` | int | 45533 | 401/401 |
-| `arr_time_s` | int | 47528 | 401/401 |
-| `straight_dist_km` | float | 12.677 | 401/401 |
-| `activity_duration_s` | int | 31662 | 401/401 |
+| `arr_time_s` | int | 51666 | 401/401 |
+| `straight_dist_km` | float | 42.562 | 401/401 |
+| `activity_duration_s` | int | 27523 | 401/401 |
 | `is_tour_anchor` | int | 1 | 401/401 |
 | `party_size` | int | 1 | 401/401 |
 | `time_flexibility_band` | str | fixed | 401/401 |

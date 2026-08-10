@@ -5,6 +5,31 @@
   "plan_memory": 5,
   "scoring": {
     "performing_utils_per_h": 6.0,
+    "performing_sweep": [
+      4.0,
+      8.0
+    ],
+    "monetary_distance_rate": {
+      "car": -0.00018,
+      "ride": -9e-05,
+      "pt": 0.0,
+      "walk": 0.0,
+      "bike": 0.0
+    },
+    "monetary_distance_rate_sweep": [
+      -0.00025,
+      -0.00012
+    ],
+    "strategies": {
+      "ChangeExpBeta": 0.7,
+      "ReRoute": 0.15,
+      "SubtourModeChoice": 0.1,
+      "TimeAllocationMutator": 0.05
+    },
+    "subtour_mode_choice_weight_sweep": [
+      0.05,
+      0.2
+    ],
     "marginal_utility_of_money": 1.0,
     "vot_aud_hr_used": 16.961,
     "vot_aud_hr_by_purpose": {

@@ -672,16 +672,28 @@ was −5%). The residual is tours dropped for not fitting inside the day.
 
 #### Assumed values introduced here
 
+**Measured from Newcastle data** (`src/build/measure_network_factors.py` →
+[`params/C2_network_factors.json`](params/C2_network_factors.json)). Each of
+these was a typed-in constant until P3:
+
+| Value | Measured | Source | Was |
+|---|---|---|---|
+| `DETOUR_FACTOR` (straight-line → network) | **1.3376**, sweep 1.25–1.42 | Shortest path over the observed A1 road graph, 551 population-weighted zone pairs routed. Aggregate ratio of summed network to summed straight-line distance — the mean of per-pair ratios (1.43) is pulled up by short circuitous trips and would overstate the correction for the long trips that dominate a distance mean. | assumed 1.30 |
+| Weekday vs weekend travel | **0.7521**, sweep 0.709–0.816 | RMS traffic counts, which publish a `WEEKDAYS` and a `WEEKENDS` figure per station-year — 551 station-years. | assumed (implied 0.825) |
+| Lower bound on work attendance | **0.6508** | Census G62: of employed residents, the share who travelled to work on census night. | no bound |
+
+**Still assumed, each now with a sweep range:**
+
 | Value | Assumed | Sweep | Why it is not observed |
 |---|---|---|---|
-| Day-type rate shape (WEEKDAY / SAT / SUN) | 1.06 / 0.95 / 0.80 | 1.00–1.12 / 0.85–1.05 / 0.70–0.92 | The HTS LGA tables carry **no day-of-week dimension** — confirmed in the raw workbook, whose only dimensions are financial year, LGA, mode and purpose. Only the *shape* is assumed: the level is rescaled so 5×WEEKDAY + SAT + SUN reproduces the observed HTS week average exactly. |
-| Day-type purpose mix | commute and education collapse at the weekend, shopping and social rise | — | Same reason. Renormalised against the HTS purpose share so it redistributes rather than inflates. |
-| `P_MANDATORY` (work / education tour made on a given day) | 0.78 / 0.85 weekday | — | No local estimate of day-to-day work attendance. |
+| Saturday : Sunday split *within* the weekend | 1.1875 | 1.00–1.45 | The traffic counts report one `WEEKENDS` figure and do not separate the two days. This is the only part of the day-type shape still assumed — the weekday/weekend ratio itself is measured. |
+| Day-type purpose mix | commute and education collapse at the weekend, shopping and social rise | ±30% on each multiplier | The HTS carries no day-of-week dimension — confirmed in the raw workbook, whose only dimensions are financial year, LGA, mode and purpose. Renormalised against the HTS purpose share so it redistributes rather than inflates. |
+| `P_MANDATORY` (work / education tour made on a given day) | 0.78 / 0.85 weekday | **0.65**–0.90 / 0.70–0.95 | The lower bound is now observed: census G62 says 65.1% of employed residents travelled to work on census night. It cannot set the *value* — that night was August 2021 with 19.2% working from home, so it carries the lockdown with it, and §2.4 already rules G62 out as a behavioural rate. It bounds the sweep from below instead. |
 | `P_INTERMEDIATE_STOP` by purpose | 0.12–0.30 | 0.10–0.35 | Trip chaining rates are not in the published HTS tables. **This parameter decides how many sub-tours exist, and therefore how freely MATSim's mode choice can vary within a day.** |
-| `CHILD_TOUR_RETENTION` | 0.4 | — | Share of an under-12's secondary tours made independently. |
-| `DETOUR_FACTOR` (straight-line → network) | 1.30 | 1.20–1.40 | Used only to compare the gravity model against HTS *journey* distances, which are network distances. |
-| `EXTERNAL_INTERACTION_RATE` | 0.08 | 0.04–0.15 | Share of external-tier residents entering the core on a weekday. No journey-linked Opal and no external-tier HTS cell exists to estimate it. |
-| Activity durations, departure profiles | carried from P1 | ±30% lognormal | As before. |
+| `P_SECOND_STOP` | 0.25 | 0.12–0.40 | Same reason. |
+| `CHILD_TOUR_RETENTION` | 0.4 | 0.25–0.60 | Share of an under-12's secondary tours made independently. |
+| `EXTERNAL_INTERACTION_RATE` | 0.08 | 0.04–0.15 | Share of external-tier residents entering the core on a weekday. **This one is not derivable from the package as it stands**: the census place-of-work tables (W01A…) give jobs *by* SA2 but there is no journey-to-work origin-destination table (SA2 usual residence × SA2 place of work), which is what would settle it. Added to §13. |
+| Activity durations, departure profiles | carried from P1 | ±25% on each mean; ±30% lognormal within | Not Newcastle-specific in any observable sense. |
 
 #### Destination choice is now tied to the HTS, not set by hand
 
@@ -806,13 +818,17 @@ the full-capacity variant).
 
 ### Assumed values introduced here
 
+**None of these is Newcastle-specific** — they are properties of MATSim's
+scoring and replanning formulation, not observable quantities of this study
+area, so there is nothing local to derive them from. All are swept.
+
 | Value | Assumed | Sweep | Why |
 |---|---|---|---|
-| Seed mode split | see table above | car 0.68–0.86, PT 0.05–0.20 | Initial condition for co-evolution; P4 moves it. |
-| `performing` | 6.0 utils/h | — | Conventional MATSim value; the scoring scale is relative to it. |
-| `monetaryDistanceRate` car | −0.00018 AUD/m | — | Fuel and tyres only, not standing costs: a mode choice within the day does not re-decide car ownership. |
-| Typical activity durations | home 12 h, work 8 h, education 6 h, shopping 1 h, other 2 h, business 1 h | — | MATSim scoring needs a typical duration per activity type. |
-| Replanning strategy weights | ChangeExpBeta 0.70, ReRoute 0.15, SubtourModeChoice 0.10, TimeAllocationMutator 0.05 | — | Conventional; innovation switched off for the last 20% of iterations. |
+| Seed mode split | see table above | car 0.68–0.86, PT 0.05–0.20 | Initial condition for co-evolution; P4 moves it. The *blend* is positioned against the observed HTS mode share. |
+| `performing` | 6.0 utils/h | 4.0–8.0 | Conventional MATSim value; the whole scoring scale is relative to it. |
+| `monetaryDistanceRate` car | −0.00018 AUD/m | −0.00025 to −0.00012 | Fuel and tyres only, not standing costs: a mode choice within the day does not re-decide car ownership. Varies with national fuel prices, not with Newcastle. |
+| Typical activity durations | home 12 h, work 8 h, education 6 h, shopping 1 h, other 2 h, business 1 h | ±25% | MATSim scoring needs a typical duration per activity type. |
+| `SubtourModeChoice` weight | 0.10 | 0.05–0.20 | The replanning weight that governs how far the co-evolution can move mode share. Innovation is switched off for the last 20% of iterations. |
 
 ---
 
@@ -937,6 +953,15 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 9. **Event attendance data** — for the event-demand overlay (§10 item 6).
 10. **GTFS-Realtime collection** — start now; it is the fallback for both dwell
     and signal delay, and it accrues only forward.
+11. **Journey-to-work origin-destination table** (ABS: SA2 usual residence ×
+    SA2 place of work) — the package holds the place-of-work side (`W01A…`,
+    jobs *by* SA2) but not the origin-destination pairing, which is what would
+    settle `EXTERNAL_INTERACTION_RATE` (§9.2) instead of sweeping it. It is a
+    standard ABS TableBuilder extract, not a formal request.
+12. **A day-of-week travel split** — the HTS LGA tables have none, so the
+    Saturday:Sunday division within the weekend is the last assumed part of the
+    day-type shape (the weekday/weekend ratio itself is now measured from RMS
+    traffic counts, §9.2).
 
 ---
 
@@ -944,6 +969,7 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **P3 stage 3 — assumptions replaced by Newcastle measurements where the data allows, and the sweep-range rule made mechanical.** Three constants derived rather than typed: the **detour factor** is now routed over the observed A1 road graph (**1.3376**, 551 zone pairs, was assumed 1.30); the **weekday/weekend travel split** comes from the RMS counts' own `WEEKDAYS`/`WEEKENDS` periods (**0.752**, 551 station-years, was implied 0.825); and census G62 gives an observed **lower bound** on work attendance (0.651) without being allowed to set the value, since census night carries the 2021 lockdown (§2.4). Seven parameters that breached proposal §8.1 by carrying no sweep range now carry one, and `check_package.py` **enforces the rule as a test** rather than leaving it to discipline. What genuinely cannot be localised is labelled so: MATSim's `performing`, distance rates, typical durations and replanning weights are properties of the scoring formulation, not of Newcastle. `EXTERNAL_INTERACTION_RATE` stays swept and the missing ABS journey-to-work origin-destination table is added to §13. 497 → **528 checks**, all passing. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 2 — MATSim plans, day-type run inputs and the C1 scoring translation (§9.3).** 517,936 weekday agents wired to the single P2 build; the day-type filter works on the already-mapped schedule and is verified to preserve all 1,714 route link sequences and the whole stop→link map. What C1 loses in translation — the nest structure, per-purpose VOT, crowding — is recorded, not dropped. Two defects caught by the new checks: the day-type token is underscore-delimited for the S1 shuttle and S3 BRT, so both were being dropped from every day type and each scenario would have run without its intervention; and banned-turn removal was network-wide, deleting 1,235 observed restrictions instead of 8. `check_package.py` 322 → **497 checks**, all passing. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 1 — B2 activity chains rebuilt as tours (§9.2).** The P1 chains put 1,452,065 activity legs on 1,481 zone centroids, labelled every return-home leg NHB, and gave each agent a single subtour; they are replaced, not patched. Destinations are now placed on observed POIs and building footprints, the gravity decay is solved against the HTS journey distance per purpose, three day types are produced, and the 201 external SA1s finally generate boundary demand. `build_population.py` keeps B1 and no longer writes B2; because it no longer draws for chains, the B1 sample shifted 612,680 → 612,668 persons with every fit statistic unchanged. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 0 — the §3.4 shape defect closed, and one determinism bug with it.** S0/S2c/S4/S5 alignments rebuilt from observed geometry (§3.4); extension stop sitings anchored on observed features, one of them 548 m out. E1 patch set 195 → 414 rows as a consequence. **`build_scenario_schedules.py` iterated a `set` of trip ids in two places, so `stop_times.txt` row order varied with the Python hash seed** — a violation of the determinism rule that predates this branch and was caught by a repeat-build check; now sorted, and two consecutive builds are byte-identical across all 10 feeds. One MATSim build of all 15 feeds and 4 SUMO nets regenerated on the corrected feeds; 322 package checks pass. Still no scenario run; no falsification condition altered. |

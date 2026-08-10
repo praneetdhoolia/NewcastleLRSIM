@@ -395,7 +395,7 @@ else:
             continue
         n = 0
         bad_zone = bad_time = bad_seq = open_tour = nhb_home = 0
-        home_not_core = 0
+        home_not_core = home_not_external = 0
         coords = set()
         purposes = collections.Counter()
         placement = collections.Counter()
@@ -417,6 +417,11 @@ else:
                 if r['agent_tier'] == 'core':
                     per_person[(r['person_id'], r['tour_id'])].append(
                         (int(r['trip_seq']), r['dest_activity_type'], r['origin_sa1']))
+                    # a tour starts at home, so leg 1's origin IS the home zone
+                    if int(r['trip_seq']) == 1 and r['origin_sa1'] not in core_tier:
+                        home_not_core += 1
+                elif int(r['trip_seq']) == 1 and r['origin_sa1'] in core_tier:
+                    home_not_external += 1
         # every tour must close at home, or MATSim gets an agent who never goes home
         for key, legs in per_person.items():
             legs.sort()
@@ -425,6 +430,12 @@ else:
         check(bad_zone == 0,
               '%s: every activity location resolves to a known SA1 (%d bad)'
               % (day, bad_zone))
+        check(home_not_core == 0,
+              '%s: every resident agent starts from a home zone in the core tier '
+              '(%d outside it)' % (day, home_not_core))
+        check(home_not_external == 0,
+              '%s: every boundary agent starts from the external tier, not the '
+              'core (%d inside it)' % (day, home_not_external))
         check(bad_time == 0,
               '%s: no leg arrives before it departs or after the 30 h horizon (%d bad)'
               % (day, bad_time))
@@ -572,6 +583,88 @@ if os.path.exists(RUN_REPORT):
         check(refs > 0 and missing == 0,
               '%s/%s: every transit stop attaches to a link that exists on the '
               'run network (%d stops, %d dangling)' % (sid, day, refs, missing))
+
+
+# ---- 16. P3: every assumed value carries a sweep range ----
+# Proposal 8.1, quoted at the top of DECISIONS.md: "Every parameter chosen
+# without direct empirical support must be recorded here with its rationale and
+# its sweep range." That was discipline; this makes it a test. A parameter is
+# exempt only if it is measured from an observed layer, in which case the report
+# says where from.
+if os.path.exists(CHAIN_REPORT):
+    crep2 = json.load(open(CHAIN_REPORT, encoding='utf-8'))
+
+    def has_range(v):
+        return (isinstance(v, (list, tuple)) and len(v) == 2
+                and all(x is not None for x in v) and v[0] != v[1])
+
+    for key in ('sat_to_sun_sweep', 'p_mandatory_work_sweep',
+                'p_mandatory_education_sweep', 'p_intermediate_sweep',
+                'p_second_stop_sweep', 'child_tour_retention_sweep',
+                'external_interaction_sweep', 'detour_sweep'):
+        check(has_range(crep2.get(key)),
+              'B2 assumed value carries a sweep range: %s = %s'
+              % (key, crep2.get(key)))
+    for key in ('day_purpose_mix_sweep', 'act_duration_sweep'):
+        v = crep2.get(key)
+        check(isinstance(v, (int, float)) and v > 0,
+              'B2 assumed value carries a proportional sweep: %s = %s' % (key, v))
+
+    # the factors that ARE measured must say so, and must not read as assumed
+    check('measured' in str(crep2.get('detour_source', '')),
+          'detour factor is measured from the road network, not assumed (%s)'
+          % crep2.get('detour_source'))
+    check('measured' in str(crep2.get('day_rate_shape_source', '')),
+          'weekday/weekend split is measured from traffic counts, not assumed')
+
+if os.path.exists(PLANS_REPORT):
+    prep2 = json.load(open(PLANS_REPORT, encoding='utf-8'))
+    check(isinstance(prep2.get('typical_duration_sweep'), (int, float))
+          and prep2['typical_duration_sweep'] > 0,
+          'typical activity durations carry a proportional sweep')
+    sw = prep2.get('seed_mode_sweep', {})
+    check(all(len(v) == 2 and v[0] != v[1] for v in sw.values()) and sw,
+          'seed mode split carries sweep ranges (%s)' % sorted(sw))
+
+if os.path.exists(RUN_REPORT):
+    rrep2 = json.load(open(RUN_REPORT, encoding='utf-8'))
+    sco = rrep2.get('scoring', {})
+    for key in ('performing_sweep', 'monetary_distance_rate_sweep',
+                'subtour_mode_choice_weight_sweep', 'transfer_penalty_sweep'):
+        v = sco.get(key)
+        check(isinstance(v, list) and len(v) == 2 and v[0] != v[1],
+              'MATSim scoring assumed value carries a sweep range: %s = %s'
+              % (key, v))
+    check(len(sco.get('not_representable', [])) >= 3,
+          'the C1 elements that do not survive translation to MATSim scoring '
+          'are recorded (%d)' % len(sco.get('not_representable', [])))
+
+# ---- 17. C2 measured factors ----
+C2 = 'params/C2_network_factors.json'
+if not os.path.exists(C2):
+    check(False, 'C2 network factors measured (run src/build/measure_network_factors.py)',
+          warn=True)
+else:
+    c2 = json.load(open(C2, encoding='utf-8'))
+    d = c2.get('detour_factor', {})
+    check(d.get('pairs_routed', 0) > 200,
+          'detour factor measured over a usable sample (%d routed zone pairs)'
+          % d.get('pairs_routed', 0))
+    check(1.1 < d.get('value', 0) < 1.8,
+          'measured detour factor is physically plausible (%.4f)' % d.get('value', 0))
+    check(d['sweep'][0] < d['value'] < d['sweep'][1],
+          'measured detour factor sits inside its own sweep range')
+    dt = c2.get('day_type', {})
+    check(dt.get('station_years', 0) > 100,
+          'weekend/weekday ratio measured over a usable sample (%d station-years)'
+          % dt.get('station_years', 0))
+    check(0.5 < dt.get('weekend_to_weekday', 0) < 1.0,
+          'measured weekend/weekday traffic ratio is plausible (%.4f)'
+          % dt.get('weekend_to_weekday', 0))
+    wa = c2.get('work_attendance', {})
+    check('LOWER BOUND' in wa.get('source', ''),
+          'census G62 attendance is used only as a sweep lower bound, never as '
+          'a value (DECISIONS.md 2.4 rules G62 out as a behavioural rate)')
 
 # ---- report ----
 print('PASS %d' % len(OK))
