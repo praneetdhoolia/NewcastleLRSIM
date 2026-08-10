@@ -5,9 +5,11 @@ this at session start. **Keep it current in the same commit/PR as the work it de
 — if a change makes a line here wrong, fix the line in that change, not later.
 
 **Last updated:** 10 August 2026
-**Stage:** **P3 demand synthesis complete.** Population, tour-based chains, MATSim
-plans and per-scenario run inputs all built on one network build. **No scenario has
-been run. Nothing in this repo is a result.** **No scenario has been run. Nothing in this repo is a result.**
+**Stage:** **P4 stage 0 — the run inputs load, and a run has been costed.** The 30
+assembled scenario × day-type sets could not be loaded by MATSim at all; three
+defects are fixed and all 30 now run. Per-iteration cost and memory are measured
+on this machine. **No scenario has been run to completion, no calibration has been
+performed, and nothing in this repo is a result.**
 
 ---
 
@@ -20,9 +22,9 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P0 Scoping | ✅ complete | Base year 2026, zone system, scenario list S0–S6 settled. Scope calls closing proposal §10 are recorded in [`DECISIONS.md`](DECISIONS.md) §1. |
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
-| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 runnable scenario×day-type input sets. 556 package checks pass. |
-| P4 Calibration | ⬜ next | 67 calibration targets built; 143 held out. Mode share is seeded near HTS but **not calibrated** — that is P4's job ([`DECISIONS.md`](DECISIONS.md) §9.3). |
-| P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run.** |
+| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 scenario×day-type input sets. They did not in fact load in MATSim — fixed at P4 stage 0 (§9.4). |
+| P4 Calibration | 🟡 stage 0 done | Run inputs now load ([`DECISIONS.md`](DECISIONS.md) §9.4); run cost measured (§9.5); what the 67 targets can and cannot constrain is written down (§12.1–12.3). **No calibration loop exists yet** — `src/calibrate/` is still empty. |
+| P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction. |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
 | P7 Write-up | ⬜ not started | |
 
@@ -217,20 +219,58 @@ request.
 
 ---
 
-## Open for P5 — the run load does not fit one machine
+## P4 stage 0 — the run inputs did not load (10 August 2026)
 
-Sizing done during P3 planning, recorded here so P5 does not rediscover it:
+P3 verified the 30 assembled sets thoroughly *as data* and every one of those
+statements is still true. **None of them could be loaded by MATSim.** Found by
+launching one; see [`DECISIONS.md`](DECISIONS.md) §9.4.
 
-| | Runs |
-|---|---:|
-| Sensitivity sweep (140 points × 10 scenarios) | 1,400 |
-| Headline set (10 scenarios × `n_replications=30`) | 300 |
+| Defect | Reach | Symptom |
+|---|---|---|
+| The day-type filter round-trips through `ElementTree`, which drops the **doctype** | all 30 schedules | MATSim picks its reader *from* the doctype — parse fails at line 2 |
+| Removing two thirds of the routes **orphans stop facilities and `minimalTransferTimes` relations** (113 + 42 on S2/WEEKDAY; 2,193 + 1,034 on S0/SAT) | all 30 schedules | `SwissRailRaptorData` dereferences a null array |
+| The kerbside patch appends a **second `<attributes>` block** to links that already have one | **6 of 10** run networks — S0, S1, S2c, S6 (59 links), S4 (302), S5 (498) | network DTD rejects it. S2/S2a/S2b/S3 escaped only because `net_base2026` carries no patch rows |
 
-At any sample fraction this does not fit on a single workstation. **The levers are
-sweep breadth and `n_replications`, not the population sample fraction** — restricting
-the sweep to the decisive contrasts (S2vS0, S2vS2b) is ~3.3×, and 30 → 10 replications
-another ~3×. Demand is built at 100% precisely so this stays a P5 run-time choice;
-measure a real per-iteration cost before picking fractions.
+The third is the dangerous one: it hits exactly the six scenarios carrying an E1
+road change and leaves the four that don't alone. Fixed; the 30 sets rebuild
+byte-identically with patch counts unchanged (54 lanes / 59 kerbside / 8 banned
+turns), **all 30 load and run**, and `check_package.py` grew **556 → 657 checks**
+asserting all three failure modes per set.
+
+## P4 stage 0 — what a run costs, measured (10 August 2026)
+
+S2 × WEEKDAY, nested deterministic subsamples (1% ⊂ 10% ⊂ 25%), 16 threads,
+`ride` teleported. **24 cores, 63.5 GiB.**
+
+| Sample | Persons | Steady per-iteration | Peak resident |
+|---|---:|---:|---:|
+| 1% | 5,209 | **9.8 s** | 9.8 GiB |
+| 10% | 52,758 | **29.9 s** | 18.4 GiB |
+| 25% | 131,291 | **~64 s** | 31.5 GiB |
+
+Large fixed cost, near-linear slope: time ≈ 3.1 s + 268 s × fraction, memory ≈
+9.6 + 87 GiB × fraction. So **~4.5 min/iteration and ~97 GiB at 100% — a 100%
+weekday run does not fit in 63.5 GiB.** Practical ceiling ≈ 40%.
+
+**The P3 sizing is confirmed and then some.** 1,400 sweep runs + 300 headline
+runs is 5,100 run-days once each is counted across three day types; at 25% that
+is ~765 days of wall clock. The gap is ~3 orders of magnitude, so it closes only
+by cutting sweep breadth, replications and day types — **not** by sample
+fraction, which is the weakest lever because cost is sublinear in it.
+
+Two further things the probe showed, unresolved and awaiting a decision:
+
+- **`ride` never changes.** `subtourModeChoice.modes` defaults to
+  `car,pt,bike,walk` with `behavior=fromSpecifiedModesToSpecifiedModes`, so a
+  ride subtour is an absorbing state and **18.6% of legs are output = seed,
+  permanently**. The HTS vehicle-passenger target (20.6%) is consumed by the
+  initial condition, and the ride ASC is unidentifiable as configured.
+- **`considerCarAvailability=false`** (MATSim default), so B1's `carAvail` is
+  ignored by mode choice — the seed was drawn conditional on car availability and
+  the choice model discards that structure.
+- Over 30 iterations at 1%, bike ran from 2.6% to 13.4% against ~3% observed and
+  was still climbing; `avg_executed` moved −176 → −30 and had not settled.
+  **`lastIteration=100` is unvalidated.**
 
 ---
 
@@ -242,6 +282,6 @@ measure a real per-iteration cost before picking fractions.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **556 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **657 checks**. Run it before declaring any phase
    complete.
 5. Branch as `<git-handle>/<short-kebab-description>` (never `claude/*`).

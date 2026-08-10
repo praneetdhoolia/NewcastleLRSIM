@@ -565,38 +565,89 @@ else:
 # attach to a link that exists on that scenario's run network. Checked for all
 # 30 combinations, not a sample: a dangling stop is exactly the kind of thing
 # that appears in one scenario and not another.
+#
+# The same pass also asserts what P4 discovered the hard way: none of the 30
+# sets could be loaded by MATSim at all (DECISIONS.md 9.4). Three separate
+# defects, none of which any structural check was asking about, because every
+# check treated the assembled files as data rather than as something a
+# simulator has to read:
+#
+#   * the day-type filter round-tripped the schedule through ElementTree, which
+#     drops the doctype - and MATSim selects its reader *from* the doctype;
+#   * dropping two thirds of the routes orphaned the stop facilities and
+#     minimal-transfer relations only they used, and SwissRailRaptor
+#     dereferences a null array on the first one it meets;
+#   * the kerbside patch appended a second <attributes> block to links that
+#     already had one, which the network DTD rejects.
+LINK_BLOCK = re.compile(r'<link\b.*?(?:/>|</link>)', re.S)
 if os.path.exists(RUN_REPORT):
-    total_dangling = 0
+    total_dangling = total_orphan = total_dangling_rel = total_dup_attr = 0
     for sid in sorted(json.load(open(RUN_REPORT, encoding='utf-8'))
                       .get('scenarios', {})):
         net = 'scenarios/matsim/%s/network.xml.gz' % sid
         if not os.path.exists(net):
             continue
-        links = set()
         with gzip.open(net, 'rt', encoding='utf-8') as f:
-            for ln in f:
-                m = re.search(r'<link id="([^"]+)"', ln)
-                if m:
-                    links.add(m.group(1))
+            net_xml = f.read()
+        links = set(re.findall(r'<link id="([^"]+)"', net_xml))
+        dup = sum(1 for m in LINK_BLOCK.finditer(net_xml)
+                  if m.group(0).count('<attributes>') > 1)
+        total_dup_attr += dup
+        check(dup == 0,
+              '%s: no link carries two <attributes> blocks on the run network '
+              '(%d)' % (sid, dup))
         for day in DAY_TYPES:
             sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
             if not os.path.exists(sch):
                 continue
             refs, missing = 0, 0
+            declared, served, relations = set(), set(), []
             with gzip.open(sch, 'rt', encoding='utf-8') as f:
-                for ln in f:
-                    m = re.search(r'<stopFacility [^>]*linkRefId="([^"]+)"', ln)
+                head = f.readline() + f.readline()
+                check('transitSchedule_v2.dtd' in head,
+                      '%s/%s: schedule declares the transitSchedule_v2 DTD, '
+                      'without which MATSim cannot choose a reader'
+                      % (sid, day))
+                for ln in [head] + list(f):
+                    m = re.search(r'<stopFacility id="([^"]+)"[^>]*'
+                                  r'linkRefId="([^"]+)"', ln)
                     if m:
                         refs += 1
-                        if m.group(1) not in links:
+                        declared.add(m.group(1))
+                        if m.group(2) not in links:
                             missing += 1
+                        continue
+                    m = re.search(r'<stop refId="([^"]+)"', ln)
+                    if m:
+                        served.add(m.group(1))
+                        continue
+                    m = re.search(r'<relation fromStop="([^"]+)" '
+                                  r'toStop="([^"]+)"', ln)
+                    if m:
+                        relations.append((m.group(1), m.group(2)))
             total_dangling += missing
             check(refs > 0 and missing == 0,
                   '%s/%s: every transit stop attaches to a link on the run '
                   'network (%d stops, %d dangling)' % (sid, day, refs, missing))
+            orphan = declared - served
+            total_orphan += len(orphan)
+            check(not orphan,
+                  '%s/%s: every declared stop facility is served by a route '
+                  'that survived the day-type filter (%d orphaned)'
+                  % (sid, day, len(orphan)))
+            bad_rel = [r for r in relations
+                       if r[0] not in served or r[1] not in served]
+            total_dangling_rel += len(bad_rel)
+            check(not bad_rel,
+                  '%s/%s: every minimal-transfer relation references a served '
+                  'stop (%d dangling of %d)'
+                  % (sid, day, len(bad_rel), len(relations)))
     check(total_dangling == 0,
           'no dangling transit stop in any of the 30 scenario x day-type run '
           'input sets')
+    check(total_orphan == 0 and total_dangling_rel == 0 and total_dup_attr == 0,
+          'the 30 assembled run input sets are referentially closed and '
+          'DTD-valid, i.e. loadable by MATSim')
 
 
 # ---- 16. P3: every assumed value carries a sweep range ----

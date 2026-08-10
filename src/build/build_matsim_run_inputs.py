@@ -72,6 +72,14 @@ ATTR_RE = re.compile(r'(\w[\w:]*)="([^"]*)"')
 # scenario without the intervention it exists to test.
 DAY_TOKEN_RE = re.compile(r'(?:^|[.:_])(WEEKDAY|SAT|SUN)(?:[._]|$)')
 
+# MATSim picks its reader from the doctype, so a schedule written without one
+# cannot be loaded at all - the parser fails at line 2 with a null delegate.
+# ElementTree drops the doctype on a parse/write round trip, so it is written
+# back explicitly. See DECISIONS.md 9.4.
+XML_DECL = b"<?xml version='1.0' encoding='utf-8'?>\n"
+SCHEDULE_DOCTYPE = (b'<!DOCTYPE transitSchedule SYSTEM '
+                    b'"http://www.matsim.org/files/dtd/transitSchedule_v2.dtd">\n')
+
 
 def day_of_route(route_id):
     m = DAY_TOKEN_RE.search(route_id)
@@ -92,6 +100,7 @@ def split_schedule(src_dir, dst_dir, day):
     kept_routes = dropped_routes = 0
     kept_dep = 0
     vehicles_used = set()
+    stops_served = set()
     for line in list(root.findall('transitLine')):
         for route in list(line.findall('transitRoute')):
             rid = route.get('id', '')
@@ -100,6 +109,8 @@ def split_schedule(src_dir, dst_dir, day):
                 dropped_routes += 1
                 continue
             kept_routes += 1
+            for stop in route.findall('./routeProfile/stop'):
+                stops_served.add(stop.get('refId'))
             for dep in route.findall('./departures/departure'):
                 kept_dep += 1
                 v = dep.get('vehicleRefId')
@@ -108,9 +119,33 @@ def split_schedule(src_dir, dst_dir, day):
         if not line.findall('transitRoute'):
             root.remove(line)
 
+    # Dropping two thirds of the routes orphans the stops and the transfer
+    # relations that only they used, and SwissRailRaptor dereferences a null
+    # array on the first of those it meets - so the schedule has to be left
+    # referentially closed, not merely smaller. See DECISIONS.md 9.4.
+    facilities = root.find('transitStops')
+    dropped_fac = 0
+    for fac in list(facilities.findall('stopFacility')):
+        if fac.get('id') not in stops_served:
+            facilities.remove(fac)
+            dropped_fac += 1
+    kept_fac = len(facilities.findall('stopFacility'))
+
+    mtt = root.find('minimalTransferTimes')
+    kept_rel = dropped_rel = 0
+    if mtt is not None:
+        for rel in list(mtt.findall('relation')):
+            if (rel.get('fromStop') not in stops_served
+                    or rel.get('toStop') not in stops_served):
+                mtt.remove(rel)
+                dropped_rel += 1
+        kept_rel = len(mtt.findall('relation'))
+
     out_sched = os.path.join(dst_dir, 'transitSchedule.xml.gz')
     with gzip_writer(out_sched, text=False) as f:
-        tree.write(f, encoding='utf-8', xml_declaration=True)
+        f.write(XML_DECL)
+        f.write(SCHEDULE_DOCTYPE)
+        tree.write(f, encoding='utf-8', xml_declaration=False)
 
     with gzip.open(os.path.join(src_dir, 'transitVehicles.xml.gz'), 'rb') as f:
         vtree = ET.parse(f)
@@ -130,7 +165,34 @@ def split_schedule(src_dir, dst_dir, day):
 
     return dict(routes_kept=kept_routes, routes_dropped=dropped_routes,
                 departures=kept_dep, vehicles=kept_veh,
-                vehicle_refs=len(vehicles_used))
+                vehicle_refs=len(vehicles_used),
+                stop_facilities_kept=kept_fac, stop_facilities_dropped=dropped_fac,
+                transfer_relations_kept=kept_rel,
+                transfer_relations_dropped=dropped_rel)
+
+
+ATTRIBUTE_EL = ('<attribute name="%s" class="java.lang.String">%s</attribute>')
+NAMED_ATTR_RE = r'<attribute name="%s"[^>]*>.*?</attribute>'
+
+
+def set_link_attribute(tail, name, value):
+    """Set one `<attribute>` inside a link's existing `<attributes>` block.
+
+    Every mapped link already carries an `<attributes>` block (`osm:way:id` is
+    how the E1 patch finds it at all), so appending a second one before
+    `</link>` produces `More than one instance of element <attributes>` and
+    MATSim refuses to read the network. Six of the ten run networks were built
+    that way. See DECISIONS.md 9.4.
+    """
+    el = ATTRIBUTE_EL % (name, value)
+    existing = re.search(NAMED_ATTR_RE % re.escape(name), tail, re.S)
+    if existing:
+        return tail[:existing.start()] + el + tail[existing.end():]
+    if '</attributes>' in tail:
+        return tail.replace('</attributes>', el + '</attributes>', 1)
+    if '</link>' in tail:
+        return tail.replace('</link>', '<attributes>' + el + '</attributes></link>', 1)
+    return tail
 
 
 def patch_network(src_net, dst_net, patches, drop_turns):
@@ -162,13 +224,11 @@ def patch_network(src_net, dst_net, patches, drop_turns):
             except (ValueError, ZeroDivisionError):
                 pass
         if 'kerbside_use' in changed and p.get('field_kerbside_use_to'):
-            applied['kerbside_use'] += 1
-            if 'osm:way:kerbside' not in tail:
-                tail = tail.replace(
-                    '</link>',
-                    '<attributes><attribute name="osm:way:kerbside" '
-                    'class="java.lang.String">%s</attribute></attributes></link>'
-                    % p['field_kerbside_use_to']) if '</link>' in tail else tail
+            new_tail = set_link_attribute(tail, 'osm:way:kerbside',
+                                          p['field_kerbside_use_to'])
+            if new_tail != tail:
+                applied['kerbside_use'] += 1
+                tail = new_tail
         if drop_turns and 'disallowedNextLinks' in tail:
             # E1's "no banned turns" applies to the corridor without the tram,
             # not to the whole study area. Stripping the attribute network-wide
