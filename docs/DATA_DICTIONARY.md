@@ -6,6 +6,40 @@ Appendix A of the proposal.
 
 ## A1/A6 network
 
+### `data/processed/network/A1_corridor_road_edges.csv`
+
+605 rows, 27 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `edge_id` | str | w880437939 | 401/401 |
+| `osm_way_id` | int | 880437939 | 401/401 |
+| `name` | str | Hunter Street | 367/401 |
+| `road_class` | str | secondary | 401/401 |
+| `length_m` | float | 22.5 | 401/401 |
+| `corridor_class` | str | corridor_trunk:base2026;corrido... | 401/401 |
+| `is_corridor_trunk` | int | 1 | 401/401 |
+| `dist_to_alignment_m` | float | 0.6 | 401/401 |
+| `oneway_flag` | int | 1 | 401/401 |
+| `oneway_source` | str | osm | 401/401 |
+| `num_lanes_per_dir` | float | 1.0 | 401/401 |
+| `num_lanes_source` | str | osm | 401/401 |
+| `speed_limit_kmh` | int | 40.0 | 401/401 |
+| `speed_limit_source` | str | osm | 401/401 |
+| `lane_width_m` | float | 3.2 | 401/401 |
+| `lane_width_source` | str | imputed_rule | 401/401 |
+| `turn_lanes` | str | none/right | 27/401 |
+| `turn_lanes_source` | str | absent | 401/401 |
+| `kerbside_use` | str | unknown | 401/401 |
+| `kerbside_source` | str | imputed_rule | 401/401 |
+| `capacity_veh_hr_lane` | int | 1400 | 401/401 |
+| `capacity_source` | str | imputed_rule | 401/401 |
+| `dist_to_S2c_m` | float | 0.6 | 401/401 |
+| `dist_to_S4_m` | float | 3.2 | 401/401 |
+| `dist_to_S5_m` | float | 3.2 | 401/401 |
+| `dist_to_base2026_m` | float | 0.6 | 401/401 |
+| `scenario_variant_ref` | str | base2026 | 401/401 |
+
 ### `data/processed/network/A1_road_edges.csv`
 
 43112 rows, 32 columns
@@ -44,6 +78,31 @@ Appendix A of the proposal.
 | `elev_min_m` | float | 247.1 | 401/401 |
 | `elev_max_m` | float | 374.0 | 401/401 |
 | `gradient_source` | str | copernicus_glo30 | 401/401 |
+
+### `data/processed/network/A1_road_variant_patches.csv`
+
+195 rows, 18 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `road_variant_ref` | str | net_base2026_hunter_st_full_cap... | 195/195 |
+| `edge_id` | str | w880437939 | 195/195 |
+| `name` | str | Hunter Street | 195/195 |
+| `corridor_class` | str | corridor_trunk:base2026;corrido... | 195/195 |
+| `fields_changed` | str | num_lanes_per_dir;kerbside_use | 195/195 |
+| `field_num_lanes_per_dir_from` | float | 1.0 | 195/195 |
+| `field_num_lanes_per_dir_to` | int | 2.0 | 113/195 |
+| `num_lanes_observed_source` | str | osm | 195/195 |
+| `field_kerbside_use_from` | str | unknown | 195/195 |
+| `field_kerbside_use_to` | str | parking | 195/195 |
+| `kerbside_observed_source` | str | imputed_rule | 195/195 |
+| `capacity_veh_hr_lane` | int | 1400 | 195/195 |
+| `signal_cycle_s` | int | 100 | 195/195 |
+| `tram_lane_present` | int | 0 | 195/195 |
+| `source` | str | assumed | 195/195 |
+| `sweep_low` | int | 1 | 195/195 |
+| `sweep_high` | int | 2 | 195/195 |
+| `rationale` | str | pre-tram reconstruction: road s... | 195/195 |
 
 ### `data/processed/network/A2_crossings_osm.csv`
 
@@ -84,6 +143,27 @@ Appendix A of the proposal.
 | `rel_id` | int | 17461964 | 401/401 |
 | `restriction` | str | no_u_turn | 399/401 |
 | `members` | str | way:944963514:from;way:12719485... | 401/401 |
+
+### `data/processed/network/A2_turn_restrictions_resolved.csv`
+
+1385 rows, 14 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `rel_id` | int | 13424022 | 401/401 |
+| `restriction` | str | no_u_turn | 401/401 |
+| `from_way` | int | 190524730 | 401/401 |
+| `via_member` | int | 630409402 | 401/401 |
+| `to_way` | int | 880437935 | 401/401 |
+| `lat` | float | -32.9269158 | 401/401 |
+| `lon` | float | 151.772968 | 401/401 |
+| `located_by` | str | via_way | 401/401 |
+| `source` | str | osm | 401/401 |
+| `dist_to_base2026_m` | float | 4.2 | 401/401 |
+| `dist_to_S2c_m` | float | 4.2 | 401/401 |
+| `dist_to_S4_m` | float | 10.7 | 401/401 |
+| `dist_to_S5_m` | float | 10.7 | 401/401 |
+| `corridor_flag` | int | 1 | 401/401 |
 
 ### `data/processed/network/A5_parking_osm.csv`
 
@@ -152,34 +232,34 @@ Appendix A of the proposal.
 
 ### `data/processed/corridor/A2_signal_control_corridor.csv`
 
-28 rows, 24 columns
+70 rows, 24 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
-| `intersection_id` | str | NLR_SIG_01 | 28/28 |
-| `osm_node_id` | str | 8229466262;11359660267;72866859... | 28/28 |
-| `scats_site_id` | empty |  | 0/28 |
-| `n_approach_nodes` | int | 7 | 28/28 |
-| `lat` | float | -32.92452494285714 | 28/28 |
-| `lon` | float | 151.7598467 | 28/28 |
-| `dist_to_alignment_m` | float | 1.3 | 28/28 |
-| `control_type` | str | adaptive | 28/28 |
-| `cycle_time_s` | int | 110 | 28/28 |
-| `cycle_time_sweep_low` | int | 80 | 28/28 |
-| `cycle_time_sweep_high` | int | 140 | 28/28 |
-| `n_phases` | int | 4 | 28/28 |
-| `phase_split_pct` | str | 45/15/30/10 | 28/28 |
-| `offset_s` | int | 0 | 28/28 |
-| `coordination_group` | str | HUNTER_SCOTT | 28/28 |
-| `pedestrian_phase_flag` | int | 1 | 28/28 |
-| `ped_clearance_s` | int | 8 | 28/28 |
-| `tsp_enabled` | int | 0 | 28/28 |
-| `tsp_type` | str | green_extension+early_start | 14/28 |
-| `tsp_detection_distance_m` | int | 0 | 28/28 |
-| `tsp_max_extension_s` | int | 0 | 28/28 |
-| `mean_delay_to_tram_s` | float | 24.8 | 28/28 |
-| `source` | str | assumed | 28/28 |
-| `scenario_variant_ref` | str | S2_base | 28/28 |
+| `intersection_id` | str | NLR_SIG_01 | 70/70 |
+| `osm_node_id` | str | 8229466262;11359660267;72866859... | 70/70 |
+| `scats_site_id` | empty |  | 0/70 |
+| `n_approach_nodes` | int | 7 | 70/70 |
+| `lat` | float | -32.92452494285714 | 70/70 |
+| `lon` | float | 151.7598467 | 70/70 |
+| `dist_to_alignment_m` | float | 1.3 | 70/70 |
+| `control_type` | str | adaptive | 70/70 |
+| `cycle_time_s` | int | 110 | 70/70 |
+| `cycle_time_sweep_low` | int | 80 | 70/70 |
+| `cycle_time_sweep_high` | int | 140 | 70/70 |
+| `n_phases` | int | 4 | 70/70 |
+| `phase_split_pct` | str | 45/15/30/10 | 70/70 |
+| `offset_s` | int | 0 | 70/70 |
+| `coordination_group` | str | HUNTER_SCOTT | 70/70 |
+| `pedestrian_phase_flag` | int | 1 | 70/70 |
+| `ped_clearance_s` | int | 8 | 70/70 |
+| `tsp_enabled` | int | 0 | 70/70 |
+| `tsp_type` | str | green_extension+early_start | 28/70 |
+| `tsp_detection_distance_m` | int | 0 | 70/70 |
+| `tsp_max_extension_s` | int | 0 | 70/70 |
+| `mean_delay_to_tram_s` | float | 24.8 | 70/70 |
+| `source` | str | assumed | 70/70 |
+| `scenario_variant_ref` | str | S2_base | 70/70 |
 
 ### `data/processed/corridor/A4_segment_runtime_decomposition.csv`
 

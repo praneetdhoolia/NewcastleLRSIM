@@ -93,10 +93,38 @@ python src/build/build_scenario_schedules.py    # S0..S6 feeds
 python src/build/build_era1_reconstruction.py   # pre-2014 reconstruction
 python src/build/build_scenario_configs.py      # E1
 python src/build/build_validation_targets.py
+
+# --- P2 network build (needs the toolchain below) ---
+python src/setup/bootstrap_toolchain.py         # JDK 25, pt2matsim 26.6, SUMO 1.27.1
+python src/build/build_corridor_road_attributes.py   # corridor provenance + E1 deltas
+python src/build/build_matsim_network.py        # MATSim network + 15 mapped schedules
+python src/build/build_sumo_corridor.py         # SUMO corridor, 4 road variants
+
+python src/build/build_data_dictionary.py
 python src/build/build_manifest.py
 ```
 
-Everything is seeded (`20260810`) and deterministic.
+Everything this repository generates is seeded (`20260810`) and deterministic, with one
+exception that is measured rather than assumed away: **pt2matsim's schedule mapping is not
+reproducible run to run** — about 18% of transit route link sequences differ between
+identical builds, while 100% of stop-to-link assignments hold. See
+[`DECISIONS.md`](DECISIONS.md) §3.5 for the measurements and for the constraint it places
+on scenario comparisons.
+
+### Toolchain
+
+P2 needs three tools the repository cannot regenerate. `src/setup/bootstrap_toolchain.py`
+fetches them into `.tools/` (gitignored, ~1.4 GiB) and pins each by sha256 in
+`.tools/toolchain.json`:
+
+| Tool | Version | Source |
+|---|---|---|
+| Eclipse Temurin JDK | 25.0.4+7 | github.com/adoptium (pt2matsim 26.6 targets Java 25) |
+| pt2matsim | 26.6, shaded jar | repo.matsim.org (bundles MATSim; no Maven needed) |
+| Eclipse SUMO `netconvert` | 1.27.1 | PyPI `eclipse-sumo` wheel |
+
+`python src/setup/bootstrap_toolchain.py --verify` re-checks the digests without
+downloading anything.
 
 ---
 
@@ -139,8 +167,15 @@ to validate the era-1 reconstruction. Full list and priority order in
 
 ## Next phase
 
-P2 network build: pt2matsim conversion of the era and scenario feeds, netconvert
-for the SUMO corridor, and manual OSM correction of Hunter/Scott Street lane
-counts, turn restrictions and kerbside use — which
-[`DECISIONS.md` §3.1](DECISIONS.md) shows is currently 75–98% imputed and which
-the B3 net-arrivals test depends on.
+P2 is complete: the MATSim network and all 15 mapped schedules, the four E1 road
+variants as link-attribute patches, and the SUMO corridor with the A2 signal
+timings attached. The corridor turned out **not** to need the hand correction
+§3.1 called for — 87.5% of as-built trunk lane counts are observed in OSM
+([`DECISIONS.md` §2.5](DECISIONS.md)) — so what the B3 net-arrivals test rests on
+is the *counterfactual* cross-section, which is assumed and swept 1–2 lanes per
+direction rather than digitised.
+
+P3 demand synthesis is next. Read [`STATUS.md`](STATUS.md) for the four items P2
+raised that P3–P5 must respect, in particular the requirement that any scenario
+comparison run against a single build of the network
+([`DECISIONS.md` §3.5](DECISIONS.md)).

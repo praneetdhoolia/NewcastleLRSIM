@@ -26,6 +26,13 @@
     }
   },
   "n_corridor_signals": 14,
+  "signal_variants": [
+    "S2_base",
+    "S2b_full_tsp",
+    "S0_no_tram",
+    "S2c_reserved_alignment",
+    "S3_brt_priority"
+  ],
   "charging_dwell_share_of_runtime": {
     "0": 11.1,
     "1": 11.1

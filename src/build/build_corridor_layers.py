@@ -251,6 +251,41 @@ def build():
                  scenario_variant_ref='S2b_full_tsp')
         tsp_rows.append(q)
 
+    # E1 names four signal variants; only two were built. S0_no_tram and
+    # S2c_reserved_alignment are the other two, and without them the scenarios
+    # that reference them have no signal layer at all.
+    #
+    # S0_no_tram - the corridor with no tram in it. E1_road_variants sets the
+    # cycle to 100 s for the full-capacity network, and there is no tram to delay.
+    # S2c_reserved_alignment - the tram is off the street on the former railway
+    # alignment, so it meets 60% fewer at-grade signal conflicts (DECISIONS 10).
+    # Both are assumed and swept on the same 80-140 s cycle range as S2.
+    no_tram_rows = []
+    for r in sig_rows:
+        q = dict(r)
+        q.update(cycle_time_s=100, mean_delay_to_tram_s=0.0,
+                 tsp_enabled=0, tsp_type='', source='assumed',
+                 scenario_variant_ref='S0_no_tram')
+        no_tram_rows.append(q)
+    reserved_rows = []
+    for r in sig_rows:
+        q = dict(r)
+        q.update(mean_delay_to_tram_s=round(float(r['mean_delay_to_tram_s']) * 0.40, 1),
+                 tsp_enabled=0, tsp_type='', source='assumed',
+                 scenario_variant_ref='S2c_reserved_alignment')
+        reserved_rows.append(q)
+    # S3_brt_priority - the BRT alternative runs in the same lane take as the tram
+    # and is given the same priority mechanism, so that S2b and S3 differ in vehicle
+    # and dwell rather than in how generously each is signalled. Assumed.
+    brt_rows = []
+    for r in sig_rows:
+        q = dict(r)
+        q.update(tsp_enabled=1, tsp_type='green_extension+early_start',
+                 tsp_detection_distance_m=120, tsp_max_extension_s=12,
+                 mean_delay_to_tram_s=round(float(r['mean_delay_to_tram_s']) * 0.25, 1),
+                 source='assumed', scenario_variant_ref='S3_brt_priority')
+        brt_rows.append(q)
+
     def w(name, rows):
         if not rows:
             print('  (empty) %s' % name)
@@ -265,7 +300,8 @@ def build():
     w('A4_vehicle_spec.csv', [VEHICLE])
     w('A4_stop_dwell_model.csv', dwell_rows)
     w('A4_segment_runtime_decomposition.csv', seg_rows)
-    w('A2_signal_control_corridor.csv', sig_rows + tsp_rows)
+    w('A2_signal_control_corridor.csv',
+      sig_rows + tsp_rows + no_tram_rows + reserved_rows + brt_rows)
 
     rep = dict(alignment_length_m={k: round(v, 1) for k, v in shp_len.items()},
                scheduled_end_to_end_s={d: sum(r['scheduled_runtime_s'] for r in seg_rows
@@ -274,6 +310,8 @@ def build():
                                                     if r['direction_id'] == d), 1) for d in per_dir},
                residual_allocation=alloc,
                n_corridor_signals=len(sig_rows),
+               signal_variants=['S2_base', 'S2b_full_tsp', 'S0_no_tram',
+                                'S2c_reserved_alignment', 'S3_brt_priority'],
                charging_dwell_share_of_runtime={
                    d: round(DWELL_DEFAULTS['dwell_charging_s'] * n_int /
                             sum(r['scheduled_runtime_s'] for r in seg_rows

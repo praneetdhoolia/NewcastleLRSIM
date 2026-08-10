@@ -26,6 +26,18 @@ demand/plans/*.csv
 data/processed/network/*.jsonl
 data/processed/zones/*.gpkg
 
+# --- P2 network build outputs (regenerate with build_matsim_network /
+#     build_sumo_corridor). The build reports ARE committed: they carry the
+#     mapping quality, the variant deltas and the signal pairing. ---
+networks/matsim/**
+!networks/matsim/_matsim_build_report.json
+networks/sumo/**
+!networks/sumo/_sumo_build_report.json
+
+# --- pinned toolchain (JDK, pt2matsim, SUMO), ~1.4 GiB, fetched by
+#     src/setup/bootstrap_toolchain.py and pinned by sha256 in toolchain.json ---
+.tools/
+
 # --- run outputs ---
 results/**
 !results/.gitkeep
