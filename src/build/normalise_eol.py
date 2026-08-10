@@ -18,6 +18,9 @@ BINARY_EXT = {'.zip', '.tif', '.tiff', '.pdf', '.xlsx', '.xls', '.gpkg', '.pbf',
               '.png', '.jpg', '.jpeg', '.osm'}
 ROOTS = ['data/processed', 'params', 'scenarios', 'demand', 'docs', 'src', 'tests',
          '.githooks', '.claude', '.github']
+# P2 build outputs: the reports are committed, so they are hashed over LF bytes
+# like everything else. The XML networks under them are gitignored bulk.
+ROOTS += ['networks/matsim', 'networks/sumo']
 SINGLE = ['DECISIONS.md', 'README.md', 'STATUS.md', 'CLAUDE.md', '.gitignore',
           '.gitattributes', 'newcastle-lr-proposal.md',
           'data/raw/provenance_open_data.json', 'data/raw/provenance_abs_dem.json',

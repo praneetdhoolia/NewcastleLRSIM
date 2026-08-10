@@ -14,7 +14,7 @@ import zipfile
 
 ROOT = '.'
 SCAN = ['data/raw', 'data/processed', 'schedules', 'demand', 'params',
-        'scenarios', 'networks/osm']
+        'scenarios', 'networks/osm', 'networks/matsim', 'networks/sumo']
 SKIP_EXT = {'.pyc'}
 PROVENANCE_FILES = ['data/raw/provenance_open_data.json',
                     'data/raw/provenance_abs_dem.json',
@@ -45,7 +45,12 @@ LINEAGE = {
     'params': 'src/build/build_params.py',
     'scenarios': 'src/build/build_scenario_configs.py',
     'schedules': 'src/build/build_era_feeds.py',
+    'networks/matsim': 'src/build/build_matsim_network.py (pt2matsim 26.6)',
+    'networks/sumo': 'src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1)',
 }
+
+# P2 build intermediates: large, regenerable, and not part of the package.
+SKIP_DIRS = ('networks/matsim/_work', 'networks/sumo/_work')
 
 
 def sha256(p, limit=None):
@@ -111,6 +116,8 @@ def main():
                 if ext in SKIP_EXT or '__pycache__' in dirpath:
                     continue
                 rel = os.path.relpath(p, ROOT).replace('\\', '/')
+                if rel.startswith(SKIP_DIRS):
+                    continue
                 sz = os.path.getsize(p)
                 stage = 'raw' if rel.startswith(('data/raw', 'networks/osm', 'schedules/raw')) \
                     else 'processed'

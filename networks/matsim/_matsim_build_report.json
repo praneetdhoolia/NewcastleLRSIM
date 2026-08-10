@@ -1,0 +1,434 @@
+{
+  "base_network": {
+    "bytes": 5864418,
+    "km": 23212.1,
+    "links": 157678,
+    "links_by_mode": {
+      "bus": 143914,
+      "car": 143891,
+      "light_rail": 107,
+      "pt": 36675,
+      "rail": 13527,
+      "taxi": 9,
+      "train": 10578
+    },
+    "nodes": 73227
+  },
+  "crs": "EPSG:28356",
+  "determinism_check": [
+    {
+      "feed": "S2",
+      "route_link_sequence_identical_pct": 82.264,
+      "stop_facilities": [
+        4171,
+        4178
+      ],
+      "stop_link_assignment_identical_pct": 100.0,
+      "transit_routes": [
+        1714,
+        1714
+      ]
+    }
+  ],
+  "gtfs_day_param": "all",
+  "road_variants": {
+    "net_base2026": {
+      "banned_turns_dropped": false,
+      "bytes": 5812486,
+      "identical_to_base": true,
+      "links_touched": {},
+      "patch_rows": 0
+    },
+    "net_base2026_broadmeadow_extension": {
+      "banned_turns_dropped": false,
+      "bytes": 5813679,
+      "identical_to_base": false,
+      "links_touched": {
+        "kerbside_use": 159,
+        "num_lanes_per_dir": 69
+      },
+      "patch_rows": 66
+    },
+    "net_base2026_hunter_st_full_capacity": {
+      "banned_turns_dropped": true,
+      "bytes": 5812464,
+      "identical_to_base": false,
+      "links_touched": {
+        "banned_turns_removed": 8,
+        "kerbside_use": 59,
+        "num_lanes_per_dir": 54
+      },
+      "patch_rows": 40
+    },
+    "net_base2026_jhh_extension": {
+      "banned_turns_dropped": false,
+      "bytes": 5814108,
+      "identical_to_base": false,
+      "links_touched": {
+        "kerbside_use": 215,
+        "num_lanes_per_dir": 89
+      },
+      "patch_rows": 89
+    }
+  },
+  "schedules": {
+    "S0": {
+      "artificial_link_refs": 3166,
+      "artificial_share_pct": 0.6,
+      "departures": 3770,
+      "feed": "schedules/scenarios/S0.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.1,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 441
+      },
+      "network_bytes": 5634912,
+      "route_link_fingerprint": "f121edb89545997e2bceefa5a505c9e85cc3228c29b6bb7ae7b027706160eee1",
+      "route_link_refs": 529051,
+      "schedule_bytes": 1979058,
+      "stop_facilities": 4171,
+      "stop_link_fingerprint": "c96206deff689c633742b979cafa84a8b54118d09bae134d482fa493fd6de3a2",
+      "stops_with_link": 4171,
+      "stops_without_link": 0,
+      "transit_lines": 289,
+      "transit_routes": 1720
+    },
+    "S1": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 4251,
+      "feed": "schedules/scenarios/S1.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.3,
+      "modes": {
+        "bus": 1279,
+        "ferry": 2,
+        "rail": 433
+      },
+      "network_bytes": 5634734,
+      "route_link_fingerprint": "12bba27b311981ffb211691858c77cfdd983f343c0bc3ad1d7794a0631aaa902",
+      "route_link_refs": 528536,
+      "schedule_bytes": 1924317,
+      "stop_facilities": 4181,
+      "stop_link_fingerprint": "18ea1601b013b91bd042408e1039ea607e7a62511be1a6d520ee383153bac2b7",
+      "stops_with_link": 4181,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 4269,
+      "feed": "schedules/scenarios/S2.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.3,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 5636922,
+      "route_link_fingerprint": "cd40bf7e5ef4f6bd3f7c788a1ae107fcdf8213a316ad3c77cb6dc75a059c66b0",
+      "route_link_refs": 528735,
+      "schedule_bytes": 1982686,
+      "stop_facilities": 4171,
+      "stop_link_fingerprint": "e55ca901ff2fccd635dd584924cde243b83e10d22ebd24456a255436b802b69d",
+      "stops_with_link": 4171,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2a": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 4269,
+      "feed": "schedules/scenarios/S2a.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.4,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 5636927,
+      "route_link_fingerprint": "837ba7442487d99786c792c790b5704e5d056795ba49b31ef4ea608a720b7948",
+      "route_link_refs": 528556,
+      "schedule_bytes": 1949331,
+      "stop_facilities": 4174,
+      "stop_link_fingerprint": "fe7cd4ff102bf0a25d712256a5a5203785837bd8147170ed2a3a23ed59223f06",
+      "stops_with_link": 4174,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2b": {
+      "artificial_link_refs": 2542,
+      "artificial_share_pct": 0.48,
+      "departures": 4269,
+      "feed": "schedules/scenarios/S2b.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.8,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 5636879,
+      "route_link_fingerprint": "be85d8b4ba4ac34abee50d5c3c17582f23a7195413027461c49ce207adc149fd",
+      "route_link_refs": 527862,
+      "schedule_bytes": 1979118,
+      "stop_facilities": 4178,
+      "stop_link_fingerprint": "374b74d0f131d84cb6fb1f288b539935a9986d28c02cdb23d17c2a6ee24f019b",
+      "stops_with_link": 4178,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2c": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 4269,
+      "feed": "schedules/scenarios/S2c.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.9,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 5636927,
+      "route_link_fingerprint": "837ba7442487d99786c792c790b5704e5d056795ba49b31ef4ea608a720b7948",
+      "route_link_refs": 528556,
+      "schedule_bytes": 1994581,
+      "stop_facilities": 4174,
+      "stop_link_fingerprint": "fe7cd4ff102bf0a25d712256a5a5203785837bd8147170ed2a3a23ed59223f06",
+      "stops_with_link": 4174,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S3": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 4431,
+      "feed": "schedules/scenarios/S3.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.9,
+      "modes": {
+        "bus": 1279,
+        "ferry": 2,
+        "rail": 433
+      },
+      "network_bytes": 5634723,
+      "route_link_fingerprint": "cfc2854a95e4f5d7528c726cf11d78244898615e704fb7061fdb21144284f8ad",
+      "route_link_refs": 528602,
+      "schedule_bytes": 1976266,
+      "stop_facilities": 4177,
+      "stop_link_fingerprint": "4fc190f4fa79539e2d3e13e6ebe2162093b21f02707f40c3056e7f0245e0fd99",
+      "stops_with_link": 4177,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S4": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 4269,
+      "feed": "schedules/scenarios/S4.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 19.4,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 3
+      },
+      "network_bytes": 5637270,
+      "route_link_fingerprint": "53398cbc8fd8a338eb757461be53c5bc0fdc8f2e25fb34203dfc9101747f9eb6",
+      "route_link_refs": 529079,
+      "schedule_bytes": 2027266,
+      "stop_facilities": 4173,
+      "stop_link_fingerprint": "fdda67dbf1a20fec75ecf8028b91befea190a95b2329e0cd93f6ebd9fee1ce77",
+      "stops_with_link": 4173,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1715
+    },
+    "S5": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 4269,
+      "feed": "schedules/scenarios/S5.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 19.0,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 3
+      },
+      "network_bytes": 5637551,
+      "route_link_fingerprint": "ac7be8eb3f124fe34fd06e47d7c6e3af1d5e4dde1865cb4035f2b1933496be04",
+      "route_link_refs": 528935,
+      "schedule_bytes": 1976669,
+      "stop_facilities": 4181,
+      "stop_link_fingerprint": "8c294b577ce54fe9fd7c33257d082840735a130b1c811b4caf727c8dd617d992",
+      "stops_with_link": 4181,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1715
+    },
+    "S6": {
+      "artificial_link_refs": 2522,
+      "artificial_share_pct": 0.48,
+      "departures": 3719,
+      "feed": "schedules/scenarios/S6.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.9,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433
+      },
+      "network_bytes": 5634671,
+      "route_link_fingerprint": "98f6f23c1f94c9dda416cf402ee07c5d0fcc207f7b07bf1d486bbd8c0bb06795",
+      "route_link_refs": 527977,
+      "schedule_bytes": 1981731,
+      "stop_facilities": 4163,
+      "stop_link_fingerprint": "922f1816954897ce82fd450afe60f02597c8d0876ee7b46893eb8842d98ce235",
+      "stops_with_link": 4163,
+      "stops_without_link": 0,
+      "transit_lines": 289,
+      "transit_routes": 1712
+    },
+    "base2026": {
+      "artificial_link_refs": 2542,
+      "artificial_share_pct": 0.48,
+      "departures": 4269,
+      "feed": "schedules/base2026.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 17.1,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 5636879,
+      "route_link_fingerprint": "be85d8b4ba4ac34abee50d5c3c17582f23a7195413027461c49ce207adc149fd",
+      "route_link_refs": 527862,
+      "schedule_bytes": 1950903,
+      "stop_facilities": 4178,
+      "stop_link_fingerprint": "374b74d0f131d84cb6fb1f288b539935a9986d28c02cdb23d17c2a6ee24f019b",
+      "stops_with_link": 4178,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "era1_pre2014_reconstructed": {
+      "artificial_link_refs": 4959,
+      "artificial_share_pct": 1.09,
+      "departures": 5387,
+      "feed": "schedules/era1_pre2014_reconstructed.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 17.7,
+      "modes": {
+        "bus": 1129,
+        "ferry": 2,
+        "rail": 155
+      },
+      "network_bytes": 5644487,
+      "route_link_fingerprint": "58a90c4c9c45ae3a3d334a46da4b1b0101b5ced9f7282aacfb0a12f9bb703620",
+      "route_link_refs": 455603,
+      "schedule_bytes": 1869172,
+      "stop_facilities": 5325,
+      "stop_link_fingerprint": "a872a390e1e56c7344ba68847c220489494d34150774c933229a3873130c6852",
+      "stops_with_link": 5325,
+      "stops_without_link": 0,
+      "transit_lines": 112,
+      "transit_routes": 1286
+    },
+    "era2_2016_rail_truncated": {
+      "artificial_link_refs": 4503,
+      "artificial_share_pct": 0.99,
+      "departures": 5387,
+      "feed": "schedules/era2_2016_rail_truncated.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 17.4,
+      "modes": {
+        "bus": 1129,
+        "ferry": 2,
+        "rail": 155
+      },
+      "network_bytes": 5644153,
+      "route_link_fingerprint": "454b2b6355c17a748ea1ada90f499fb8dace38cade6e0a88e9a4a7f7211be6ab",
+      "route_link_refs": 455125,
+      "schedule_bytes": 1823833,
+      "stop_facilities": 5317,
+      "stop_link_fingerprint": "87c27f80da6b972ebe86b0baf38f42c3ef2737998e0836472f21fb7e1655b479",
+      "stops_with_link": 5317,
+      "stops_without_link": 0,
+      "transit_lines": 112,
+      "transit_routes": 1286
+    },
+    "era3_2018_keolis_interchange": {
+      "artificial_link_refs": 1638,
+      "artificial_share_pct": 0.28,
+      "departures": 3967,
+      "feed": "schedules/era3_2018_keolis_interchange.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 19.0,
+      "modes": {
+        "bus": 1513,
+        "ferry": 2,
+        "rail": 472
+      },
+      "network_bytes": 5633984,
+      "route_link_fingerprint": "0d4f23f3f1457e97e76b04cbf63cf1852a24d681b0c312d69057b0a9dd371e0a",
+      "route_link_refs": 591643,
+      "schedule_bytes": 2183647,
+      "stop_facilities": 3249,
+      "stop_link_fingerprint": "8a0540e82cac7eefd5b9543403f650a3111c766fb78ad26dbe9ca433dc41f3a1",
+      "stops_with_link": 3249,
+      "stops_without_link": 0,
+      "transit_lines": 197,
+      "transit_routes": 1987
+    },
+    "era4_2019_lr_open": {
+      "artificial_link_refs": 1586,
+      "artificial_share_pct": 0.27,
+      "departures": 4182,
+      "feed": "schedules/era4_2019_lr_open.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 18.7,
+      "modes": {
+        "bus": 1457,
+        "ferry": 2,
+        "rail": 483,
+        "tram": 2
+      },
+      "network_bytes": 5638010,
+      "route_link_fingerprint": "17bdcc90a2dfe8e08008570db2035c8f0715d8e9017fda8029173ce9d72f1b31",
+      "route_link_refs": 591177,
+      "schedule_bytes": 2106808,
+      "stop_facilities": 3261,
+      "stop_link_fingerprint": "8b7a843368224639d852b0e0cce8685c4d68e8532c5acfad2c9bb59a140e9758",
+      "stops_with_link": 3261,
+      "stops_without_link": 0,
+      "transit_lines": 196,
+      "transit_routes": 1944
+    }
+  },
+  "toolchain": {
+    "jdk": "25.0.4+7",
+    "pt2matsim": "26.6",
+    "sumo": "1.27.1"
+  }
+}

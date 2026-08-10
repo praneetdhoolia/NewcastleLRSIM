@@ -21,8 +21,9 @@ more transparent about its assumptions than the business case it examines.
   commit/PR as the work it describes.**
 - [`README.md`](README.md) is the data-package guide: layout, reproduction commands,
   sources and licences.
-- Current stage: **P1 data acquisition complete. No scenario has been run. Nothing in the
-  repo is a result.**
+- Current stage: **P2 network build complete. No scenario has been run. Nothing in the
+  repo is a result.** The MATSim network, the 15 mapped schedules and the SUMO corridor
+  are *inputs*, not outputs.
 
 ## Working style (apply to every change)
 
@@ -61,6 +62,15 @@ more transparent about its assumptions than the business case it examines.
 - **The three unobtained inputs stay unobtained.** SCATS signal phasing, journey-linked
   Opal, and measured charging dwell are handled **by sweep, not by
   assumption-as-fact** (`DECISIONS.md` §0, §13). Do not quietly pin one to a point value.
+- **The toolchain is pinned, and a toolchain change is a model change.** JDK, pt2matsim
+  and SUMO are fetched by [`src/setup/bootstrap_toolchain.py`](src/setup/bootstrap_toolchain.py)
+  into `.tools/` (gitignored) and pinned by sha256 in `.tools/toolchain.json`. Changing a
+  version means re-running, re-hashing and logging it in `DECISIONS.md` §14 — a different
+  `netconvert` can move a corridor result.
+- **One build of the network per comparison.** pt2matsim's schedule mapping is not
+  reproducible run to run (`DECISIONS.md` §3.5): ~18% of route link sequences differ
+  between identical builds, while stop-to-link assignment is stable. Never compare a
+  scenario mapped in one build against a scenario mapped in another.
 - **Bulk data is not committed.** See [`.gitignore`](.gitignore) — raw downloads, GTFS
   bundles, synthetic population/plans, large derived geometry and run outputs are
   regenerable and stay out of git. The manifest is committed; the bytes are not.

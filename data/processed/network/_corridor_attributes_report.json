@@ -1,0 +1,164 @@
+{
+  "corridor_definition": {
+    "trunk_buffer_m": 60.0,
+    "cross_buffer_m": 40.0,
+    "parallel_buffer_m": 1500.0,
+    "alignment_source": {
+      "base2026": {
+        "feed": "schedules/raw/base2026/lightrail.zip",
+        "mode": "shape",
+        "points": 550
+      },
+      "S2c": {
+        "feed": "schedules/scenarios/S2c.zip",
+        "mode": "shape",
+        "points": 550
+      },
+      "S4": {
+        "feed": "schedules/scenarios/S4.zip",
+        "mode": "stops",
+        "points": 403
+      },
+      "S5": {
+        "feed": "schedules/scenarios/S5.zip",
+        "mode": "stops",
+        "points": 701
+      }
+    },
+    "trunk_streets": {
+      "base2026": [
+        "Hunter Street",
+        "Scott Street"
+      ],
+      "S2c": [
+        "Hunter Street",
+        "Scott Street"
+      ]
+    },
+    "extension_variants": [
+      "S4",
+      "S5"
+    ],
+    "p1_defect": "S2c/S4/S5 scenario feeds carry the unmodified 275-point as-built shape; extension geometry is therefore derived from the assumed stop sitings, not from a surveyed alignment. DECISIONS.md 3.4."
+  },
+  "counts": {
+    "edges_total": 605,
+    "corridor_trunk_base2026": 40,
+    "corridor_cross": 84,
+    "parallel": 417,
+    "km_corridor_trunk": 4.08
+  },
+  "observed_share": {
+    "corridor_trunk": {
+      "n": 40,
+      "num_lanes": 87.5,
+      "speed_limit": 97.5,
+      "oneway": 87.5,
+      "lane_width": 0.0,
+      "kerbside": 27.5
+    },
+    "corridor_cross": {
+      "n": 84,
+      "num_lanes": 23.8,
+      "speed_limit": 47.6,
+      "oneway": 54.8,
+      "lane_width": 0.0,
+      "kerbside": 7.1
+    },
+    "parallel": {
+      "n": 417,
+      "num_lanes": 56.8,
+      "speed_limit": 95.9,
+      "oneway": 61.6,
+      "lane_width": 1.9,
+      "kerbside": 4.6
+    },
+    "all": {
+      "n": 605,
+      "num_lanes": 55.0,
+      "speed_limit": 88.8,
+      "oneway": 63.1,
+      "lane_width": 1.3,
+      "kerbside": 6.0
+    }
+  },
+  "turn_restrictions": {
+    "resolved": 1385,
+    "unresolvable": 1,
+    "within_40m_of_alignment": 10,
+    "within_80m_of_alignment": 15,
+    "within_300m_of_alignment": 52,
+    "by_type": {
+      "no_u_turn": 8,
+      "unspecified": 1,
+      "no_right_turn": 4,
+      "no_left_turn": 1,
+      "only_left_turn": 1
+    }
+  },
+  "road_variants": {
+    "net_base2026": {
+      "edges_in_scope": 0,
+      "patched_lanes": 0,
+      "patched_kerbside": 0,
+      "e1_lanes_per_direction": 1.0,
+      "observed_modal_lanes_per_direction": 1.0,
+      "e1_banned_turn_movements": 14,
+      "observed_restrictions_within_40m": 10,
+      "lane_source": "osm"
+    },
+    "net_base2026_hunter_st_full_capacity": {
+      "edges_in_scope": 40,
+      "patched_lanes": 36,
+      "patched_kerbside": 40,
+      "e1_lanes_per_direction": 2.0,
+      "observed_modal_lanes_per_direction": 1.0,
+      "e1_banned_turn_movements": 0,
+      "observed_restrictions_within_40m": 10,
+      "lane_source": "assumed"
+    },
+    "net_base2026_broadmeadow_extension": {
+      "edges_in_scope": 66,
+      "patched_lanes": 33,
+      "patched_kerbside": 66,
+      "e1_lanes_per_direction": 1.0,
+      "observed_modal_lanes_per_direction": 1.0,
+      "e1_banned_turn_movements": 22,
+      "observed_restrictions_within_40m": 10,
+      "lane_source": "assumed"
+    },
+    "net_base2026_jhh_extension": {
+      "edges_in_scope": 89,
+      "patched_lanes": 44,
+      "patched_kerbside": 89,
+      "e1_lanes_per_direction": 1.0,
+      "observed_modal_lanes_per_direction": 1.0,
+      "e1_banned_turn_movements": 30,
+      "observed_restrictions_within_40m": 10,
+      "lane_source": "assumed"
+    }
+  },
+  "assumptions": {
+    "pre_lr_lanes_per_direction": {
+      "value": 2,
+      "sweep": [
+        1,
+        2
+      ],
+      "source": "assumed",
+      "note": "Hunter/Scott before the tram cannot be observed in a 2026 extract."
+    },
+    "pre_lr_kerbside_use": {
+      "value": "parking",
+      "source": "assumed"
+    },
+    "extension_lane_take_per_direction": {
+      "value": 1,
+      "sweep": [
+        0,
+        1
+      ],
+      "source": "assumed"
+    }
+  }
+}

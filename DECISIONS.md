@@ -90,6 +90,45 @@ about 34% of all responses. Public transport records 1,461 journeys total
 figure of 7.3% pre-pandemic. G62 is retained for *spatial* structure only; the
 mode-share calibration target is HTS.
 
+**2.5 — The corridor is not 75–98% imputed; that was the network-wide rate.**
+§3.1 measured imputation over all 43,112 road edges and concluded that
+"manual correction from aerial imagery is required on the Hunter/Scott corridor".
+Measured *on the corridor* — the 40 Hunter and Scott Street edges within 60 m of
+the light rail alignment, 4.08 km — the rates invert:
+
+| Field | Corridor trunk observed in OSM | Network-wide imputed (§3.1) |
+|---|---:|---:|
+| `num_lanes` | **87.5%** | 75.4% imputed |
+| `speed_limit_kmh` | **97.5%** | 53.7% imputed |
+| `oneway` | 87.5% | — |
+| `kerbside_use` | 27.5% | 98.0% imputed |
+| `lane_width_m` | 0% | 99.2% imputed |
+
+The corridor is one of the best-mapped parts of the extract, not the worst — and
+the imputation rate over the 84 corridor cross streets (23.8% lanes observed) is
+much closer to the network-wide figure, which is what §3.1's average was actually
+measuring. The as-built corridor reads `lanes=1, oneway=yes, maxspeed=40`,
+consistent with NSW Movement and Place: *"one lane of traffic in each direction
+on Hunter and Scott streets between Worth Place and Telford Street"*.
+
+**Consequence.** The 30–40% of network-build effort the proposal budgeted for
+manual aerial correction is not needed for the as-built lane counts, which are
+observed. What is genuinely unavailable is the **counterfactual** — Hunter and
+Scott *before* the tram — which no 2026 imagery can supply. That is now an
+explicit swept assumption (§3.4) rather than a digitising task. The B3
+net-arrivals test is therefore an observed-network-versus-assumed-network
+comparison, and the assumed side is the one that is swept.
+
+**2.6 — EPSG:28356 is GDA94 / MGA zone 56, not GDA2020.** The repo labels the
+CRS "EPSG:28356 (GDA2020 / MGA Zone 56)" throughout. EPSG:28356 is
+*GDA94* / MGA zone 56; GDA2020 / MGA zone 56 is EPSG:7856. The two differ by
+about 1.8 m — immaterial to network topology, junction geometry or run time, and
+well inside the positional error of the OSM geometry the network is built from,
+so **the projection in use is not changed**. The label is wrong and is corrected
+here rather than propagated. Note that the ABS boundary downloads *are* GDA2020
+(their filenames say so), so the 1.8 m offset is real but absorbed at zone
+resolution.
+
 ---
 
 ## 3. Network layers (A1, A6)
@@ -109,10 +148,18 @@ would be unreliable. Measured rates over 43,112 road edges (9,207 km):
 Footways (35,653 edges, 6,325 km): `width_m` imputed 98.4%, `lighting` 98.9%.
 
 **Consequence.** Car delay results are only as good as the corridor lane counts.
-Manual correction from aerial imagery is required on the Hunter/Scott corridor
-and its parallel routes before any B3 (net arrivals) figure is published. This is
-the 30–40% of network-build effort the proposal budgets for, and it is **not yet
-done**. Corridor edges are flagged via `scenario_variant_ref`.
+
+> **Superseded by §2.5 and §3.4 (P2).** This section originally concluded that
+> manual correction from aerial imagery was required on the Hunter/Scott corridor.
+> Measured on the corridor rather than network-wide, 87.5% of trunk lane counts
+> and 97.5% of trunk speed limits are observed in OSM, and the imagery correction
+> is not needed for the as-built network. The counterfactual — the corridor
+> *without* the tram — is what cannot be observed, and it is now an explicit swept
+> assumption. The claim in the last line below was also wrong: corridor edges were
+> **not** flagged via `scenario_variant_ref` (every one of the 43,112 A1 rows
+> carries `base2026`); they are flagged in
+> [`A1_corridor_road_edges.csv`](data/processed/network/A1_corridor_road_edges.csv)
+> as of P2.
 
 ### 3.2 Capacity
 
@@ -141,6 +188,126 @@ Both are acceptable for network-wide accessibility and unacceptable for The Hill
 and Newcastle East, which the proposal specifically names. **Action:** replace
 with 5 m LiDAR DTM from ELVIS for the CBD, Cooks Hill, The Hill and Newcastle
 East before publishing accessibility surfaces.
+
+### 3.4 Corridor attribute provenance and the E1 road variants (P2)
+
+`src/build/build_corridor_road_attributes.py` grades the corridor by evidence
+rather than correcting it by hand, and turns `scenarios/E1_road_variants.csv`
+into edge-level deltas. Three artefacts:
+
+| File | What it holds |
+|---|---|
+| [`data/processed/network/A1_corridor_road_edges.csv`](data/processed/network/A1_corridor_road_edges.csv) | 605 corridor / parallel edges, each attribute paired with a `*_source` of `osm`, `imputed_rule`, `assumed` or `absent` |
+| [`data/processed/network/A2_turn_restrictions_resolved.csv`](data/processed/network/A2_turn_restrictions_resolved.csv) | all 1,385 OSM restriction relations resolved to coordinates and to a distance from the alignment |
+| [`data/processed/network/A1_road_variant_patches.csv`](data/processed/network/A1_road_variant_patches.csv) | 195 rows: the only places any E1 variant departs from the observed network |
+
+**Corridor extent is geometric, not drawn.** The alignment comes from the tram
+route's own GTFS shapes. `corridor_trunk` = Hunter/Scott within 60 m of it (40
+edges); `corridor_cross` = any other road within 40 m (84 edges, the cross
+streets at the 14 signalised intersections); `parallel` = the named comparator
+and diversion routes within 1.5 km (417 edges).
+
+**Turn restrictions are observed, and now checkable.** `A2_turn_restrictions_osm.csv`
+stored member strings with no geometry, so E1's `banned_turn_movements` could not
+be verified. Resolving each relation through its via node, else its via way, else
+its from way, locates 1,385 of 1,386 (one relation has no resolvable member) and
+puts **10 within 40 m** of the alignment and 15 within 80 m, against E1's assumed
+14. E1's figure is a reasonable summary of the observed restriction set, and the
+network build uses the observed restrictions, not the number.
+
+#### Assumed values introduced here
+
+| Value | Assumed | Sweep | Why it cannot be observed |
+|---|---|---|---|
+| `pre_lr_lanes_per_direction` (Hunter/Scott without the tram) | **2** | **1–2** | The tram was built in 2017–19. A 2026 extract, and 2026 imagery, show only the post-tram cross-section. This is the counterfactual the whole B3 test rests on. |
+| `pre_lr_kerbside_use` | `parking` | — | Same reason. E1 already asserts kerbside parking is restored in the no-tram network. |
+| `extension_lane_take_per_direction` (S4/S5) | **1** | **0–1** | The extensions were never built. The rule mirrors what the tram did to Hunter/Scott: one running lane per direction, floored at one, and the kerbside where the street is already single-lane. |
+| Extension corridor extent | derived from the S4/S5 **stop** sitings | — | See the defect below. |
+
+#### A P1 defect this exposed
+
+The S2c, S4 and S5 scenario feeds add or move stops but carry the **unmodified
+275-point as-built shape** — all four tram feeds have byte-identical geometry.
+So the Broadmeadow and John Hunter Hospital extensions have stops hanging off an
+alignment that stops at Newcastle Interchange, and S2c's "reserved former-railway
+alignment" is geometrically the as-built street alignment.
+
+Handled, not hidden:
+
+- the extension corridor (66 edges for S4, 89 for S5) is derived from the
+  extension **stop coordinates**, which do exist, by interpolating through the
+  stop sequence and buffering at 60 m. The stop sitings are themselves assumed
+  (§10), so the extension corridor is assumed twice over and is labelled so;
+- S2c is unaffected in road terms — it uses the full-capacity Hunter Street
+  network either way — but its run-time advantage is a property of its GTFS
+  timings, not of a modelled alignment, and should not be reported as though the
+  reserved corridor had been traced;
+- **Action:** rebuild the S2c/S4/S5 shapes in `build_scenario_schedules.py`
+  before any extension result is published.
+
+### 3.5 pt2matsim is not reproducible run to run — measured, not assumed away
+
+`PublicTransitMapper` does not produce byte-identical output from identical
+inputs. Confirmed across `SpeedyALT`, `AStarLandmarks` and `CHRouter`, and at
+`numOfThreads=1` as well as 3, so it is not thread scheduling — it is candidate
+selection over a hash-ordered collection. This collides with the project's
+determinism rule, so the drift is measured and published rather than waved
+through (`--determinism-check` in `build_matsim_network.py`):
+
+| Property | Repeat-build agreement |
+|---|---|
+| stop → link assignment | **100.000%** |
+| transit route count | 1,714 = 1,714 |
+| stop facility count | 4,171–4,178 (±0.17%) |
+| **route link sequences** | **81.9–82.3%** |
+
+So roughly **18% of transit routes take a different path between two builds of
+the same feed**, while every stop attaches to the same link every time. That
+matters for bus link loading, and therefore for B3.
+
+**How this is handled.**
+
+1. The mapped schedules are a **build of record**: hashed into
+   `data/MANIFEST.csv`, and the artefacts P3+ consume. Regeneration reproduces
+   the model statistically, not byte-for-byte.
+2. `tests/check_package.py` asserts the reproducible half **exactly** — the
+   `stop_link_fingerprint` must match the recorded build — and asserts the
+   invariants that hold in every build (no unmapped stop, artificial link share
+   under 5%).
+3. `route_link_fingerprint` is recorded per feed to identify which build a result
+   came from.
+4. **Any scenario comparison must be run against one build of the network.**
+   Comparing S2 mapped in one build against S0 mapped in another would put an
+   18% route-path difference inside the treatment effect. This is a P5 run
+   constraint, recorded here because it originates in P2.
+
+Everything else in P2 *is* deterministic: the OSM merge, the variant patching and
+netconvert are byte-identical on rebuild (verified by re-running and comparing
+digests).
+
+### 3.6 Toolchain, pinned
+
+P2 needs a JVM, pt2matsim and SUMO, none of which the repo can regenerate.
+`src/setup/bootstrap_toolchain.py` fetches all three into `.tools/` (gitignored)
+and records version, source URL, sha256 and retrieval date in
+`.tools/toolchain.json` — the provenance record for the tools, mirroring
+`data/raw/provenance_*.json` for the data.
+
+| Tool | Version | Source | Why this one |
+|---|---|---|---|
+| Eclipse Temurin JDK | 25.0.4+7 | github.com/adoptium | pt2matsim 26.6's pom sets `<release>25</release>`; a 21 JDK will not load it |
+| pt2matsim | 26.6 (shaded jar) | repo.matsim.org | bundles MATSim and declares `PublicTransitMapper` as Main-Class, so no Maven and no build step |
+| Eclipse SUMO | 1.27.1 | PyPI `eclipse-sumo` wheel | SUMO publishes no GitHub release assets; the wheel is the only pinnable Windows distribution |
+
+A toolchain change is a model change: re-run, re-hash, and log it in §14. Two
+domains were added to `sandbox.network.allowedDomains` for these
+(`repo.matsim.org`, `pypi.org`/`files.pythonhosted.org`).
+
+**Known tool defect.** `netconvert --osm.crossings` segfaults (exit 139) on this
+extract in SUMO 1.27.1, reproducibly and on its own. Crossings and sidewalks are
+therefore not imported into the SUMO corridor. Pedestrians are modelled in MATSim
+on the A6 active-transport network, and the crossing inventory itself is
+unaffected — it lives in `A2_crossings_osm.csv`.
 
 ---
 
@@ -237,6 +404,35 @@ from **12.00 to 7.45 minutes — a 38% reduction**.
 
 That number is the argument for requesting SCATS data. It is also the reason no
 run-time-dependent finding may be published as a point estimate.
+
+#### The other three signal variants (added in P2)
+
+`scenarios/E1_scenarios.csv` references **five** `signal_variant_ref` values;
+`A2_signal_control_corridor.csv` contained two. The three scenarios pointing at
+the missing ones had no signal layer at all. All three are now built, over the
+same 14 intersections, and all three are **assumed**:
+
+| Variant | Cycle | TSP | Tram delay | Basis |
+|---|---:|---:|---:|---|
+| `S0_no_tram` | **100 s** | 0 | **0 s** | E1 sets 100 s for the full-capacity network; there is no tram to delay |
+| `S2c_reserved_alignment` | 110 s | 0 | **9.9 s** | the reserved alignment removes 60% of at-grade signal conflict (§10), so 0.40 × 24.75 |
+| `S3_brt_priority` | 110 s | 1 | 6.2 s | BRT is given the *same* priority mechanism as S2b, so S2b and S3 differ in vehicle and dwell rather than in how generously each is signalled |
+
+All three sweep on the same 80–140 s cycle range as S2. Giving BRT the same
+priority as the tram is a deliberate choice against the light rail's favour: the
+alternative — modelling BRT with priority the tram lacks — would let the signal
+assumption decide the S2-versus-S3 comparison.
+
+#### How the assumed timings reach SUMO
+
+`netconvert` derives each junction's **phase structure** from its geometry. That
+structure is kept; only the **durations** are replaced, distributing the A2 split
+across the green phases and giving each intervening yellow/all-red phase the A2
+pedestrian clearance. Structure and timing are never blended, and every emitted
+program carries both provenances as parameters (`phase_structure_source`,
+`timing_source`). All 14 A2 intersections match a signalised junction in every
+variant, and the realised cycle lands within 1 s of the A2 value.
+
 
 ---
 
@@ -533,4 +729,5 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **P2 network build.** Toolchain pinned (§3.6). Corridor attributes graded by evidence and the E1 road variants derived as edge-level deltas (§3.4); premise corrected — the corridor is not 75–98% imputed (§2.5). pt2matsim's run-to-run drift measured and bounded (§3.5). Three missing signal variants built (§5). CRS label corrected (§2.6). MATSim network + 15 mapped schedules and 4 SUMO corridor nets produced. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | Initial. P1 data acquisition. Scope decisions §10.1–3, 4, 5 closed. Proposal premises corrected per §2.1–2.4. No scenario run; no falsification condition altered. |
