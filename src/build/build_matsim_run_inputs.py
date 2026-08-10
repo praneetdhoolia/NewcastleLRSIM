@@ -353,6 +353,11 @@ def scoring_from_c1(c1, purpose_share):
         ])
 
 
+# MATSim defaults its output compression to zst. gzip is set instead so the
+# analysis reads run outputs with the standard library alone - the repo pins a
+# JVM, pt2matsim and SUMO by digest and declares no Python dependency beyond
+# pandas/numpy, and an undeclared `zstandard` would be a reproducibility hole
+# that only shows up on a machine that happens not to have it.
 CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
 <config>
@@ -380,6 +385,7 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<param name="writeEventsInterval" value="{write_interval}" />
 \t\t<param name="writePlansInterval" value="{write_interval}" />
 \t\t<param name="overwriteFiles" value="failIfDirectoryExists" />
+\t\t<param name="compressionType" value="gzip" />
 \t</module>
 \t<module name="qsim">
 \t\t<param name="startTime" value="00:00:00" />
@@ -457,11 +463,23 @@ STRATEGY_BLOCK = """\t\t<parameterset type="strategysettings">
 # Per-km running cost seen by the traveller, AUD. Assumed: fuel and tyres only,
 # not standing costs, because a mode-choice decision does not re-decide car
 # ownership within the day.
-MONETARY_DISTANCE_RATE = {'car': -0.00018, 'ride': -0.00009,
+MONETARY_DISTANCE_RATE = {'car': -0.00018, 'ride': 0.0,
                           'pt': 0.0, 'walk': 0.0, 'bike': 0.0}
 # AUD/m for car. Fuel and tyres vary with national prices, not with Newcastle,
 # so this is swept rather than localised.
 MONETARY_DISTANCE_RATE_SWEEP = (-0.00025, -0.00012)
+# `ride` was charged half the car rate. That half was typed in, not derived, and
+# it double-charges: a vehicle's operating cost is paid once, and the observed
+# Newcastle occupancy is 1.3503 persons per vehicle (params/C4_mode_constraints
+# .json, HTS, seven survey years). Charging the driver 0.00018 and the passenger
+# 0.00009 makes the model's aggregate vehicle operating cost about 1.35x the
+# real one. The only value derivable from the data is zero: the driver, who is
+# separately modelled, already carries it.
+#
+# This makes `ride` free at the margin and therefore moves the whole burden of
+# pinning its share onto asc_car_passenger, which is then constrained to
+# reproduce the observed occupancy. That is deliberate and is stated rather than
+# hidden: see DECISIONS.md 9.8.
 
 STRATEGIES = [('ChangeExpBeta', 0.70), ('ReRoute', 0.15),
               ('SubtourModeChoice', 0.10), ('TimeAllocationMutator', 0.05)]

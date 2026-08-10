@@ -217,10 +217,35 @@ if check(os.path.exists(C3), 'count-comparison corrections present (%s)' % C3):
     check(bool(obs_n) and abs(min(obs_n) - lo) < 1e-6 and abs(max(obs_n) - hi) < 1e-6,
           'the heavy-vehicle sweep is the observed range across the classified '
           'stations, not a chosen interval')
-    ud = c3.get('unmodelled_driver_share', {})
-    check(ud.get('value') is None and ud.get('bounds') == [0.0, 1.0],
-          'the unmodelled-driver share is left as a structural 0-1 interval '
-          'with no invented point value')
+    vp = c3.get('vehicles_per_leg', {})
+    check(vp.get('car') == 1.0 and vp.get('ride') == 0.0
+          and vp.get('source', '').startswith('derived'),
+          'the modelled vehicle count is derived from observed occupancy - a '
+          'car leg is one vehicle, a ride leg none, because observed vehicle '
+          'trips are driver trips')
+
+# The constraint on asc_car_passenger is a measured ratio of two published HTS
+# counts, and the value it may take is bounded by what the survey observed -
+# not by what would make the fit look good (DECISIONS.md 9.8).
+C4 = 'params/C4_mode_constraints.json'
+if check(os.path.exists(C4), 'observed mode constraints present (%s)' % C4):
+    c4 = json.load(open(C4, encoding='utf-8'))
+    check(c4.get('source', '').startswith('measured'),
+          'vehicle occupancy is measured from HTS trip counts, not assumed')
+    occ = c4.get('vehicle_occupancy', {})
+    lo, hi = (occ.get('sweep') or [None, None])
+    years = c4.get('by_year_newcastle', {})
+    obs = sorted(v['occupancy'] for v in years.values())
+    check(bool(obs) and abs(obs[0] - lo) < 1e-6 and abs(obs[-1] - hi) < 1e-6,
+          'the occupancy sweep is the observed spread across all %d survey '
+          'years, not a chosen interval' % len(obs))
+    check(1.0 < occ.get('value', 0) < 5.0,
+          'the occupancy constraint is physically possible (%.4f persons per '
+          'car)' % occ.get('value', -1))
+    check(c4.get('constrains') == 'asc_car_passenger'
+          and 'asc_lr' in c4.get('constraint_rule', ''),
+          'the constraint names the constant it binds and records that the PT '
+          'constants are NOT touched, so the effect under test is untouched')
 
 # ---- 8. assumed values carry sweep ranges ----
 c1 = rows('params/C1_behavioural_parameters.csv')

@@ -25,7 +25,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
 | P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 scenario×day-type input sets. They did not in fact load in MATSim — fixed at P4 stage 0 (§9.4). |
-| P4 Calibration | 🟡 stage 0 done, **blocked** | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed made uninformed (§9.6), seed dependence and convergence measured (§9.7), target identifiability written down (§12.1–12.4). **Blocked on the §8.5 ASC decision** — see below. `src/run/`, `src/calibrate/`, `src/analyse/` are still empty. |
+| P4 Calibration | 🟡 stages 0–1 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed made uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed vehicle occupancy (§9.8), target identifiability written down (§12.1–12.4). `src/run/` and `src/calibrate/` exist; **`src/analyse/` is still empty and there is no fit statistic yet**. |
 | P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction. |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
 | P7 Write-up | ⬜ not started | |
@@ -311,12 +311,36 @@ Two 1% runs of 250 iterations, identical except the initial mode draw
    Points 2 and 3 are probably the same fact — a dominating mode drives the
    co-evolution to a corner, and corners relax slowly.
 
-**This is now a pre-registration question, not an engineering one.**
-[`DECISIONS.md`](DECISIONS.md) §8.5 forbids freely calibrating the ASCs, and
-pulling ride from 65% to 20.6% by fitting `asc_car_passenger` is precisely the
-ASC absorption proposal §9 names as the primary threat to validity. Three options
-are set out in §9.7; **none is chosen**, and nothing downstream should be built
-until one is, because the choice decides what the calibration loop may move.
+## P4 stage 1 — the ride constant, constrained to observed occupancy (11 August 2026)
+
+§9.7 left three options open. The resolution is the second branch
+[`DECISIONS.md`](DECISIONS.md) §8.5 already permits — *"constrain them and report
+the constraint"* — with the constraining quantity **measured, not chosen**
+([`DECISIONS.md`](DECISIONS.md) §9.8).
+
+**The model produced a physically impossible car.** 4.52 ride legs per car leg is
+**5.52 people per vehicle**. Newcastle's observed occupancy, from the HTS driver
+and passenger trip counts, is **1.3503** and has been between **1.2493 and
+1.3940** in every one of the seven survey years in the file.
+
+| | |
+|---|---|
+| Constraint derived by | `src/calibrate/measure_mode_constraints.py` → [`params/C4_mode_constraints.json`](params/C4_mode_constraints.json) |
+| Value | occupancy **1.3503**, passenger:driver **0.3503**, sweep = the observed seven-year spread |
+| Also fixed | `ride` was charged **half** the car distance rate. That half was typed in and double-charges — a vehicle's cost is paid once, and at occupancy 1.35 charging both occupants makes aggregate vehicle operating cost 1.35× the real one. The only derivable value is **zero** |
+| Solved by | `src/calibrate/solve_asc_ride.py`, interpolating on log(ride ÷ car) to the observed ratio. It **never opens the validation targets**, so it cannot read a holdout row |
+
+**Why this is not ASC absorption:** the constrained constant is *car passenger*;
+`asc_lr`, `asc_bus` and `asc_rail` stay at their §8.5 priors. The constraining
+quantity is *how many people fit in a car*, not patronage or PT mode share. No
+hypothesis in proposal §3 turns on it.
+
+**P4 deliverable 1 exists.** `src/run/` now holds `sample_population.py` (nested
+hash subsample; **transit seat capacity scaled with the fraction**, without which
+a 10% sample gives every bus ten times its real capacity and crowding silently
+disappears) and `run_matsim.py` (deterministic, resumable, records its own run).
+`--iterations` has **no default**, because §9.7 shows both 100 and 250 are wrong
+and no justified value has been measured.
 
 ---
 

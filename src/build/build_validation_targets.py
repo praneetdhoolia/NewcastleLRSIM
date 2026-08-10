@@ -241,21 +241,22 @@ def main():
                     % (len(hs), len(aadt_out) - len(hs),
                        int((obs['split'] == 'calibration').sum())),
         },
-        'unmodelled_driver_share': {
-            'value': None,
-            'bounds': [0.0, 1.0],
-            'source': 'not estimated - structurally bounded, no point value',
-            'note': 'A `ride` leg is teleported, so a car passenger adds no '
-                    'vehicle to the road (DECISIONS.md 9.6). That is correct '
-                    'when the driver is separately modelled and wrong when they '
-                    'are not, and B2 generates no escort trips. The share of '
-                    'ride legs whose driver is not otherwise in the model is '
-                    'unknown and nothing in the package measures it, so it is '
-                    'NOT given a point value: modelled link volumes are biased '
-                    'low, by between zero and one vehicle per ride leg on the '
-                    'links that leg would have used. The fit must be reported '
-                    'with that interval shown, never closed by a fitted '
-                    'constant.',
+        'vehicles_per_leg': {
+            'car': 1.0,
+            'ride': 0.0,
+            'source': 'derived - HTS vehicle occupancy 1.3503 persons per '
+                      'vehicle (params/C4_mode_constraints.json) means observed '
+                      'vehicle trips ARE driver trips',
+            'note': 'A passenger rides in a vehicle that is already counted, so '
+                    'the modelled vehicle count is the car legs alone and a ride '
+                    'leg correctly contributes none. This holds only while the '
+                    'modelled ride:car ratio matches the observed '
+                    'passenger:driver ratio, which is what DECISIONS.md 9.8 '
+                    'constrains asc_car_passenger to reproduce. What stays '
+                    'genuinely unmodelled is the escort trip: B2 generates none, '
+                    'so a driver travelling solely to carry someone else is '
+                    'absent. That is a stated limitation, not a fitted '
+                    'parameter.',
         },
     }
     json.dump(corr, open(os.path.join('params', 'C3_count_comparison.json'), 'w'),

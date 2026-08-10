@@ -1042,6 +1042,82 @@ here:
 Nothing downstream of this should be built until it is settled, because the
 choice determines what the calibration loop is allowed to move.
 
+## 9.8 The ride constant is constrained to observed vehicle occupancy
+
+§9.7 left three options open and none chosen. This is the resolution, and it is
+the second branch §8.5 already permits — *"or constrain them and report the
+constraint"* — with the constraining quantity measured rather than picked.
+
+### The model produced a physically impossible car
+
+At `asc_car_passenger = −0.85` the model settled at **4.52 ride legs per car
+leg**: an implied **5.52 people per vehicle**. A car has about five seats. The
+observed Newcastle figure, from the HTS vehicle driver and vehicle passenger trip
+counts, is **1.3503** — and it is stable:
+
+| Financial year | Driver trips | Passenger trips | Occupancy |
+|---|---:|---:|---:|
+| 2016/17 | 334,000 | 106,000 | 1.3174 |
+| 2017/18 | 303,000 | 86,000 | 1.2838 |
+| 2018/19 | 337,000 | 84,000 | 1.2493 |
+| 2019/20 | 348,000 | 99,000 | 1.2845 |
+| 2022/23 | 335,000 | 132,000 | 1.3940 |
+| 2023/24 | 317,000 | 109,000 | 1.3438 |
+| **2024/25** | 334,000 | 117,000 | **1.3503** |
+
+Both quantities are ratios of two published counts. `src/calibrate/measure_mode_constraints.py`
+derives them into [`params/C4_mode_constraints.json`](params/C4_mode_constraints.json);
+the sweep is **1.2493–1.3940**, the observed spread across all seven survey years
+in the file, not an interval anyone chose.
+
+### First, a double charge removed
+
+`ride` was charged **half** the car distance rate — −9e-05 against −0.00018. That
+half was typed in, not derived, and it double-counts: a vehicle's operating cost
+is paid once, and at an occupancy of 1.35 charging both driver and passenger
+makes the model's aggregate vehicle operating cost about 1.35× the real one. The
+only value derivable from the data is **zero** — the driver, who is separately
+modelled, already carries it.
+
+This makes `ride` free at the margin, and that is the point: it moves the whole
+burden of pinning ride's share onto one constant, in the open, instead of
+splitting it between a constant and a cost share that was invented.
+
+### Then the constant, solved against the observed ratio
+
+`src/calibrate/solve_asc_ride.py` runs candidate values of `asc_car_passenger`
+and interpolates on log(ride ÷ car legs) — the scale on which a logit constant
+acts linearly — to the observed passenger:driver ratio of **0.3503**. It reads
+`C4` and its own runs' `modestats.csv`; **it never opens the validation targets
+at all**, so it cannot touch a holdout row even by accident.
+
+### Why this is not ASC absorption
+
+Proposal §9 names ASC absorption as the primary threat: *calibrating mode
+constants to observed patronage fits away the effect under test*. The distinction
+that makes this admissible:
+
+* the constrained constant is **car passenger**. `asc_lr`, `asc_bus` and
+  `asc_rail` stay at their §8.5 priors and are not touched;
+* the constraining quantity is **vehicle occupancy** — how many people fit in a
+  car — not light rail patronage, not PT mode share, not any quantity the
+  hypotheses in proposal §3 turn on;
+* it is a **physical** constraint. The unconstrained model was not merely fitting
+  badly, it was putting 5.5 people in a car.
+
+The solved value is reported as a constraint, never presented as an estimate of
+Newcastle's taste for being a passenger, and both the value and the observed
+range it was solved against travel with every result that uses it.
+
+### What this does not fix
+
+The solve is run at a fixed 250-iteration protocol, which §9.7 shows is **not
+equilibrium**. It must be re-solved once the iteration count is settled, and the
+value below is provisional until then. Whether constraining ride also cures the
+non-convergence — the two are plausibly the same problem, since a dominating mode
+drives the co-evolution to a corner and corners relax slowly — is measured by the
+same runs.
+
 ---
 
 ## 10. Scenario construction (E1)
@@ -1227,12 +1303,19 @@ rule can be tested rather than trusted.
 |---|---|---|---|
 | Heavy-vehicle share, where the station carries a classified count | the station's **own observed** share | — | 23 of 119 stations (weekday, two-way): median **0.0652**, mean 0.0776 |
 | Heavy-vehicle share, where it does not | **0.0652** (median) | **0.0129–0.1529** | The observed range across those 23. Only **3 of the 34 calibration stations** are classified, so this assumed case is the usual one |
-| Share of `ride` legs whose driver is not otherwise modelled | **no point value** | structurally bounded **0–1** | Nothing in the package measures it, so it is not given one. A ride leg is teleported and adds no vehicle (§9.6); that is right when the driver is separately modelled and wrong when they are not, and B2 generates no escort trips. Modelled link volumes are therefore biased **low**, by between zero and one vehicle per ride leg |
+| Vehicles per person-trip by car | **1 vehicle per `car` leg, 0 per `ride` leg** | occupancy **1.2493–1.3940** | Derived, not assumed. HTS observes 1.3503 persons per vehicle (§9.8), i.e. **vehicle trips = driver trips**: passengers ride in vehicles that are already counted. So the modelled vehicle count is the `car` legs alone, and a `ride` leg correctly adds none — *provided* the modelled ride:car ratio matches the observed passenger:driver ratio, which is what §9.8 constrains it to |
 
-The third is deliberately left as an interval rather than assigned an assumed
-midpoint. An invented point estimate here would be indistinguishable in the
-output from a measured one, and the honest statement — that the modelled volume
-is a lower bound and the observed count an upper one — is available for free.
+The third replaces what an earlier draft of this section left as a bare 0–1
+interval for "the share of ride legs whose driver is not otherwise modelled".
+That framing was wrong: the HTS occupancy figure settles it. Because observed
+vehicle trips *are* driver trips, teleporting `ride` is the correct treatment for
+a count comparison, and the residual error is not an unknown share but the gap
+between the modelled and observed passenger:driver ratio — which is measurable,
+and is the thing §9.8 pins. What remains genuinely unmodelled is the **escort
+trip**: B2 generates none, so a driver making a trip solely to carry someone else
+is absent from both the `car` legs and the counts' explanation. That is a stated
+limitation, not a fitted parameter.
+
 Both corrections must be reported with the fit, never folded silently into a
 calibrated constant.
 
