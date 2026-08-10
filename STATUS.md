@@ -415,6 +415,12 @@ the wrong loop.
 
 ## How to resume
 
+**For P4 specifically, read [`docs/P4_CHECKPOINT.md`](docs/P4_CHECKPOINT.md)
+first** — the long-form handoff: the seven defects and the pattern they share,
+every measurement taken, every decision and its rationale, what is built and how
+to drive it, and the traps. This file stays the short live status.
+
+
 1. Read this file, then [`DECISIONS.md`](DECISIONS.md) §0 (status summary) and
    [`CLAUDE.md`](CLAUDE.md) (conventions and hard constraints).
 2. `python tests/check_manifest.py` — confirms the committed subset is intact.
