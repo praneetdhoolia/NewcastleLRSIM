@@ -51,7 +51,9 @@ REQUIRED = {
     'A6 active transport': 'data/processed/network/A6_footway_edges.csv',
     'B1 population': 'demand/population/B1_synthetic_population.csv',
     'B1 households': 'demand/population/B1_households.csv',
-    'B2 activity trips': 'demand/plans/B2_activity_trips.csv',
+    'B2 activity trips (weekday)': 'demand/plans/B2_activity_trips_WEEKDAY.csv',
+    'B2 activity trips (Saturday)': 'demand/plans/B2_activity_trips_SAT.csv',
+    'B2 activity trips (Sunday)': 'demand/plans/B2_activity_trips_SUN.csv',
     'B5 counts': 'data/processed/observed/traffic_aadt_newcastle.csv',
     'C1 parameters': 'params/C1_behavioural_parameters.csv',
     'C1 sweep grid': 'params/C1_sensitivity_sweep_grid.csv',
@@ -368,6 +370,315 @@ else:
     check(all(c.get('sha256') and c.get('version') and c.get('url')
               for c in comps.values()),
           'every tool pinned by version, source URL and sha256')
+
+
+# ---- 12. P3 demand: activity chains (B2) ----
+DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
+CHAIN_REPORT = 'demand/plans/_activity_chains_report.json'
+if not os.path.exists(CHAIN_REPORT):
+    check(False, 'B2 activity chains built (run src/build/build_activity_chains.py)',
+          warn=True)
+else:
+    crep = json.load(open(CHAIN_REPORT, encoding='utf-8'))
+    zl = {r['SA1_CODE21'] for r in rows('data/processed/zones/zone_lookup_SA1.csv')}
+    core_tier = {r['SA1_CODE21'] for r in
+                 rows('data/processed/zones/zone_lookup_SA1.csv')
+                 if r['zone_tier'] == 'core'}
+
+    # the old single-file B2 must be gone, not left beside the new one
+    check(not os.path.exists('demand/plans/B2_activity_trips.csv'),
+          'the superseded single-day B2_activity_trips.csv has been removed')
+
+    for day in DAY_TYPES:
+        p = 'demand/plans/B2_activity_trips_%s.csv' % day
+        if not check(os.path.exists(p), 'B2 chains present for %s' % day):
+            continue
+        n = 0
+        bad_zone = bad_time = bad_seq = open_tour = nhb_home = 0
+        home_not_core = home_not_external = 0
+        coords = set()
+        purposes = collections.Counter()
+        placement = collections.Counter()
+        per_person = collections.defaultdict(list)
+        with open(p, encoding='utf-8') as f:
+            for r in csv.DictReader(f):
+                n += 1
+                purposes[r['purpose']] += 1
+                placement[r['dest_placement']] += 1
+                if r['origin_sa1'] not in zl or r['dest_sa1'] not in zl:
+                    bad_zone += 1
+                dep, arr = int(r['dep_time_s']), int(r['arr_time_s'])
+                if arr <= dep or arr > 30 * 3600:
+                    bad_time += 1
+                if r['dest_activity_type'] != 'home':
+                    coords.add((r['dest_x'], r['dest_y']))
+                if r['purpose'] == 'NHB' and r['dest_activity_type'] == 'home':
+                    nhb_home += 1
+                if r['agent_tier'] == 'core':
+                    per_person[(r['person_id'], r['tour_id'])].append(
+                        (int(r['trip_seq']), r['dest_activity_type'], r['origin_sa1']))
+                    # a tour starts at home, so leg 1's origin IS the home zone
+                    if int(r['trip_seq']) == 1 and r['origin_sa1'] not in core_tier:
+                        home_not_core += 1
+                elif int(r['trip_seq']) == 1 and r['origin_sa1'] in core_tier:
+                    home_not_external += 1
+        # every tour must close at home, or MATSim gets an agent who never goes home
+        for key, legs in per_person.items():
+            legs.sort()
+            if legs[-1][1] != 'home':
+                open_tour += 1
+        check(bad_zone == 0,
+              '%s: every activity location resolves to a known SA1 (%d bad)'
+              % (day, bad_zone))
+        check(home_not_core == 0,
+              '%s: every resident agent starts from a home zone in the core tier '
+              '(%d outside it)' % (day, home_not_core))
+        check(home_not_external == 0,
+              '%s: every boundary agent starts from the external tier, not the '
+              'core (%d inside it)' % (day, home_not_external))
+        check(bad_time == 0,
+              '%s: no leg arrives before it departs or after the 30 h horizon (%d bad)'
+              % (day, bad_time))
+        check(open_tour == 0,
+              '%s: every tour closes at home (%d left open)' % (day, open_tour))
+        check(nhb_home == 0,
+              '%s: no return-home leg is labelled NHB (%d were, in P1 all of them)'
+              % (day, nhb_home))
+        # the P1 failure this replaces: 1,481 distinct destinations for 1.45M legs
+        check(len(coords) > 20000,
+              '%s: activity destinations are sub-zonal, not centroids (%d distinct)'
+              % (day, len(coords)))
+        share_poi = placement.get('poi', 0) / max(sum(placement.values())
+                                                  - placement.get('home', 0), 1)
+        check(share_poi > 0.85,
+              '%s: %.1f%% of activity ends sit on an observed attractor'
+              % (day, 100 * share_poi))
+        check('home' not in purposes,
+              '%s: no leg carries "home" as a trip purpose' % day)
+
+    # trip rate must stay tied to the HTS, not drift with the assumptions
+    wk = crep.get('realised_week_trip_rate', 0)
+    hts = crep.get('hts_rate_per_person_day', 3.473)
+    check(abs(wk - hts) / hts < 0.06,
+          'realised week trip rate %.3f within 6%% of the HTS %.3f' % (wk, hts))
+    for pnt, d in crep.get('decay', {}).items():
+        got, want = d['realised_network_km'], d['hts_network_km']
+        check(abs(got - want) / max(want, 1e-6) < 0.02,
+              'gravity decay for %s reproduces the HTS journey distance '
+              '(%.2f vs %.2f km)' % (pnt, got, want))
+    ext = sum(v.get('external_agents', 0) for v in crep.get('by_day', {}).values())
+    check(ext > 0,
+          'the external boundary tier generates demand (%d agents across day types)'
+          % ext)
+
+# ---- 13. P3 demand: MATSim plans ----
+PLANS_REPORT = 'demand/plans/matsim/_plans_report.json'
+if not os.path.exists(PLANS_REPORT):
+    check(False, 'MATSim plans built (run src/build/build_matsim_plans.py)', warn=True)
+else:
+    prep = json.load(open(PLANS_REPORT, encoding='utf-8'))
+    hts_share = prep.get('hts_mode_share_pct', {})
+    for day, v in prep.get('by_day', {}).items():
+        pth = 'demand/plans/matsim/population_%s.xml.gz' % day
+        if not check(os.path.exists(pth), 'MATSim population present for %s' % day):
+            continue
+        check(v['activities'] == v['legs'] + v['persons'],
+              '%s: activities = legs + persons, so every plan alternates '
+              'activity/leg and closes (%d = %d + %d)'
+              % (day, v['activities'], v['legs'], v['persons']))
+        seed = v.get('seed_mode_share', {})
+        check(abs(sum(seed.values()) - 1.0) < 1e-3,
+              '%s: seed mode shares sum to 1' % day)
+        # a seed is not a prediction, but starting far from the observed
+        # aggregate wastes iterations, so hold it loosely to HTS
+        if hts_share:
+            car = 100 * seed.get('car', 0)
+            pt = 100 * seed.get('pt', 0)
+            check(abs(car - hts_share['car']) < 8.0,
+                  '%s: seed car share %.1f%% within 8 pp of the HTS %.1f%%'
+                  % (day, car, hts_share['car']))
+            check(abs(pt - hts_share['pt']) < 3.0,
+                  '%s: seed PT share %.1f%% within 3 pp of the HTS %.1f%%'
+                  % (day, pt, hts_share['pt']))
+    # the first line of the file has to be parseable as MATSim v6 population
+    head = gzip.open('demand/plans/matsim/population_WEEKDAY.xml.gz',
+                     'rt', encoding='utf-8').read(400)
+    check('population_v6.dtd' in head,
+          'plans declare the MATSim population_v6 DTD')
+
+# ---- 14. P3 run inputs: one build, day types, patched run networks ----
+RUN_REPORT = 'scenarios/matsim/_run_inputs_report.json'
+if not os.path.exists(RUN_REPORT):
+    check(False, 'MATSim run inputs built (run src/build/build_matsim_run_inputs.py)',
+          warn=True)
+else:
+    rrep = json.load(open(RUN_REPORT, encoding='utf-8'))
+    mrep2 = json.load(open('networks/matsim/_matsim_build_report.json',
+                           encoding='utf-8'))
+    sc = rrep.get('scenarios', {})
+    check(len(sc) == 10, 'run inputs assembled for all 10 scenarios (found %d)'
+          % len(sc))
+    for sid, v in sorted(sc.items()):
+        days = v.get('days', {})
+        check(set(days) == set(DAY_TYPES),
+              '%s: run inputs for all three day types' % sid)
+        # the split must partition the mapped schedule, losing nothing
+        total = sum(d['routes_kept'] for d in days.values())
+        src_routes = mrep2['schedules'].get(sid, {}).get('transit_routes')
+        if src_routes:
+            check(total == src_routes,
+                  '%s: day-type split partitions the mapped schedule exactly '
+                  '(%d = %d routes)' % (sid, total, src_routes))
+        for d, c in sorted(days.items()):
+            check(c['routes_kept'] > 0 and c['departures'] > 0,
+                  '%s/%s: schedule retains services (%d routes, %d departures)'
+                  % (sid, d, c['routes_kept'], c['departures']))
+            check(c['vehicles'] == c['vehicle_refs'],
+                  '%s/%s: every referenced transit vehicle is present (%d)'
+                  % (sid, d, c['vehicles']))
+            cfg = 'scenarios/matsim/%s/%s/config.xml' % (sid, d)
+            check(os.path.exists(cfg), '%s/%s: config.xml written' % (sid, d))
+    # the E1 road variant means the same on the run network as on the base
+    base_touch = mrep2.get('road_variants', {})
+    for sid, v in sorted(sc.items()):
+        ref = v['road_variant']
+        want = base_touch.get(ref, {}).get('links_touched', {})
+        got = v.get('links_touched', {})
+        if want.get('banned_turns_removed') is not None:
+            check(got.get('banned_turns_removed') == want['banned_turns_removed'],
+                  '%s: banned turns dropped only on the corridor, as on the base '
+                  'network (%s vs %s)'
+                  % (sid, got.get('banned_turns_removed'),
+                     want['banned_turns_removed']))
+        if want.get('num_lanes_per_dir'):
+            ratio = got.get('num_lanes_per_dir', 0) / want['num_lanes_per_dir']
+            check(0.95 <= ratio <= 1.0,
+                  '%s: lane patch reaches the run network (%d of %d base links; '
+                  'the shortfall is pt-only links pt2matsim removed)'
+                  % (sid, got.get('num_lanes_per_dir', 0),
+                     want['num_lanes_per_dir']))
+
+# ---- 15. P3: every PT stop the run needs resolves on the run network ----
+# A MATSim plan does not name stops - a pt leg is <leg mode="pt"/> and the
+# router picks stops at run time - so "every plan's PT legs reference stops that
+# exist" resolves to this: every stop in the schedule a scenario will run must
+# attach to a link that exists on that scenario's run network. Checked for all
+# 30 combinations, not a sample: a dangling stop is exactly the kind of thing
+# that appears in one scenario and not another.
+if os.path.exists(RUN_REPORT):
+    total_dangling = 0
+    for sid in sorted(json.load(open(RUN_REPORT, encoding='utf-8'))
+                      .get('scenarios', {})):
+        net = 'scenarios/matsim/%s/network.xml.gz' % sid
+        if not os.path.exists(net):
+            continue
+        links = set()
+        with gzip.open(net, 'rt', encoding='utf-8') as f:
+            for ln in f:
+                m = re.search(r'<link id="([^"]+)"', ln)
+                if m:
+                    links.add(m.group(1))
+        for day in DAY_TYPES:
+            sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
+            if not os.path.exists(sch):
+                continue
+            refs, missing = 0, 0
+            with gzip.open(sch, 'rt', encoding='utf-8') as f:
+                for ln in f:
+                    m = re.search(r'<stopFacility [^>]*linkRefId="([^"]+)"', ln)
+                    if m:
+                        refs += 1
+                        if m.group(1) not in links:
+                            missing += 1
+            total_dangling += missing
+            check(refs > 0 and missing == 0,
+                  '%s/%s: every transit stop attaches to a link on the run '
+                  'network (%d stops, %d dangling)' % (sid, day, refs, missing))
+    check(total_dangling == 0,
+          'no dangling transit stop in any of the 30 scenario x day-type run '
+          'input sets')
+
+
+# ---- 16. P3: every assumed value carries a sweep range ----
+# Proposal 8.1, quoted at the top of DECISIONS.md: "Every parameter chosen
+# without direct empirical support must be recorded here with its rationale and
+# its sweep range." That was discipline; this makes it a test. A parameter is
+# exempt only if it is measured from an observed layer, in which case the report
+# says where from.
+if os.path.exists(CHAIN_REPORT):
+    crep2 = json.load(open(CHAIN_REPORT, encoding='utf-8'))
+
+    def has_range(v):
+        return (isinstance(v, (list, tuple)) and len(v) == 2
+                and all(x is not None for x in v) and v[0] != v[1])
+
+    for key in ('sat_to_sun_sweep', 'p_mandatory_work_sweep',
+                'p_mandatory_education_sweep', 'p_intermediate_sweep',
+                'p_second_stop_sweep', 'child_tour_retention_sweep',
+                'external_interaction_sweep', 'detour_sweep'):
+        check(has_range(crep2.get(key)),
+              'B2 assumed value carries a sweep range: %s = %s'
+              % (key, crep2.get(key)))
+    for key in ('day_purpose_mix_sweep', 'act_duration_sweep'):
+        v = crep2.get(key)
+        check(isinstance(v, (int, float)) and v > 0,
+              'B2 assumed value carries a proportional sweep: %s = %s' % (key, v))
+
+    # the factors that ARE measured must say so, and must not read as assumed
+    check('measured' in str(crep2.get('detour_source', '')),
+          'detour factor is measured from the road network, not assumed (%s)'
+          % crep2.get('detour_source'))
+    check('measured' in str(crep2.get('day_rate_shape_source', '')),
+          'weekday/weekend split is measured from traffic counts, not assumed')
+
+if os.path.exists(PLANS_REPORT):
+    prep2 = json.load(open(PLANS_REPORT, encoding='utf-8'))
+    check(isinstance(prep2.get('typical_duration_sweep'), (int, float))
+          and prep2['typical_duration_sweep'] > 0,
+          'typical activity durations carry a proportional sweep')
+    sw = prep2.get('seed_mode_sweep', {})
+    check(all(len(v) == 2 and v[0] != v[1] for v in sw.values()) and sw,
+          'seed mode split carries sweep ranges (%s)' % sorted(sw))
+
+if os.path.exists(RUN_REPORT):
+    rrep2 = json.load(open(RUN_REPORT, encoding='utf-8'))
+    sco = rrep2.get('scoring', {})
+    for key in ('performing_sweep', 'monetary_distance_rate_sweep',
+                'subtour_mode_choice_weight_sweep', 'transfer_penalty_sweep'):
+        v = sco.get(key)
+        check(isinstance(v, list) and len(v) == 2 and v[0] != v[1],
+              'MATSim scoring assumed value carries a sweep range: %s = %s'
+              % (key, v))
+    check(len(sco.get('not_representable', [])) >= 3,
+          'the C1 elements that do not survive translation to MATSim scoring '
+          'are recorded (%d)' % len(sco.get('not_representable', [])))
+
+# ---- 17. C2 measured factors ----
+C2 = 'params/C2_network_factors.json'
+if not os.path.exists(C2):
+    check(False, 'C2 network factors measured (run src/build/measure_network_factors.py)',
+          warn=True)
+else:
+    c2 = json.load(open(C2, encoding='utf-8'))
+    d = c2.get('detour_factor', {})
+    check(d.get('pairs_routed', 0) > 200,
+          'detour factor measured over a usable sample (%d routed zone pairs)'
+          % d.get('pairs_routed', 0))
+    check(1.1 < d.get('value', 0) < 1.8,
+          'measured detour factor is physically plausible (%.4f)' % d.get('value', 0))
+    check(d['sweep'][0] < d['value'] < d['sweep'][1],
+          'measured detour factor sits inside its own sweep range')
+    dt = c2.get('day_type', {})
+    check(dt.get('station_years', 0) > 100,
+          'weekend/weekday ratio measured over a usable sample (%d station-years)'
+          % dt.get('station_years', 0))
+    check(0.5 < dt.get('weekend_to_weekday', 0) < 1.0,
+          'measured weekend/weekday traffic ratio is plausible (%.4f)'
+          % dt.get('weekend_to_weekday', 0))
+    wa = c2.get('work_attendance', {})
+    check('LOWER BOUND' in wa.get('source', ''),
+          'census G62 attendance is used only as a sweep lower bound, never as '
+          'a value (DECISIONS.md 2.4 rules G62 out as a behavioural rate)')
 
 # ---- report ----
 print('PASS %d' % len(OK))

@@ -1,0 +1,34 @@
+{
+  "seed": 20260810,
+  "detour_factor": {
+    "value": 1.3376,
+    "sweep": [
+      1.25,
+      1.423
+    ],
+    "source": "measured - shortest path over the observed A1 road graph",
+    "pairs_routed": 551,
+    "pairs_unroutable": 48,
+    "sample_seed": 20260810,
+    "mean_of_ratios": 1.402,
+    "median_of_ratios": 1.317,
+    "note": "aggregate ratio of summed network to summed straight-line distance over population-weighted zone pairs; the sweep is the interquartile range of the per-pair ratios"
+  },
+  "day_type": {
+    "weekend_to_weekday": 0.7521,
+    "sweep": [
+      0.709,
+      0.816
+    ],
+    "station_years": 551,
+    "source": "measured - RMS traffic counts, WEEKENDS vs WEEKDAYS period",
+    "note": "vehicle volume, not person trips: it fixes the weekday/weekend ratio but says nothing about how the weekend splits between Saturday and Sunday, which stays assumed and swept"
+  },
+  "work_attendance": {
+    "census_day_attendance": 0.6508,
+    "worked_from_home_pct": 19.19,
+    "did_not_go_pct": 15.72,
+    "source": "measured - census 2021 G62, used as a sweep LOWER BOUND only",
+    "note": "census night was August 2021 and 19.2% worked from home, so this carries the lockdown with it. DECISIONS.md 2.4 already rules G62 out as a behavioural rate; it bounds the P_MANDATORY sweep from below rather than setting it."
+  }
+}

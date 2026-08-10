@@ -245,6 +245,57 @@ Handled, not hidden:
 - **Action:** rebuild the S2c/S4/S5 shapes in `build_scenario_schedules.py`
   before any extension result is published.
 
+**Resolved at P3 (10 August 2026).** `src/build/shape_tools.py` builds the
+missing geometry from layers the package already observes, and
+`build_scenario_schedules.py` writes it into the feeds. The defect turned out
+to extend one feed further than recorded above: **S0** extends heavy rail to
+Civic and Newcastle without extending its shape either.
+
+| Feed | Alignment now | Length | Evidence |
+|---|---|---|---|
+| S4 / S5 | Routed over the **observed OSM centreline** of the streets the 2020 NLR Extension Strategic Business Case names — Tudor, Belford, Lambton Rd, Turton Rd, Russell Rd, Lookout Rd | 7.00 km to JHH (S4 is this truncated at Broadmeadow, 2.58 km) | The SBC states **6.65 km**; the independently routed corridor lands **+5.3%** on that, over the published street sequence |
+| S2c | The retained **harbour-side former-railway strip**, observed where it survives (Foreshore Footpath) and interpolated across the redeveloped gap | 2.93 km | 33% of the length is observed OSM geometry; the rest is interpolated and labelled so |
+| S0 | The same corridor, to the former Newcastle station | 2.58 km | 21% observed |
+
+**Stop sitings are still assumed, but no longer typed.** Each extension stop is
+now anchored on an observed feature and then projected onto the routed
+corridor:
+
+| Stop | Anchor | Offset |
+|---|---|---|
+| Hamilton (Beaumont St) | observed Tudor St × Beaumont St intersection | 0 m |
+| Broadmeadow | observed `railway=station` node, Broadmeadow Station | 98 m |
+| Lambton | observed Lambton Rd × Turton Rd intersection | 0 m |
+| John Hunter Hospital | observed POI `w1025992530`, `health:hospital` | 107 m |
+
+The P1 coordinate for **Hamilton sat 548 m off the published corridor** — it
+was near Beaumont St/Maitland Rd rather than on Tudor St. That is the one
+siting the correction actually moves.
+
+**Consequences, both material:**
+
+1. **The extension corridor roughly doubled.** Derived from a real 7.0 km
+   routed alignment rather than a straight-line interpolation through two to
+   four stops, the E1 patch set grows from 195 rows to **414** (S5 89 → 240,
+   S4 66 → 134). Corridor/parallel edges go from 605 to **714**. The extension
+   lane take is applied to far more edges than at P2, and 85.4% of those lane
+   counts are observed in OSM.
+2. **S2c is now a different scenario in the model, not just in the timetable.**
+   Its 11 tram stops move onto the reserved corridor (about 115 m north of
+   Hunter Street) *before* the run-time decomposition, so its timetable
+   describes the reserved alignment. Previously its stops sat on Hunter/Scott
+   and pt2matsim mapped them to the street network — the alignment the
+   scenario exists to avoid.
+
+**One pre-existing source-feed limitation, measured rather than patched over.**
+**477 of 4,374 base-feed trips (10.9%)** carry a GTFS shape that ends more than
+500 m from the trip's own last stop — worst case 249 km, the intercity services
+whose shapes cover only part of the run. It is identical in every scenario feed
+so it cannot bias a comparison. The S0 corridor is therefore spliced only onto
+shapes that actually reach the Interchange (`S0_JOIN_TOLERANCE_M = 1500 m`);
+125 of the 254 extended trips keep their short source shape rather than gain
+an invented 2.4 km of geometry.
+
 ### 3.5 pt2matsim is not reproducible run to run — measured, not assumed away
 
 `PublicTransitMapper` does not produce byte-identical output from identical
@@ -561,43 +612,223 @@ active 0.70. **Assumed.**
 
 ## 9. Synthetic population and demand (B1, B2)
 
-**612,680 persons in 246,022 households, 2,020,696 trips.** Seed 20260810.
-Deterministic: same seed reproduces exactly.
+### 9.1 B1 — persons and households
 
+**612,668 persons in 245,738 households.** Seed 20260810, deterministic.
 Fitted to census marginals per SA1 — household size (G35), vehicles (G34),
 dwelling structure (G36), age–sex (G04), labour force (G43/G46), income (G17),
 occupation (G60). Validation of the fit:
 
 | Statistic | Census | Synthetic |
 |---|---:|---:|
-| Mean household size | 2.49 (implied) | 2.49 |
-| Zero-vehicle households | 5.71% | 5.93% |
-| Mean vehicles per household | 1.818 | 1.809 |
+| Mean household size | 2.49 (implied) | 2.493 |
+| Zero-vehicle households | 5.71% | 5.95% |
+| Mean vehicles per household | 1.818 | 1.806 |
 | Employed as share of persons | ~50% | 50.4% |
 
-Assumed elements:
+Assumed elements: **licence holding by age band** (0.62 at 18–24 rising to 0.94
+at 45–54, falling to 0.45 at 85+), NSW-typical; **home coordinates** jittered
+within the SA1 at 0.6 × the equivalent-circle radius.
 
-- **Licence holding by age band** (0.62 at 18–24 rising to 0.94 at 45–54,
-  falling to 0.45 at 85+). NSW-typical, assumed.
-- **Trip rates** from HTS 2024/25 for the study-area LGAs: 3.47 trips/person/day.
-  Because HTS counts the return-home leg, activity rates are scaled by **0.7345**
-  so that E[activities] + P(any activity) = 3.47. Realised 3.298 (−5%), the
-  shortfall being persons who generate no activity at all.
-- **Departure-time profiles** by purpose: 24-hour vectors, NSW-typical shapes,
-  **assumed**.
-- **Activity durations**: work 465 min, education 360, shopping 45, other 90,
-  business 60, NHB 20. **Assumed**, ±30% lognormal.
-- **Destination choice**: singly-constrained gravity, attraction × exp(−d/d̄),
-  with d̄ the HTS mean journey distance for that purpose (commute 19.3 km,
-  education 6.9, shopping 7.4, other 9.1, business 23.7).
-- **Home coordinates** are jittered within the SA1 at 0.6 × the equivalent-circle
-  radius. Dwelling-level placement would be better and is available for the CBD
-  only (10,795 building footprints).
+> **P3 note.** `build_population.py` no longer generates chains, so it no longer
+> draws random numbers for them, and the person/household draw moved slightly:
+> 612,680 → 612,668 persons, 246,022 → 245,738 households. Every fit statistic
+> above is unchanged to within 0.02 pp. The file is a different sample of the
+> same distribution, not a different distribution.
 
-**Known limitation.** The plans are *seed* plans: departure times and modes are
-initial conditions for MATSim's co-evolutionary scoring, not predictions. Mode is
-deliberately **not** assigned in B2 — assigning it here would pre-empt the
-question the model exists to answer.
+### 9.2 B2 — activity chains (rebuilt at P3)
+
+The P1 chains were **not usable as MATSim plans**. Measured on the delivered
+file before replacing it:
+
+| Defect | Measured |
+|---|---|
+| Destinations were zone centroids | 1,452,065 activity legs landed on **1,481 distinct coordinates**; one centroid took **158,431 legs (10.9%)** |
+| Chains were not tours | activities were shuffled and chained without returning home, so **684,125 legs (47%)** had a home-based purpose but did not start at home |
+| Purposes were wrong | **all 568,631** closing legs were labelled NHB, making 70% of "NHB" simply going home |
+| One subtour per agent | every day was a single home→…→home loop, so MATSim's `SubtourModeChoice` would fix one chain-based mode for the whole day |
+| The day did not close | 1.77% of arrivals fell past 24 h, the latest at **36.0 h** |
+| One generic day | though the schedules carry WEEKDAY/SAT/SUN |
+
+`src/build/build_activity_chains.py` replaces them with home-anchored **tours**,
+one file per day type. Realised over 612,668 persons:
+
+| | WEEKDAY | SAT | SUN |
+|---|---:|---:|---:|
+| Legs | 2,177,684 | 1,991,493 | 1,688,002 |
+| Tours | 970,065 | 887,526 | 751,564 |
+| Legs per person | 3.554 | 3.251 | 2.755 |
+| Persons with more than one tour | 56.7% | 56.2% | 49.9% |
+
+Structural properties, verified on the full output: **100%** of tours close at
+home; **zero** return-home legs are labelled NHB; **zero** legs arrive after the
+30 h horizon; non-home destinations occupy **76,278** distinct coordinates on a
+weekday and the busiest single coordinate takes **0.65%** of legs, against 10.9%
+before. **95.5%** of activity ends are placed on an observed POI or CBD building
+footprint; 4.5% fall back to a jittered point in zones that have neither.
+
+The realised week trip rate is **3.397** against the HTS **3.473** (−2.2%; P1
+was −5%). The residual is tours dropped for not fitting inside the day.
+
+#### Assumed values introduced here
+
+**Measured from Newcastle data** (`src/build/measure_network_factors.py` →
+[`params/C2_network_factors.json`](params/C2_network_factors.json)). Each of
+these was a typed-in constant until P3:
+
+| Value | Measured | Source | Was |
+|---|---|---|---|
+| `DETOUR_FACTOR` (straight-line → network) | **1.3376**, sweep 1.25–1.42 | Shortest path over the observed A1 road graph, 551 population-weighted zone pairs routed. Aggregate ratio of summed network to summed straight-line distance — the mean of per-pair ratios (1.43) is pulled up by short circuitous trips and would overstate the correction for the long trips that dominate a distance mean. | assumed 1.30 |
+| Weekday vs weekend travel | **0.7521**, sweep 0.709–0.816 | RMS traffic counts, which publish a `WEEKDAYS` and a `WEEKENDS` figure per station-year — 551 station-years. | assumed (implied 0.825) |
+| Lower bound on work attendance | **0.6508** | Census G62: of employed residents, the share who travelled to work on census night. | no bound |
+
+**Still assumed, each now with a sweep range:**
+
+| Value | Assumed | Sweep | Why it is not observed |
+|---|---|---|---|
+| Saturday : Sunday split *within* the weekend | 1.1875 | 1.00–1.45 | The traffic counts report one `WEEKENDS` figure and do not separate the two days. This is the only part of the day-type shape still assumed — the weekday/weekend ratio itself is measured. |
+| Day-type purpose mix | commute and education collapse at the weekend, shopping and social rise | ±30% on each multiplier | The HTS carries no day-of-week dimension — confirmed in the raw workbook, whose only dimensions are financial year, LGA, mode and purpose. Renormalised against the HTS purpose share so it redistributes rather than inflates. |
+| `P_MANDATORY` (work / education tour made on a given day) | 0.78 / 0.85 weekday | **0.65**–0.90 / 0.70–0.95 | The lower bound is now observed: census G62 says 65.1% of employed residents travelled to work on census night. It cannot set the *value* — that night was August 2021 with 19.2% working from home, so it carries the lockdown with it, and §2.4 already rules G62 out as a behavioural rate. It bounds the sweep from below instead. |
+| `P_INTERMEDIATE_STOP` by purpose | 0.12–0.30 | 0.10–0.35 | Trip chaining rates are not in the published HTS tables. **This parameter decides how many sub-tours exist, and therefore how freely MATSim's mode choice can vary within a day.** |
+| `P_SECOND_STOP` | 0.25 | 0.12–0.40 | Same reason. |
+| `CHILD_TOUR_RETENTION` | 0.4 | 0.25–0.60 | Share of an under-12's secondary tours made independently. |
+| `EXTERNAL_INTERACTION_RATE` | 0.08 | 0.04–0.15 | Share of external-tier residents entering the core on a weekday. **This one is not derivable from the package as it stands**: the census place-of-work tables (W01A…) give jobs *by* SA2 but there is no journey-to-work origin-destination table (SA2 usual residence × SA2 place of work), which is what would settle it. Added to §13. |
+| Activity durations, departure profiles | carried from P1 | ±25% on each mean; ±30% lognormal within | Not Newcastle-specific in any observable sense. |
+
+#### Destination choice is now tied to the HTS, not set by hand
+
+P1 set the gravity decay to `1/mean-distance` directly, which left education and
+shopping **60% too long** and work-related business **22% too short**. The decay
+is now solved per purpose by bisection so the model's own expected journey
+distance equals the HTS figure. Realised against target, all six purposes:
+
+| Purpose | HTS network km | Model network km |
+|---|---:|---:|
+| HW | 17.76 | 17.76 |
+| HE | 6.44 | 6.44 |
+| HS | 7.13 | 7.13 |
+| HO | 10.16 | 10.16 |
+| WB | 23.02 | 23.02 |
+| NHB | 7.84 | 7.84 |
+
+#### External boundary demand
+
+B1 synthesises the 1,500 core SA1s only, so the 201 external SA1s — the boundary
+tier that exists to carry Hunter Line through-demand (§1, scope decision 3) —
+generated no travel at all, though their **70,448** residents are a ninth of the
+core population. A boundary treatment now generates **5,384** weekday agents
+(2,254 Saturday, 1,697 Sunday), each making one home-based tour into the core,
+reaching 828 distinct core zones at a mean 59.8 km. This is a boundary
+treatment, not a second population synthesis: freight, the Port and full
+external synthesis stay out of scope (proposal §5).
+
+**Known limitation, unchanged from P1.** The plans are *seed* plans: departure
+times are initial conditions for MATSim's co-evolutionary scoring, not
+predictions. Mode is deliberately **not** assigned in B2 — assigning it here
+would pre-empt the question the model exists to answer.
+
+## 9.3 MATSim plans and the C1 translation (P3)
+
+`build_matsim_plans.py` turns B2 into `population_v6` plans, one file per day
+type; `build_matsim_run_inputs.py` assembles a runnable scenario per
+(scenario × day type). 517,936 weekday persons, 2,188,436 legs, 2,706,372
+activities.
+
+**Mode is seeded here, and only here.** B2 still carries no mode (§9.2), but a
+MATSim plan cannot omit one. A mode is drawn **per tour**, so a car that leaves
+home comes home again and `SubtourModeChoice`'s mass conservation holds from
+iteration 0. This only works because the P3 chains have several tours a day —
+under the P1 chains every agent had exactly one subtour, so a per-tour draw
+would have fixed one mode for the whole day.
+
+| | Seeded | HTS 2024/25 |
+|---|---:|---:|
+| car | 55.7% | 57.5% |
+| ride (car passenger) | 18.6% | 21.5% |
+| walk | 19.3% | 16.1% |
+| pt | 4.0% | 3.4% |
+| bike / other | 2.4% | 1.6% |
+
+The seed is set near the HTS aggregate because starting iteration 0 far from the
+observed point wastes iterations without changing where the model converges.
+**Seeding near HTS is not matching it** — mode share is a P4 calibration target
+(§2.4), and this is the initial condition the calibration starts from. Assumed,
+swept: car share among car-available 0.68–0.86, PT share among car-unavailable
+0.05–0.20.
+
+### What does not survive the C1 → MATSim translation
+
+C1 is a nested-logit specification; MATSim scores with a Charypar–Nagel utility.
+Three things have no representation and are recorded rather than dropped
+quietly:
+
+| C1 element | Fate |
+|---|---|
+| `nesting_coefficient_pt = 0.65` and the nest structure | **Not representable.** MATSim's mode choice is a co-evolutionary search, not a closed-form nested logit; there is nowhere to put a nest coefficient. |
+| Per-purpose value of time (commute 18.6, work-business 55.4 AUD/h) | **Collapsed** to a trip-weighted **16.96 AUD/h**, because MATSim scores per mode, not per purpose. A scenario that shifts the purpose mix will not shift the value of time with it. |
+| `beta_crowding_seated` / `_standing` | **Not enabled.** Capacity-dependent PT scoring needs an explicit extension. |
+
+The identity used is the conventional
+`VOT = (performing − traveling_mode) / marginalUtilityOfMoney`, with
+`performing = 6.0` utils/h (assumed; the whole scoring scale is relative to it)
+and `marginalUtilityOfMoney = 1.0` utils/AUD as the definitional anchor.
+`utilityOfLineSwitch` carries the swept transfer penalty (§8.1).
+
+### The one-build constraint, discharged structurally
+
+Every feed's mapped schedule carries all three day types at once — S2 has 1,714
+routes, 1,231 WEEKDAY + 291 SAT + 192 SUN, and 4,269 departures against 2,188
+weekday GTFS trips. **Running an unfiltered schedule would put roughly twice the
+real PT supply on the network.** The day-type filter therefore operates on the
+*already mapped* schedule, selecting `transitRoute` ids by their day-type token.
+Verified on S2: all **1,714** route link sequences byte-identical to the source,
+the stop→link map for all **4,174** facilities unchanged, and the three day types
+partition the route set exactly. No feed is ever re-mapped, so §3.5's constraint
+holds by construction rather than by discipline.
+
+**The run network is not `networks/matsim/variants/`.** Those are patched over
+the *base* network, which has no mapped transit links, so they are a reference
+artefact and not runnable. A scenario runs on its own mapped
+`schedules/<S>/network.xml.gz` — 151,594 links against the base 157,678, with
+928 artificial transit links added and 7,012 pre-mapping rail placeholders
+removed, **all of them pt-mode; no car link is lost**. The E1 road variant is
+re-applied on top by `osm:way:id`, which every link carries, and reproduces the
+base build's patch counts exactly (54 lanes / 59 kerbside / 8 banned turns for
+the full-capacity variant).
+
+#### Three defects this stage caught
+
+1. **The day-type token is not always dot-delimited.** The era and scenario
+   feeds namespace it `nisc001:WEEKDAY.2302960`, but the S1 shuttle and S3 BRT
+   that `build_scenario_schedules.py` generates use `S1SHUTTLE_WEEKDAY_0_1`.
+   Matching only the dotted form dropped both from *every* day type — which
+   would have run **S1 with no shuttle and S3 with no BRT**, each scenario
+   without the intervention it exists to test. Caught by a package check
+   asserting that the split partitions the mapped schedule exactly.
+2. **Banned-turn removal was network-wide.** E1's "no banned turns" applies to
+   the corridor without the tram; a first cut stripped `disallowedNextLinks`
+   from the whole network, deleting **1,235** observed restrictions instead of
+   **8**, and quietly handing four scenarios a freer road network.
+3. **`gzip.open` writes the wall clock into the gzip header**, so two builds of
+   identical content produced different bytes and different manifest digests -
+   a direct breach of the determinism rule, and one that would have made every
+   rebuild look like a data change. `src/build/det_io.py` pins the header mtime
+   to 0; a repeat build of the plans and all 30 run-input sets is now
+   byte-identical.
+
+### Assumed values introduced here
+
+**None of these is Newcastle-specific** — they are properties of MATSim's
+scoring and replanning formulation, not observable quantities of this study
+area, so there is nothing local to derive them from. All are swept.
+
+| Value | Assumed | Sweep | Why |
+|---|---|---|---|
+| Seed mode split | see table above | car 0.68–0.86, PT 0.05–0.20 | Initial condition for co-evolution; P4 moves it. The *blend* is positioned against the observed HTS mode share. |
+| `performing` | 6.0 utils/h | 4.0–8.0 | Conventional MATSim value; the whole scoring scale is relative to it. |
+| `monetaryDistanceRate` car | −0.00018 AUD/m | −0.00025 to −0.00012 | Fuel and tyres only, not standing costs: a mode choice within the day does not re-decide car ownership. Varies with national fuel prices, not with Newcastle. |
+| Typical activity durations | home 12 h, work 8 h, education 6 h, shopping 1 h, other 2 h, business 1 h | ±25% | MATSim scoring needs a typical duration per activity type. |
+| `SubtourModeChoice` weight | 0.10 | 0.05–0.20 | The replanning weight that governs how far the co-evolution can move mode share. Innovation is switched off for the last 20% of iterations. |
 
 ---
 
@@ -722,6 +953,15 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 9. **Event attendance data** — for the event-demand overlay (§10 item 6).
 10. **GTFS-Realtime collection** — start now; it is the fallback for both dwell
     and signal delay, and it accrues only forward.
+11. **Journey-to-work origin-destination table** (ABS: SA2 usual residence ×
+    SA2 place of work) — the package holds the place-of-work side (`W01A…`,
+    jobs *by* SA2) but not the origin-destination pairing, which is what would
+    settle `EXTERNAL_INTERACTION_RATE` (§9.2) instead of sweeping it. It is a
+    standard ABS TableBuilder extract, not a formal request.
+12. **A day-of-week travel split** — the HTS LGA tables have none, so the
+    Saturday:Sunday division within the weekend is the last assumed part of the
+    day-type shape (the weekday/weekend ratio itself is now measured from RMS
+    traffic counts, §9.2).
 
 ---
 
@@ -729,5 +969,9 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **P3 stage 3 — assumptions replaced by Newcastle measurements where the data allows, and the sweep-range rule made mechanical.** Three constants derived rather than typed: the **detour factor** is now routed over the observed A1 road graph (**1.3376**, 551 zone pairs, was assumed 1.30); the **weekday/weekend travel split** comes from the RMS counts' own `WEEKDAYS`/`WEEKENDS` periods (**0.752**, 551 station-years, was implied 0.825); and census G62 gives an observed **lower bound** on work attendance (0.651) without being allowed to set the value, since census night carries the 2021 lockdown (§2.4). Seven parameters that breached proposal §8.1 by carrying no sweep range now carry one, and `check_package.py` **enforces the rule as a test** rather than leaving it to discipline. What genuinely cannot be localised is labelled so: MATSim's `performing`, distance rates, typical durations and replanning weights are properties of the scoring formulation, not of Newcastle. `EXTERNAL_INTERACTION_RATE` stays swept and the missing ABS journey-to-work origin-destination table is added to §13. 497 → **556 checks**, all passing. Still no scenario run; no falsification condition altered. |
+| 2026-08-10 | **P3 stage 2 — MATSim plans, day-type run inputs and the C1 scoring translation (§9.3).** 517,936 weekday agents wired to the single P2 build; the day-type filter works on the already-mapped schedule and is verified to preserve all 1,714 route link sequences and the whole stop→link map. What C1 loses in translation — the nest structure, per-purpose VOT, crowding — is recorded, not dropped. Two defects caught by the new checks: the day-type token is underscore-delimited for the S1 shuttle and S3 BRT, so both were being dropped from every day type and each scenario would have run without its intervention; and banned-turn removal was network-wide, deleting 1,235 observed restrictions instead of 8. `check_package.py` 322 → **497 checks**, all passing. Still no scenario run; no falsification condition altered. |
+| 2026-08-10 | **P3 stage 1 — B2 activity chains rebuilt as tours (§9.2).** The P1 chains put 1,452,065 activity legs on 1,481 zone centroids, labelled every return-home leg NHB, and gave each agent a single subtour; they are replaced, not patched. Destinations are now placed on observed POIs and building footprints, the gravity decay is solved against the HTS journey distance per purpose, three day types are produced, and the 201 external SA1s finally generate boundary demand. `build_population.py` keeps B1 and no longer writes B2; because it no longer draws for chains, the B1 sample shifted 612,680 → 612,668 persons with every fit statistic unchanged. Still no scenario run; no falsification condition altered. |
+| 2026-08-10 | **P3 stage 0 — the §3.4 shape defect closed, and one determinism bug with it.** S0/S2c/S4/S5 alignments rebuilt from observed geometry (§3.4); extension stop sitings anchored on observed features, one of them 548 m out. E1 patch set 195 → 414 rows as a consequence. **`build_scenario_schedules.py` iterated a `set` of trip ids in two places, so `stop_times.txt` row order varied with the Python hash seed** — a violation of the determinism rule that predates this branch and was caught by a repeat-build check; now sorted, and two consecutive builds are byte-identical across all 10 feeds. One MATSim build of all 15 feeds and 4 SUMO nets regenerated on the corrected feeds; 322 package checks pass. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P2 network build.** Toolchain pinned (§3.6). Corridor attributes graded by evidence and the E1 road variants derived as edge-level deltas (§3.4); premise corrected — the corridor is not 75–98% imputed (§2.5). pt2matsim's run-to-run drift measured and bounded (§3.5). Three missing signal variants built (§5). CRS label corrected (§2.6). MATSim network + 15 mapped schedules and 4 SUMO corridor nets produced. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | Initial. P1 data acquisition. Scope decisions §10.1–3, 4, 5 closed. Proposal premises corrected per §2.1–2.4. No scenario run; no falsification condition altered. |
