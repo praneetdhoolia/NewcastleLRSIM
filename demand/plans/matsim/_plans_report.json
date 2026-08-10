@@ -1,55 +1,52 @@
 {
   "seed": 20260810,
+  "seed_mode": "uninformed",
   "seed_mode_split": {
     "True": [
       [
         "car",
-        0.78
+        0.2
       ],
       [
         "ride",
-        0.1
+        0.2
       ],
       [
         "walk",
-        0.09
+        0.2
       ],
       [
         "pt",
-        0.02
+        0.2
       ],
       [
         "bike",
-        0.01
+        0.2
       ]
     ],
     "False": [
       [
         "ride",
-        0.4
+        0.25
       ],
       [
         "walk",
-        0.45
+        0.25
       ],
       [
         "pt",
-        0.09
+        0.25
       ],
       [
         "bike",
-        0.06
+        0.25
       ]
     ]
   },
   "seed_mode_sweep": {
-    "car_share_car_available": [
-      0.68,
-      0.86
-    ],
-    "pt_share_no_car": [
-      0.05,
-      0.2
+    "seed_mode": [
+      "uninformed",
+      "informed"
     ]
   },
   "hts_mode_share_pct": {
@@ -59,6 +56,15 @@
     "pt": 3.39,
     "bike_other": 1.55
   },
+  "hts_mode_share_pct_source": "derived from data/processed/hts/hts_mode_newcastle.csv, 2024/25, LGA rows: trips-weighted over the five study-area LGAs, unlinked, walk includes the walk stage of a PT trip",
+  "hts_calibration_target_pct": {
+    "car": 59.0,
+    "ride": 20.6,
+    "walk": 13.4,
+    "pt": 3.8,
+    "bike_other": 3.2
+  },
+  "hts_calibration_target_source": "derived from data/processed/hts/hts_mode_newcastle.csv, 2024/25, Newcastle LGA, published MODE_SHARE column (linked trips). This is the basis of validation targets V202-V207 and the one a MATSim mode share is comparable to (DECISIONS.md 12.1)",
   "typical_duration_s": {
     "home": 43200,
     "work": 28800,
@@ -68,20 +74,20 @@
     "business": 3600
   },
   "typical_duration_sweep": 0.25,
-  "note": "Seed modes are initial conditions for MATSim co-evolution, drawn per tour so chain-based modes stay conserved. They are not a mode-share prediction and not calibrated here; the calibration target is HTS (DECISIONS.md 2.4).",
+  "note": "Seed modes are initial conditions for MATSim co-evolution, drawn per tour so chain-based modes stay conserved. The default seed is UNINFORMED - uniform over the modes each person can use, conditioned only on B1 car availability - so that the HTS mode share is a target the model has to reach rather than one it is handed (DECISIONS.md 9.6). Run with --seed-mode informed to reproduce the P3 seed.",
   "by_day": {
     "WEEKDAY": {
       "persons": 521502,
       "legs": 2237373,
       "activities": 2758875,
       "tours": 997332,
-      "bytes": 36814849,
+      "bytes": 37541687,
       "seed_mode_share": {
-        "bike": 0.0246,
-        "car": 0.5575,
-        "pt": 0.0399,
-        "ride": 0.1853,
-        "walk": 0.1927
+        "bike": 0.2144,
+        "car": 0.1432,
+        "pt": 0.2146,
+        "ride": 0.214,
+        "walk": 0.2138
       },
       "activity_types": {
         "business": 24078,
@@ -97,13 +103,13 @@
       "legs": 1861017,
       "activities": 2311790,
       "tours": 829771,
-      "bytes": 30519574,
+      "bytes": 31184711,
       "seed_mode_share": {
-        "bike": 0.0226,
-        "car": 0.5839,
-        "pt": 0.0376,
-        "ride": 0.1754,
-        "walk": 0.1804
+        "bike": 0.2129,
+        "car": 0.1499,
+        "pt": 0.2126,
+        "ride": 0.2122,
+        "walk": 0.2125
       },
       "activity_types": {
         "business": 2788,
@@ -119,13 +125,13 @@
       "legs": 1575989,
       "activities": 1990002,
       "tours": 701746,
-      "bytes": 26529811,
+      "bytes": 27093872,
       "seed_mode_share": {
-        "bike": 0.0226,
-        "car": 0.5842,
-        "pt": 0.0374,
-        "ride": 0.1754,
-        "walk": 0.1803
+        "bike": 0.2129,
+        "car": 0.1493,
+        "pt": 0.2126,
+        "ride": 0.2127,
+        "walk": 0.2126
       },
       "activity_types": {
         "business": 1779,

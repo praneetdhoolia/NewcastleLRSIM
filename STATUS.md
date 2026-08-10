@@ -4,12 +4,14 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 10 August 2026
-**Stage:** **P4 stage 0 — the run inputs load, and a run has been costed.** The 30
-assembled scenario × day-type sets could not be loaded by MATSim at all; three
-defects are fixed and all 30 now run. Per-iteration cost and memory are measured
-on this machine. **No scenario has been run to completion, no calibration has been
-performed, and nothing in this repo is a result.**
+**Last updated:** 11 August 2026
+**Stage:** **P4 stage 0 complete; P4 proper is blocked on one decision.** Six
+defects fixed — the 30 run-input sets could not be loaded by MATSim at all, and
+the mode choice was not choosing. Run cost, seed dependence and convergence are
+now measured rather than assumed. **The model does not converge and settles on a
+mode split far from the observed one for a structural reason, which collides with
+the pre-registered rule on mode constants (§8.5). No calibration has been
+performed and nothing in this repo is a result.**
 
 ---
 
@@ -23,7 +25,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
 | P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 scenario×day-type input sets. They did not in fact load in MATSim — fixed at P4 stage 0 (§9.4). |
-| P4 Calibration | 🟡 stage 0 done | Run inputs now load ([`DECISIONS.md`](DECISIONS.md) §9.4); run cost measured (§9.5); what the 67 targets can and cannot constrain is written down (§12.1–12.3). **No calibration loop exists yet** — `src/calibrate/` is still empty. |
+| P4 Calibration | 🟡 stage 0 done, **blocked** | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed made uninformed (§9.6), seed dependence and convergence measured (§9.7), target identifiability written down (§12.1–12.4). **Blocked on the §8.5 ASC decision** — see below. `src/run/`, `src/calibrate/`, `src/analyse/` are still empty. |
 | P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction. |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
 | P7 Write-up | ⬜ not started | |
@@ -166,7 +168,7 @@ over mode share.
 
 | | |
 |---|---|
-| Plans | `demand/plans/matsim/population_{WEEKDAY,SAT,SUN}.xml.gz` — **517,936** weekday persons, 2,188,436 legs, 2,706,372 activities, at **100%** of the population |
+| Plans | `demand/plans/matsim/population_{WEEKDAY,SAT,SUN}.xml.gz` — **521,502** weekday persons, 2,237,373 legs, 2,758,875 activities, at **100%** of the population |
 | Run inputs | `scenarios/matsim/<S>/<DAY>/` — **30 sets** (10 scenarios × 3 day types), each with a day-type-filtered schedule, its vehicles, a patched run network and a `config.xml` |
 | Seed mode share | car 55.7 / ride 18.6 / walk 19.3 / pt 4.0 / bike 2.4 against HTS 57.5 / 21.5 / 16.1 / 3.4 / 1.6 — an **initial condition**, not a calibration |
 | One build | day-type split runs on the **already-mapped** schedule: all 1,714 S2 route link sequences byte-identical to source, stop→link map for 4,174 facilities unchanged |
@@ -258,21 +260,86 @@ is ~765 days of wall clock. The gap is ~3 orders of magnitude, so it closes only
 by cutting sweep breadth, replications and day types — **not** by sample
 fraction, which is the weakest lever because cost is sublinear in it.
 
-Two further things the probe showed, unresolved and awaiting a decision:
+## P4 stage 0 — mode choice was not choosing (11 August 2026)
 
-- **`ride` never changes.** `subtourModeChoice.modes` defaults to
-  `car,pt,bike,walk` with `behavior=fromSpecifiedModesToSpecifiedModes`, so a
-  ride subtour is an absorbing state and **18.6% of legs are output = seed,
-  permanently**. The HTS vehicle-passenger target (20.6%) is consumed by the
-  initial condition, and the ride ASC is unidentifiable as configured.
-- **`considerCarAvailability=false`** (MATSim default), so B1's `carAvail` is
-  ignored by mode choice — the seed was drawn conditional on car availability and
-  the choice model discards that structure.
-- Over 30 iterations at 1%, bike ran from 2.6% to 13.4% against ~3% observed and
-  was still climbing; `avg_executed` moved −176 → −30 and had not settled.
-  **`lastIteration=100` is unvalidated.**
+Three more defects, all in the configuration rather than the data, so the §9.4
+load test could not see them — it overrode the mode handling in order to exercise
+the artefacts. Full detail in [`DECISIONS.md`](DECISIONS.md) §9.6.
+
+| # | Defect | Consequence |
+|---|---|---|
+| 4 | `ride` was declared a network mode that **no link permitted** | `checking 0 nodes and 0 links` for mode ride, then a throw in `PrepareForSim`. **The shipped config could not run even after the §9.4 fixes** |
+| 5 | `subtourModeChoice` was never configured, so MATSim's default `modes=car,pt,bike,walk` applied and a `ride` subtour was an **absorbing state** | `ride` sat at **0.18311 in every iteration**, to five decimals. 18.6% of legs were an input wearing the costume of a result |
+| 6 | `considerCarAvailability` defaulted to `false` | B1's synthesised car availability was **ignored by mode choice** |
+
+Fixed: `qsim.mainMode=car` (a car passenger is not a second vehicle), `ride`
+added to the `modes` of 143,891 links so it is *routed* on the road network,
+`travelTimeCalculator.separateModes=false` so it reads the car travel times,
+`subtourModeChoice.modes=car,ride,pt,bike,walk` and `considerCarAvailability=true`.
+The shipped config now runs unmodified and `ride` moves.
+
+**The seed is now uninformed.** Uniform over the modes each person can use,
+conditioned only on B1 car availability — car **14.3%** against an HTS target of
+59%, deliberately a bad guess. The P3 informed seed is retained behind
+`build_matsim_plans.py --seed-mode informed` so seed dependence can be **tested**
+rather than asserted. `check_package.py` now asserts the seed is *far from* the
+target, the inversion of the check it replaces. **814 checks**, all passing.
+
+## P4 stage 0 — the seed test, and a model that does not converge (11 August 2026)
+
+Two 1% runs of 250 iterations, identical except the initial mode draw
+([`DECISIONS.md`](DECISIONS.md) §9.7). 2,205 s and 2,419 s wall.
+
+| | car | ride | pt | walk | bike |
+|---|---:|---:|---:|---:|---:|
+| Uninformed, iteration 0 | 0.143 | 0.223 | 0.101 | 0.323 | 0.209 |
+| Informed, iteration 0 | 0.564 | 0.183 | 0.019 | 0.209 | 0.026 |
+| **Uninformed, iteration 250** | **0.147** | **0.664** | 0.059 | 0.043 | 0.088 |
+| **Informed, iteration 250** | **0.201** | **0.649** | 0.049 | 0.031 | 0.070 |
+| HTS calibration target | 0.590 | 0.206 | 0.038 | 0.134 | 0.032 |
+
+1. **Seed influence decays but is not gone.** A 42.1 pp gap on car closes to
+   5.4 pp — 87% — and the residual cannot be separated from point 2.
+2. **The model has not converged.** Innovation switches off at iteration 200;
+   ride still moved 0.619 → 0.664 over the last 50 iterations with no new plans
+   being created. **`lastIteration=100` is far too low and 250 is also too low.**
+   The default is left at 100 rather than replaced by another unjustified number,
+   and `check_package.py` now carries a **standing warning** to that effect.
+3. **The attractor is wrong, and it is a specification problem.** `ride` has no
+   driver-availability constraint, is charged half car's distance cost, and
+   consumes no road capacity; only `asc_car_passenger = −0.85` restrains it.
+   Points 2 and 3 are probably the same fact — a dominating mode drives the
+   co-evolution to a corner, and corners relax slowly.
+
+**This is now a pre-registration question, not an engineering one.**
+[`DECISIONS.md`](DECISIONS.md) §8.5 forbids freely calibrating the ASCs, and
+pulling ride from 65% to 20.6% by fitting `asc_car_passenger` is precisely the
+ASC absorption proposal §9 names as the primary threat to validity. Three options
+are set out in §9.7; **none is chosen**, and nothing downstream should be built
+until one is, because the choice decides what the calibration loop may move.
 
 ---
+
+## What P4 still has to build
+
+Proposal §7.1 makes P4 *"fit to observed counts, Opal boardings, run times;
+parameter estimation"*, delivering a **calibrated base** and a **calibration
+report** — §8 deliverable 3, *"fit statistics against all validation targets,
+with honest reporting of where fit is poor"*. None of it exists yet.
+
+| # | Deliverable | Where | Notes |
+|---|---|---|---|
+| 1 | **Run harness** — deterministic nested subsample, transit vehicle capacity scaled with the sample, launch, resume, record | `src/run/` | The scratchpad prototype behind §9.5 and §9.7 is not committed. Vehicle capacities are `seats` only with `standingRoomInPersons=0`, so below 100% they must be scaled or capacity never binds |
+| 2 | **Metric extraction** from events — boardings by line, link volumes, mode share **by LGA of residence** | `src/analyse/` | The mode-share target is Newcastle LGA and the model is five LGAs (§12.1) |
+| 3 | **Fit statistic** against the 67, per target, with the §12.2a corrections shown and never closed by a fitted constant | `src/calibrate/` | Must name the targets it was computed over — "fits 67 targets" overstates what §12.1 says the data supports |
+| 4 | **Calibration loop** — deterministic, resumable, and structurally unable to read a holdout row | `src/calibrate/` | |
+| 5 | **Calibrated base** + parameter provenance | `params/` | |
+| 6 | **Calibration report** | `docs/` | |
+| 7 | **The outer-loop tolerance** — proposal §5.2 runs the MATSim↔SUMO loop *"until the corridor run time is stable within a tolerance **to be defined at calibration**"* | `DECISIONS.md` | **A P4 obligation that was not on any list until now.** It is a number P4 must define, not P5 |
+
+**Everything above is downstream of the §8.5 decision in §9.7.** Building a
+calibration loop before deciding which parameters it may move would be building
+the wrong loop.
 
 ## How to resume
 

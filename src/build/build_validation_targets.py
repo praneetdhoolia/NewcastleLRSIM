@@ -211,7 +211,55 @@ def main():
                         heavy_share_source=('observed' if heavy_share == heavy_share
                                             else 'not_classified_at_this_station'),
                         survey_year=yr, split=split))
-    pd.DataFrame(out).to_csv(os.path.join(OUT, 'road_aadt_targets.csv'), index=False)
+    aadt_out = pd.DataFrame(out)
+    aadt_out.to_csv(os.path.join(OUT, 'road_aadt_targets.csv'), index=False)
+
+    # ---------------- comparison corrections for the count targets -----------
+    # A modelled link volume is not directly comparable to an observed
+    # all-classes count, and the difference must be stated rather than absorbed
+    # by a calibrated constant (DECISIONS.md 12.2a). Written as a parameter
+    # artefact rather than left in prose so the sweep-range rule can be tested.
+    obs = aadt_out[aadt_out['heavy_share_source'] == 'observed']
+    hs = pd.to_numeric(obs['heavy_share'], errors='coerce').dropna()
+    corr = {
+        'heavy_vehicle_share': {
+            'value': round(float(hs.median()), 4),
+            'sweep': [round(float(hs.min()), 4), round(float(hs.max()), 4)],
+            'source': 'measured - NSW Roads traffic volume counts, LIGHT vs '
+                      'HEAVY VEHICLES classification, %s period, two-way' % PERIOD,
+            'stations_observed': int(len(hs)),
+            'stations_total': int(len(aadt_out)),
+            'calibration_stations_observed':
+                int((obs['split'] == 'calibration').sum()),
+            'mean': round(float(hs.mean()), 4),
+            'note': 'The model represents no freight. At the %d stations with a '
+                    'classified count the station\'s own observed share is used; '
+                    'at the remaining %d it is assumed, and the sweep is the '
+                    'observed range across the classified stations. Only %d of '
+                    'the 34 calibration stations carry a classified count, so '
+                    'the assumed case is the usual one.'
+                    % (len(hs), len(aadt_out) - len(hs),
+                       int((obs['split'] == 'calibration').sum())),
+        },
+        'unmodelled_driver_share': {
+            'value': None,
+            'bounds': [0.0, 1.0],
+            'source': 'not estimated - structurally bounded, no point value',
+            'note': 'A `ride` leg is teleported, so a car passenger adds no '
+                    'vehicle to the road (DECISIONS.md 9.6). That is correct '
+                    'when the driver is separately modelled and wrong when they '
+                    'are not, and B2 generates no escort trips. The share of '
+                    'ride legs whose driver is not otherwise in the model is '
+                    'unknown and nothing in the package measures it, so it is '
+                    'NOT given a point value: modelled link volumes are biased '
+                    'low, by between zero and one vehicle per ride leg on the '
+                    'links that leg would have used. The fit must be reported '
+                    'with that interval shown, never closed by a fitted '
+                    'constant.',
+        },
+    }
+    json.dump(corr, open(os.path.join('params', 'C3_count_comparison.json'), 'w'),
+              indent=2)
 
     # ---------------- mode share ----------------
     hm = pd.read_csv(os.path.join(HTS, 'hts_mode_newcastle.csv'))

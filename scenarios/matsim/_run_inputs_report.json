@@ -90,7 +90,8 @@
       "links_touched": {
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
-        "banned_turns_removed": 8
+        "banned_turns_removed": 8,
+        "ride_links": 143891
       },
       "days": {
         "WEEKDAY": {
@@ -134,7 +135,8 @@
       "links_touched": {
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
-        "banned_turns_removed": 8
+        "banned_turns_removed": 8,
+        "ride_links": 143891
       },
       "days": {
         "WEEKDAY": {
@@ -175,7 +177,9 @@
     "S2": {
       "road_variant": "net_base2026",
       "patch_rows": 0,
-      "links_touched": {},
+      "links_touched": {
+        "ride_links": 143891
+      },
       "days": {
         "WEEKDAY": {
           "routes_kept": 1231,
@@ -215,7 +219,9 @@
     "S2a": {
       "road_variant": "net_base2026",
       "patch_rows": 0,
-      "links_touched": {},
+      "links_touched": {
+        "ride_links": 143891
+      },
       "days": {
         "WEEKDAY": {
           "routes_kept": 1231,
@@ -255,7 +261,9 @@
     "S2b": {
       "road_variant": "net_base2026",
       "patch_rows": 0,
-      "links_touched": {},
+      "links_touched": {
+        "ride_links": 143891
+      },
       "days": {
         "WEEKDAY": {
           "routes_kept": 1231,
@@ -298,7 +306,8 @@
       "links_touched": {
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
-        "banned_turns_removed": 8
+        "banned_turns_removed": 8,
+        "ride_links": 143891
       },
       "days": {
         "WEEKDAY": {
@@ -339,7 +348,9 @@
     "S3": {
       "road_variant": "net_base2026",
       "patch_rows": 0,
-      "links_touched": {},
+      "links_touched": {
+        "ride_links": 143891
+      },
       "days": {
         "WEEKDAY": {
           "routes_kept": 1232,
@@ -381,7 +392,8 @@
       "patch_rows": 134,
       "links_touched": {
         "num_lanes_per_dir": 180,
-        "kerbside_use": 302
+        "kerbside_use": 302,
+        "ride_links": 143891
       },
       "days": {
         "WEEKDAY": {
@@ -424,7 +436,8 @@
       "patch_rows": 240,
       "links_touched": {
         "num_lanes_per_dir": 280,
-        "kerbside_use": 498
+        "kerbside_use": 498,
+        "ride_links": 143891
       },
       "days": {
         "WEEKDAY": {
@@ -468,7 +481,8 @@
       "links_touched": {
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
-        "banned_turns_removed": 8
+        "banned_turns_removed": 8,
+        "ride_links": 143891
       },
       "days": {
         "WEEKDAY": {

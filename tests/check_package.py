@@ -199,6 +199,29 @@ check(all(0.0 < float(r['heavy_share']) < 0.5 for r in _obs_heavy),
       'observed heavy-vehicle shares are plausible (%d stations)'
       % len(_obs_heavy))
 
+# The corrections applied when comparing a modelled link volume to an observed
+# count are a parameter artefact, not prose, so the sweep-range rule applies to
+# them like any other assumed value (DECISIONS.md 12.2a).
+C3 = 'params/C3_count_comparison.json'
+if check(os.path.exists(C3), 'count-comparison corrections present (%s)' % C3):
+    c3 = json.load(open(C3, encoding='utf-8'))
+    hv = c3.get('heavy_vehicle_share', {})
+    check(hv.get('source', '').startswith('measured'),
+          'heavy-vehicle share is measured from the classified counts, not '
+          'assumed (%s)' % hv.get('source', '')[:60])
+    lo, hi = (hv.get('sweep') or [None, None])
+    check(lo is not None and hi is not None and lo < hv.get('value', -1) < hi,
+          'heavy-vehicle share carries a sweep range that brackets its value '
+          '(%s in %s)' % (hv.get('value'), hv.get('sweep')))
+    obs_n = {float(r['heavy_share']) for r in _obs_heavy}
+    check(bool(obs_n) and abs(min(obs_n) - lo) < 1e-6 and abs(max(obs_n) - hi) < 1e-6,
+          'the heavy-vehicle sweep is the observed range across the classified '
+          'stations, not a chosen interval')
+    ud = c3.get('unmodelled_driver_share', {})
+    check(ud.get('value') is None and ud.get('bounds') == [0.0, 1.0],
+          'the unmodelled-driver share is left as a structural 0-1 interval '
+          'with no invented point value')
+
 # ---- 8. assumed values carry sweep ranges ----
 c1 = rows('params/C1_behavioural_parameters.csv')
 check(all(r.get('beta_transfer_penalty_low') and r.get('beta_transfer_penalty_high')
@@ -512,6 +535,12 @@ if not os.path.exists(PLANS_REPORT):
 else:
     prep = json.load(open(PLANS_REPORT, encoding='utf-8'))
     hts_share = prep.get('hts_mode_share_pct', {})
+    tgt_share = prep.get('hts_calibration_target_pct', {})
+    check(bool(tgt_share) and 'linked' in prep.get('hts_calibration_target_source', ''),
+          'the HTS calibration target is recorded as the linked Newcastle-LGA '
+          'aggregate, derived from the HTS file rather than typed in')
+    check(bool(prep.get('hts_mode_share_pct_source')),
+          'the five-LGA unlinked HTS aggregate records which aggregation it is')
     for day, v in prep.get('by_day', {}).items():
         pth = 'demand/plans/matsim/population_%s.xml.gz' % day
         if not check(os.path.exists(pth), 'MATSim population present for %s' % day):
@@ -523,17 +552,37 @@ else:
         seed = v.get('seed_mode_share', {})
         check(abs(sum(seed.values()) - 1.0) < 1e-3,
               '%s: seed mode shares sum to 1' % day)
-        # a seed is not a prediction, but starting far from the observed
-        # aggregate wastes iterations, so hold it loosely to HTS
-        if hts_share:
+        # The seed must NOT sit on the calibration target. P3 positioned it
+        # within 2 pp of the HTS aggregate as a convergence aid, which makes a
+        # model that reproduces HTS indistinguishable from one that was handed
+        # it. This check is the inversion of the one it replaces: the initial
+        # condition has to be far enough from the target that arriving there is
+        # evidence (DECISIONS.md 9.6).
+        # anchored to the LINKED Newcastle-LGA aggregate, which is what
+        # validation targets V202-V207 are and what a MATSim main-mode share is
+        # comparable to - not to the unlinked five-LGA figure the P3 seed was
+        # positioned against (DECISIONS.md 12.1)
+        if tgt_share:
             car = 100 * seed.get('car', 0)
-            pt = 100 * seed.get('pt', 0)
-            check(abs(car - hts_share['car']) < 8.0,
-                  '%s: seed car share %.1f%% within 8 pp of the HTS %.1f%%'
-                  % (day, car, hts_share['car']))
-            check(abs(pt - hts_share['pt']) < 3.0,
-                  '%s: seed PT share %.1f%% within 3 pp of the HTS %.1f%%'
-                  % (day, pt, hts_share['pt']))
+            check(abs(car - tgt_share['car']) > 20.0,
+                  '%s: seed car share %.1f%% is far from the HTS calibration '
+                  'target %.1f%%, so the mode-share calibration is not handed '
+                  'its answer' % (day, car, tgt_share['car']))
+        others = [v_ for k, v_ in seed.items() if k != 'car']
+        check(bool(others) and (max(others) - min(others)) < 0.02,
+              '%s: the seed is uninformed - uniform over the non-car modes '
+              '(spread %.4f)' % (day, (max(others) - min(others)) if others else -1))
+    check(False,
+          'lastIteration is NOT validated: two 250-iteration runs at 1% were '
+          'still drifting after innovation was switched off (DECISIONS.md 9.7). '
+          'The shipped default of 100 is known to be too low and is left in '
+          'place only because no justified replacement has been measured',
+          warn=True)
+    check(prep.get('seed_mode') == 'uninformed',
+          'plans were built from the uninformed seed (found %r); the informed '
+          'P3 seed stays available via --seed-mode informed so the seed '
+          'dependence can be tested rather than asserted'
+          % prep.get('seed_mode'))
     # the first line of the file has to be parseable as MATSim v6 population
     head = gzip.open('demand/plans/matsim/population_WEEKDAY.xml.gz',
                      'rt', encoding='utf-8').read(400)
@@ -571,7 +620,36 @@ else:
                   '%s/%s: every referenced transit vehicle is present (%d)'
                   % (sid, d, c['vehicles']))
             cfg = 'scenarios/matsim/%s/%s/config.xml' % (sid, d)
-            check(os.path.exists(cfg), '%s/%s: config.xml written' % (sid, d))
+            if not check(os.path.exists(cfg),
+                         '%s/%s: config.xml written' % (sid, d)):
+                continue
+            # Mode choice has to be able to choose. Until P4, `ride` was outside
+            # subtourModeChoice's mode set, so a ride subtour was an absorbing
+            # state and 18.6% of legs came out exactly equal to their seed - an
+            # input wearing the costume of a result (DECISIONS.md 9.6).
+            ctext = open(cfg, encoding='utf-8').read()
+
+            def param(name, t=ctext):
+                m = re.search(r'<param name="%s" value="([^"]*)"' % name, t)
+                return m.group(1) if m else None
+
+            smc = re.search(r'<module name="subtourModeChoice".*?</module>',
+                            ctext, re.S)
+            smc = smc.group(0) if smc else ''
+            check(bool(smc) and 'ride' in (param('modes', smc) or ''),
+                  '%s/%s: ride is inside the mode-choice set, so its share is an '
+                  'output rather than its seed' % (sid, d))
+            check(param('considerCarAvailability', smc) == 'true',
+                  "%s/%s: mode choice respects B1's car availability" % (sid, d))
+            check('ride' not in (param('mainMode') or ''),
+                  '%s/%s: ride is not simulated in the mobsim - a car passenger '
+                  'is not a second vehicle' % (sid, d))
+            check('ride' in (param('networkModes') or ''),
+                  '%s/%s: ride is routed on the road network, so it carries a '
+                  'congested travel time rather than a beeline guess' % (sid, d))
+            check(param('separateModes') == 'false',
+                  '%s/%s: ride reads the car travel times, since no ride vehicle '
+                  'is ever observed to generate its own' % (sid, d))
     # the E1 road variant means the same on the run network as on the base
     base_touch = mrep2.get('road_variants', {})
     for sid, v in sorted(sc.items()):

@@ -195,6 +195,36 @@ def set_link_attribute(tail, name, value):
     return tail
 
 
+MODES_ATTR_RE = re.compile(r'modes="([^"]*)"')
+
+
+def allow_ride(xml):
+    """Let `ride` use the roads `car` uses.
+
+    The mapped network permits `car`, never `ride`, so a config that declared
+    `ride` a network mode produced `checking 0 nodes and 0 links for dead-ends`
+    and then threw during `PrepareForSim` - the run inputs could not be used
+    even once the schedules were fixed (DECISIONS.md 9.4, defect 4).
+
+    A car passenger is not a second vehicle, so `ride` is *routed* on the road
+    network - which is what gives it a congested travel time rather than a
+    beeline guess - but is not simulated in the mobsim, so it occupies no
+    capacity. `travelTimeCalculator.separateModes=false` makes it read the car
+    travel times, since no ride vehicle is ever observed to generate its own.
+    """
+    n = 0
+
+    def add_ride(m):
+        nonlocal n
+        modes = [x for x in m.group(1).split(',') if x]
+        if 'car' not in modes or 'ride' in modes:
+            return m.group(0)
+        n += 1
+        return 'modes="%s"' % ','.join(sorted(modes + ['ride']))
+
+    return MODES_ATTR_RE.sub(add_ride, xml), n
+
+
 def patch_network(src_net, dst_net, patches, drop_turns):
     """Re-apply an E1 road variant to a mapped schedule network by osm:way:id."""
     with gzip.open(src_net, 'rt', encoding='utf-8') as f:
@@ -242,6 +272,8 @@ def patch_network(src_net, dst_net, patches, drop_turns):
         return head + tail
 
     body = LINK_BLOCK_RE.sub(patch_link, xml)
+    body, ride_links = allow_ride(body)
+    applied['ride_links'] = ride_links
     os.makedirs(os.path.dirname(dst_net), exist_ok=True)
     with gzip_writer(dst_net) as f:
         f.write(body)
@@ -355,7 +387,7 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<param name="flowCapacityFactor" value="{capacity_factor}" />
 \t\t<param name="storageCapacityFactor" value="{capacity_factor}" />
 \t\t<param name="numberOfThreads" value="{threads}" />
-\t\t<param name="mainMode" value="car,ride" />
+\t\t<param name="mainMode" value="car" />
 \t\t<param name="snapshotperiod" value="00:00:00" />
 \t\t<param name="vehiclesSource" value="defaultVehicle" />
 \t</module>
@@ -376,6 +408,16 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<param name="maxAgentPlanMemorySize" value="{plan_memory}" />
 \t\t<param name="fractionOfIterationsToDisableInnovation" value="0.8" />
 {strategies}
+\t</module>
+\t<module name="subtourModeChoice">
+\t\t<param name="modes" value="car,ride,pt,bike,walk" />
+\t\t<param name="chainBasedModes" value="car,bike" />
+\t\t<param name="considerCarAvailability" value="true" />
+\t\t<param name="behavior" value="fromSpecifiedModesToSpecifiedModes" />
+\t</module>
+\t<module name="travelTimeCalculator">
+\t\t<param name="separateModes" value="false" />
+\t\t<param name="analyzedModes" value="car" />
 \t</module>
 \t<module name="routing">
 \t\t<param name="networkModes" value="car,ride" />

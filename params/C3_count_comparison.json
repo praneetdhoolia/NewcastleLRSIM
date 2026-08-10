@@ -1,0 +1,24 @@
+{
+  "heavy_vehicle_share": {
+    "value": 0.0652,
+    "sweep": [
+      0.0129,
+      0.1529
+    ],
+    "source": "measured - NSW Roads traffic volume counts, LIGHT vs HEAVY VEHICLES classification, WEEKDAYS period, two-way",
+    "stations_observed": 23,
+    "stations_total": 119,
+    "calibration_stations_observed": 3,
+    "mean": 0.0776,
+    "note": "The model represents no freight. At the 23 stations with a classified count the station's own observed share is used; at the remaining 96 it is assumed, and the sweep is the observed range across the classified stations. Only 3 of the 34 calibration stations carry a classified count, so the assumed case is the usual one."
+  },
+  "unmodelled_driver_share": {
+    "value": null,
+    "bounds": [
+      0.0,
+      1.0
+    ],
+    "source": "not estimated - structurally bounded, no point value",
+    "note": "A `ride` leg is teleported, so a car passenger adds no vehicle to the road (DECISIONS.md 9.6). That is correct when the driver is separately modelled and wrong when they are not, and B2 generates no escort trips. The share of ride legs whose driver is not otherwise in the model is unknown and nothing in the package measures it, so it is NOT given a point value: modelled link volumes are biased low, by between zero and one vehicle per ride leg on the links that leg would have used. The fit must be reported with that interval shown, never closed by a fitted constant."
+  }
+}

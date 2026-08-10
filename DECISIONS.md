@@ -731,7 +731,7 @@ would pre-empt the question the model exists to answer.
 
 `build_matsim_plans.py` turns B2 into `population_v6` plans, one file per day
 type; `build_matsim_run_inputs.py` assembles a runnable scenario per
-(scenario × day type). 517,936 weekday persons, 2,188,436 legs, 2,706,372
+(scenario × day type). 521,502 weekday persons, 2,237,373 legs, 2,758,875
 activities.
 
 **Mode is seeded here, and only here.** B2 still carries no mode (§9.2), but a
@@ -882,8 +882,9 @@ still empty.
 | 25% | 131,291 | 112.2 s | **~64 s** | 31.5 GiB |
 
 Both curves are close to linear in the sample fraction with a large fixed cost —
-the 157,678-link network and the 970,047-entry raptor transfer table are paid
-once regardless of how many agents exist:
+the run network (**151,592 links / 70,146 nodes** for S2, of which 143,891 carry
+car and ride) and the raptor transfer table (**970,047 entries** for S2/WEEKDAY)
+are paid once regardless of how many agents exist:
 
 - time ≈ **3.1 s + 268 s × fraction** per iteration → **~4.5 min/iteration at 100%**
 - memory ≈ **9.6 GiB + 87 GiB × fraction** → **~97 GiB at 100%**
@@ -900,6 +901,146 @@ roughly three orders of magnitude, so it is not closeable by tuning; it is
 closeable only by cutting sweep breadth, replications and day types. Sample
 fraction is the *weakest* of the available levers, because cost is sublinear in
 it and precision is not.
+
+## 9.6 Mode choice was not choosing, and the seed is now uninformed (P4 stage 0)
+
+Three things about the shipped configuration only became visible by running it.
+
+**Defect 4: `ride` was declared a network mode that no link permitted.** The
+config set `qsim.mainMode=car,ride` and `routing.networkModes=car,ride`, but the
+mapped network permits `car`, never `ride`. MATSim reports
+`checking 0 nodes and 0 links for dead-ends` for mode `ride` and then throws in
+`PrepareForSim`. **The shipped config could not run even after §9.4's three
+schedule and network defects were fixed** — this is the fourth, and it lived in
+the config rather than in the data, which is why the load test in §9.4 did not
+see it: that test overrode the mode handling in order to exercise the artefacts.
+
+**Defect 5: `ride` was not in MATSim's choice set, so its share was an output
+equal to its seed.** `subtourModeChoice` was never configured, so MATSim's
+default applied: `modes=car,pt,bike,walk` with
+`behavior=fromSpecifiedModesToSpecifiedModes`. A subtour whose mode is `ride` is
+not in the specified set, so it is never offered an alternative — an absorbing
+state. Measured over 30 iterations at 1%, `ride` sat at **0.18311 in every single
+iteration**, to five decimal places. **18.6% of legs were an input wearing the
+costume of a result**, and the HTS vehicle-passenger target (20.6%) could only
+ever have been "met" by whatever the seed happened to be.
+
+**Defect 6: car availability was ignored.** `considerCarAvailability` defaults to
+`false`, so an agent B1 records as having no car could be assigned one by mode
+choice. B1 synthesises car availability and the seed was drawn conditional on it;
+the choice model then discarded the structure.
+
+### What changed
+
+| | Was | Now |
+|---|---|---|
+| `qsim.mainMode` | `car,ride` | **`car`** — a car passenger is not a second vehicle |
+| Link `modes` | `car` | **`car,ride`** on 143,891 links, so `ride` is *routed* on the road network and gets a congested travel time rather than a beeline guess |
+| `travelTimeCalculator` | default (per-mode) | **`separateModes=false`, `analyzedModes=car`** — no ride vehicle is ever observed, so ride reads the car travel times instead of falling back to free speed |
+| `subtourModeChoice.modes` | default `car,pt,bike,walk` | **`car,ride,pt,bike,walk`** |
+| `subtourModeChoice.considerCarAvailability` | default `false` | **`true`** |
+| Seed mode split | positioned near the HTS aggregate | **uninformed**, uniform over the modes each person can use |
+
+Verified: the shipped config now runs unmodified, the ride subnetwork has 143,891
+links, and `ride` moves — 0.1941 → 0.1975 → 0.1983 → 0.2048 over the first four
+iterations, where before it did not move at all.
+
+**Ride occupies no road capacity.** It is routed but teleported, so a car
+passenger adds no vehicle. That is right when the driver is separately modelled
+and wrong when they are not, and B2 does not generate escort trips, so modelled
+link volumes are biased *low* against an observed all-vehicle count. Together
+with the freight the model omits, this is why the traffic-count comparison
+carries explicit corrections (§12.2a) rather than a fitted constant.
+
+### The seed is now uninformed
+
+The P3 seed was positioned so the blended share landed near the HTS aggregate
+(car 55.7 against 57.5, pt 4.0 against 3.4), on the reasonable ground that
+starting far from the observed point wastes iterations. That is a fine
+convergence aid and a poor initial condition for a calibration whose target *is*
+the HTS mode share.
+
+The seed is now **uniform over the modes each person can use**, conditioned only
+on B1 car availability — a population attribute, not a behavioural prior.
+Realised: car **14.3%**, and about 21.4% each for bike, pt, ride and walk,
+against an HTS car share of 59%. It is deliberately a bad guess.
+
+| | Uninformed (default) | Informed (P3, retained) |
+|---|---:|---:|
+| car | 14.3% | 55.7% |
+| ride | 21.4% | 18.5% |
+| walk | 21.4% | 19.3% |
+| pt | 21.5% | 4.0% |
+| bike | 21.4% | 2.5% |
+
+The informed seed is **kept**, selectable with
+`build_matsim_plans.py --seed-mode informed`, so that "the answer does not depend
+on the initial condition" is a claim that can be **tested by running both** rather
+than asserted. §9.7 reports that test.
+
+## 9.7 The seed test, and a model that does not converge (P4 stage 0)
+
+Two 1% runs of 250 iterations, S2 × WEEKDAY, identical in every respect except
+the initial mode draw. 2,205 s and 2,419 s wall, run concurrently.
+
+| Iteration | Uninformed car / ride | Informed car / ride |
+|---:|---|---|
+| 0 | 0.143 / 0.223 | 0.564 / 0.183 |
+| 50 | 0.182 / 0.401 | 0.374 / 0.375 |
+| 100 | 0.178 / 0.508 | 0.291 / 0.491 |
+| 150 | 0.166 / 0.573 | 0.241 / 0.561 |
+| 200 | 0.153 / 0.619 | 0.202 / 0.609 |
+| **250** | **0.147 / 0.664** | **0.201 / 0.649** |
+
+**Finding 1 — the seed's influence decays but has not vanished.** The two starts
+differ by **42.1 pp** on car share; at iteration 250 they differ by **5.4 pp**
+(ride 1.5 pp, pt 1.0 pp, walk 1.1 pp, bike 1.8 pp). So 87% of the initial gap
+closes, and the remaining 5.4 pp cannot be attributed to the seed rather than to
+finding 2. The defensible statement is **"the seed's influence decays strongly and
+is not yet eliminated at 250 iterations"** — not "the seed does not matter".
+
+**Finding 2 — the model has not converged, and is not close.** MATSim switched
+innovation off at iteration 200 (`fractionOfIterationsToDisableInnovation=0.8`),
+after which no new plans are created and agents only re-select among the five
+they already hold. Ride share still moved **0.619 → 0.664** over those last 50
+iterations. A system that keeps drifting after its search is switched off has not
+relaxed. **`lastIteration=100` is not merely unvalidated; it is far too low, and
+250 is also too low.** The default is left at 100 rather than replaced with
+another number that cannot be justified, and `check_package.py` now emits a
+standing warning to that effect on every run of the suite.
+
+**Finding 3 — the attractor is wrong, and it is a specification problem.** Both
+runs converge toward **ride ≈ 65%, car ≈ 15–20%**, against an HTS calibration
+target of ride 20.6% and car 59.0%. In MATSim, `ride`:
+
+* has **no driver-availability constraint** — nothing requires a driver to exist,
+  so every agent can be a passenger simultaneously;
+* is charged **half** the distance cost of car (−9e-05 against −0.00018 AUD/m),
+  on a cost-sharing assumption nothing else in the model represents;
+* consumes no road capacity, so it never congests itself.
+
+Against all that, the only thing restraining it is `asc_car_passenger = −0.85`.
+Findings 2 and 3 are probably the same fact: a mode that strictly dominates
+drives the co-evolution toward a corner, and corner solutions relax slowly.
+
+**This runs directly into §8.5.** Pulling ride from 65% to 20.6% by fitting
+`asc_car_passenger` is exactly the ASC absorption proposal §9 names as the
+primary threat to validity, and §8.5 forbids it without a departure logged
+**before results are seen** — which is now. The candidates, and none is chosen
+here:
+
+1. **Charge `ride` the same distance cost as car.** A passenger's trip burns the
+   same fuel; halving it models an intra-household transfer the rest of the model
+   does not have. A specification fix that leaves the ASCs alone and keeps §8.5
+   intact.
+2. **Estimate the ASCs on era 3 (2018) and hold them fixed**, which is what §8.5
+   actually prescribes and what has never been attempted. Note that era 3
+   predates the light rail, so it cannot identify `asc_lr` at all.
+3. **Calibrate `asc_car_passenger` freely**, logging the departure from §8.5 here
+   first.
+
+Nothing downstream of this should be built until it is settled, because the
+choice determines what the calibration loop is allowed to move.
 
 ---
 
@@ -1075,17 +1216,25 @@ not say what it is a count *of* is not a target.
 
 ### 12.2a The heavy-vehicle and unmodelled-vehicle corrections
 
-The model carries no freight and no separate escort trips, so a modelled link
-volume is not directly comparable to an observed all-classes count. Two
-corrections apply **at comparison time**, to the comparison and not to the model:
+The model carries no freight and generates no escort trips, so a modelled link
+volume is not directly comparable to an observed all-classes count. The
+corrections apply **at comparison time**, to the comparison and not to the model,
+and are written to [`params/C3_count_comparison.json`](params/C3_count_comparison.json)
+by `build_validation_targets.py` rather than left in prose, so the sweep-range
+rule can be tested rather than trusted.
 
-| Correction | Value | Sweep | Basis |
+| Correction | Value | Range | Basis |
 |---|---|---|---|
-| Heavy-vehicle share | per station where classified | — | **Observed** at 23 of 119 stations (weekday): median 6.5%, mean 7.8% |
-| Heavy-vehicle share where not classified | 0.065 | **0.013–0.153** | The observed range across those 23 stations. Only **3 of the 34 calibration stations** carry a classified count, so this is the usual case, and it is assumed |
+| Heavy-vehicle share, where the station carries a classified count | the station's **own observed** share | — | 23 of 119 stations (weekday, two-way): median **0.0652**, mean 0.0776 |
+| Heavy-vehicle share, where it does not | **0.0652** (median) | **0.0129–0.1529** | The observed range across those 23. Only **3 of the 34 calibration stations** are classified, so this assumed case is the usual one |
+| Share of `ride` legs whose driver is not otherwise modelled | **no point value** | structurally bounded **0–1** | Nothing in the package measures it, so it is not given one. A ride leg is teleported and adds no vehicle (§9.6); that is right when the driver is separately modelled and wrong when they are not, and B2 generates no escort trips. Modelled link volumes are therefore biased **low**, by between zero and one vehicle per ride leg |
 
-Both must be reported with the fit, never folded silently into a calibrated
-constant.
+The third is deliberately left as an interval rather than assigned an assumed
+midpoint. An invented point estimate here would be indistinguishable in the
+output from a measured one, and the honest statement — that the modelled volume
+is a lower bound and the observed count an upper one — is available for free.
+Both corrections must be reported with the fit, never folded silently into a
+calibrated constant.
 
 ### 12.3 The AADT holdout is a 2008–2010 snapshot
 
