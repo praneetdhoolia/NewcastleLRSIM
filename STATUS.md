@@ -20,7 +20,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P0 Scoping | ✅ complete | Base year 2026, zone system, scenario list S0–S6 settled. Scope calls closing proposal §10 are recorded in [`DECISIONS.md`](DECISIONS.md) §1. |
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
-| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 runnable scenario×day-type input sets. 528 package checks pass. |
+| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 runnable scenario×day-type input sets. 556 package checks pass. |
 | P4 Calibration | ⬜ next | 67 calibration targets built; 143 held out. Mode share is seeded near HTS but **not calibrated** — that is P4's job ([`DECISIONS.md`](DECISIONS.md) §9.3). |
 | P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run.** |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
@@ -242,6 +242,6 @@ measure a real per-iteration cost before picking fractions.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **528 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **556 checks**. Run it before declaring any phase
    complete.
 5. Branch as `<git-handle>/<short-kebab-description>` (never `claude/*`).

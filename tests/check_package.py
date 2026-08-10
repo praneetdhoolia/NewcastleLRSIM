@@ -559,12 +559,18 @@ else:
                      want['num_lanes_per_dir']))
 
 # ---- 15. P3: every PT stop the run needs resolves on the run network ----
+# A MATSim plan does not name stops - a pt leg is <leg mode="pt"/> and the
+# router picks stops at run time - so "every plan's PT legs reference stops that
+# exist" resolves to this: every stop in the schedule a scenario will run must
+# attach to a link that exists on that scenario's run network. Checked for all
+# 30 combinations, not a sample: a dangling stop is exactly the kind of thing
+# that appears in one scenario and not another.
 if os.path.exists(RUN_REPORT):
-    probe = [('S2', 'WEEKDAY'), ('S5', 'WEEKDAY'), ('S0', 'SUN')]
-    for sid, day in probe:
+    total_dangling = 0
+    for sid in sorted(json.load(open(RUN_REPORT, encoding='utf-8'))
+                      .get('scenarios', {})):
         net = 'scenarios/matsim/%s/network.xml.gz' % sid
-        sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
-        if not (os.path.exists(net) and os.path.exists(sch)):
+        if not os.path.exists(net):
             continue
         links = set()
         with gzip.open(net, 'rt', encoding='utf-8') as f:
@@ -572,17 +578,25 @@ if os.path.exists(RUN_REPORT):
                 m = re.search(r'<link id="([^"]+)"', ln)
                 if m:
                     links.add(m.group(1))
-        refs, missing = 0, 0
-        with gzip.open(sch, 'rt', encoding='utf-8') as f:
-            for ln in f:
-                m = re.search(r'<stopFacility [^>]*linkRefId="([^"]+)"', ln)
-                if m:
-                    refs += 1
-                    if m.group(1) not in links:
-                        missing += 1
-        check(refs > 0 and missing == 0,
-              '%s/%s: every transit stop attaches to a link that exists on the '
-              'run network (%d stops, %d dangling)' % (sid, day, refs, missing))
+        for day in DAY_TYPES:
+            sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
+            if not os.path.exists(sch):
+                continue
+            refs, missing = 0, 0
+            with gzip.open(sch, 'rt', encoding='utf-8') as f:
+                for ln in f:
+                    m = re.search(r'<stopFacility [^>]*linkRefId="([^"]+)"', ln)
+                    if m:
+                        refs += 1
+                        if m.group(1) not in links:
+                            missing += 1
+            total_dangling += missing
+            check(refs > 0 and missing == 0,
+                  '%s/%s: every transit stop attaches to a link on the run '
+                  'network (%d stops, %d dangling)' % (sid, day, refs, missing))
+    check(total_dangling == 0,
+          'no dangling transit stop in any of the 30 scenario x day-type run '
+          'input sets')
 
 
 # ---- 16. P3: every assumed value carries a sweep range ----
