@@ -46,6 +46,8 @@ Reproduction commands: [`README.md`](README.md) "Reproducing". Column-level defi
 For a one-page orientation — the P0–P7 milestone flow with the data each phase consumes
 and yields, the MATSim ↔ SUMO coupling loop, the scenario matrix and the pre-registered
 output metrics — open [`docs/project-flow.html`](docs/project-flow.html) in a browser.
+Every domain term, tool and abbreviation on it carries a hover (or keyboard-focus)
+explanation, with a link to the primary source where one exists.
 It is a **plan, not a result**: every run-time figure on it is modelled from the assumed
 dwell and signal parameters, and is restated once SCATS and dwell data land.
 

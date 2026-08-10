@@ -582,6 +582,68 @@
     text-transform: uppercase;
   }
 
+  /* ---------- glossary: hover / focus explanations ---------- */
+
+  .gl {
+    border-bottom: 1px dotted var(--rule-strong);
+    cursor: help;
+  }
+  .gl:hover, .gl[data-tip-open] { border-bottom-color: var(--accent); }
+  .gl:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  code.gl, .mono.gl, .tag .gl { border-bottom-style: dotted; }
+  text.gl, tspan.gl {
+    text-decoration: underline dotted var(--rule-strong);
+    text-underline-offset: 2.5px;
+  }
+  text.gl:hover, tspan.gl:hover, text.gl[data-tip-open], tspan.gl[data-tip-open] {
+    text-decoration-color: var(--accent);
+  }
+
+  #wickham-tip {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 60;
+    width: max-content;
+    max-width: min(34rem, calc(100vw - 1.6rem));
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: .72rem .9rem .78rem;
+    font-family: var(--body);
+    font-size: .87rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .12s ease;
+    pointer-events: none;
+  }
+  #wickham-tip.on { visibility: visible; opacity: 1; pointer-events: auto; }
+  #wickham-tip .gl-term {
+    display: block;
+    font-family: var(--display);
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: .34rem;
+  }
+  #wickham-tip .gl-src {
+    display: block;
+    margin-top: .55rem;
+    padding-top: .45rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: .66rem;
+    letter-spacing: .06em;
+  }
+  #wickham-tip .gl-src a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+  #wickham-tip .gl-src a:hover { border-bottom-color: var(--accent); }
+
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
@@ -591,20 +653,20 @@
   <div class="wrap masthead-grid">
     <div>
       <div class="rule-red"></div>
-      <p class="eyebrow" style="margin-top:1rem">Project Wickham · MATSim + SUMO</p>
+      <p class="eyebrow" style="margin-top:1rem">Project Wickham · <span class="gl" data-gl="matsim">MATSim</span> + <span class="gl" data-gl="sumo">SUMO</span></p>
       <h1>Testing the<br>integration claim<span class="thin">Model flow, data, metrics</span></h1>
       <p class="standfirst">
-        A counterfactual microsimulation of the Newcastle Light Rail. Eight phases,
-        five data layers and twenty-two pre-registered metrics — laid out as the line
+        A <span class="gl" data-gl="counterfactual">counterfactual</span> <span class="gl" data-gl="microsim">microsimulation</span> of the Newcastle Light Rail. Eight phases,
+        five data layers and twenty-two <span class="gl" data-gl="prereg">pre-registered</span> metrics — laid out as the line
         they run along. Two stops are served; six remain.
       </p>
     </div>
     <dl class="stats">
       <div class="stat"><dt>Phases complete</dt><dd>2<small> / 8</small></dd></div>
-      <div class="stat"><dt>Data package</dt><dd>2.31<small> GiB · 182 files</small></dd></div>
-      <div class="stat"><dt>Synthetic agents</dt><dd>612,680</dd></div>
-      <div class="stat"><dt>Scenarios × seeds</dt><dd>10<small> × 30</small></dd></div>
-      <div class="stat"><dt>Validation targets</dt><dd>210<small> · 143 holdout</small></dd></div>
+      <div class="stat"><dt>Data package</dt><dd>2.31<small> <span class="gl" data-gl="gib">GiB</span> · 182 files</small></dd></div>
+      <div class="stat"><dt><span class="gl" data-gl="agents">Synthetic agents</span></dt><dd>612,680</dd></div>
+      <div class="stat"><dt>Scenarios × <span class="gl" data-gl="seed">seeds</span></dt><dd>10<small> × 30</small></dd></div>
+      <div class="stat"><dt><span class="gl" data-gl="valtarget">Validation targets</span></dt><dd>210<small> · 143 <span class="gl" data-gl="holdout">holdout</span></small></dd></div>
       <div class="stat"><dt>Simulations run</dt><dd>0</dd></div>
     </dl>
   </div>
@@ -617,10 +679,10 @@
       <h2>Six changes, one corridor, no separation</h2>
       <p>
         The corridor was altered five times in six years, and then the pandemic arrived.
-        Any observed change in patronage or footfall over that window is jointly caused,
-        so the model does not compare 2013 with 2026. It fixes a base year, holds land use,
-        population, behaviour and the non-CBD bus network constant, and varies exactly one
-        thing: the central-city trunk mode.
+        Any observed change in <span class="gl" data-gl="patronage">patronage</span> or footfall over that window is jointly caused,
+        so the model does not compare 2013 with 2026. It fixes a <span class="gl" data-gl="baseyear">base year</span>, holds land use,
+        population, behaviour and the non-<span class="gl" data-gl="cbd">CBD</span> bus network constant, and varies exactly one
+        thing: the central-city <span class="gl" data-gl="trunk">trunk mode</span>.
       </p>
     </div>
 
@@ -653,7 +715,7 @@
         <g>
           <line class="s-edge-d" x1="166" y1="122" x2="166" y2="228"></line>
           <circle class="s-node-a" cx="166" cy="122" r="6"></circle>
-          <text class="s-sub" x="178" y="118">Oct 2017 · Interchange opens</text>
+          <text class="s-sub" x="178" y="118">Oct 2017 · <tspan class="gl" data-gl="interchange">Interchange</tspan> opens</text>
         </g>
         <g>
           <line class="s-edge-d" x1="214" y1="148" x2="214" y2="228"></line>
@@ -668,13 +730,13 @@
         <g>
           <line class="s-edge-d" x1="300" y1="200" x2="300" y2="228"></line>
           <circle class="s-node-a" cx="300" cy="200" r="6"></circle>
-          <text class="s-sub" x="312" y="196">2015–26 · CBD land use</text>
+          <text class="s-sub" x="312" y="196">2015–26 · <tspan class="gl" data-gl="cbd">CBD</tspan> land use</text>
         </g>
 
         <text class="s-sub" x="24" y="272">every effect lands on the same series</text>
         <text class="s-label" x="24" y="292" style="font-size:12px">↓</text>
         <rect x="24" y="300" width="200" height="22" rx="3" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.25"></rect>
-        <text class="s-sub" x="34" y="315" style="fill:var(--accent)">Δ patronage — not attributable</text>
+        <text class="s-sub" x="34" y="315" style="fill:var(--accent)">Δ <tspan class="gl" data-gl="patronage">patronage</tspan> — not attributable</text>
 
         <!-- divider -->
         <line class="s-edge" x1="556" y1="0" x2="556" y2="330" stroke-dasharray="3 5"></line>
@@ -697,7 +759,7 @@
         <line class="s-edge-a" x1="796" y1="118" x2="856" y2="118"></line>
         <polygon class="s-arrow-a" points="856,118 848,114 848,122"></polygon>
         <rect x="858" y="96" width="118" height="44" rx="3" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.75"></rect>
-        <text class="s-label" x="874" y="115" style="fill:var(--accent);font-size:12px">TRUNK MODE</text>
+        <text class="s-label" x="874" y="115" style="fill:var(--accent);font-size:12px"><tspan class="gl" data-gl="trunk">TRUNK MODE</tspan></text>
         <text class="s-sub" x="874" y="130" style="fill:var(--accent)">the only variable</text>
 
         <!-- fan to scenarios -->
@@ -714,7 +776,7 @@
         <text class="s-sub" x="1032" y="64">S0 heavy rail</text>
         <text class="s-sub" x="1032" y="96">S1 bus shuttle</text>
         <text class="s-sub" x="1032" y="122" style="fill:var(--accent)">S2 light rail</text>
-        <text class="s-sub" x="1032" y="148">S3 BRT</text>
+        <text class="s-sub" x="1032" y="148">S3 <tspan class="gl" data-gl="brt">BRT</tspan></text>
         <text class="s-sub" x="1032" y="180">S4–S6 …</text>
 
         <text class="s-sub" x="600" y="230">the comparison is not 2013 against 2026 —</text>
@@ -750,7 +812,7 @@
       <span><i class="swatch sw-next"></i>Next</span>
       <span><i class="swatch sw-wait"></i>Not started</span>
       <span><i class="swatch sw-obs"></i>Observed input</span>
-      <span><i class="swatch sw-asm"></i>Assumed / modelled</span>
+      <span><i class="swatch sw-asm"></i><span class="gl" data-gl="assumed">Assumed / modelled</span></span>
     </div>
 
     <div class="line">
@@ -759,9 +821,9 @@
       <div class="stop">
         <div class="feeds">
           <span class="feeds-label">Consumes</span>
-          <span class="feed"><span class="tag">AUD-GEN</span>Performance audit 310, Dec 2018</span>
-          <span class="feed"><span class="tag">SBC</span>2020 Strategic Business Case</span>
-          <span class="feed"><span class="tag">NFTC</span>2025 Future Transit Corridor report</span>
+          <span class="feed"><span class="tag">AUD-GEN</span><span class="gl" data-gl="audgen">Performance audit 310, Dec 2018</span></span>
+          <span class="feed"><span class="tag">SBC</span><span class="gl" data-gl="sbc">2020 Strategic Business Case</span></span>
+          <span class="feed"><span class="tag">NFTC</span><span class="gl" data-gl="nftc">2025 Future Transit Corridor report</span></span>
         </div>
         <div class="track"><span class="marker served"></span></div>
         <div class="phase is-done">
@@ -771,12 +833,12 @@
             <span class="dur">2 weeks</span>
             <span class="badge b-done">Closed</span>
           </div>
-          <p>Fix the base year, zone system and scenario list. Pre-register the hypotheses
-             and their falsification conditions before anything is run.</p>
+          <p>Fix the <span class="gl" data-gl="baseyear">base year</span>, <span class="gl" data-gl="zonesystem">zone system</span> and scenario list. <span class="gl" data-gl="prereg">Pre-register</span> the hypotheses
+             and their <span class="gl" data-gl="falsification">falsification conditions</span> before anything is run.</p>
           <div class="yields">
             <span class="yields-label">Yields</span>
-            <span class="yield">Base year <span class="num">2026</span>, SA1 core / SA2 external</span>
-            <span class="yield">Study area <span class="num">4,086 km²</span> across 5 LGAs</span>
+            <span class="yield">Base year <span class="num">2026</span>, <span class="gl" data-gl="sa1">SA1</span> core / <span class="gl" data-gl="sa2">SA2</span> external</span>
+            <span class="yield">Study area <span class="num">4,086 km²</span> across 5 <span class="gl" data-gl="lga">LGAs</span></span>
             <span class="yield">Scenario matrix <span class="num">S0–S6</span> (10 variants)</span>
             <span class="yield">Hypotheses fixed: <span class="num">A1–A6</span>, <span class="num">B1–B4</span>, <span class="num">S-a…S-d</span></span>
           </div>
@@ -787,11 +849,11 @@
       <div class="stop">
         <div class="feeds">
           <span class="feeds-label">Consumes</span>
-          <span class="feed"><span class="tag">TfNSW</span>Open Data Hub · GTFS, Opal, counts, HTS</span>
+          <span class="feed"><span class="tag"><span class="gl" data-gl="tfnsw">TfNSW</span></span>Open Data Hub · <span class="gl" data-gl="gtfs">GTFS</span>, <span class="gl" data-gl="opal">Opal</span>, counts, <span class="gl" data-gl="hts">HTS</span></span>
           <span class="feed"><span class="tag">S3</span>Historical GTFS archive, 2016–2026</span>
-          <span class="feed"><span class="tag">ABS</span>Census 2021 DataPacks + ASGS Ed3</span>
-          <span class="feed"><span class="tag">OSM</span>Overpass, 8 themed extracts</span>
-          <span class="feed"><span class="tag">ESA</span>Copernicus GLO-30 DEM</span>
+          <span class="feed"><span class="tag"><span class="gl" data-gl="abs">ABS</span></span>Census 2021 <span class="gl" data-gl="datapacks">DataPacks</span> + <span class="gl" data-gl="asgs">ASGS Ed3</span></span>
+          <span class="feed"><span class="tag"><span class="gl" data-gl="osm">OSM</span></span><span class="gl" data-gl="overpass">Overpass</span>, 8 themed extracts</span>
+          <span class="feed"><span class="tag">ESA</span><span class="gl" data-gl="copernicus">Copernicus GLO-30</span> <span class="gl" data-gl="dem">DEM</span></span>
         </div>
         <div class="track"><span class="marker served"></span></div>
         <div class="phase is-done">
@@ -802,15 +864,15 @@
             <span class="badge b-done">Harvest done</span>
             <span class="badge b-part">Requests open</span>
           </div>
-          <p>Open-data harvest, provenance-tagged and hashed. Three critical inputs —
-             SCATS phasing, journey-linked Opal, measured charging dwell — remain
-             unobtained and are carried as swept parameters, not as assumed facts.</p>
+          <p>Open-data harvest, <span class="gl" data-gl="provenance">provenance</span>-tagged and <span class="gl" data-gl="hashed">hashed</span>. Three critical inputs —
+             <span class="gl" data-gl="scats">SCATS</span> phasing, journey-linked Opal, measured <span class="gl" data-gl="chargingdwell">charging dwell</span> — remain
+             unobtained and are carried as <span class="gl" data-gl="sweep">swept</span> parameters, not as assumed facts.</p>
           <div class="yields">
             <span class="yields-label">Yields</span>
             <span class="yield"><span class="num">182</span> files, <span class="num">2.31 GiB</span>, every file hashed</span>
-            <span class="yield"><span class="num">210</span> validation targets, split 67 / 143</span>
-            <span class="yield"><code>DECISIONS.md</code> — 4 corrections to the proposal's premises</span>
-            <span class="yield"><span class="num">178</span> integrity checks passing</span>
+            <span class="yield"><span class="num">210</span> <span class="gl" data-gl="valtarget">validation targets</span>, split 67 / 143</span>
+            <span class="yield"><code class="gl" data-gl="decisions">DECISIONS.md</code> — 4 corrections to the proposal's premises</span>
+            <span class="yield"><span class="num">178</span> <span class="gl" data-gl="integrity">integrity checks</span> passing</span>
           </div>
         </div>
       </div>
@@ -821,8 +883,8 @@
           <span class="feeds-label">Consumes</span>
           <span class="feed"><span class="tag">A1</span>43,112 road edges · 9,207 km</span>
           <span class="feed"><span class="tag">A6</span>35,653 footway edges · 6,325 km</span>
-          <span class="feed"><span class="tag">A3</span>5 era feeds + 10 scenario feeds</span>
-          <span class="feed assumed"><span class="tag">A2</span>14 corridor intersections, phasing assumed</span>
+          <span class="feed"><span class="tag">A3</span>5 <span class="gl" data-gl="era">era feeds</span> + 10 scenario feeds</span>
+          <span class="feed assumed"><span class="tag">A2</span>14 corridor intersections, <span class="gl" data-gl="scats">phasing</span> assumed</span>
         </div>
         <div class="track"><span class="marker now"></span></div>
         <div class="phase is-next">
@@ -832,13 +894,13 @@
             <span class="dur">6 weeks</span>
             <span class="badge b-next">Next</span>
           </div>
-          <p>pt2matsim conversion of every era and scenario feed; netconvert for the SUMO
+          <p><span class="gl" data-gl="pt2matsim">pt2matsim</span> conversion of every era and scenario feed; <span class="gl" data-gl="netconvert">netconvert</span> for the <span class="gl" data-gl="sumo">SUMO</span>
              corridor. The gating task is manual correction of Hunter and Scott Street from
-             aerial imagery — lane counts, turn restrictions and kerbside use are
-             <b>75–98% imputed</b>, and the decisive B3 test depends on them.</p>
+             aerial imagery — lane counts, turn restrictions and <span class="gl" data-gl="kerbside">kerbside</span> use are
+             <b>75–98% <span class="gl" data-gl="imputed">imputed</span></b>, and the decisive B3 test depends on them.</p>
           <div class="yields">
             <span class="yields-label">Will yield</span>
-            <span class="yield">MATSim multimodal network + transit schedule, per era</span>
+            <span class="yield"><span class="gl" data-gl="matsim">MATSim</span> multimodal network + transit schedule, per era</span>
             <span class="yield">SUMO corridor network with signals and kerbside</span>
             <span class="yield">Corrected corridor geometry, aerial-verified</span>
           </div>
@@ -849,8 +911,8 @@
       <div class="stop">
         <div class="feeds">
           <span class="feeds-label">Consumes</span>
-          <span class="feed"><span class="tag">B1</span>26 census tables, 1,500 core SA1</span>
-          <span class="feed"><span class="tag">HTS</span>3.47 trips/person/day, 2024/25</span>
+          <span class="feed"><span class="tag">B1</span>26 census tables, 1,500 core <span class="gl" data-gl="sa1">SA1</span></span>
+          <span class="feed"><span class="tag"><span class="gl" data-gl="hts">HTS</span></span>3.47 trips/person/day, 2024/25</span>
           <span class="feed"><span class="tag">D1</span>296,471 jobs, SA1-disaggregated</span>
           <span class="feed assumed"><span class="tag">B2</span>departure profiles, activity durations</span>
         </div>
@@ -862,15 +924,15 @@
             <span class="dur">6 weeks</span>
             <span class="badge b-part">Pre-built in P1</span>
           </div>
-          <p>Population synthesis and activity generation, fitted to SA1 census marginals.
+          <p><span class="gl" data-gl="popsynth">Population synthesis</span> and activity generation, fitted to SA1 <span class="gl" data-gl="marginals">census marginals</span>.
              Mode is deliberately <b>not</b> assigned — doing so here would pre-empt the
              question the model exists to answer.</p>
           <div class="yields">
             <span class="yields-label">Yields</span>
-            <span class="yield"><span class="num">612,680</span> agents in <span class="num">246,022</span> households</span>
+            <span class="yield"><span class="num">612,680</span> <span class="gl" data-gl="agents">agents</span> in <span class="num">246,022</span> households</span>
             <span class="yield"><span class="num">2,020,696</span> seed trips across 6 purposes</span>
             <span class="yield">Fit: 0-car households 5.93% v 5.71% census</span>
-            <span class="yield">Seeded <span class="num">20260810</span> — bit-reproducible</span>
+            <span class="yield"><span class="gl" data-gl="seed">Seeded</span> <span class="num">20260810</span> — bit-reproducible</span>
           </div>
         </div>
       </div>
@@ -879,10 +941,10 @@
       <div class="stop">
         <div class="feeds">
           <span class="feeds-label">Consumes</span>
-          <span class="feed"><span class="tag">VAL</span>67 calibration targets</span>
+          <span class="feed"><span class="tag">VAL</span>67 <span class="gl" data-gl="calibration">calibration</span> targets</span>
           <span class="feed"><span class="tag">C1</span>30 parameter sets, 5 segments × 6 purposes</span>
-          <span class="feed"><span class="tag">OPAL</span>3,417 LR boardings/day, Mar 19–Feb 20</span>
-          <span class="feed"><span class="tag">HTS</span>PT mode share 7.3% → 3.8%</span>
+          <span class="feed"><span class="tag"><span class="gl" data-gl="opal">OPAL</span></span>3,417 <span class="gl" data-gl="lr">LR</span> <span class="gl" data-gl="boardings">boardings</span>/day, Mar 19–Feb 20</span>
+          <span class="feed"><span class="tag">HTS</span><span class="gl" data-gl="pt">PT</span> mode share 7.3% → 3.8%</span>
         </div>
         <div class="track"><span class="marker"></span></div>
         <div class="phase">
@@ -893,14 +955,14 @@
             <span class="badge b-wait">Pending</span>
           </div>
           <p>Fit to observed counts, boardings and run times. The binding constraint is
-             ASC absorption: mode constants are estimated on the <b>pre-intervention era</b>
+             <span class="gl" data-gl="ascabs">ASC absorption</span>: mode constants are estimated on the <b>pre-intervention era</b>
              and held fixed, or constrained with the constraint reported. Calibrating them
-             to 2019 patronage would fit away the effect under test.</p>
+             to 2019 <span class="gl" data-gl="patronage">patronage</span> would fit away the effect under test.</p>
           <div class="yields">
             <span class="yields-label">Will yield</span>
             <span class="yield">Calibrated base year, all modes</span>
             <span class="yield">Calibration report with honest poor-fit reporting</span>
-            <span class="yield">Estimated <code>beta_transfer_penalty_min</code>, if Opal lands</span>
+            <span class="yield">Estimated <code class="gl" data-gl="transferpen">beta_transfer_penalty_min</code>, if Opal lands</span>
           </div>
         </div>
       </div>
@@ -910,9 +972,9 @@
         <div class="feeds">
           <span class="feeds-label">Consumes</span>
           <span class="feed"><span class="tag">E1</span>10 scenario configs × 30 seeds</span>
-          <span class="feed"><span class="tag">C1</span>140-point sensitivity grid</span>
-          <span class="feed assumed"><span class="tag">A4</span>dwell_charging_s = 20 s (sweep 10–35)</span>
-          <span class="feed assumed"><span class="tag">A2</span>tsp_enabled, cycle 110 s (sweep 80–140)</span>
+          <span class="feed"><span class="tag">C1</span>140-point <span class="gl" data-gl="sweep">sensitivity grid</span></span>
+          <span class="feed assumed"><span class="tag">A4</span><span class="gl" data-gl="chargingdwell">dwell_charging_s</span> = 20 s (sweep 10–35)</span>
+          <span class="feed assumed"><span class="tag">A2</span><span class="gl" data-gl="tsp">tsp_enabled</span>, cycle 110 s (sweep 80–140)</span>
         </div>
         <div class="track"><span class="marker"></span></div>
         <div class="phase">
@@ -922,14 +984,14 @@
             <span class="dur">3 weeks</span>
             <span class="badge b-wait">Pending</span>
           </div>
-          <p>All scenarios, minimum 30 seeded replications each, with the MATSim ↔ SUMO
-             outer loop run to run-time convergence. Reliability variance is a first-order
-             finding here, not a nuisance parameter.</p>
+          <p>All scenarios, minimum 30 <span class="gl" data-gl="replication">seeded replications</span> each, with the MATSim ↔ SUMO
+             outer loop run to <span class="gl" data-gl="convergence">run-time convergence</span>. <span class="gl" data-gl="reliability">Reliability variance</span> is a first-order
+             finding here, not a <span class="gl" data-gl="nuisance">nuisance parameter</span>.</p>
           <div class="yields">
             <span class="yields-label">Will yield</span>
             <span class="yield"><span class="num">300</span> replication result sets</span>
             <span class="yield">Full event traces, stop-to-stop load profiles</span>
-            <span class="yield">Derived OD skims per scenario and period</span>
+            <span class="yield">Derived <span class="gl" data-gl="od">OD</span> <span class="gl" data-gl="skim">skims</span> per scenario and period</span>
           </div>
         </div>
       </div>
@@ -939,7 +1001,7 @@
         <div class="feeds">
           <span class="feeds-label">Consumes</span>
           <span class="feed"><span class="tag">RES</span>Result set, all scenarios</span>
-          <span class="feed"><span class="tag">VAL</span>143 holdout targets</span>
+          <span class="feed"><span class="tag">VAL</span>143 <span class="gl" data-gl="holdout">holdout</span> targets</span>
         </div>
         <div class="track"><span class="marker"></span></div>
         <div class="phase">
@@ -949,12 +1011,12 @@
             <span class="dur">4 weeks</span>
             <span class="badge b-wait">Pending</span>
           </div>
-          <p>Metric computation, sensitivity sweeps and boarding decomposition. Every
-             headline is reported as a curve across the transfer-penalty and walk-decay
-             ranges — no point-estimate claims.</p>
+          <p>Metric computation, <span class="gl" data-gl="sweep">sensitivity sweeps</span> and boarding decomposition. Every
+             headline is reported as a curve across the <span class="gl" data-gl="transferpen">transfer-penalty</span> and <span class="gl" data-gl="walkdecay">walk-decay</span>
+             ranges — no <span class="gl" data-gl="pointest">point-estimate</span> claims.</p>
           <div class="yields">
             <span class="yields-label">Will yield</span>
-            <span class="yield">A1–A6 and B1–B4 against fixed falsification conditions</span>
+            <span class="yield">A1–A6 and B1–B4 against fixed <span class="gl" data-gl="falsification">falsification conditions</span></span>
             <span class="yield">S-a…S-d secondary answers</span>
             <span class="yield">Fit reported on unseen counts</span>
           </div>
@@ -975,8 +1037,8 @@
             <span class="dur">4 weeks</span>
             <span class="badge b-wait">Pending</span>
           </div>
-          <p>Paper, containerised model release, open data package, interactive result
-             explorer, and the method note on evaluation gaps — that ex-post evaluation of
+          <p>Paper, <span class="gl" data-gl="container">containerised model release</span>, open data package, interactive result
+             explorer, and the method note on evaluation gaps — that <span class="gl" data-gl="expost">ex-post evaluation</span> of
              this kind is tractable with open data, and its absence is a choice.</p>
           <div class="yields">
             <span class="yields-label">Will yield</span>
@@ -995,8 +1057,8 @@
       <p class="eyebrow">P5 mechanism</p>
       <h2>Why the loop has to close</h2>
       <p>
-        Neither tool spans both layers. MATSim answers whether anyone chooses to ride and
-        how journeys restructure; SUMO answers what the system physically does to everyone
+        Neither tool spans both layers. <span class="gl" data-gl="matsim">MATSim</span> answers whether anyone chooses to ride and
+        how journeys restructure; <span class="gl" data-gl="sumo">SUMO</span> answers what the system physically does to everyone
         else once they do. Run either alone and the answer is circular — feed SUMO 3,000
         tram passengers and it will faithfully return 3,000 tram passengers.
       </p>
@@ -1016,7 +1078,7 @@
 
         <!-- source -->
         <rect class="s-node-s" x="8" y="164" width="132" height="56" rx="4"></rect>
-        <text class="s-label" x="26" y="188">OSM EXTRACT</text>
+        <text class="s-label" x="26" y="188"><tspan class="gl" data-gl="osm">OSM</tspan> EXTRACT</text>
         <text class="s-sub" x="26" y="205">8 themed layers</text>
 
         <!-- split to two converters -->
@@ -1024,50 +1086,50 @@
         <path class="s-edge" d="M140 192 H176 V300 H228" marker-end="url(#ar)"></path>
 
         <rect class="s-node" x="228" y="72" width="140" height="48" rx="4"></rect>
-        <text class="s-label" x="244" y="94">pt2matsim</text>
+        <text class="s-label" x="244" y="94"><tspan class="gl" data-gl="pt2matsim">pt2matsim</tspan></text>
         <text class="s-sub" x="244" y="110">+ GTFS era variants</text>
 
         <rect class="s-node" x="228" y="276" width="140" height="48" rx="4"></rect>
-        <text class="s-label" x="244" y="298">netconvert</text>
+        <text class="s-label" x="244" y="298"><tspan class="gl" data-gl="netconvert">netconvert</tspan></text>
         <text class="s-sub" x="244" y="314">+ signals, kerbside</text>
 
         <!-- MATSim -->
         <path class="s-edge" d="M368 96 H420" marker-end="url(#ar)"></path>
         <rect class="s-node-a" x="420" y="60" width="196" height="72" rx="4"></rect>
-        <text class="s-label" x="440" y="86" style="fill:var(--accent)">MATSim</text>
+        <text class="s-label" x="440" y="86" style="fill:var(--accent)"><tspan class="gl" data-gl="matsim">MATSim</tspan></text>
         <text class="s-sub" x="440" y="103">demand &amp; behaviour</text>
-        <text class="s-sub" x="440" y="119">N iterations to relaxation</text>
+        <text class="s-sub" x="440" y="119">N iterations to <tspan class="gl" data-gl="relaxation">relaxation</tspan></text>
 
         <!-- MATSim outputs branch -->
         <path class="s-edge" d="M616 84 H700" marker-end="url(#ar)"></path>
         <rect class="s-node" x="700" y="56" width="196" height="56" rx="4"></rect>
         <text class="s-label" x="716" y="78">ACCESSIBILITY · MODE</text>
-        <text class="s-sub" x="716" y="95">Hansen surfaces, GJT skims</text>
+        <text class="s-sub" x="716" y="95"><tspan class="gl" data-gl="hansen">Hansen</tspan> surfaces, <tspan class="gl" data-gl="gjt">GJT</tspan> <tspan class="gl" data-gl="skim">skims</tspan></text>
 
         <!-- corridor demand profile down to SUMO -->
         <path class="s-edge-a" d="M518 132 V176" marker-end="url(#ara)"></path>
         <rect class="s-node" x="404" y="176" width="228" height="48" rx="4"></rect>
         <text class="s-label" x="420" y="197">CORRIDOR DEMAND PROFILE</text>
-        <text class="s-sub" x="420" y="213">boardings · turning moves · ped flows</text>
+        <text class="s-sub" x="420" y="213"><tspan class="gl" data-gl="boardings">boardings</tspan> · turning moves · ped flows</text>
 
         <!-- SUMO -->
         <path class="s-edge-a" d="M518 224 V264" marker-end="url(#ara)"></path>
         <path class="s-edge" d="M368 300 H420" marker-end="url(#ar)"></path>
         <rect class="s-node-a" x="420" y="264" width="196" height="72" rx="4"></rect>
-        <text class="s-label" x="440" y="290" style="fill:var(--accent)">SUMO</text>
+        <text class="s-label" x="440" y="290" style="fill:var(--accent)"><tspan class="gl" data-gl="sumo">SUMO</tspan></text>
         <text class="s-sub" x="440" y="307">supply &amp; operations</text>
-        <text class="s-sub" x="440" y="323">≥30 seeded replications</text>
+        <text class="s-sub" x="440" y="323"><tspan class="gl" data-gl="replication">≥30 seeded replications</tspan></text>
 
         <!-- SUMO outputs -->
         <path class="s-edge" d="M616 300 H700" marker-end="url(#ar)"></path>
         <rect class="s-node" x="700" y="264" width="196" height="72" rx="4"></rect>
-        <text class="s-label" x="716" y="288">RUN TIME · DWELL</text>
-        <text class="s-sub" x="716" y="305">reliability variance</text>
-        <text class="s-sub" x="716" y="321">car delay · ped delay · frontage</text>
+        <text class="s-label" x="716" y="288"><tspan class="gl" data-gl="runtime">RUN TIME</tspan> · <tspan class="gl" data-gl="dwell">DWELL</tspan></text>
+        <text class="s-sub" x="716" y="305"><tspan class="gl" data-gl="reliability">reliability variance</tspan></text>
+        <text class="s-sub" x="716" y="321">car delay · ped delay · <tspan class="gl" data-gl="frontage">frontage</tspan></text>
 
         <!-- the feedback edge, the whole point -->
         <path class="s-edge-a" d="M896 300 H976 V88 H896" marker-end="url(#ara)"></path>
-        <text class="s-sub" x="988" y="186" style="fill:var(--accent)">revised LOS</text>
+        <text class="s-sub" x="988" y="186" style="fill:var(--accent)">revised <tspan class="gl" data-gl="los">LOS</tspan></text>
         <text class="s-sub" x="988" y="202" style="fill:var(--accent)">parameters</text>
         <text class="s-sub" x="988" y="222">2–3 outer</text>
         <text class="s-sub" x="988" y="238">iterations</text>
@@ -1115,25 +1177,25 @@
         <tbody>
           <tr>
             <td><span class="layer">A1</span></td>
-            <td>Road graph — lanes, speed, capacity, kerbside, gradient</td>
+            <td>Road graph — lanes, speed, capacity, <span class="gl" data-gl="kerbside">kerbside</span>, gradient</td>
             <td class="num">43,112 edges<br>9,207 km</td>
-            <td><span class="badge b-part">Geometry observed · attributes 54–99% imputed</span></td>
+            <td><span class="badge b-part">Geometry observed · attributes 54–99% <span class="gl" data-gl="imputed">imputed</span></span></td>
           </tr>
           <tr>
             <td><span class="layer">A2</span></td>
-            <td>Signal control — cycle, phasing, offsets, TSP flags</td>
+            <td>Signal control — cycle, phasing, offsets, <span class="gl" data-gl="tsp">TSP</span> flags</td>
             <td class="num">1,265 signals<br>14 on corridor</td>
-            <td><span class="badge b-part">Locations observed · phasing assumed</span></td>
+            <td><span class="badge b-part">Locations observed · <span class="gl" data-gl="scats">phasing</span> assumed</span></td>
           </tr>
           <tr>
             <td><span class="layer">A3</span></td>
-            <td>PT supply — GTFS across four eras plus scenario variants</td>
+            <td><span class="gl" data-gl="pt">PT</span> supply — <span class="gl" data-gl="gtfs">GTFS</span> across four <span class="gl" data-gl="era">eras</span> plus scenario variants</td>
             <td class="num">5 eras<br>10 scenarios</td>
             <td><span class="badge b-done">Observed, except pre-2014</span></td>
           </tr>
           <tr class="hl">
             <td><span class="id">A4</span></td>
-            <td>LR vehicle and dwell — CAF Urbos 100, charging dwell</td>
+            <td><span class="gl" data-gl="lr">LR</span> vehicle and <span class="gl" data-gl="dwell">dwell</span> — <span class="gl" data-gl="caf">CAF Urbos 100</span>, <span class="gl" data-gl="chargingdwell">charging dwell</span></td>
             <td class="num">2,729 m<br>6 stops</td>
             <td><span class="badge b-part">Vehicle published · dwell assumed 20 s</span></td>
           </tr>
@@ -1147,29 +1209,29 @@
             <td><span class="layer">A6</span></td>
             <td>Active transport — footways with directional gradient cost</td>
             <td class="num">35,653 edges<br>6,325 km</td>
-            <td><span class="badge b-part">Geometry + DEM observed · width imputed</span></td>
+            <td><span class="badge b-part">Geometry + <span class="gl" data-gl="dem">DEM</span> observed · width imputed</span></td>
           </tr>
           <tr>
             <td><span class="layer">B1–B2</span></td>
-            <td>Synthetic population and activity chains</td>
+            <td><span class="gl" data-gl="popsynth">Synthetic population</span> and activity chains</td>
             <td class="num">612,680 agents<br>2,020,696 trips</td>
-            <td><span class="badge b-part">Fitted to census marginals</span></td>
+            <td><span class="badge b-part">Fitted to <span class="gl" data-gl="marginals">census marginals</span></span></td>
           </tr>
           <tr>
             <td><span class="layer">B4–B5</span></td>
             <td>Observed PT journeys, traffic and pedestrian counts</td>
-            <td class="num">89 months Opal<br>119 count sites</td>
+            <td class="num">89 months <span class="gl" data-gl="opal">Opal</span><br>119 count sites</td>
             <td><span class="badge b-done">Observed · no ped counts exist</span></td>
           </tr>
           <tr class="hl">
             <td><span class="id">C1</span></td>
-            <td>Behavioural parameters — VOT, weights, transfer penalty, ASCs</td>
+            <td>Behavioural parameters — <span class="gl" data-gl="vot">VOT</span>, weights, <span class="gl" data-gl="transferpen">transfer penalty</span>, <span class="gl" data-gl="asc">ASC</span>s</td>
             <td class="num">30 sets<br>140 sweep points</td>
             <td><span class="badge b-part">VOT published · transfer penalty swept 3–15 min</span></td>
           </tr>
           <tr>
             <td><span class="layer">D1</span></td>
-            <td>Land use — frontages, floorspace, employment, POI</td>
+            <td>Land use — <span class="gl" data-gl="frontage">frontages</span>, floorspace, employment, <span class="gl" data-gl="poi">POI</span></td>
             <td class="num">498 segments<br>23,697 POI</td>
             <td><span class="badge b-part">POI observed · floorspace modelled</span></td>
           </tr>
@@ -1186,15 +1248,15 @@
     <div class="callout">
       <p>
         <strong>Three inputs the proposal called critical were not obtainable</strong> and are
-        carried as swept parameters rather than assumed facts: SCATS signal phasing,
+        carried as <span class="gl" data-gl="sweep">swept</span> parameters rather than assumed facts: <span class="gl" data-gl="scats">SCATS</span> signal phasing,
         journey-linked Opal, and measured charging dwell.
       </p>
       <p>
-        The size of that gap is measurable. Turning full transit signal priority on cuts
-        modelled end-to-end run time from <b>12.00 to 7.45 minutes — a 38% swing</b> that rests
+        The size of that gap is measurable. Turning full <span class="gl" data-gl="tsp">transit signal priority</span> on cuts
+        <span class="gl" data-gl="runtime">modelled end-to-end run time</span> from <b>12.00 to 7.45 minutes — a 38% swing</b> that rests
         entirely on phase data nobody has published. That number is the argument for the
         data request, and the reason no run-time-dependent finding may be reported as a
-        point estimate.
+        <span class="gl" data-gl="pointest">point estimate</span>.
       </p>
     </div>
   </div>
@@ -1208,7 +1270,7 @@
       <p>
         Every scenario derives from the same base feed by explicit transformation, so the
         "identical everything else" requirement holds by construction rather than by
-        discipline. Run times below are modelled from vehicle physics on the true
+        discipline. <span class="gl" data-gl="runtime">Run times</span> below are modelled from vehicle physics on the true
         alignment, not copied from a timetable.
       </p>
     </div>
@@ -1226,15 +1288,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td><span class="id">S0</span></td><td>Heavy rail retained to Newcastle station</td><td>Primary counterfactual — the line is not cut</td><td class="num">254 trips ext.</td><td class="num">—</td></tr>
-          <tr><td><span class="id">S1</span></td><td>Bus shuttle from Wickham</td><td>The Dec 2012 policy as announced</td><td class="num">10.83 min</td><td class="num">−9.8%</td></tr>
-          <tr class="hl"><td><span class="id">S2</span></td><td>Light rail as built, wire-free</td><td>Actual — the reference case</td><td class="num">12.00 min</td><td class="num">—</td></tr>
-          <tr><td><span class="id">S2a</span></td><td>Light rail, charging dwell removed</td><td><b>S-a</b> cost of the wire-free decision</td><td class="num">10.33 min</td><td class="num">−13.9%</td></tr>
-          <tr><td><span class="id">S2b</span></td><td>Light rail with full TSP</td><td><b>S-b</b> value of signal priority</td><td class="num">7.45 min</td><td class="num">−37.9%</td></tr>
-          <tr><td><span class="id">S2c</span></td><td>Light rail on the Option A alignment</td><td>The route with plurality support, not selected</td><td class="num">9.70 min</td><td class="num">−19.2%</td></tr>
-          <tr><td><span class="id">S3</span></td><td>Bus rapid transit, same alignment</td><td>Value for money — what the 2020 SBC favoured</td><td class="num">7.08 min</td><td class="num">−41.0%</td></tr>
-          <tr><td><span class="id">S4</span></td><td>Light rail extended to Broadmeadow</td><td><b>S-c</b> minimum viable trunk length</td><td class="num">18.08 min</td><td class="num">+50.7%</td></tr>
-          <tr><td><span class="id">S5</span></td><td>Extended to Broadmeadow + John Hunter</td><td>Upper bound of the plausible network</td><td class="num">26.35 min</td><td class="num">+119.6%</td></tr>
+          <tr><td><span class="id">S0</span></td><td>Heavy rail retained to Newcastle station</td><td>Primary <span class="gl" data-gl="counterfactual">counterfactual</span> — the line is not cut</td><td class="num">254 trips ext.</td><td class="num">—</td></tr>
+          <tr><td><span class="id">S1</span></td><td>Bus shuttle from <span class="gl" data-gl="interchange">Wickham</span></td><td>The Dec 2012 policy as announced</td><td class="num">10.83 min</td><td class="num">−9.8%</td></tr>
+          <tr class="hl"><td><span class="id">S2</span></td><td>Light rail as built, <span class="gl" data-gl="wirefree">wire-free</span></td><td>Actual — the reference case</td><td class="num">12.00 min</td><td class="num">—</td></tr>
+          <tr><td><span class="id">S2a</span></td><td>Light rail, <span class="gl" data-gl="chargingdwell">charging dwell</span> removed</td><td><b>S-a</b> cost of the wire-free decision</td><td class="num">10.33 min</td><td class="num">−13.9%</td></tr>
+          <tr><td><span class="id">S2b</span></td><td>Light rail with full <span class="gl" data-gl="tsp">TSP</span></td><td><b>S-b</b> value of signal priority</td><td class="num">7.45 min</td><td class="num">−37.9%</td></tr>
+          <tr><td><span class="id">S2c</span></td><td>Light rail on the <span class="gl" data-gl="optiona">Option A alignment</span></td><td>The route with plurality support, not selected</td><td class="num">9.70 min</td><td class="num">−19.2%</td></tr>
+          <tr><td><span class="id">S3</span></td><td><span class="gl" data-gl="brt">Bus rapid transit</span>, same alignment</td><td>Value for money — what the 2020 <span class="gl" data-gl="sbc">SBC</span> favoured</td><td class="num">7.08 min</td><td class="num">−41.0%</td></tr>
+          <tr><td><span class="id">S4</span></td><td>Light rail extended to <span class="gl" data-gl="broadmeadow">Broadmeadow</span></td><td><b>S-c</b> minimum viable trunk length</td><td class="num">18.08 min</td><td class="num">+50.7%</td></tr>
+          <tr><td><span class="id">S5</span></td><td>Extended to Broadmeadow + <span class="gl" data-gl="johnhunter">John Hunter</span></td><td>Upper bound of the plausible network</td><td class="num">26.35 min</td><td class="num">+119.6%</td></tr>
           <tr><td><span class="id">S6</span></td><td>No trunk mode</td><td>Lower bound</td><td class="num">—</td><td class="num">—</td></tr>
         </tbody>
       </table>
@@ -1242,9 +1304,9 @@
 
     <div class="callout">
       <p>
-        <strong>The road-space externality travels with the scenario.</strong> S0, S1, S2c and S6
+        <strong>The <span class="gl" data-gl="externality">road-space externality</span> travels with the scenario.</strong> S0, S1, S2c and S6
         run on a network variant that gives Hunter and Scott Street their second lane and
-        kerbside parking back, and removes the 14 banned turns. A model that adds the tram
+        <span class="gl" data-gl="kerbside">kerbside</span> parking back, and removes the 14 banned turns. A model that adds the tram
         without subtracting the road space it took would report a gain that isn't there —
         which is exactly what B3 exists to catch.
       </p>
@@ -1258,33 +1320,33 @@
       <p class="eyebrow">Post-simulation</p>
       <h2>What gets computed</h2>
       <p>
-        Raw harvest from both engines, reduced to a common skim, then evaluated against
-        the falsification conditions fixed at P0. The conditions below were set before any
+        Raw harvest from both engines, reduced to a common <span class="gl" data-gl="skim">skim</span>, then evaluated against
+        the <span class="gl" data-gl="falsification">falsification conditions</span> fixed at P0. The conditions below were set before any
         data was gathered and cannot be revised after results are seen without a logged
-        entry in <code>DECISIONS.md</code>.
+        entry in <code class="gl" data-gl="decisions">DECISIONS.md</code>.
       </p>
     </div>
 
     <div class="grid-2" style="margin-bottom:1.15rem">
       <div class="card">
-        <h3>MATSim harvest</h3>
+        <h3><span class="gl" data-gl="matsim">MATSim</span> harvest</h3>
         <span class="src">demand &amp; behaviour</span>
         <ul>
-          <li><code>events</code> — full agent trace</li>
-          <li><code>trips.csv</code> — mode, dep time, travel time, wait, distance</li>
-          <li><code>legs.csv</code> — per-leg detail including transfer structure</li>
-          <li><code>pt_stop2stop</code> — boardings, alightings, load profile per link</li>
-          <li><code>scorestats</code>, <code>modestats</code>, accessibility grids</li>
+          <li><code class="gl" data-gl="events">events</code> — full agent trace</li>
+          <li><code class="gl" data-gl="tripscsv">trips.csv</code> — mode, dep time, travel time, wait, distance</li>
+          <li><code class="gl" data-gl="legscsv">legs.csv</code> — per-leg detail including transfer structure</li>
+          <li><code class="gl" data-gl="stop2stop">pt_stop2stop</code> — boardings, alightings, load profile per link</li>
+          <li><code class="gl" data-gl="scorestats">scorestats</code>, <code class="gl" data-gl="modestats">modestats</code>, <span class="gl" data-gl="accessgrid">accessibility grids</span></li>
         </ul>
       </div>
       <div class="card">
-        <h3>SUMO harvest</h3>
+        <h3><span class="gl" data-gl="sumo">SUMO</span> harvest</h3>
         <span class="src">supply &amp; operations</span>
         <ul>
-          <li><code>tripinfo</code> — duration, route length, waiting time, time loss</li>
-          <li><code>personinfo</code> — walk and ride legs, per-person time loss</li>
-          <li><code>stopinfo</code> — dwell start/end, delay, loaded and unloaded persons</li>
-          <li><code>edgeData</code> — density, occupancy, speed, waiting time</li>
+          <li><code class="gl" data-gl="tripinfo">tripinfo</code> — duration, route length, waiting time, <span class="gl" data-gl="timeloss">time loss</span></li>
+          <li><code class="gl" data-gl="personinfo">personinfo</code> — walk and ride legs, per-person time loss</li>
+          <li><code class="gl" data-gl="stopinfo">stopinfo</code> — <span class="gl" data-gl="dwell">dwell</span> start/end, delay, loaded and unloaded persons</li>
+          <li><code class="gl" data-gl="edgedata">edgeData</code> — density, occupancy, speed, waiting time</li>
         </ul>
       </div>
     </div>
@@ -1294,11 +1356,11 @@
       <span class="src">the common currency · ≥30 replications per cell</span>
       <p style="margin:0;color:var(--ink-2);font-size:.93rem">
         <code>scenario_id · origin_zone · dest_zone · period · mode →
-        ivt_s, wait_s, walk_access_s, walk_egress_s, n_transfers, transfer_wait_s,
-        fare_aud, gjt_s, gjt_sd_s</code>
+        <span class="gl" data-gl="ivt">ivt_s</span>, wait_s, walk_access_s, walk_egress_s, n_transfers, transfer_wait_s,
+        fare_aud, <span class="gl" data-gl="gjt">gjt_s</span>, <span class="gl" data-gl="gjtsd">gjt_sd_s</span></code>
       </p>
       <p style="margin:.8rem 0 0;color:var(--ink-2);font-size:.93rem">
-        <b>gjt_sd_s carries as much weight as gjt_s.</b> A 15-minute-headway service with
+        <b>gjt_sd_s carries as much weight as gjt_s.</b> A 15-minute-<span class="gl" data-gl="headway">headway</span> service with
         variable signal delay has a materially different effective cost from its mean run
         time, so reliability variance is reported as a finding, not averaged away.
       </p>
@@ -1313,39 +1375,39 @@
         <tbody>
           <tr>
             <td><span class="id">A1</span></td>
-            <td>LR person-legs ÷ total PT person-legs, Greater Newcastle</td>
-            <td class="fals">Share below ~10% — a distributor, not a trunk</td>
-            <td><span class="layer">legs.csv</span></td>
+            <td><span class="gl" data-gl="lr">LR</span> <span class="gl" data-gl="leg">person-legs</span> ÷ total <span class="gl" data-gl="pt">PT</span> person-legs, Greater Newcastle</td>
+            <td class="fals">Share below ~10% — a distributor, not a <span class="gl" data-gl="trunk">trunk</span></td>
+            <td><span class="layer gl" data-gl="legscsv">legs.csv</span></td>
           </tr>
           <tr>
             <td><span class="id">A2</span></td>
             <td>Transfer intensity; mean legs per PT journey</td>
-            <td class="fals">Legs/journey rises while GJT also rises — a shuttle</td>
-            <td><span class="layer">legs.csv</span></td>
+            <td class="fals">Legs/journey rises while <span class="gl" data-gl="gjt">GJT</span> also rises — a shuttle</td>
+            <td><span class="layer gl" data-gl="legscsv">legs.csv</span></td>
           </tr>
           <tr>
             <td><span class="id">A3</span></td>
-            <td>Δ demand-weighted GJT by OD pair vs S0</td>
-            <td class="fals">GJT rises for external-origin OD pairs</td>
-            <td><span class="layer">skim</span></td>
+            <td>Δ <span class="gl" data-gl="demandweighted">demand-weighted</span> GJT by <span class="gl" data-gl="od">OD pair</span> vs S0</td>
+            <td class="fals">GJT rises for <span class="gl" data-gl="externalorigin">external-origin</span> OD pairs</td>
+            <td><span class="layer gl" data-gl="skim">skim</span></td>
           </tr>
           <tr>
             <td><span class="id">A4</span></td>
-            <td>Hansen accessibility per SA1 — jobs and services within 30 / 45 min</td>
+            <td><span class="gl" data-gl="hansen">Hansen accessibility</span> per SA1 — jobs and services within 30 / 45 min</td>
             <td class="fals">No significant change outside a narrow CBD band</td>
             <td><span class="layer">skim · D1</span></td>
           </tr>
           <tr>
             <td><span class="id">A5</span></td>
-            <td>Boardings decomposed: from car, bus, rail, walk, or induced</td>
+            <td><span class="gl" data-gl="boardings">Boardings</span> decomposed: from car, bus, rail, walk, or <span class="gl" data-gl="induced">induced</span></td>
             <td class="fals">Car-diverted share below ~15%</td>
-            <td><span class="layer">events</span></td>
+            <td><span class="layer gl" data-gl="events">events</span></td>
           </tr>
           <tr>
             <td><span class="id">A6</span></td>
-            <td>Betweenness centrality of LR edges in the demand-weighted PT graph</td>
+            <td><span class="gl" data-gl="betweenness">Betweenness centrality</span> of LR edges in the demand-weighted PT graph</td>
             <td class="fals">High degree at one node, low betweenness — a stub</td>
-            <td><span class="layer">pt_stop2stop</span></td>
+            <td><span class="layer gl" data-gl="stop2stop">pt_stop2stop</span></td>
           </tr>
         </tbody>
       </table>
@@ -1360,21 +1422,21 @@
         <tbody>
           <tr>
             <td><span class="id">B1</span></td>
-            <td>Pedestrian throughput per 50 m Hunter St frontage segment, by hour</td>
+            <td>Pedestrian throughput per 50 m Hunter St <span class="gl" data-gl="frontage">frontage</span> segment, by hour</td>
             <td class="fals">No increase net of baseline pedestrian flow</td>
-            <td><span class="layer">personinfo · D1</span></td>
+            <td><span class="layer"><span class="gl" data-gl="personinfo">personinfo</span> · D1</span></td>
           </tr>
           <tr>
             <td><span class="id">B2</span></td>
-            <td>Population within 15 / 30 min PT of each frontage, floorspace-weighted</td>
-            <td class="fals">Catchment unchanged or contracts</td>
+            <td>Population within 15 / 30 min PT of each frontage, <span class="gl" data-gl="floorspace">floorspace-weighted</span></td>
+            <td class="fals"><span class="gl" data-gl="catchment">Catchment</span> unchanged or contracts</td>
             <td><span class="layer">skim · D1</span></td>
           </tr>
           <tr class="hl">
             <td><span class="id">B3</span></td>
             <td><b>Net arrivals at CBD retail frontages, all modes combined</b></td>
             <td class="fals">LR-borne arrivals offset or exceeded by suppressed car and bus arrivals</td>
-            <td><span class="layer">edgeData · trips</span></td>
+            <td><span class="layer"><span class="gl" data-gl="edgedata">edgeData</span> · trips</span></td>
           </tr>
           <tr>
             <td><span class="id">B4</span></td>
@@ -1393,10 +1455,10 @@
           <tr><th>ID</th><th>Question</th><th>Method</th><th class="num">Modelled now</th></tr>
         </thead>
         <tbody>
-          <tr><td><span class="id">S-a</span></td><td>Marginal cost of the wire-free decision</td><td>S2 − S2a on run time and patronage</td><td class="num">−1.67 min</td></tr>
-          <tr><td><span class="id">S-b</span></td><td>What transit signal priority would be worth</td><td>S2 − S2b on run time and reliability</td><td class="num">−4.55 min</td></tr>
-          <tr><td><span class="id">S-c</span></td><td>Minimum viable trunk length</td><td>Sweep 2.7 km → Broadmeadow → John Hunter</td><td class="num">2.7 / 5.2 / 9.5 km</td></tr>
-          <tr><td><span class="id">S-d</span></td><td>Sensitivity to the transfer penalty</td><td>Every headline as a curve, never a point</td><td class="num">3–15 min</td></tr>
+          <tr><td><span class="id">S-a</span></td><td>Marginal cost of the <span class="gl" data-gl="wirefree">wire-free</span> decision</td><td>S2 − S2a on run time and patronage</td><td class="num">−1.67 min</td></tr>
+          <tr><td><span class="id">S-b</span></td><td>What <span class="gl" data-gl="tsp">transit signal priority</span> would be worth</td><td>S2 − S2b on run time and reliability</td><td class="num">−4.55 min</td></tr>
+          <tr><td><span class="id">S-c</span></td><td>Minimum viable trunk length</td><td><span class="gl" data-gl="sweep">Sweep</span> 2.7 km → <span class="gl" data-gl="broadmeadow">Broadmeadow</span> → <span class="gl" data-gl="johnhunter">John Hunter</span></td><td class="num">2.7 / 5.2 / 9.5 km</td></tr>
+          <tr><td><span class="id">S-d</span></td><td>Sensitivity to the <span class="gl" data-gl="transferpen">transfer penalty</span></td><td>Every headline as a curve, never a point</td><td class="num">3–15 min</td></tr>
         </tbody>
       </table>
     </div>
@@ -1405,8 +1467,8 @@
       <p>
         <strong>B3 is the decisive test, and the one most likely to be neglected.</strong>
         A simulation that models the tram without modelling the lane loss, banned turns,
-        kerbside removal and signal cycle changes on Hunter Street will report a spurious
-        gain. The road-space externality is present in the same run, and B3 is a mandatory
+        <span class="gl" data-gl="kerbside">kerbside</span> removal and signal cycle changes on Hunter Street will report a spurious
+        gain. The <span class="gl" data-gl="externality">road-space externality</span> is present in the same run, and B3 is a mandatory
         reported metric — not an optional one.
       </p>
     </div>
@@ -1419,35 +1481,148 @@
       <div>
         <h4>Gating the next phase</h4>
         <ol>
-          <li>SCATS phase data — a 38% run-time swing rests on it</li>
-          <li>Charging dwell field measurement — hours of work, 11% of run time</li>
-          <li>Journey-linked Opal — to estimate rather than sweep the transfer penalty</li>
-          <li>Manual OSM correction on the corridor — B3 depends on it</li>
-          <li>LiDAR DTM for The Hill and Newcastle East</li>
+          <li><span class="gl" data-gl="scats">SCATS</span> phase data — a 38% run-time swing rests on it</li>
+          <li><span class="gl" data-gl="chargingdwell">Charging dwell</span> field measurement — hours of work, 11% of run time</li>
+          <li><span class="gl" data-gl="opal">Journey-linked Opal</span> — to estimate rather than <span class="gl" data-gl="sweep">sweep</span> the <span class="gl" data-gl="transferpen">transfer penalty</span></li>
+          <li>Manual <span class="gl" data-gl="osm">OSM</span> correction on the corridor — B3 depends on it</li>
+          <li><span class="gl" data-gl="dtm">LiDAR DTM</span> for The Hill and Newcastle East</li>
         </ol>
       </div>
       <div>
         <h4>Threats being managed</h4>
         <ul>
-          <li>ASC absorption — constants estimated pre-intervention and held</li>
-          <li>Corridor tunnel vision — road-space externality in the same run</li>
-          <li>Parameter-driven conclusions — curves, not point estimates</li>
-          <li>Counterfactual naivety — S0 modernised, not the 2014 service as-is</li>
-          <li>Advocacy drift — §3 pre-registered before any run</li>
+          <li><span class="gl" data-gl="ascabs">ASC absorption</span> — constants estimated pre-intervention and held</li>
+          <li>Corridor tunnel vision — <span class="gl" data-gl="externality">road-space externality</span> in the same run</li>
+          <li>Parameter-driven conclusions — curves, not <span class="gl" data-gl="pointest">point estimates</span></li>
+          <li><span class="gl" data-gl="counterfactual">Counterfactual</span> naivety — S0 modernised, not the 2014 service as-is</li>
+          <li>Advocacy drift — §3 <span class="gl" data-gl="prereg">pre-registered</span> before any run</li>
         </ul>
       </div>
       <div>
         <h4>Standing rule</h4>
         <ul>
-          <li>Every <code>source = assumed</code> row appears in <code>DECISIONS.md</code> with a sweep range</li>
-          <li>Falsification conditions are fixed; any change after results are seen is logged with reasoning</li>
+          <li>Every <code class="gl" data-gl="assumed">source = assumed</code> row appears in <code class="gl" data-gl="decisions">DECISIONS.md</code> with a <span class="gl" data-gl="sweep">sweep range</span></li>
+          <li><span class="gl" data-gl="falsification">Falsification conditions</span> are fixed; any change after results are seen is logged with reasoning</li>
           <li>The project's value depends on being able to publish a result that vindicates the light rail as readily as one that does not</li>
         </ul>
       </div>
     </div>
     <p class="colophon">
-      Project Wickham · P1 complete, no simulation run · base year 2026 · EPSG:28356 ·
-      seed 20260810 · 182 files, 2.31 GiB, 178 integrity checks passing
+      Project Wickham · P1 complete, no simulation run · base year 2026 · <span class="gl" data-gl="epsg">EPSG:28356</span> ·
+      <span class="gl" data-gl="seed">seed</span> 20260810 · 182 files, 2.31 GiB, 178 <span class="gl" data-gl="integrity">integrity checks</span> passing
     </p>
   </div>
 </footer>
+
+<script>
+/* Glossary tooltips. Every [data-gl] element resolves against GLOSSARY below and
+   shows a panel on hover, on keyboard focus and on tap. The panel is a single
+   element parented to <body> and positioned fixed, so it escapes the horizontal
+   scroll containers the tables and figures sit in. */
+(function () {
+  var GLOSSARY = {"abs": {"d": "Australian Bureau of Statistics, the national statistical agency, publisher of the Census and of the geography standard this project's zone system is built on.", "s": [["abs.gov.au", "https://www.abs.gov.au/"]], "t": "ABS"}, "accessgrid": {"d": "A raster of how much each cell of the study area can reach within a time budget, computed from the skim. It is what turns a network change into a map.", "t": "Accessibility grid"}, "agents": {"d": "Simulated individuals, each with a household, attributes and a day's plan. Synthetic means generated so that the totals match the Census; no agent corresponds to a real person.", "t": "Synthetic agents"}, "asc": {"d": "Alternative-Specific Constant: a per-mode constant in a choice model that absorbs everything the measured variables fail to explain, such as comfort, habit and image. Useful, and dangerous for exactly the same reason.", "t": "ASC"}, "ascabs": {"d": "The failure mode in which mode constants are tuned until the model reproduces observed light-rail patronage. The model then reproduces the effect by construction rather than by mechanism, and the result is worthless. Constants here are estimated on the pre-intervention era and held fixed.", "t": "ASC absorption"}, "asgs": {"d": "Australian Statistical Geography Standard, Edition 3: the ABS official hierarchy of statistical areas, and the digital boundary files that define them.", "s": [["ASGS Edition 3", "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026"]], "t": "ASGS Edition 3"}, "assumed": {"d": "Not observed. Every such value is labelled in its artefact's source field and recorded in DECISIONS.md with a rationale and the range it is swept over. Keeping this distinct from observed data is the project's central discipline.", "t": "Assumed / modelled"}, "audgen": {"d": "The Audit Office of New South Wales performance audit of the Newcastle Urban Transformation and Transport Program, December 2018. It found that the business case was prepared after the decision to build had been announced, and that no funding was allocated to assess whether the objectives were achieved.", "s": [["Audit Office of NSW reports", "https://www.audit.nsw.gov.au/our-work/reports"]], "t": "Auditor-General, report 310"}, "baseyear": {"d": "The single year whose land use, population, behaviour and networks every scenario shares, 2026 here, so that scenarios differ in the trunk mode and in nothing else.", "t": "Base year"}, "betweenness": {"d": "How often a link lies on the shortest path between other pairs of nodes. A stub carries many people at one end but few paths through it; a genuine trunk has the network's paths running through it.", "s": [["Betweenness centrality", "https://en.wikipedia.org/wiki/Betweenness_centrality"]], "t": "Betweenness centrality"}, "boardings": {"d": "Passengers getting on and getting off, counted per stop. Someone who changes services boards twice, which is why boardings exceed journeys and why the two must not be conflated when patronage is quoted.", "t": "Boardings and alightings"}, "broadmeadow": {"d": "The interchange and stadium precinct roughly 5 km inland: the first candidate extension beyond the 2.7 km line as built.", "t": "Broadmeadow"}, "brt": {"d": "Bus Rapid Transit: buses given a segregated right of way, priority at signals and level boarding with fares paid before the door, so the service behaves more like a rail line than a street bus.", "s": [["What BRT is", "https://en.wikipedia.org/wiki/Bus_rapid_transit"]], "t": "BRT"}, "caf": {"d": "The 100 per cent low-floor tram built by Construcciones y Auxiliar de Ferrocarriles. Newcastle runs five-module units of about 33 m, wire-free through the city centre on on-board energy storage topped up while standing at stops. Published dimensions and the assumed operating parameters are itemised in DECISIONS.md.", "s": [["caf.net", "https://www.caf.net/"]], "t": "CAF Urbos 100"}, "calibration": {"d": "Adjusting model parameters until the base year reproduces observed counts, boardings and run times. What may be calibrated, and against which era, is itself a design decision here.", "t": "Calibration"}, "catchment": {"d": "The population, jobs or floorspace within a stated travel time of a place. It is what a trunk service is supposed to enlarge.", "t": "Catchment"}, "cbd": {"d": "Central Business District, Newcastle's city centre, and the only part of the network in which the trunk mode varies between scenarios.", "t": "CBD"}, "chargingdwell": {"d": "The extra stop time a wire-free tram needs to recharge its on-board storage. It has never been measured in service here, so it is carried as a swept parameter rather than as a fact; the range is recorded in DECISIONS.md.", "t": "Charging dwell"}, "container": {"d": "The model shipped with its entire software environment pinned, so that it runs identically on someone else's machine years later rather than only on the one it was built on.", "t": "Containerised release"}, "convergence": {"d": "The point at which further passes between MATSim and SUMO stop changing the answer. The stated exit condition is corridor run time stable within a tolerance fixed at calibration.", "t": "Outer-loop convergence"}, "copernicus": {"d": "The European Space Agency's free 30-metre global digital elevation model. It supplies the gradients that make walking uphill cost more than walking down, and it is too coarse for the steepest streets, which is why LiDAR is still wanted.", "s": [["Copernicus Data Space", "https://dataspace.copernicus.eu/"]], "t": "Copernicus GLO-30"}, "counterfactual": {"d": "The state of the world under something that did not happen. Here it is the city exactly as it is in 2026, but with the heavy rail line never cut, so the light rail's effect is measured against a constructed alternative present rather than against the actual past.", "t": "Counterfactual"}, "datapacks": {"d": "The ABS bulk release of 2021 Census tables, one CSV per table per geography. Source of the marginal totals the synthetic population is fitted to.", "s": [["ABS DataPacks", "https://www.abs.gov.au/census/find-census-data/datapacks"]], "t": "Census DataPacks"}, "decisions": {"d": "The repository's ledger of every value in the model that is not observed, each with its rationale and its sweep range. It is the single source of truth for assumptions, and it also records the corrections made to the proposal's own premises.", "t": "DECISIONS.md"}, "dem": {"d": "Digital Elevation Model, a raster grid of ground-surface heights, read here to give every footway link a directional gradient cost.", "t": "DEM"}, "demandweighted": {"d": "Averaged with each origin-destination pair counted in proportion to how many people actually travel it, so a large change on an empty pair cannot outweigh a small one on a busy corridor.", "t": "Demand-weighted"}, "dtm": {"d": "Digital Terrain Model, a bare-earth height surface with buildings and vegetation stripped out, derived from laser scanning. Wanted for The Hill and Newcastle East, where the slopes decide whether walking is plausible at all and 30-metre satellite elevation blurs them away.", "s": [["What LiDAR is", "https://en.wikipedia.org/wiki/Lidar"]], "t": "LiDAR DTM"}, "dwell": {"d": "How long a vehicle stands at a stop: doors open, passengers off and on, doors closed. On a wire-free fleet it also includes time spent recharging.", "t": "Dwell time"}, "edgedata": {"d": "SUMO's aggregated per-edge measures over an interval: density, occupancy, mean speed and waiting time. The road-space side of the B3 test is computed from it.", "s": [["SUMO docs: edge-based measures", "https://sumo.dlr.de/docs/Simulation/Output/Lane-_or_Edge-based_Traffic_Measures.html"]], "t": "edgeData"}, "epsg": {"d": "GDA2020 / MGA Zone 56, the projected coordinate reference system covering this part of NSW. Every coordinate, length and area in the package is expressed in metres on this grid.", "s": [["epsg.io/28356", "https://epsg.io/28356"]], "t": "EPSG:28356"}, "era": {"d": "Timetable snapshots of the network as it stood at successive points: heavy rail before the 2014 cut, after it, after the 2017 bus redesign, and so on. Each is a complete GTFS feed rather than an edit of the last.", "t": "Era feeds"}, "events": {"d": "MATSim's raw event stream: every departure, arrival, boarding, alighting and link entry for every agent, in time order. Every other MATSim output is a summary of this one file.", "s": [["The MATSim book", "https://www.matsim.org/the-book"]], "t": "events"}, "expost": {"d": "Checking, after delivery, whether an intervention achieved what was claimed for it. That it is tractable here with open data and public tooling, and was not done, is the project's governance argument.", "t": "Ex-post evaluation"}, "externality": {"d": "The cost of the road space a street-running tram takes: lost traffic lanes, banned turns, removed kerbside parking, changed signal cycles. A model that adds the tram without subtracting these reports a gain that is not there.", "t": "Road-space externality"}, "externalorigin": {"d": "Journeys beginning outside the city centre. The Auditor-General's concern was that these get longer, not shorter, when a through service becomes a service plus a transfer.", "t": "External-origin trips"}, "falsification": {"d": "A result, stated in advance, that would count as the claim being false. Without one, a model can only ever confirm. These are fixed at P0 and cannot be revised after results are seen without a logged entry in DECISIONS.md.", "t": "Falsification condition"}, "floorspace": {"d": "Counted in proportion to premises size, so that a department store does not weigh the same as a kiosk.", "t": "Floorspace-weighted"}, "frontage": {"d": "The street-facing edge of a building or block. It is the unit at which shopfront footfall, floorspace and retail exposure are measured here, because Claim B is a claim about doors, not about zones.", "t": "Frontage"}, "gib": {"d": "Gibibyte: 2 to the power of 30 bytes, about 1.074 GB. Used because file tooling reports binary units.", "t": "GiB"}, "gjt": {"d": "Generalised Journey Time: total perceived journey time, in which waiting, walking and transferring are weighted more heavily than time seated in the vehicle, because travellers genuinely dislike them more. A faster tram that adds a transfer can still raise GJT.", "t": "GJT"}, "gjtsd": {"d": "The standard deviation of generalised journey time across replications, in seconds: how unreliable the journey is, as distinct from how long it takes on average. Reported alongside the mean and never in place of it.", "t": "gjt_sd_s"}, "gtfs": {"d": "General Transit Feed Specification, the standard open format for a public-transport timetable: stops, routes, trips, stop times and calendars, as a bundle of CSV files. Every era and every scenario service pattern in this project is a GTFS feed.", "s": [["gtfs.org", "https://gtfs.org/"]], "t": "GTFS"}, "hansen": {"d": "A measure of how much a place can reach: destinations counted up and discounted by how long they take to get to. It rises when travel gets faster or when destinations get closer, which makes it the natural test of an integration claim.", "t": "Hansen accessibility"}, "hashed": {"d": "A checksum recorded for every file in the manifest, so that any later change to something claimed to be an immutable input is detectable rather than deniable.", "t": "Hashed"}, "headway": {"d": "The interval between consecutive services on a route. A 15-minute headway means an unplanned arrival waits up to 15 minutes, which is why headway and reliability can matter more than in-vehicle speed.", "t": "Headway"}, "holdout": {"d": "Validation targets deliberately withheld from calibration. Fit against them measures whether the model predicts, rather than how thoroughly it was tuned; 143 of the 210 targets are held back.", "t": "Holdout"}, "hts": {"d": "Transport for NSW's continuous face-to-face survey of household travel, and the source of the trip rates, trip purposes and mode shares used to build the synthetic population and to check it.", "s": [["HTS on the Open Data Hub", "https://opendata.transport.nsw.gov.au/"]], "t": "Household Travel Survey"}, "imputed": {"d": "Inferred from a rule or a model rather than measured. An imputed attribute is not an observation, and the imputed share is reported here precisely so that it cannot be mistaken for one.", "t": "Imputed"}, "induced": {"d": "Journeys that would not have been made at all without the new service, as distinct from journeys diverted from another mode. Only the diverted kind can be claimed as taking cars off the road.", "t": "Induced trips"}, "integrity": {"d": "Automated assertions over the package: hashes match, row counts agree, geometry is valid, coordinates fall inside the study area, and nothing labelled observed is in fact assumed.", "t": "Integrity checks"}, "interchange": {"d": "The Wickham station opened in October 2017, where the truncated heavy rail line now terminates and passengers transfer to light rail or bus. It is the transfer this whole design turns on.", "t": "Newcastle Interchange"}, "ivt": {"d": "In-Vehicle Time: the part of a journey spent aboard the vehicle, excluding access walking, waiting and transfers.", "t": "IVT"}, "johnhunter": {"d": "The region's major hospital and its largest single trip attractor outside the city centre. An extension reaching it is the upper bound of any plausible network.", "t": "John Hunter Hospital"}, "kerbside": {"d": "The use assigned to the edge of the roadway: parking, loading, bus stop or clearway. A street-running tram consumes it, and a model that ignores that reports a benefit without its cost.", "t": "Kerbside"}, "leg": {"d": "A leg is one continuous stage on a single mode; a trip or journey chains several legs together with transfers between them. Counting legs rather than trips is what makes transfer burden visible instead of hidden inside a total.", "t": "Legs and trips"}, "legscsv": {"d": "One row per leg, so that the structure of a journey, meaning how many stages, which modes and what was transferred between, survives into the analysis instead of being collapsed into a total.", "t": "legs.csv"}, "lga": {"d": "Local Government Area, a council boundary. The study area spans five of them.", "s": [["ASGS Edition 3", "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026"]], "t": "LGA"}, "los": {"d": "Level of Service: the supply-side quality a traveller actually experiences, meaning run time, waiting, reliability and crowding. Feeding SUMO's measured values back to MATSim as revised LOS is what closes the loop between the two engines.", "t": "LOS"}, "lr": {"d": "Light rail: street-running electric rail, that is, a tram.", "t": "LR"}, "marginals": {"d": "The published row and column totals, such as age by sex, household size and car ownership, that a synthetic population must reproduce even though the individual records behind them are confidential.", "t": "Census marginals"}, "matsim": {"d": "Multi-Agent Transport Simulation. An open-source agent-based model in which every traveller is a separate individual who plans a day, executes it, scores the outcome and re-plans, iterating until the population stops finding better choices. Used here for regional demand and mode choice.", "s": [["matsim.org", "https://matsim.org/"], ["The MATSim book", "https://www.matsim.org/the-book"]], "t": "MATSim"}, "microsim": {"d": "Simulation at the level of the individual, where each traveller, vehicle and pedestrian is a distinct entity with its own attributes and decisions, rather than of aggregate flows between zones. It is what makes questions about transfers and footfall answerable at all.", "t": "Microsimulation"}, "modestats": {"d": "Per-iteration mode shares: how mode choice migrates across iterations before settling.", "t": "modestats"}, "netconvert": {"d": "SUMO's network builder. It imports OpenStreetMap geometry and emits a SUMO network, deriving lanes, junctions, connections and traffic-light programs, which is why the imported lane counts still have to be checked by hand along the corridor.", "s": [["SUMO docs: netconvert", "https://sumo.dlr.de/docs/netconvert.html"]], "t": "netconvert"}, "nftc": {"d": "The 2025 Newcastle report from which the assumed alignment for the Broadmeadow and John Hunter extensions is taken. It underpins scenarios S4 and S5, and is recorded in DECISIONS.md as an assumption, not as a commitment.", "t": "Future Transit Corridor report"}, "nuisance": {"d": "Something a model must account for but does not care about, and normally averages out. Reliability is explicitly refused that status here.", "t": "Nuisance parameter"}, "od": {"d": "Origin and destination: one zone where a trip starts and one where it ends. Model output is summarised as matrices over every such pair.", "t": "OD pair"}, "opal": {"d": "The NSW public-transport smartcard. Aggregated tap-on and tap-off counts are published openly. Journey-linked records, which would let one person's transfers be reconstructed and so let the transfer penalty be estimated rather than swept, are not, and remain one of the three unobtained inputs.", "s": [["Opal data on the Open Data Hub", "https://opendata.transport.nsw.gov.au/"]], "t": "Opal"}, "optiona": {"d": "The alternative light-rail route that drew plurality support during public consultation and was not the one selected. S2c models it so that the choice can be priced rather than argued.", "t": "Option A alignment"}, "osm": {"d": "The openly licensed world map database. Source of the road, footway, rail, parking, POI and building geometry here. Layers derived from it are ODbL 1.0 share-alike, unlike the rest of the package, which is CC-BY 4.0.", "s": [["openstreetmap.org", "https://www.openstreetmap.org/"], ["ODbL 1.0", "https://opendatacommons.org/licenses/odbl/1-0/"]], "t": "OpenStreetMap"}, "overpass": {"d": "A read-only query service over OpenStreetMap: you ask for particular features inside a bounding box instead of downloading the planet. Each of the eight themed extracts here is one recorded Overpass query.", "s": [["overpass-api.de", "https://overpass-api.de/"], ["OSM wiki", "https://wiki.openstreetmap.org/wiki/Overpass_API"]], "t": "Overpass API"}, "patronage": {"d": "The count of passenger journeys or boardings a service carries: the headline number in transport business cases, and the one that cannot be attributed here because six changes and a pandemic all land on the same series.", "t": "Patronage"}, "personinfo": {"d": "SUMO's per-person output, covering walking and riding stages separately, with each person's time loss. It is the pedestrian side of the corridor, which is where Claim B lives.", "s": [["SUMO docs: tripinfo", "https://sumo.dlr.de/docs/Simulation/Output/TripInfo.html"]], "t": "personinfo"}, "poi": {"d": "Point of Interest: a mapped shop, cafe, school, clinic or similar destination. POI density is how retail activity enters the land-use layer.", "t": "POI"}, "pointest": {"d": "A single number quoted without the uncertainty around it. Where a finding depends on a parameter that was never measured, this project reports the curve and refuses the point.", "t": "Point estimate"}, "popsynth": {"d": "Generating a complete roster of individual people and households whose aggregate characteristics reproduce published Census totals. It is necessary because the Census is not released person by person.", "t": "Population synthesis"}, "prereg": {"d": "Fixing the hypotheses, the metrics and the conditions that would count as failure before any data is gathered or any scenario is run, so that the analysis cannot be steered towards a preferred answer once results are visible.", "t": "Pre-registration"}, "provenance": {"d": "The record filed with every download: source URL, retrieval timestamp and licence. Raw downloads are immutable; corrections happen downstream in the build scripts, never in the file itself.", "t": "Provenance"}, "pt": {"d": "Public transport: here the bus, heavy rail, ferry and light rail network taken together.", "t": "PT"}, "pt2matsim": {"d": "The converter that turns an OpenStreetMap network plus a GTFS timetable into a MATSim multimodal network with a matching transit schedule, snapping every route onto the links it actually runs on.", "s": [["github.com/matsim-org/pt2matsim", "https://github.com/matsim-org/pt2matsim"]], "t": "pt2matsim"}, "relaxation": {"d": "MATSim re-planning day after simulated day until average plan score stops improving: the equilibrium the population settles into. Results are only read once the model has relaxed.", "t": "Relaxation"}, "reliability": {"d": "The spread of run times rather than their average. A service whose journey time varies is worth measurably less than a consistent one with the same mean, so the spread is reported as a finding here, not averaged away.", "t": "Reliability variance"}, "replication": {"d": "One complete run under a different random seed. The simulation is stochastic, so a single run is one draw; thirty per scenario give a distribution instead of an anecdote.", "t": "Replication"}, "runtime": {"d": "End-to-end time for the trunk vehicle to traverse the corridor, computed here from vehicle physics on the true alignment rather than copied from a published timetable, which would import the answer instead of deriving it.", "t": "Modelled run time"}, "sa1": {"d": "Statistical Area Level 1, the smallest general-purpose ABS Census geography, typically 200 to 800 people. The zone system for the core study area.", "s": [["ASGS Edition 3", "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026"]], "t": "SA1"}, "sa2": {"d": "Statistical Area Level 2, roughly a suburb or a cluster of suburbs, 3,000 to 25,000 people. Used for zones outside the core area, where finer resolution would cost more than it is worth.", "s": [["ASGS Edition 3", "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026"]], "t": "SA2"}, "sbc": {"d": "The 2020 investment case for the corridor's future. Its preferred option was bus rapid transit rather than an extension of light rail, which is what scenario S3 exists to price.", "t": "Strategic Business Case"}, "scats": {"d": "Sydney Coordinated Adaptive Traffic System, the adaptive controller running the state's traffic signals, which retimes them in response to measured demand. Its phase and offset data was not obtainable, so signal timing here is swept across a range rather than pinned to a value.", "s": [["scats.com.au", "https://www.scats.com.au/"]], "t": "SCATS"}, "scorestats": {"d": "MATSim's per-iteration record of average plan score: the curve that shows whether the population has relaxed or the run was simply stopped too early.", "t": "scorestats"}, "seed": {"d": "The fixed number initialising the random number generator. The same seed reproduces the same run exactly, which is what makes the synthetic package reproducible rather than merely repeatable.", "t": "Seed"}, "skim": {"d": "A matrix of the cost of travel between every origin and destination, by mode and time period, extracted, or skimmed, from a completed simulation run. It is the common currency the two engines' very different outputs are reduced to before anything is compared.", "t": "Skim"}, "stop2stop": {"d": "Boardings, alightings and the load carried on each link between consecutive stops: the load profile that shows whether a line is a trunk carrying through-passengers or a shuttle filling and emptying at its ends.", "t": "pt_stop2stop"}, "stopinfo": {"d": "SUMO's per-stop output: when the vehicle arrived and departed, the delay it incurred, and how many people boarded and alighted. This is where modelled dwell becomes measurable.", "s": [["SUMO docs: stop output", "https://sumo.dlr.de/docs/Simulation/Output/StopOutput.html"]], "t": "stopinfo"}, "sumo": {"d": "Simulation of Urban MObility. An open-source microscopic traffic simulator: each vehicle and pedestrian is modelled second by second, with car-following, lane-changing and signal response. Used here for what the corridor physically does.", "s": [["eclipse.dev/sumo", "https://eclipse.dev/sumo/"], ["Documentation", "https://sumo.dlr.de/docs/"]], "t": "SUMO"}, "sweep": {"d": "Running the model across the full plausible range of an uncertain parameter and reporting the resulting curve, instead of choosing one value and reporting a single number as though it were known.", "t": "Sensitivity sweep"}, "tfnsw": {"d": "Transport for NSW's public data portal: GTFS feeds, Opal patronage aggregates, road traffic counts and Household Travel Survey tables. The bulk of this package came from here.", "s": [["opendata.transport.nsw.gov.au", "https://opendata.transport.nsw.gov.au/"]], "t": "TfNSW Open Data Hub"}, "timeloss": {"d": "How much slower a vehicle or pedestrian was than an unimpeded run at the free-flow speed: the cleanest single measure of what congestion and signals cost a traveller.", "t": "Time loss"}, "transferpen": {"d": "The extra perceived cost of changing services, over and above the actual minutes waited. It is decisive for a network built around an interchange, and without journey-linked Opal it is swept across a range instead of estimated.", "t": "Transfer penalty"}, "tripinfo": {"d": "SUMO's per-vehicle output: duration, route length, waiting time and time loss for every vehicle that completed a trip.", "s": [["SUMO docs: tripinfo", "https://sumo.dlr.de/docs/Simulation/Output/TripInfo.html"]], "t": "tripinfo"}, "tripscsv": {"d": "One row per MATSim trip: mode used, departure time, total travel time, waiting time and distance.", "t": "trips.csv"}, "trunk": {"d": "The high-capacity spine service a network is organised around, as distinct from the local routes that feed into it. Whether the light rail is a trunk or a distributor is exactly what hypothesis A1 tests.", "t": "Trunk mode"}, "tsp": {"d": "Transit Signal Priority: letting an approaching tram or bus hold a green or cut a red short. Whether it is switched on is the largest single uncertainty in modelled corridor run time here, and it rests on signal phase data nobody has published.", "t": "TSP"}, "valtarget": {"d": "Observed numbers, such as counts, boarding totals and run times, that the model is required to reproduce. 67 are used to calibrate against and 143 are held back to test against.", "t": "Validation targets"}, "vot": {"d": "Value of Time: what a traveller is implicitly willing to pay to save an hour. It is the exchange rate that lets time, fares and reliability be added into a single comparable cost.", "t": "VOT"}, "walkdecay": {"d": "How sharply willingness to walk falls away with distance to a stop. It sets the catchment of every station, and is uncertain enough that headline results are reported across its range rather than at one value.", "t": "Walk decay"}, "wirefree": {"d": "Running without overhead catenary, on board-stored energy recharged at stops. It buys an uncluttered streetscape and costs time standing still, and scenario S2a exists to price that trade.", "t": "Wire-free"}, "zonesystem": {"d": "The set of spatial units trips are counted between: SA1 inside the study area, SA2 outside it. It sets the finest question the model can answer.", "t": "Zone system"}};
+
+  var tip = document.createElement('div');
+  tip.id = 'wickham-tip';
+  tip.setAttribute('role', 'tooltip');
+  document.body.appendChild(tip);
+
+  var current = null, hideTimer = null;
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function render(key) {
+    var e = GLOSSARY[key];
+    if (!e) return false;
+    var out = '<b class="gl-term">' + esc(e.t) + '</b>' + esc(e.d);
+    if (e.s && e.s.length) {
+      out += '<span class="gl-src">' + e.s.map(function (link) {
+        return '<a href="' + esc(link[1]) + '" target="_blank" rel="noopener noreferrer">'
+             + esc(link[0]) + ' \u2197</a>';
+      }).join(' \u00b7 ') + '</span>';
+    }
+    tip.innerHTML = out;
+    return true;
+  }
+
+  function place(el) {
+    var r = el.getBoundingClientRect();
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var pad = 8;
+    var x = r.left + r.width / 2 - w / 2;
+    x = Math.max(pad, Math.min(x, window.innerWidth - w - pad));
+    var y = r.top - h - 10;
+    if (y < pad) y = Math.min(r.bottom + 10, window.innerHeight - h - pad);
+    tip.style.left = Math.round(x) + 'px';
+    tip.style.top = Math.round(Math.max(pad, y)) + 'px';
+  }
+
+  function show(el) {
+    clearTimeout(hideTimer);
+    if (!render(el.getAttribute('data-gl'))) return;
+    if (current && current !== el) current.removeAttribute('data-tip-open');
+    current = el;
+    el.setAttribute('data-tip-open', '');
+    el.setAttribute('aria-describedby', 'wickham-tip');
+    place(el);              /* measured while hidden: layout exists, paint does not */
+    tip.classList.add('on');
+  }
+
+  function hide(now) {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () {
+      tip.classList.remove('on');
+      if (current) {
+        current.removeAttribute('data-tip-open');
+        current.removeAttribute('aria-describedby');
+      }
+      current = null;
+    }, now ? 0 : 140);
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-gl]'), function (el) {
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+  });
+
+  document.addEventListener('mouseover', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-gl]') : null;
+    if (el) { show(el); return; }
+    if (tip.contains(e.target)) clearTimeout(hideTimer);
+    else if (current) hide();
+  });
+
+  document.addEventListener('mouseout', function (e) {
+    var from = e.target.closest ? e.target.closest('[data-gl]') : null;
+    var to = e.relatedTarget;
+    if (!from && !tip.contains(e.target)) return;
+    if (to && (tip.contains(to) || (to.closest && to.closest('[data-gl]')))) return;
+    hide();
+  });
+
+  document.addEventListener('focusin', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-gl]') : null;
+    if (el) show(el);
+    else if (!tip.contains(e.target)) hide(true);
+  });
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-gl]') : null;
+    if (el) {
+      e.preventDefault();
+      if (current === el && tip.classList.contains('on')) hide(true);
+      else show(el);
+    } else if (!tip.contains(e.target)) {
+      hide(true);
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && current) { current.focus(); hide(true); }
+  });
+
+  window.addEventListener('resize', function () { if (current) place(current); });
+  window.addEventListener('scroll', function () { if (current) place(current); }, true);
+})();
+</script>
