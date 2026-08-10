@@ -31,6 +31,9 @@ import collections
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gtfs_tools import read_feed, write_feed
+from shape_tools import (RoadGraph, harbourside_corridor, project_onto,
+                         resolve_anchor, shape_rows, densify, dedupe,
+                         polyline_length_m)
 
 BASE = 'schedules/base2026.zip'
 OUT = 'schedules/scenarios'
@@ -43,17 +46,26 @@ CORRIDOR_SPEED = 60.0      # km/h on reserved former-railway alignment
 DWELL_FIXED = 8.0
 DWELL_CHARGING = 20.0
 SIGNAL_DELAY_PER_INT = 26.0   # s, derived residual per corridor intersection
+# How close a heavy-rail shape's end must come to the Interchange before the S0
+# corridor is spliced onto it. Newcastle Interchange platforms sit ~200 m from
+# the tram stop the corridor starts at, so this is generous but far short of
+# the next station in any direction.
+S0_JOIN_TOLERANCE_M = 1500.0
 N_CORRIDOR_INTERSECTIONS = 14
 
-# Extension stops. Coordinates are the plausible siting from the 2020 Strategic
-# Business Case / 2025 Future Transit Corridor work; they are assumed.
+# Extension stops. *That* there is a stop here is assumed - the SBC names the
+# corridor but sites no platform. *Where* it is is no longer assumed: each stop
+# is anchored on an observed feature the corridor passes, resolved from the OSM
+# and POI layers at build time, then projected onto the routed alignment. P1
+# typed four plausible coordinates instead, and one of them (Hamilton) sat 548 m
+# off the published corridor.
 EXT_BROADMEADOW = [
-    ('Hamilton (Beaumont St)', -32.91930, 151.74830, 'assumed'),
-    ('Broadmeadow', -32.92300, 151.73470, 'assumed'),
+    ('Hamilton (Beaumont St)', ('intersection', 'Tudor Street', 'Beaumont Street')),
+    ('Broadmeadow', ('rail_station', 'Broadmeadow Station')),
 ]
 EXT_JHH = [
-    ('Lambton', -32.92150, 151.71900, 'assumed'),
-    ('John Hunter Hospital', -32.92230, 151.69440, 'assumed'),
+    ('Lambton', ('intersection', 'Lambton Road', 'Turton Road')),
+    ('John Hunter Hospital', ('poi', 'John Hunter Hospital', 'health:hospital')),
 ]
 # S1 bus shuttle stop spacing is tighter than light rail
 S1_SHUTTLE = [
@@ -155,7 +167,7 @@ def scale_lr_runtime(feed, delta_per_intermediate_s=0.0, delta_per_segment_s=0.0
     for r in f['stop_times']:
         if r['trip_id'] not in tids:
             newst.append(r)
-    for tid in tids:
+    for tid in sorted(tids):
         rows = by.get(tid)
         if not rows:
             continue
@@ -210,7 +222,7 @@ def extend_lr(feed, extra_stops, speed_kmh=LINE_SPEED, tag='EXT'):
         return f
     inter = interchange[0]
     newst = [r for r in f['stop_times'] if r['trip_id'] not in tids]
-    for tid in tids:
+    for tid in sorted(tids):
         rows = by.get(tid)
         if not rows:
             continue
@@ -345,6 +357,194 @@ def make_bus_shuttle(feed, stops_def, headway_s, route_id, route_name, mode='3',
     return f, n
 
 
+# ---------------------------------------------------------------------------
+# Shapes
+#
+# P1 added and moved stops without ever touching shapes.txt, so S0, S2c, S4 and
+# S5 all carried the same 275-point as-built geometry (DECISIONS.md 3.4). Every
+# shape below is routed over geometry the package already observes; only the
+# stop sitings stay assumed.
+# ---------------------------------------------------------------------------
+
+LR_SHAPE_OUT = 'lightrail:NLR.OUTBOUND'   # Interchange -> Newcastle Beach
+LR_SHAPE_IN = 'lightrail:NLR.INBOUND'     # Newcastle Beach -> Interchange
+
+# Street sequence of the S4/S5 extension, from the Newcastle Light Rail
+# Extension Strategic Business Case (2020): out of Newcastle Interchange onto
+# Tudor Street, into Belford Street through the Nine Ways and over the
+# Broadmeadow rail overbridge, onto Lambton Road, across Turton Road into New
+# Lambton and onto Russell Road, then left off Lookout Road to the hospital.
+# The streets are named in a published document; the geometry joining them is
+# the observed OSM centreline of those streets.
+SBC_EXTENSION_STREETS = ('Hunter Street', 'Tudor Street', 'Belford Street',
+                         'Lambton Road', 'Turton Road', 'Russell Road',
+                         'Lookout Road')
+SBC_EXTENSION_KM = 6.65          # the length the SBC states, for cross-check
+INTERCHANGE_LL = (-32.92433, 151.75943)
+JHH_LL = (-32.92230, 151.69440)
+
+
+def shape_points(feed, shape_id):
+    rows = sorted((r for r in feed['shapes'] if r['shape_id'] == shape_id),
+                  key=lambda r: int(r['shape_pt_sequence']))
+    return [(float(r['shape_pt_lat']), float(r['shape_pt_lon'])) for r in rows]
+
+
+def put_shapes(feed, mapping):
+    """Replace the named shapes with new point lists, leaving the rest alone."""
+    feed['shapes'] = [r for r in feed['shapes'] if r['shape_id'] not in mapping]
+    for sid in sorted(mapping):
+        feed['shapes'] += shape_rows(sid, mapping[sid])
+
+
+def extension_alignment(graph):
+    """Newcastle Interchange -> John Hunter Hospital over the SBC streets."""
+    a, _ = graph.nearest_node(INTERCHANGE_LL)
+    b, _ = graph.nearest_node(JHH_LL)
+    pts = graph.shortest_path(a, b, prefer_names=SBC_EXTENSION_STREETS)
+    if not pts:
+        raise RuntimeError('extension corridor did not route')
+    return densify(dedupe([INTERCHANGE_LL] + list(pts) + [JHH_LL]), 20.0)
+
+
+def site_extension_stops(alignment, specs):
+    """Resolve each stop's observed anchor, then project it onto the corridor.
+
+    Returns (name, lat, lon, source, offset_from_anchor_m, distance_along_m).
+    The offset says how far the corridor runs from the feature the stop is
+    named for; a large one would mean the anchor and the route disagree.
+    """
+    out = []
+    for nm, spec in specs:
+        anchor, desc = resolve_anchor(spec)
+        if anchor is None:
+            raise RuntimeError('could not resolve anchor for %s: %r' % (nm, spec))
+        q, d, along = project_onto(alignment, anchor)
+        src = 'assumed siting, anchored on %s' % desc
+        out.append((nm, round(q[0], 7), round(q[1], 7), src, round(d, 1), along))
+    return out
+
+
+def set_lr_extension_shape(feed, alignment):
+    """Prepend/append the extension to the two tram shapes.
+
+    OUTBOUND starts at the Interchange, so the extension goes on the front,
+    reversed, and the trip now begins at the far end. INBOUND is its mirror.
+    """
+    out_pts = shape_points(feed, LR_SHAPE_OUT)
+    new_out = dedupe(list(reversed(alignment))[:-1] + out_pts)
+    put_shapes(feed, {LR_SHAPE_OUT: new_out,
+                      LR_SHAPE_IN: list(reversed(new_out))})
+    return polyline_length_m(alignment)
+
+
+def move_lr_stops_onto(feed, corridor):
+    """Project the tram stops onto a corridor, in place.
+
+    Must run *before* the run-time decomposition: `scale_lr_runtime` derives
+    every segment time from the stop-to-stop distance, so moving stops
+    afterwards would leave the timetable describing the old geometry.
+    """
+    moved = 0
+    for s in feed['stops']:
+        if not s['stop_id'].startswith('lightrail:'):
+            continue
+        q, _, _ = project_onto(corridor, (float(s['stop_lat']), float(s['stop_lon'])))
+        s['stop_lat'], s['stop_lon'] = round(q[0], 7), round(q[1], 7)
+        moved += 1
+    return moved
+
+
+def set_reserved_alignment_shape(feed, corridor):
+    """S2c: put the tram shape on the retained former-railway corridor."""
+    put_shapes(feed, {LR_SHAPE_OUT: corridor,
+                      LR_SHAPE_IN: list(reversed(corridor))})
+
+
+def set_s0_rail_shapes(feed, corridor, ext_stop_ids):
+    """S0: carry the extended heavy-rail trips beyond the Interchange.
+
+    A shape can be shared by trips that were extended and trips that were not,
+    so the extended trips get their own shape id rather than the original
+    being rewritten underneath everyone.
+    """
+    by_trip = collections.defaultdict(list)
+    for r in feed['stop_times']:
+        by_trip[r['trip_id']].append(r)
+    extended = {t for t, rows in by_trip.items()
+                if any(r['stop_id'] in ext_stop_ids for r in rows)}
+    existing = {r['shape_id'] for r in feed['shapes']}
+    made = {}
+    n = 0
+    for t in feed['trips']:
+        if t['trip_id'] not in extended or not t.get('shape_id'):
+            continue
+        src = t['shape_id']
+        if src not in existing:
+            continue
+        dst = src + '+S0EXT'
+        if dst not in made:
+            base = shape_points(feed, src)
+            if not base:
+                continue
+            # A Hunter line shape may run Newcastle-outward or outward-Newcastle,
+            # so the corridor goes on whichever end actually sits at the
+            # Interchange. If neither does, the shape is left alone rather than
+            # spliced across the Hunter Valley.
+            head_gap = haversine_ll(base[0], corridor[0])
+            tail_gap = haversine_ll(base[-1], corridor[0])
+            if min(head_gap, tail_gap) > S0_JOIN_TOLERANCE_M:
+                continue
+            if tail_gap <= head_gap:
+                made[dst] = dedupe(base + corridor[1:])
+            else:
+                made[dst] = dedupe(list(reversed(corridor))[:-1] + base)
+        if dst not in made:
+            continue
+        t['shape_id'] = dst
+        n += 1
+    for sid in sorted(made):
+        feed['shapes'] += shape_rows(sid, made[sid])
+    return n, len(made)
+
+
+def haversine_ll(a, b):
+    return hav(a, b)
+
+
+def shape_coverage(feed, tol_m=500.0):
+    """How often a trip's shape actually reaches the trip's last stop."""
+    stops = {s['stop_id']: s for s in feed['stops']}
+    sh = collections.defaultdict(list)
+    for r in feed['shapes']:
+        sh[r['shape_id']].append(r)
+    by = group_trips(feed)
+    total = short = 0
+    worst = 0.0
+    for t in feed['trips']:
+        sid = t.get('shape_id')
+        rows = by.get(t['trip_id'])
+        if not sid or sid not in sh or not rows:
+            continue
+        last = stops.get(rows[-1]['stop_id'])
+        if not last:
+            continue
+        ll = (float(last['stop_lat']), float(last['stop_lon']))
+        pts = sorted(sh[sid], key=lambda r: int(r['shape_pt_sequence']))
+        ends = [(float(pts[0]['shape_pt_lat']), float(pts[0]['shape_pt_lon'])),
+                (float(pts[-1]['shape_pt_lat']), float(pts[-1]['shape_pt_lon']))]
+        d = min(hav(e, ll) for e in ends)
+        total += 1
+        if d > tol_m:
+            short += 1
+            worst = max(worst, d)
+    return dict(trips_with_shape=total, shape_short_of_last_stop=short,
+                pct=round(100.0 * short / max(total, 1), 1),
+                worst_gap_m=round(worst),
+                note='pre-existing in the source GTFS; identical in every '
+                     'scenario feed, so it cannot bias a scenario comparison')
+
+
 def summarise(f, label):
     tids, rids = lr_trip_ids(f)
     by = group_trips(f)
@@ -373,6 +573,56 @@ def main():
     print('base2026: routes=%d trips=%d stops=%d' %
           (len(base['routes']), len(base['trips']), len(base['stops'])), flush=True)
     out = {}
+    geom = {}
+
+    # ---- alignments, built once from observed geometry -------------------
+    print('building alignments from the road and footway extracts ...', flush=True)
+    graph = RoadGraph()
+    ext_align = extension_alignment(graph)
+    ext_km = polyline_length_m(ext_align) / 1000.0
+    print('   S4/S5 extension corridor: %.2f km over %d points '
+          '(SBC states %.2f km, %+.1f%%)'
+          % (ext_km, len(ext_align), SBC_EXTENSION_KM,
+             (ext_km / SBC_EXTENSION_KM - 1) * 100), flush=True)
+
+    lr_west = shape_points(base, LR_SHAPE_OUT)[0]
+    lr_east = shape_points(base, LR_SHAPE_OUT)[-1]
+    tram_corridor, tram_obs_m, tram_tot_m = harbourside_corridor(lr_west, lr_east)
+    rail_corridor, rail_obs_m, rail_tot_m = harbourside_corridor(
+        lr_west, (S0_EXTENSION[-1][1], S0_EXTENSION[-1][2]))
+    print('   S2c reserved corridor:    %.2f km, %.0f%% on observed OSM geometry'
+          % (tram_tot_m / 1000.0, 100.0 * tram_obs_m / max(tram_tot_m, 1)), flush=True)
+    print('   S0 rail corridor:         %.2f km, %.0f%% on observed OSM geometry'
+          % (rail_tot_m / 1000.0, 100.0 * rail_obs_m / max(rail_tot_m, 1)), flush=True)
+
+    bmd = site_extension_stops(ext_align, EXT_BROADMEADOW)
+    jhh = site_extension_stops(ext_align, EXT_JHH)
+    for nm, la, lo, src, off, along in bmd + jhh:
+        print('   stop %-26s %.2f km out, %4.0f m from its anchor'
+              % (nm, along / 1000.0, off), flush=True)
+    bmd_stops = [(nm, la, lo, src) for nm, la, lo, src, _, _ in bmd]
+    jhh_stops = [(nm, la, lo, src) for nm, la, lo, src, _, _ in jhh]
+    # S4 runs the same corridor as S5, truncated at Broadmeadow, so the two
+    # scenarios cannot differ by geometry over their shared section
+    bmd_end = max(a for *_, a in bmd)
+    ext_align_bmd = [p for p in ext_align
+                     if project_onto(ext_align, p)[2] <= bmd_end + 1.0]
+    geom['extension'] = dict(
+        km=round(ext_km, 3), points=len(ext_align),
+        sbc_stated_km=SBC_EXTENSION_KM,
+        sbc_streets=list(SBC_EXTENSION_STREETS),
+        s4_truncated_km=round(polyline_length_m(ext_align_bmd) / 1000.0, 3),
+        source='modelled - routed over observed OSM centreline of the streets '
+               'named in the 2020 NLR Extension Strategic Business Case; stop '
+               'sitings remain assumed (DECISIONS.md 3.4, 10)')
+    geom['reserved_corridor'] = dict(
+        tram_km=round(tram_tot_m / 1000.0, 3),
+        tram_observed_pct=round(100.0 * tram_obs_m / max(tram_tot_m, 1), 1),
+        rail_km=round(rail_tot_m / 1000.0, 3),
+        rail_observed_pct=round(100.0 * rail_obs_m / max(rail_tot_m, 1), 1),
+        source='modelled - the retained harbour-side former-railway strip, '
+               'observed in OSM where it survives (Foreshore Footpath) and '
+               'interpolated across the redeveloped gap')
 
     # S2 - as built
     write_feed(renumber_sequences(base), os.path.join(OUT, 'S2.zip'))
@@ -380,9 +630,13 @@ def main():
 
     # S0 - heavy rail retained to Newcastle station
     s0, n_ext = extend_heavy_rail(base)
+    n_trips, n_shapes = set_s0_rail_shapes(
+        s0, rail_corridor, {'sydneytrains:S0_%d' % (i + 1)
+                            for i in range(len(S0_EXTENSION))})
     write_feed(renumber_sequences(s0), os.path.join(OUT, 'S0.zip'))
     out['S0'] = summarise(s0, 'S0')
     out['S0']['heavy_rail_trips_extended'] = n_ext
+    out['S0']['shapes_extended'] = dict(trips=n_trips, shapes=n_shapes)
 
     # S1 - bus shuttle from Wickham, no light rail
     s1, n1 = make_bus_shuttle(drop_lr(base), S1_SHUTTLE, 600, 'S1SHUTTLE',
@@ -406,11 +660,17 @@ def main():
     out['S2b'] = summarise(s2b, 'S2b')
     out['S2b']['signal_delay_removed_s_per_segment'] = round(saving, 1)
 
-    # S2c - Option A alignment on former railway land: reserved, fewer conflicts
-    s2c = scale_lr_runtime(base, speed_kmh=CORRIDOR_SPEED,
+    # S2c - Option A alignment on former railway land: reserved, fewer conflicts.
+    # The stops move onto the corridor before the run time is decomposed, so the
+    # timetable describes the reserved alignment rather than the street one.
+    s2c_src = copy.deepcopy(base)
+    n_moved = move_lr_stops_onto(s2c_src, tram_corridor)
+    s2c = scale_lr_runtime(s2c_src, speed_kmh=CORRIDOR_SPEED,
                            delta_per_segment_s=-SIGNAL_DELAY_PER_INT * 0.6)
+    set_reserved_alignment_shape(s2c, tram_corridor)
     write_feed(renumber_sequences(s2c), os.path.join(OUT, 'S2c.zip'))
     out['S2c'] = summarise(s2c, 'S2c')
+    out['S2c']['stops_moved_to_reserved_corridor'] = n_moved
 
     # S3 - bus rapid transit on the same alignment
     brt_stops = [(n, la, lo) for n, la, lo in
@@ -427,12 +687,14 @@ def main():
     out['S3']['brt_trips'] = n3
 
     # S4 - extended to Broadmeadow
-    s4 = extend_lr(base, EXT_BROADMEADOW, tag='BMD')
+    s4 = extend_lr(base, bmd_stops, tag='BMD')
+    out['S4_extension_km'] = round(set_lr_extension_shape(s4, ext_align_bmd) / 1000.0, 3)
     write_feed(renumber_sequences(s4), os.path.join(OUT, 'S4.zip'))
     out['S4'] = summarise(s4, 'S4')
 
     # S5 - extended to Broadmeadow and John Hunter Hospital
-    s5 = extend_lr(base, EXT_BROADMEADOW + EXT_JHH, tag='JHH')
+    s5 = extend_lr(base, bmd_stops + jhh_stops, tag='JHH')
+    out['S5_extension_km'] = round(set_lr_extension_shape(s5, ext_align) / 1000.0, 3)
     write_feed(renumber_sequences(s5), os.path.join(OUT, 'S5.zip'))
     out['S5'] = summarise(s5, 'S5')
 
@@ -441,6 +703,14 @@ def main():
     write_feed(renumber_sequences(s6), os.path.join(OUT, 'S6.zip'))
     out['S6'] = summarise(s6, 'S6')
 
+    # Pre-existing source-feed limitation, measured so it is visible rather than
+    # discovered later: some intercity shapes cover only part of the run they
+    # belong to. It is identical in every scenario feed, so it cannot bias a
+    # scenario comparison - but it is why the S0 corridor is spliced only onto
+    # shapes that actually reach the Interchange (S0_JOIN_TOLERANCE_M) instead
+    # of onto every extended trip.
+    geom['source_shape_coverage'] = shape_coverage(base)
+    out['_geometry'] = geom
     json.dump(out, open(os.path.join(OUT, '_scenario_schedule_report.json'), 'w'), indent=2)
     for k in ['S0', 'S1', 'S2', 'S2a', 'S2b', 'S2c', 'S3', 'S4', 'S5', 'S6']:
         v = out[k]

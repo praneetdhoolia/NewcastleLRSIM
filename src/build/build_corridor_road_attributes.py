@@ -66,20 +66,18 @@ E1_ROAD_VARIANTS = 'scenarios/E1_road_variants.csv'
 
 # Alignment source per variant.
 #
-# `shape` uses the tram route's own GTFS shape. `stops` interpolates through the
-# tram route's stop sequence instead, and is used for S4/S5 because those feeds
-# add extension stops (Hamilton, Broadmeadow, Lambton, John Hunter Hospital)
-# without extending the shape: all four scenario feeds still carry the 275-point
-# as-built 2.7 km shape. That is a P1 defect - recorded in DECISIONS.md 3.4 - and
-# it means the extension corridor has to be derived from the (assumed) stop
-# sitings rather than from a surveyed alignment. S2c is affected in the same way,
-# but its road variant is the full-capacity Hunter Street network, so the missing
-# reserved-alignment geometry does not change any road attribute here.
+# Every alignment is now read from the feed's own GTFS shape. Until the P2
+# follow-up, S0/S2c/S4/S5 all carried the same 275-point as-built 2.7 km shape,
+# so the extension corridors had to be interpolated through the (assumed) stop
+# sitings with mode='stops' - the P1 defect recorded in DECISIONS.md 3.4.
+# `build_scenario_schedules.py` now routes those shapes over observed geometry
+# (the SBC street sequence for S4/S5, the retained harbour-side former-railway
+# strip for S2c), so the corridor extent follows a real alignment again.
 ALIGNMENT_FEEDS = {
     'base2026': ('schedules/raw/base2026/lightrail.zip', 'shape'),
     'S2c': ('schedules/scenarios/S2c.zip', 'shape'),
-    'S4': ('schedules/scenarios/S4.zip', 'stops'),
-    'S5': ('schedules/scenarios/S5.zip', 'stops'),
+    'S4': ('schedules/scenarios/S4.zip', 'shape'),
+    'S5': ('schedules/scenarios/S5.zip', 'shape'),
 }
 
 # The streets the tram takes road space from on the as-built corridor. Hunter and
@@ -474,9 +472,13 @@ def build():
                               for k, (p, m) in ALIGNMENT_FEEDS.items()},
             trunk_streets=TRUNK_STREETS,
             extension_variants=list(EXTENSION_VARIANTS),
-            p1_defect=('S2c/S4/S5 scenario feeds carry the unmodified 275-point as-built '
-                       'shape; extension geometry is therefore derived from the assumed '
-                       'stop sitings, not from a surveyed alignment. DECISIONS.md 3.4.')),
+            alignment_provenance=(
+                'Resolved at P3. The S0/S2c/S4/S5 feeds no longer carry the as-built '
+                '275-point shape: build_scenario_schedules.py routes the S4/S5 '
+                'extension over the observed OSM centreline of the streets named in '
+                'the 2020 NLR Extension Strategic Business Case, and puts S2c on the '
+                'retained harbour-side former-railway strip. Stop sitings remain '
+                'assumed but are now anchored on observed features. DECISIONS.md 3.4.')),
         counts=dict(
             edges_total=len(rows),
             corridor_trunk_base2026=sum(1 for r in rows

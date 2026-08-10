@@ -5,8 +5,8 @@ this at session start. **Keep it current in the same commit/PR as the work it de
 — if a change makes a line here wrong, fix the line in that change, not later.
 
 **Last updated:** 10 August 2026
-**Stage:** P2 network build complete. **No scenario has been run. Nothing in this repo
-is a result.**
+**Stage:** P3 demand synthesis in progress — stage 0 (the carried-forward P2 shape
+defect) complete. **No scenario has been run. Nothing in this repo is a result.**
 
 ---
 
@@ -19,7 +19,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P0 Scoping | ✅ complete | Base year 2026, zone system, scenario list S0–S6 settled. Scope calls closing proposal §10 are recorded in [`DECISIONS.md`](DECISIONS.md) §1. |
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
-| P3 Demand synthesis | ⬜ next | Synthetic population and plans exist as P1 artefacts; activity/OD work is P3. |
+| P3 Demand synthesis | 🟨 in progress | Stage 0 done: the §3.4 shape defect is closed and the network rebuilt once on the corrected feeds. B1 population is reusable as-is; **B2 activity chains are being rebuilt** — see below. |
 | P4 Calibration | ⬜ not started | 67 calibration targets built; 143 held out. |
 | P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run.** |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
@@ -105,10 +105,45 @@ era-1 reconstruction.
 
 | Item | Where | Consequence if left |
 |---|---|---|
-| **S2c/S4/S5 GTFS shapes were never extended** — all four tram feeds carry the same 275-point as-built geometry | [`DECISIONS.md`](DECISIONS.md) §3.4 | Extension corridors are derived from assumed stop sitings. Rebuild the shapes in `build_scenario_schedules.py` before publishing any S4/S5 result. |
+| ~~S2c/S4/S5 GTFS shapes were never extended~~ **Closed at P3 stage 0.** It also affected S0. | [`DECISIONS.md`](DECISIONS.md) §3.4 | Alignments now routed over observed geometry; extension stop sitings anchored on observed features. E1 patch set grew 195 → 414 rows as a result. |
 | **pt2matsim is not reproducible run to run** — ~18% of route link sequences differ between identical builds | [`DECISIONS.md`](DECISIONS.md) §3.5 | Every scenario comparison must use **one** build of the network. Comparing feeds mapped in different builds puts an 18% path difference inside the treatment effect. |
 | Pre-tram Hunter/Scott cross-section is assumed (2 lanes/direction, swept 1–2) | [`DECISIONS.md`](DECISIONS.md) §3.4 | This is the counterfactual B3 rests on. It must be reported as swept, never as a point estimate. |
 | `--osm.crossings` segfaults SUMO 1.27.1 | [`DECISIONS.md`](DECISIONS.md) §3.6 | No crossings/sidewalks in the SUMO corridor. Pedestrians are MATSim's job on A6, so this is acceptable — but do not model pedestrian delay in SUMO. |
+
+---
+
+## P3 stage 0 — what changed (10 August 2026)
+
+| | |
+|---|---|
+| S4/S5 extension alignment | Routed over the observed OSM centreline of the SBC street sequence. **7.00 km vs the SBC's stated 6.65 km (+5.3%)** |
+| S2c / S0 alignment | The retained harbour-side former-railway strip — 33% / 21% observed OSM geometry, remainder interpolated |
+| Extension stop sitings | Anchored on observed features (two intersections, a station node, a POI). The P1 Hamilton coordinate was **548 m off the published corridor** |
+| E1 road patch set | 195 → **414** rows; corridor/parallel edges 605 → **714** |
+| Determinism | A **pre-existing** set-iteration bug in `build_scenario_schedules.py` made `stop_times.txt` row order hash-seed dependent. Fixed; two consecutive builds are now byte-identical across all 10 feeds |
+| Network | **One build** of all 15 feeds + 4 SUMO nets, on the corrected feeds. 0 unmapped stops in every feed; artificial link share 0.48–0.60% |
+| Checks | `check_package.py` **322 checks pass**; `check_manifest.py` OK |
+
+**Not done, deliberately:** S1 and S3 leave 532 and 712 shuttle/BRT trips with no
+`shape_id`. That is valid GTFS, pt2matsim maps them from the network, and both routes
+run on streets where a shape adds little. Recorded rather than built.
+
+---
+
+## Open for P5 — the run load does not fit one machine
+
+Sizing done during P3 planning, recorded here so P5 does not rediscover it:
+
+| | Runs |
+|---|---:|
+| Sensitivity sweep (140 points × 10 scenarios) | 1,400 |
+| Headline set (10 scenarios × `n_replications=30`) | 300 |
+
+At any sample fraction this does not fit on a single workstation. **The levers are
+sweep breadth and `n_replications`, not the population sample fraction** — restricting
+the sweep to the decisive contrasts (S2vS0, S2vS2b) is ~3.3×, and 30 → 10 replications
+another ~3×. Demand is built at 100% precisely so this stays a P5 run-time choice;
+measure a real per-iteration cost before picking fractions.
 
 ---
 

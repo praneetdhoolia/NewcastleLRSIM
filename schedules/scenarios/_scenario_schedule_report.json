@@ -18,7 +18,11 @@
     "stop_times": 160089,
     "trunk_runtime_min": {},
     "trunk_trips_weekday": {},
-    "heavy_rail_trips_extended": 254
+    "heavy_rail_trips_extended": 254,
+    "shapes_extended": {
+      "trips": 129,
+      "shapes": 4
+    }
   },
   "S1": {
     "routes": 290,
@@ -68,7 +72,8 @@
     },
     "trunk_trips_weekday": {
       "NLR": 252
-    }
+    },
+    "stops_moved_to_reserved_corridor": 11
   },
   "S3": {
     "routes": 290,
@@ -83,25 +88,27 @@
     },
     "brt_trips": 712
   },
+  "S4_extension_km": 2.584,
   "S4": {
     "routes": 290,
     "trips": 4374,
     "stops": 3875,
     "stop_times": 163981,
     "trunk_runtime_min": {
-      "NLR": 18.08
+      "NLR": 17.83
     },
     "trunk_trips_weekday": {
       "NLR": 252
     }
   },
+  "S5_extension_km": 7.002,
   "S5": {
     "routes": 290,
     "trips": 4374,
     "stops": 3877,
     "stop_times": 165081,
     "trunk_runtime_min": {
-      "NLR": 26.35
+      "NLR": 25.88
     },
     "trunk_trips_weekday": {
       "NLR": 252
@@ -114,5 +121,37 @@
     "stop_times": 159581,
     "trunk_runtime_min": {},
     "trunk_trips_weekday": {}
+  },
+  "_geometry": {
+    "extension": {
+      "km": 7.002,
+      "points": 391,
+      "sbc_stated_km": 6.65,
+      "sbc_streets": [
+        "Hunter Street",
+        "Tudor Street",
+        "Belford Street",
+        "Lambton Road",
+        "Turton Road",
+        "Russell Road",
+        "Lookout Road"
+      ],
+      "s4_truncated_km": 2.584,
+      "source": "modelled - routed over observed OSM centreline of the streets named in the 2020 NLR Extension Strategic Business Case; stop sitings remain assumed (DECISIONS.md 3.4, 10)"
+    },
+    "reserved_corridor": {
+      "tram_km": 2.934,
+      "tram_observed_pct": 32.7,
+      "rail_km": 2.575,
+      "rail_observed_pct": 21.1,
+      "source": "modelled - the retained harbour-side former-railway strip, observed in OSM where it survives (Foreshore Footpath) and interpolated across the redeveloped gap"
+    },
+    "source_shape_coverage": {
+      "trips_with_shape": 4374,
+      "shape_short_of_last_stop": 477,
+      "pct": 10.9,
+      "worst_gap_m": 248959,
+      "note": "pre-existing in the source GTFS; identical in every scenario feed, so it cannot bias a scenario comparison"
+    }
   }
 }

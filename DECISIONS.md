@@ -245,6 +245,57 @@ Handled, not hidden:
 - **Action:** rebuild the S2c/S4/S5 shapes in `build_scenario_schedules.py`
   before any extension result is published.
 
+**Resolved at P3 (10 August 2026).** `src/build/shape_tools.py` builds the
+missing geometry from layers the package already observes, and
+`build_scenario_schedules.py` writes it into the feeds. The defect turned out
+to extend one feed further than recorded above: **S0** extends heavy rail to
+Civic and Newcastle without extending its shape either.
+
+| Feed | Alignment now | Length | Evidence |
+|---|---|---|---|
+| S4 / S5 | Routed over the **observed OSM centreline** of the streets the 2020 NLR Extension Strategic Business Case names — Tudor, Belford, Lambton Rd, Turton Rd, Russell Rd, Lookout Rd | 7.00 km to JHH (S4 is this truncated at Broadmeadow, 2.58 km) | The SBC states **6.65 km**; the independently routed corridor lands **+5.3%** on that, over the published street sequence |
+| S2c | The retained **harbour-side former-railway strip**, observed where it survives (Foreshore Footpath) and interpolated across the redeveloped gap | 2.93 km | 33% of the length is observed OSM geometry; the rest is interpolated and labelled so |
+| S0 | The same corridor, to the former Newcastle station | 2.58 km | 21% observed |
+
+**Stop sitings are still assumed, but no longer typed.** Each extension stop is
+now anchored on an observed feature and then projected onto the routed
+corridor:
+
+| Stop | Anchor | Offset |
+|---|---|---|
+| Hamilton (Beaumont St) | observed Tudor St × Beaumont St intersection | 0 m |
+| Broadmeadow | observed `railway=station` node, Broadmeadow Station | 98 m |
+| Lambton | observed Lambton Rd × Turton Rd intersection | 0 m |
+| John Hunter Hospital | observed POI `w1025992530`, `health:hospital` | 107 m |
+
+The P1 coordinate for **Hamilton sat 548 m off the published corridor** — it
+was near Beaumont St/Maitland Rd rather than on Tudor St. That is the one
+siting the correction actually moves.
+
+**Consequences, both material:**
+
+1. **The extension corridor roughly doubled.** Derived from a real 7.0 km
+   routed alignment rather than a straight-line interpolation through two to
+   four stops, the E1 patch set grows from 195 rows to **414** (S5 89 → 240,
+   S4 66 → 134). Corridor/parallel edges go from 605 to **714**. The extension
+   lane take is applied to far more edges than at P2, and 85.4% of those lane
+   counts are observed in OSM.
+2. **S2c is now a different scenario in the model, not just in the timetable.**
+   Its 11 tram stops move onto the reserved corridor (about 115 m north of
+   Hunter Street) *before* the run-time decomposition, so its timetable
+   describes the reserved alignment. Previously its stops sat on Hunter/Scott
+   and pt2matsim mapped them to the street network — the alignment the
+   scenario exists to avoid.
+
+**One pre-existing source-feed limitation, measured rather than patched over.**
+**477 of 4,374 base-feed trips (10.9%)** carry a GTFS shape that ends more than
+500 m from the trip's own last stop — worst case 249 km, the intercity services
+whose shapes cover only part of the run. It is identical in every scenario feed
+so it cannot bias a comparison. The S0 corridor is therefore spliced only onto
+shapes that actually reach the Interchange (`S0_JOIN_TOLERANCE_M = 1500 m`);
+125 of the 254 extended trips keep their short source shape rather than gain
+an invented 2.4 km of geometry.
+
 ### 3.5 pt2matsim is not reproducible run to run — measured, not assumed away
 
 `PublicTransitMapper` does not produce byte-identical output from identical
@@ -729,5 +780,6 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **P3 stage 0 — the §3.4 shape defect closed, and one determinism bug with it.** S0/S2c/S4/S5 alignments rebuilt from observed geometry (§3.4); extension stop sitings anchored on observed features, one of them 548 m out. E1 patch set 195 → 414 rows as a consequence. **`build_scenario_schedules.py` iterated a `set` of trip ids in two places, so `stop_times.txt` row order varied with the Python hash seed** — a violation of the determinism rule that predates this branch and was caught by a repeat-build check; now sorted, and two consecutive builds are byte-identical across all 10 feeds. One MATSim build of all 15 feeds and 4 SUMO nets regenerated on the corrected feeds; 322 package checks pass. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P2 network build.** Toolchain pinned (§3.6). Corridor attributes graded by evidence and the E1 road variants derived as edge-level deltas (§3.4); premise corrected — the corridor is not 75–98% imputed (§2.5). pt2matsim's run-to-run drift measured and bounded (§3.5). Three missing signal variants built (§5). CRS label corrected (§2.6). MATSim network + 15 mapped schedules and 4 SUMO corridor nets produced. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | Initial. P1 data acquisition. Scope decisions §10.1–3, 4, 5 closed. Proposal premises corrected per §2.1–2.4. No scenario run; no falsification condition altered. |

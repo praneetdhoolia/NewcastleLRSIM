@@ -25,7 +25,7 @@
       "junctions": 7090,
       "lane_km": 1058.8,
       "lanes": 17188,
-      "netconvert_seconds": 2.4,
+      "netconvert_seconds": 2.5,
       "patch_rows": 0,
       "plain_connections_dropped": 0,
       "signal_variants": {
@@ -298,22 +298,22 @@
     },
     "net_base2026_broadmeadow_extension": {
       "banned_turns_dropped": false,
-      "bytes": 30228988,
-      "connections": 62994,
+      "bytes": 30119645,
+      "connections": 62756,
       "e1_banned_turn_movements": 22,
       "e1_kerbside_parking_removed": true,
       "e1_lanes_per_direction": 1.0,
       "edges": 15666,
       "edges_patched": {
-        "kerbsideUse": 106,
-        "numLanes": 48
+        "kerbsideUse": 236,
+        "numLanes": 142
       },
       "junctions": 7090,
-      "lane_km": 1056.5,
-      "lanes": 17140,
-      "netconvert_seconds": 2.4,
-      "patch_rows": 66,
-      "plain_connections_dropped": 355,
+      "lane_km": 1054.6,
+      "lanes": 17046,
+      "netconvert_seconds": 2.6,
+      "patch_rows": 134,
+      "plain_connections_dropped": 870,
       "signal_variants": {
         "S2_base": {
           "a2_intersections": 14,
@@ -407,8 +407,8 @@
     },
     "net_base2026_hunter_st_full_capacity": {
       "banned_turns_dropped": true,
-      "bytes": 30291790,
-      "connections": 63105,
+      "bytes": 30257703,
+      "connections": 63029,
       "e1_banned_turn_movements": 0,
       "e1_kerbside_parking_removed": false,
       "e1_lanes_per_direction": 2.0,
@@ -420,9 +420,9 @@
       "junctions": 7090,
       "lane_km": 1061.6,
       "lanes": 17226,
-      "netconvert_seconds": 2.4,
+      "netconvert_seconds": 2.5,
       "patch_rows": 40,
-      "plain_connections_dropped": 822,
+      "plain_connections_dropped": 1735,
       "signal_variants": {
         "S0_no_tram": {
           "a2_intersections": 14,
@@ -603,22 +603,22 @@
     },
     "net_base2026_jhh_extension": {
       "banned_turns_dropped": false,
-      "bytes": 30204543,
-      "connections": 62927,
+      "bytes": 30013923,
+      "connections": 62484,
       "e1_banned_turn_movements": 30,
       "e1_kerbside_parking_removed": true,
       "e1_lanes_per_direction": 1.0,
       "edges": 15666,
       "edges_patched": {
-        "kerbsideUse": 157,
-        "numLanes": 64
+        "kerbsideUse": 416,
+        "numLanes": 240
       },
       "junctions": 7090,
-      "lane_km": 1055.2,
-      "lanes": 17124,
-      "netconvert_seconds": 2.4,
-      "patch_rows": 89,
-      "plain_connections_dropped": 540,
+      "lane_km": 1049.8,
+      "lanes": 16948,
+      "netconvert_seconds": 2.6,
+      "patch_rows": 240,
+      "plain_connections_dropped": 1453,
       "signal_variants": {
         "S2_base": {
           "a2_intersections": 14,
