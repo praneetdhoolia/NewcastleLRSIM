@@ -784,7 +784,7 @@ re-applied on top by `osm:way:id`, which every link carries, and reproduces the
 base build's patch counts exactly (54 lanes / 59 kerbside / 8 banned turns for
 the full-capacity variant).
 
-#### Two defects this stage caught
+#### Three defects this stage caught
 
 1. **The day-type token is not always dot-delimited.** The era and scenario
    feeds namespace it `nisc001:WEEKDAY.2302960`, but the S1 shuttle and S3 BRT
@@ -797,6 +797,12 @@ the full-capacity variant).
    the corridor without the tram; a first cut stripped `disallowedNextLinks`
    from the whole network, deleting **1,235** observed restrictions instead of
    **8**, and quietly handing four scenarios a freer road network.
+3. **`gzip.open` writes the wall clock into the gzip header**, so two builds of
+   identical content produced different bytes and different manifest digests -
+   a direct breach of the determinism rule, and one that would have made every
+   rebuild look like a data change. `src/build/det_io.py` pins the header mtime
+   to 0; a repeat build of the plans and all 30 run-input sets is now
+   byte-identical.
 
 ### Assumed values introduced here
 

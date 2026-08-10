@@ -74,7 +74,7 @@
       "legs": 2188436,
       "activities": 2706372,
       "tours": 975441,
-      "bytes": 36398312,
+      "bytes": 36223382,
       "seed_mode_share": {
         "bike": 0.0244,
         "car": 0.5571,
@@ -96,7 +96,7 @@
       "legs": 1995697,
       "activities": 2460426,
       "tours": 889628,
-      "bytes": 32561558,
+      "bytes": 32385940,
       "seed_mode_share": {
         "bike": 0.0226,
         "car": 0.584,
@@ -118,7 +118,7 @@
       "legs": 1691188,
       "activities": 2120446,
       "tours": 753157,
-      "bytes": 28346443,
+      "bytes": 28182442,
       "seed_mode_share": {
         "bike": 0.0227,
         "car": 0.5843,

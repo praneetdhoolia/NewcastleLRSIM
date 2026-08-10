@@ -170,8 +170,8 @@ over mode share.
 | One build | day-type split runs on the **already-mapped** schedule: all 1,714 S2 route link sequences byte-identical to source, stop→link map for 4,174 facilities unchanged |
 | Run network | the scenario's **own mapped** network + E1 patch by `osm:way:id`, not `networks/matsim/variants/` (which is patched over the base and has no transit links — reference only, not runnable) |
 
-**Two defects the new checks caught, both of which would have produced a
-plausible-looking wrong answer:**
+**Three defects caught here, two of which would have produced a plausible-looking
+wrong answer:**
 
 1. The day-type token is dot-delimited in the era and scenario feeds
    (`nisc001:WEEKDAY.2302960`) but **underscore-delimited** for the S1 shuttle and
@@ -179,6 +179,9 @@ plausible-looking wrong answer:**
    every day type — **S1 would have run without its shuttle and S3 without its BRT**.
 2. Banned-turn removal was applied network-wide, deleting **1,235** observed turn
    restrictions instead of the **8** on the corridor.
+3. `gzip.open` stamps the wall clock into the gzip header, so identical content
+   produced different manifest digests on every rebuild. Pinned in
+   [`src/build/det_io.py`](src/build/det_io.py); repeat builds are byte-identical.
 
 **Carried into P4:** what C1 loses in translation to MATSim scoring — the nested-logit
 structure (`nesting_coefficient_pt = 0.65`), per-purpose value of time (collapsed to a

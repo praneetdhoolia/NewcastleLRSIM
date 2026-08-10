@@ -39,6 +39,10 @@ import collections
 import numpy as np
 import pandas as pd
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from det_io import gzip_writer
+
 PLANS = 'demand/plans'
 POP = 'demand/population'
 OUT = os.path.join(PLANS, 'matsim')
@@ -139,7 +143,7 @@ def write_day(day, attrs, rng, report):
     act_counts = collections.Counter()
     tours = 0
 
-    with gzip.open(dst, 'wt', encoding='utf-8', compresslevel=6) as w:
+    with gzip_writer(dst) as w:
         w.write('<?xml version="1.0" encoding="utf-8"?>\n')
         w.write('<!DOCTYPE population SYSTEM '
                 '"http://www.matsim.org/files/dtd/population_v6.dtd">\n')

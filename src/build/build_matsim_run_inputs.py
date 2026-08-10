@@ -39,6 +39,10 @@ import argparse
 import collections
 import xml.etree.ElementTree as ET
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from det_io import gzip_writer
+
 MATSIM = 'networks/matsim'
 PATCHES = 'data/processed/network/A1_road_variant_patches.csv'
 E1 = 'scenarios/E1_scenarios.csv'
@@ -102,7 +106,7 @@ def split_schedule(src_dir, dst_dir, day):
             root.remove(line)
 
     out_sched = os.path.join(dst_dir, 'transitSchedule.xml.gz')
-    with gzip.open(out_sched, 'wb', compresslevel=6) as f:
+    with gzip_writer(out_sched, text=False) as f:
         tree.write(f, encoding='utf-8', xml_declaration=True)
 
     with gzip.open(os.path.join(src_dir, 'transitVehicles.xml.gz'), 'rb') as f:
@@ -118,7 +122,7 @@ def split_schedule(src_dir, dst_dir, day):
         else:
             vroot.remove(veh)
     out_veh = os.path.join(dst_dir, 'transitVehicles.xml.gz')
-    with gzip.open(out_veh, 'wb', compresslevel=6) as f:
+    with gzip_writer(out_veh, text=False) as f:
         vtree.write(f, encoding='utf-8', xml_declaration=True)
 
     return dict(routes_kept=kept_routes, routes_dropped=dropped_routes,
@@ -176,7 +180,7 @@ def patch_network(src_net, dst_net, patches, drop_turns):
 
     body = LINK_BLOCK_RE.sub(patch_link, xml)
     os.makedirs(os.path.dirname(dst_net), exist_ok=True)
-    with gzip.open(dst_net, 'wt', encoding='utf-8', compresslevel=6) as f:
+    with gzip_writer(dst_net) as f:
         f.write(body)
     return dict(applied)
 
