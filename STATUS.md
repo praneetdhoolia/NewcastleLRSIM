@@ -5,8 +5,8 @@ this at session start. **Keep it current in the same commit/PR as the work it de
 — if a change makes a line here wrong, fix the line in that change, not later.
 
 **Last updated:** 10 August 2026
-**Stage:** P3 demand synthesis in progress — stage 0 (the carried-forward P2 shape
-defect) complete. **No scenario has been run. Nothing in this repo is a result.**
+**Stage:** P3 demand synthesis in progress — stage 0 (P2 shape defect) and stage 1
+(B2 activity chains) complete; MATSim plans next. **No scenario has been run. Nothing in this repo is a result.**
 
 ---
 
@@ -19,7 +19,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P0 Scoping | ✅ complete | Base year 2026, zone system, scenario list S0–S6 settled. Scope calls closing proposal §10 are recorded in [`DECISIONS.md`](DECISIONS.md) §1. |
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
-| P3 Demand synthesis | 🟨 in progress | Stage 0 done: the §3.4 shape defect is closed and the network rebuilt once on the corrected feeds. B1 population is reusable as-is; **B2 activity chains are being rebuilt** — see below. |
+| P3 Demand synthesis | 🟨 in progress | Stages 0–1 done: shape defect closed, network rebuilt once, **B2 activity chains rebuilt as tours** with three day types and external boundary demand. Next: MATSim plans wired to that build. |
 | P4 Calibration | ⬜ not started | 67 calibration targets built; 143 held out. |
 | P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run.** |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
@@ -127,6 +127,35 @@ era-1 reconstruction.
 **Not done, deliberately:** S1 and S3 leave 532 and 712 shuttle/BRT trips with no
 `shape_id`. That is valid GTFS, pt2matsim maps them from the network, and both routes
 run on streets where a shape adds little. Recorded rather than built.
+
+---
+
+## P3 stage 1 — B2 rebuilt as tours (10 August 2026)
+
+The P1 chains were a skeleton, not plans. Replaced, not patched
+([`DECISIONS.md`](DECISIONS.md) §9.2). Before → after, measured on the full output:
+
+| | P1 | P3 |
+|---|---|---|
+| Distinct non-home destination coordinates | **1,481** (zone centroids) | **76,278** |
+| Busiest single coordinate | **10.9%** of activity legs | **0.65%** |
+| Legs with a home-based purpose not starting at home | **684,125 (47%)** | **0** |
+| Return-home legs labelled NHB | **568,631 (all of them)** | **0** |
+| Persons with more than one tour (real sub-tours) | **0%** | **56.7%** |
+| Legs arriving after the day horizon | 1.77%, latest **36.0 h** | **0** |
+| Day types | 1 generic | **3** (WEEKDAY / SAT / SUN) |
+| External-tier demand | none | **5,384** weekday boundary agents |
+| Realised week trip rate vs HTS 3.473 | 3.298 (−5%) | **3.397 (−2.2%)** |
+| Gravity distance vs HTS, worst purpose | **+66%** (education) | **exact, all six purposes** |
+
+95.5% of activity ends now sit on an observed POI or CBD building footprint.
+Output is three files, `demand/plans/B2_activity_trips_{WEEKDAY,SAT,SUN}.csv`,
+5.86M legs. `build_population.py` keeps B1 and no longer writes chains.
+
+**Watch this one:** `P_INTERMEDIATE_STOP` (0.12–0.30, swept 0.10–0.35) decides how
+many sub-tours exist, and therefore how freely MATSim's mode choice can vary within
+a day. It is assumed, and it is the demand-side parameter with the most leverage
+over mode share.
 
 ---
 

@@ -41,7 +41,7 @@ LINEAGE = {
     'data/processed/validation': 'src/build/build_validation_targets.py',
     'schedules/scenarios': 'src/build/build_scenario_schedules.py',
     'demand/population': 'src/build/build_population.py',
-    'demand/plans': 'src/build/build_population.py',
+    'demand/plans': 'src/build/build_activity_chains.py',
     'params': 'src/build/build_params.py',
     'scenarios': 'src/build/build_scenario_configs.py',
     'schedules': 'src/build/build_era_feeds.py',

@@ -1,18 +1,18 @@
 {
   "project": "Newcastle Light Rail counterfactual microsimulation (Project Wickham)",
-  "generated": "2026-08-10T19:58:59",
+  "generated": "2026-08-10T20:23:04",
   "base_year": 2026,
   "crs": "EPSG:28356 (GDA2020 / MGA Zone 56)",
-  "n_files": 249,
-  "total_bytes": 2739200671,
-  "total_gib": 2.55,
+  "n_files": 252,
+  "total_bytes": 3309249916,
+  "total_gib": 3.08,
   "by_stage": {
     "raw": 61,
-    "processed": 188
+    "processed": 191
   },
   "bytes_by_stage": {
     "raw": 1956136023,
-    "processed": 783064648
+    "processed": 1353113893
   },
   "files": [
     {
@@ -1912,12 +1912,48 @@
       "retrieved": ""
     },
     {
-      "path": "demand/plans/B2_activity_trips.csv",
-      "bytes": 219233923,
-      "rows": 2020696,
-      "sha256": "b33301cad04659e6e29a6f2a62df48068c585620b4174357509050ed7b279cfa",
+      "path": "demand/plans/B2_activity_trips_SAT.csv",
+      "bytes": 265601046,
+      "rows": 1995697,
+      "sha256": "387dad9d89b8c612fb138d2e9bc80f9530271e4fc726178bbe79255377892d26",
       "stage": "processed",
-      "produced_by": "src/build/build_population.py",
+      "produced_by": "src/build/build_activity_chains.py",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "demand/plans/B2_activity_trips_SUN.csv",
+      "bytes": 224972278,
+      "rows": 1691188,
+      "sha256": "752eca09cb016e00a424be34ef143c179e1fbbde1b406cf26c89e0ccce189921",
+      "stage": "processed",
+      "produced_by": "src/build/build_activity_chains.py",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "demand/plans/B2_activity_trips_WEEKDAY.csv",
+      "bytes": 298736216,
+      "rows": 2188436,
+      "sha256": "0b2884484009d0bd61208eddc3fec7c260bf68637cee20710cd2a0abe7bb4272",
+      "stage": "processed",
+      "produced_by": "src/build/build_activity_chains.py",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "demand/plans/_activity_chains_report.json",
+      "bytes": 4896,
+      "rows": null,
+      "sha256": "3249934fc5191ecb93c572fc1055a8d753292a7bd1a723462b44a3857090d0af",
+      "stage": "processed",
+      "produced_by": "src/build/build_activity_chains.py",
       "source": "",
       "source_url": "",
       "licence": "",
@@ -1925,9 +1961,9 @@
     },
     {
       "path": "demand/population/B1_households.csv",
-      "bytes": 20650056,
-      "rows": 246022,
-      "sha256": "8bcea491bca6f32b0f3feb135f5a0968e3074531802fe2aafe26369e3502e493",
+      "bytes": 20626173,
+      "rows": 245738,
+      "sha256": "f1913e6359ed76461ff471aa7c8904129942e53350e5f3f8fcec96e668e4c934",
       "stage": "processed",
       "produced_by": "src/build/build_population.py",
       "source": "",
@@ -1937,9 +1973,9 @@
     },
     {
       "path": "demand/population/B1_synthetic_population.csv",
-      "bytes": 65152283,
-      "rows": 612680,
-      "sha256": "8daed62811dfee4c0b0d7edae58c4985d3f5b73147b7e923f41db165714c7693",
+      "bytes": 65145139,
+      "rows": 612668,
+      "sha256": "5d877d40c51e5677a747da7b5303a010f4f5f60224d8bb537c21664c504eca5b",
       "stage": "processed",
       "produced_by": "src/build/build_population.py",
       "source": "",
@@ -1949,9 +1985,9 @@
     },
     {
       "path": "demand/population/_population_report.json",
-      "bytes": 503,
+      "bytes": 262,
       "rows": null,
-      "sha256": "0fc9a931dbbb6978a40e2b540782f3620244ec8d789b318203c2c6483276fecc",
+      "sha256": "bc234a9cc33a850ab194ef0aec09274f5bbc851ff32e45be7835640dcd5037d9",
       "stage": "processed",
       "produced_by": "src/build/build_population.py",
       "source": "",

@@ -612,45 +612,108 @@ active 0.70. **Assumed.**
 
 ## 9. Synthetic population and demand (B1, B2)
 
-**612,680 persons in 246,022 households, 2,020,696 trips.** Seed 20260810.
-Deterministic: same seed reproduces exactly.
+### 9.1 B1 — persons and households
 
+**612,668 persons in 245,738 households.** Seed 20260810, deterministic.
 Fitted to census marginals per SA1 — household size (G35), vehicles (G34),
 dwelling structure (G36), age–sex (G04), labour force (G43/G46), income (G17),
 occupation (G60). Validation of the fit:
 
 | Statistic | Census | Synthetic |
 |---|---:|---:|
-| Mean household size | 2.49 (implied) | 2.49 |
-| Zero-vehicle households | 5.71% | 5.93% |
-| Mean vehicles per household | 1.818 | 1.809 |
+| Mean household size | 2.49 (implied) | 2.493 |
+| Zero-vehicle households | 5.71% | 5.95% |
+| Mean vehicles per household | 1.818 | 1.806 |
 | Employed as share of persons | ~50% | 50.4% |
 
-Assumed elements:
+Assumed elements: **licence holding by age band** (0.62 at 18–24 rising to 0.94
+at 45–54, falling to 0.45 at 85+), NSW-typical; **home coordinates** jittered
+within the SA1 at 0.6 × the equivalent-circle radius.
 
-- **Licence holding by age band** (0.62 at 18–24 rising to 0.94 at 45–54,
-  falling to 0.45 at 85+). NSW-typical, assumed.
-- **Trip rates** from HTS 2024/25 for the study-area LGAs: 3.47 trips/person/day.
-  Because HTS counts the return-home leg, activity rates are scaled by **0.7345**
-  so that E[activities] + P(any activity) = 3.47. Realised 3.298 (−5%), the
-  shortfall being persons who generate no activity at all.
-- **Departure-time profiles** by purpose: 24-hour vectors, NSW-typical shapes,
-  **assumed**.
-- **Activity durations**: work 465 min, education 360, shopping 45, other 90,
-  business 60, NHB 20. **Assumed**, ±30% lognormal.
-- **Destination choice**: singly-constrained gravity, attraction × exp(−d/d̄),
-  with d̄ the HTS mean journey distance for that purpose (commute 19.3 km,
-  education 6.9, shopping 7.4, other 9.1, business 23.7).
-- **Home coordinates** are jittered within the SA1 at 0.6 × the equivalent-circle
-  radius. Dwelling-level placement would be better and is available for the CBD
-  only (10,795 building footprints).
+> **P3 note.** `build_population.py` no longer generates chains, so it no longer
+> draws random numbers for them, and the person/household draw moved slightly:
+> 612,680 → 612,668 persons, 246,022 → 245,738 households. Every fit statistic
+> above is unchanged to within 0.02 pp. The file is a different sample of the
+> same distribution, not a different distribution.
 
-**Known limitation.** The plans are *seed* plans: departure times and modes are
-initial conditions for MATSim's co-evolutionary scoring, not predictions. Mode is
-deliberately **not** assigned in B2 — assigning it here would pre-empt the
-question the model exists to answer.
+### 9.2 B2 — activity chains (rebuilt at P3)
 
----
+The P1 chains were **not usable as MATSim plans**. Measured on the delivered
+file before replacing it:
+
+| Defect | Measured |
+|---|---|
+| Destinations were zone centroids | 1,452,065 activity legs landed on **1,481 distinct coordinates**; one centroid took **158,431 legs (10.9%)** |
+| Chains were not tours | activities were shuffled and chained without returning home, so **684,125 legs (47%)** had a home-based purpose but did not start at home |
+| Purposes were wrong | **all 568,631** closing legs were labelled NHB, making 70% of "NHB" simply going home |
+| One subtour per agent | every day was a single home→…→home loop, so MATSim's `SubtourModeChoice` would fix one chain-based mode for the whole day |
+| The day did not close | 1.77% of arrivals fell past 24 h, the latest at **36.0 h** |
+| One generic day | though the schedules carry WEEKDAY/SAT/SUN |
+
+`src/build/build_activity_chains.py` replaces them with home-anchored **tours**,
+one file per day type. Realised over 612,668 persons:
+
+| | WEEKDAY | SAT | SUN |
+|---|---:|---:|---:|
+| Legs | 2,177,684 | 1,991,493 | 1,688,002 |
+| Tours | 970,065 | 887,526 | 751,564 |
+| Legs per person | 3.554 | 3.251 | 2.755 |
+| Persons with more than one tour | 56.7% | 56.2% | 49.9% |
+
+Structural properties, verified on the full output: **100%** of tours close at
+home; **zero** return-home legs are labelled NHB; **zero** legs arrive after the
+30 h horizon; non-home destinations occupy **76,278** distinct coordinates on a
+weekday and the busiest single coordinate takes **0.65%** of legs, against 10.9%
+before. **95.5%** of activity ends are placed on an observed POI or CBD building
+footprint; 4.5% fall back to a jittered point in zones that have neither.
+
+The realised week trip rate is **3.397** against the HTS **3.473** (−2.2%; P1
+was −5%). The residual is tours dropped for not fitting inside the day.
+
+#### Assumed values introduced here
+
+| Value | Assumed | Sweep | Why it is not observed |
+|---|---|---|---|
+| Day-type rate shape (WEEKDAY / SAT / SUN) | 1.06 / 0.95 / 0.80 | 1.00–1.12 / 0.85–1.05 / 0.70–0.92 | The HTS LGA tables carry **no day-of-week dimension** — confirmed in the raw workbook, whose only dimensions are financial year, LGA, mode and purpose. Only the *shape* is assumed: the level is rescaled so 5×WEEKDAY + SAT + SUN reproduces the observed HTS week average exactly. |
+| Day-type purpose mix | commute and education collapse at the weekend, shopping and social rise | — | Same reason. Renormalised against the HTS purpose share so it redistributes rather than inflates. |
+| `P_MANDATORY` (work / education tour made on a given day) | 0.78 / 0.85 weekday | — | No local estimate of day-to-day work attendance. |
+| `P_INTERMEDIATE_STOP` by purpose | 0.12–0.30 | 0.10–0.35 | Trip chaining rates are not in the published HTS tables. **This parameter decides how many sub-tours exist, and therefore how freely MATSim's mode choice can vary within a day.** |
+| `CHILD_TOUR_RETENTION` | 0.4 | — | Share of an under-12's secondary tours made independently. |
+| `DETOUR_FACTOR` (straight-line → network) | 1.30 | 1.20–1.40 | Used only to compare the gravity model against HTS *journey* distances, which are network distances. |
+| `EXTERNAL_INTERACTION_RATE` | 0.08 | 0.04–0.15 | Share of external-tier residents entering the core on a weekday. No journey-linked Opal and no external-tier HTS cell exists to estimate it. |
+| Activity durations, departure profiles | carried from P1 | ±30% lognormal | As before. |
+
+#### Destination choice is now tied to the HTS, not set by hand
+
+P1 set the gravity decay to `1/mean-distance` directly, which left education and
+shopping **60% too long** and work-related business **22% too short**. The decay
+is now solved per purpose by bisection so the model's own expected journey
+distance equals the HTS figure. Realised against target, all six purposes:
+
+| Purpose | HTS network km | Model network km |
+|---|---:|---:|
+| HW | 17.76 | 17.76 |
+| HE | 6.44 | 6.44 |
+| HS | 7.13 | 7.13 |
+| HO | 10.16 | 10.16 |
+| WB | 23.02 | 23.02 |
+| NHB | 7.84 | 7.84 |
+
+#### External boundary demand
+
+B1 synthesises the 1,500 core SA1s only, so the 201 external SA1s — the boundary
+tier that exists to carry Hunter Line through-demand (§1, scope decision 3) —
+generated no travel at all, though their **70,448** residents are a ninth of the
+core population. A boundary treatment now generates **5,384** weekday agents
+(2,254 Saturday, 1,697 Sunday), each making one home-based tour into the core,
+reaching 828 distinct core zones at a mean 59.8 km. This is a boundary
+treatment, not a second population synthesis: freight, the Port and full
+external synthesis stay out of scope (proposal §5).
+
+**Known limitation, unchanged from P1.** The plans are *seed* plans: departure
+times are initial conditions for MATSim's co-evolutionary scoring, not
+predictions. Mode is deliberately **not** assigned in B2 — assigning it here
+would pre-empt the question the model exists to answer.
 
 ## 10. Scenario construction (E1)
 
@@ -780,6 +843,7 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **P3 stage 1 — B2 activity chains rebuilt as tours (§9.2).** The P1 chains put 1,452,065 activity legs on 1,481 zone centroids, labelled every return-home leg NHB, and gave each agent a single subtour; they are replaced, not patched. Destinations are now placed on observed POIs and building footprints, the gravity decay is solved against the HTS journey distance per purpose, three day types are produced, and the 201 external SA1s finally generate boundary demand. `build_population.py` keeps B1 and no longer writes B2; because it no longer draws for chains, the B1 sample shifted 612,680 → 612,668 persons with every fit statistic unchanged. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 0 — the §3.4 shape defect closed, and one determinism bug with it.** S0/S2c/S4/S5 alignments rebuilt from observed geometry (§3.4); extension stop sitings anchored on observed features, one of them 548 m out. E1 patch set 195 → 414 rows as a consequence. **`build_scenario_schedules.py` iterated a `set` of trip ids in two places, so `stop_times.txt` row order varied with the Python hash seed** — a violation of the determinism rule that predates this branch and was caught by a repeat-build check; now sorted, and two consecutive builds are byte-identical across all 10 feeds. One MATSim build of all 15 feeds and 4 SUMO nets regenerated on the corrected feeds; 322 package checks pass. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P2 network build.** Toolchain pinned (§3.6). Corridor attributes graded by evidence and the E1 road variants derived as edge-level deltas (§3.4); premise corrected — the corridor is not 75–98% imputed (§2.5). pt2matsim's run-to-run drift measured and bounded (§3.5). Three missing signal variants built (§5). CRS label corrected (§2.6). MATSim network + 15 mapped schedules and 4 SUMO corridor nets produced. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | Initial. P1 data acquisition. Scope decisions §10.1–3, 4, 5 closed. Proposal premises corrected per §2.1–2.4. No scenario run; no falsification condition altered. |

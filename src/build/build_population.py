@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Layers B1 and B2 - synthetic population and activity/trip records.
+"""Layer B1 - synthetic population (households and persons).
 
 Method
 ------
@@ -8,10 +8,10 @@ Households are drawn per SA1 to match the census marginals for household size
 to match the SA1 age-sex distribution (G04) and the age-conditional labour force
 status (G46). Licence holding, income band and occupation follow.
 
-Daily activity chains are generated from NSW Household Travel Survey trip rates
-for the study-area LGAs, and destinations are chosen by a gravity model over the
-SA1 attraction terms with a purpose-specific distance decay calibrated to the
-HTS mean journey distance for that purpose.
+Daily activity chains are **not** built here. They were until P3, as layer B2 in
+this same pass; `src/build/build_activity_chains.py` now owns them, builds them
+as home-anchored tours rather than a shuffled activity list, and produces one
+file per day type. See DECISIONS.md 9.
 
 Everything is seeded. Re-running with the same seed reproduces the population
 exactly; the seed is recorded in the scenario configuration (schema E1).
@@ -163,77 +163,22 @@ def main(seed=20260810, sample=1.0, max_sa1=None):
     core = zones[zones.zone_tier == 'core'].reset_index(drop=True)
     if max_sa1:
         core = core.head(max_sa1)
-    zi = {c: i for i, c in enumerate(core['SA1_CODE21'])}
-    X = core['x_mga56'].to_numpy()
-    Y = core['y_mga56'].to_numpy()
-    ATTR = {p: norm(core['attr_' + p].to_numpy()) for p in PURPOSES}
-
-    yr, rate_total, rates, meandist = hts_trip_rates()
-    print('HTS year %s | %.2f trips/person/day | rates %s' %
-          (yr, rate_total, {k: round(v, 3) for k, v in rates.items()}), flush=True)
-    print('mean journey distance km: %s' % {k: round(v, 1) for k, v in meandist.items()}, flush=True)
-
-    # The HTS trip rate counts the return-home leg. Each modelled person makes
-    # one trip per out-of-home activity plus one trip home, so the activity
-    # rates are scaled down until expected trips per person matches the HTS.
-    lam0 = sum(rates.values())
-    scale = 1.0
-    for _ in range(60):
-        lam = lam0 * scale
-        expected = lam + (1.0 - math.exp(-lam))     # activities + return home
-        if abs(expected - rate_total) < 1e-4:
-            break
-        scale *= rate_total / max(expected, 1e-6)
-    rates = {k: v * scale for k, v in rates.items()}
-    print('activity-rate calibration scale = %.4f -> expected %.3f trips/person/day'
-          % (scale, lam0 * scale + (1 - math.exp(-lam0 * scale))), flush=True)
-
-    # Precompute the destination-choice distribution for every (purpose, origin)
-    # once, as a cumulative array, so trip generation is a searchsorted lookup
-    # rather than a 1500-zone gravity evaluation per trip.
-    print('precomputing gravity matrices (%d zones x %d purposes) ...'
-          % (len(core), len(PURPOSES)), flush=True)
-    DX = X[None, :] - X[:, None]
-    DY = Y[None, :] - Y[:, None]
-    DKM = np.hypot(DX, DY) / 1000.0
-    del DX, DY
-    CUM = {}
-    for p in PURPOSES:
-        beta = 1.0 / max(meandist.get(p, 8.0), 0.8)
-        w = ATTR[p][None, :] * np.exp(-beta * DKM)
-        s = w.sum(axis=1, keepdims=True)
-        w = np.divide(w, np.where(s > 0, s, 1.0))
-        CUM[p] = np.cumsum(w, axis=1).astype(np.float32)
-    del DKM
-    print('gravity matrices ready', flush=True)
-
-    def pick_dest(p, oi, u):
-        return int(np.searchsorted(CUM[p][oi], u))
-
     idx = {k: M[k].set_index(key) for k in ('g04', 'g34', 'g35', 'g36', 'g43', 'g46', 'g17', 'g60')}
 
     hh_f = open(os.path.join(OUT, 'population', 'B1_households.csv'), 'w', newline='', encoding='utf-8')
     pp_f = open(os.path.join(OUT, 'population', 'B1_synthetic_population.csv'), 'w', newline='', encoding='utf-8')
-    tr_f = open(os.path.join(OUT, 'plans', 'B2_activity_trips.csv'), 'w', newline='', encoding='utf-8')
     hw = csv.writer(hh_f)
     pw = csv.writer(pp_f)
-    tw = csv.writer(tr_f)
     hw.writerow(['household_id', 'home_sa1', 'home_x_mga56', 'home_y_mga56', 'home_lon', 'home_lat',
                  'household_size', 'household_vehicles', 'dwelling_type', 'weight'])
     pw.writerow(['person_id', 'household_id', 'home_sa1', 'age_band', 'age', 'sex',
                  'employment_status', 'occupation_anzsco1', 'income_band', 'licence_holder',
                  'household_vehicles', 'household_size', 'dwelling_type', 'student_status',
                  'mobility_impairment_flag', 'car_available', 'weight'])
-    tw.writerow(['person_id', 'trip_seq', 'purpose', 'origin_sa1', 'dest_sa1',
-                 'origin_x', 'origin_y', 'dest_x', 'dest_y', 'dep_time_s', 'arr_time_s',
-                 'straight_dist_km', 'activity_duration_s', 'is_tour_anchor',
-                 'party_size', 'time_flexibility_band'])
 
     hid = 0
     pid = 0
-    tid = 0
-    stats = dict(households=0, persons=0, trips=0, by_purpose={p: 0 for p in PURPOSES},
-                 employed=0, students=0, zero_car_hh=0)
+    stats = dict(households=0, persons=0, employed=0, students=0, zero_car_hh=0)
 
     dwell_cols = [('separate_house', 'OPDs_Separate_house_Dwellings'),
                   ('semi_terrace', 'OPDs_SD_r_t_h_th_Tot_Dwgs'),
@@ -375,80 +320,12 @@ def main(seed=20260810, sample=1.0, max_sa1=None):
                     stats['students'] += 1
             made += size
 
-            # ---------------- B2 activity chains ----------------
-            for m in members:
-                oi = zi[sa1]
-                seq = 0
-                # mandatory tour
-                mand = None
-                if m['employed'] and rng.random() < 0.78:
-                    mand = 'HW'
-                elif m['student'] == 'full_time' and rng.random() < 0.85:
-                    mand = 'HE'
-                todo = []
-                if mand:
-                    todo.append(mand)
-                for p in PURPOSES:
-                    if p in ('HW', 'HE'):
-                        continue
-                    lam = rates.get(p, 0.0)
-                    if m['age'] < 12:
-                        lam *= 0.4
-                    n = rng.poisson(lam)
-                    todo += [p] * int(n)
-                if not todo:
-                    continue
-                rng.shuffle(todo)
-                cur_x, cur_y, cur_z = m['hx'], m['hy'], sa1
-                t_now = None
-                for p in todo:
-                    seq += 1
-                    k = pick_dest(p, zi[cur_z], rng.random())
-                    if k >= len(X):
-                        k = len(X) - 1
-                    dx, dy = float(X[k]), float(Y[k])
-                    dist_km = math.hypot(dx - cur_x, dy - cur_y) / 1000.0
-                    if t_now is None:
-                        h = int(rng.choice(24, p=norm(DEPART[p])))
-                        t_now = h * 3600 + int(rng.integers(0, 3600))
-                    else:
-                        t_now += int(rng.integers(300, 1800))
-                    # nominal speed for the seed plan; MATSim replaces this by routing
-                    spd = 26.0 if m['cav'] else 16.0
-                    tt = int(dist_km / max(spd, 1.0) * 3600) + 240
-                    arr = t_now + tt
-                    dur = int(rng.normal(ACT_DURATION[p], ACT_DURATION[p] * 0.3))
-                    dur = max(300, dur)
-                    tid += 1
-                    tw.writerow([m['pid'], seq, p, cur_z, core['SA1_CODE21'].iloc[k],
-                                 round(cur_x, 1), round(cur_y, 1), round(dx, 1), round(dy, 1),
-                                 t_now, arr, round(dist_km, 3), dur,
-                                 int(p in ('HW', 'HE')), 1,
-                                 'fixed' if p in ('HW', 'HE') else 'flexible'])
-                    stats['trips'] += 1
-                    stats['by_purpose'][p] += 1
-                    cur_x, cur_y, cur_z = dx, dy, core['SA1_CODE21'].iloc[k]
-                    t_now = arr + dur
-                # return home
-                seq += 1
-                dist_km = math.hypot(m['hx'] - cur_x, m['hy'] - cur_y) / 1000.0
-                spd = 26.0 if m['cav'] else 16.0
-                tt = int(dist_km / max(spd, 1.0) * 3600) + 240
-                tid += 1
-                tw.writerow([m['pid'], seq, 'NHB', cur_z, sa1,
-                             round(cur_x, 1), round(cur_y, 1), round(m['hx'], 1), round(m['hy'], 1),
-                             t_now, t_now + tt, round(dist_km, 3), 0, 0, 1, 'flexible'])
-                stats['trips'] += 1
-                stats['by_purpose']['NHB'] += 1
 
-    for f in (hh_f, pp_f, tr_f):
+    for f in (hh_f, pp_f):
         f.close()
 
     stats['seed'] = seed
     stats['sample_fraction'] = sample
-    stats['hts_year'] = yr
-    stats['trip_rate_per_person_day'] = round(rate_total, 3)
-    stats['realised_trip_rate'] = round(stats['trips'] / max(stats['persons'], 1), 3)
     stats['mean_household_size'] = round(stats['persons'] / max(stats['households'], 1), 3)
     stats['pct_zero_car_households'] = round(stats['zero_car_hh'] / max(stats['households'], 1) * 100, 1)
     stats['pct_employed_of_persons'] = round(stats['employed'] / max(stats['persons'], 1) * 100, 1)
