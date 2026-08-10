@@ -715,6 +715,101 @@ times are initial conditions for MATSim's co-evolutionary scoring, not
 predictions. Mode is deliberately **not** assigned in B2 — assigning it here
 would pre-empt the question the model exists to answer.
 
+## 9.3 MATSim plans and the C1 translation (P3)
+
+`build_matsim_plans.py` turns B2 into `population_v6` plans, one file per day
+type; `build_matsim_run_inputs.py` assembles a runnable scenario per
+(scenario × day type). 517,936 weekday persons, 2,188,436 legs, 2,706,372
+activities.
+
+**Mode is seeded here, and only here.** B2 still carries no mode (§9.2), but a
+MATSim plan cannot omit one. A mode is drawn **per tour**, so a car that leaves
+home comes home again and `SubtourModeChoice`'s mass conservation holds from
+iteration 0. This only works because the P3 chains have several tours a day —
+under the P1 chains every agent had exactly one subtour, so a per-tour draw
+would have fixed one mode for the whole day.
+
+| | Seeded | HTS 2024/25 |
+|---|---:|---:|
+| car | 55.7% | 57.5% |
+| ride (car passenger) | 18.6% | 21.5% |
+| walk | 19.3% | 16.1% |
+| pt | 4.0% | 3.4% |
+| bike / other | 2.4% | 1.6% |
+
+The seed is set near the HTS aggregate because starting iteration 0 far from the
+observed point wastes iterations without changing where the model converges.
+**Seeding near HTS is not matching it** — mode share is a P4 calibration target
+(§2.4), and this is the initial condition the calibration starts from. Assumed,
+swept: car share among car-available 0.68–0.86, PT share among car-unavailable
+0.05–0.20.
+
+### What does not survive the C1 → MATSim translation
+
+C1 is a nested-logit specification; MATSim scores with a Charypar–Nagel utility.
+Three things have no representation and are recorded rather than dropped
+quietly:
+
+| C1 element | Fate |
+|---|---|
+| `nesting_coefficient_pt = 0.65` and the nest structure | **Not representable.** MATSim's mode choice is a co-evolutionary search, not a closed-form nested logit; there is nowhere to put a nest coefficient. |
+| Per-purpose value of time (commute 18.6, work-business 55.4 AUD/h) | **Collapsed** to a trip-weighted **16.96 AUD/h**, because MATSim scores per mode, not per purpose. A scenario that shifts the purpose mix will not shift the value of time with it. |
+| `beta_crowding_seated` / `_standing` | **Not enabled.** Capacity-dependent PT scoring needs an explicit extension. |
+
+The identity used is the conventional
+`VOT = (performing − traveling_mode) / marginalUtilityOfMoney`, with
+`performing = 6.0` utils/h (assumed; the whole scoring scale is relative to it)
+and `marginalUtilityOfMoney = 1.0` utils/AUD as the definitional anchor.
+`utilityOfLineSwitch` carries the swept transfer penalty (§8.1).
+
+### The one-build constraint, discharged structurally
+
+Every feed's mapped schedule carries all three day types at once — S2 has 1,714
+routes, 1,231 WEEKDAY + 291 SAT + 192 SUN, and 4,269 departures against 2,188
+weekday GTFS trips. **Running an unfiltered schedule would put roughly twice the
+real PT supply on the network.** The day-type filter therefore operates on the
+*already mapped* schedule, selecting `transitRoute` ids by their day-type token.
+Verified on S2: all **1,714** route link sequences byte-identical to the source,
+the stop→link map for all **4,174** facilities unchanged, and the three day types
+partition the route set exactly. No feed is ever re-mapped, so §3.5's constraint
+holds by construction rather than by discipline.
+
+**The run network is not `networks/matsim/variants/`.** Those are patched over
+the *base* network, which has no mapped transit links, so they are a reference
+artefact and not runnable. A scenario runs on its own mapped
+`schedules/<S>/network.xml.gz` — 151,594 links against the base 157,678, with
+928 artificial transit links added and 7,012 pre-mapping rail placeholders
+removed, **all of them pt-mode; no car link is lost**. The E1 road variant is
+re-applied on top by `osm:way:id`, which every link carries, and reproduces the
+base build's patch counts exactly (54 lanes / 59 kerbside / 8 banned turns for
+the full-capacity variant).
+
+#### Two defects this stage caught
+
+1. **The day-type token is not always dot-delimited.** The era and scenario
+   feeds namespace it `nisc001:WEEKDAY.2302960`, but the S1 shuttle and S3 BRT
+   that `build_scenario_schedules.py` generates use `S1SHUTTLE_WEEKDAY_0_1`.
+   Matching only the dotted form dropped both from *every* day type — which
+   would have run **S1 with no shuttle and S3 with no BRT**, each scenario
+   without the intervention it exists to test. Caught by a package check
+   asserting that the split partitions the mapped schedule exactly.
+2. **Banned-turn removal was network-wide.** E1's "no banned turns" applies to
+   the corridor without the tram; a first cut stripped `disallowedNextLinks`
+   from the whole network, deleting **1,235** observed restrictions instead of
+   **8**, and quietly handing four scenarios a freer road network.
+
+### Assumed values introduced here
+
+| Value | Assumed | Sweep | Why |
+|---|---|---|---|
+| Seed mode split | see table above | car 0.68–0.86, PT 0.05–0.20 | Initial condition for co-evolution; P4 moves it. |
+| `performing` | 6.0 utils/h | — | Conventional MATSim value; the scoring scale is relative to it. |
+| `monetaryDistanceRate` car | −0.00018 AUD/m | — | Fuel and tyres only, not standing costs: a mode choice within the day does not re-decide car ownership. |
+| Typical activity durations | home 12 h, work 8 h, education 6 h, shopping 1 h, other 2 h, business 1 h | — | MATSim scoring needs a typical duration per activity type. |
+| Replanning strategy weights | ChangeExpBeta 0.70, ReRoute 0.15, SubtourModeChoice 0.10, TimeAllocationMutator 0.05 | — | Conventional; innovation switched off for the last 20% of iterations. |
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -843,6 +938,7 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **P3 stage 2 — MATSim plans, day-type run inputs and the C1 scoring translation (§9.3).** 517,936 weekday agents wired to the single P2 build; the day-type filter works on the already-mapped schedule and is verified to preserve all 1,714 route link sequences and the whole stop→link map. What C1 loses in translation — the nest structure, per-purpose VOT, crowding — is recorded, not dropped. Two defects caught by the new checks: the day-type token is underscore-delimited for the S1 shuttle and S3 BRT, so both were being dropped from every day type and each scenario would have run without its intervention; and banned-turn removal was network-wide, deleting 1,235 observed restrictions instead of 8. `check_package.py` 322 → **497 checks**, all passing. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 1 — B2 activity chains rebuilt as tours (§9.2).** The P1 chains put 1,452,065 activity legs on 1,481 zone centroids, labelled every return-home leg NHB, and gave each agent a single subtour; they are replaced, not patched. Destinations are now placed on observed POIs and building footprints, the gravity decay is solved against the HTS journey distance per purpose, three day types are produced, and the 201 external SA1s finally generate boundary demand. `build_population.py` keeps B1 and no longer writes B2; because it no longer draws for chains, the B1 sample shifted 612,680 → 612,668 persons with every fit statistic unchanged. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 0 — the §3.4 shape defect closed, and one determinism bug with it.** S0/S2c/S4/S5 alignments rebuilt from observed geometry (§3.4); extension stop sitings anchored on observed features, one of them 548 m out. E1 patch set 195 → 414 rows as a consequence. **`build_scenario_schedules.py` iterated a `set` of trip ids in two places, so `stop_times.txt` row order varied with the Python hash seed** — a violation of the determinism rule that predates this branch and was caught by a repeat-build check; now sorted, and two consecutive builds are byte-identical across all 10 feeds. One MATSim build of all 15 feeds and 4 SUMO nets regenerated on the corrected feeds; 322 package checks pass. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P2 network build.** Toolchain pinned (§3.6). Corridor attributes graded by evidence and the E1 road variants derived as edge-level deltas (§3.4); premise corrected — the corridor is not 75–98% imputed (§2.5). pt2matsim's run-to-run drift measured and bounded (§3.5). Three missing signal variants built (§5). CRS label corrected (§2.6). MATSim network + 15 mapped schedules and 4 SUMO corridor nets produced. Still no scenario run; no falsification condition altered. |

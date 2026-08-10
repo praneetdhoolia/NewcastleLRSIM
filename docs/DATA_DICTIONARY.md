@@ -8,7 +8,7 @@ Appendix A of the proposal.
 
 ### `data/processed/network/A1_corridor_road_edges.csv`
 
-605 rows, 27 columns
+714 rows, 27 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -34,9 +34,9 @@ Appendix A of the proposal.
 | `kerbside_source` | str | imputed_rule | 401/401 |
 | `capacity_veh_hr_lane` | int | 1400 | 401/401 |
 | `capacity_source` | str | imputed_rule | 401/401 |
-| `dist_to_S2c_m` | float | 0.6 | 401/401 |
-| `dist_to_S4_m` | float | 3.2 | 401/401 |
-| `dist_to_S5_m` | float | 3.2 | 401/401 |
+| `dist_to_S2c_m` | float | 156.2 | 401/401 |
+| `dist_to_S4_m` | float | 0.6 | 401/401 |
+| `dist_to_S5_m` | float | 0.6 | 401/401 |
 | `dist_to_base2026_m` | float | 0.6 | 401/401 |
 | `scenario_variant_ref` | str | base2026 | 401/401 |
 
@@ -81,28 +81,28 @@ Appendix A of the proposal.
 
 ### `data/processed/network/A1_road_variant_patches.csv`
 
-195 rows, 18 columns
+414 rows, 18 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
-| `road_variant_ref` | str | net_base2026_hunter_st_full_cap... | 195/195 |
-| `edge_id` | str | w880437939 | 195/195 |
-| `name` | str | Hunter Street | 195/195 |
-| `corridor_class` | str | corridor_trunk:base2026;corrido... | 195/195 |
-| `fields_changed` | str | num_lanes_per_dir;kerbside_use | 195/195 |
-| `field_num_lanes_per_dir_from` | float | 1.0 | 195/195 |
-| `field_num_lanes_per_dir_to` | int | 2.0 | 113/195 |
-| `num_lanes_observed_source` | str | osm | 195/195 |
-| `field_kerbside_use_from` | str | unknown | 195/195 |
-| `field_kerbside_use_to` | str | parking | 195/195 |
-| `kerbside_observed_source` | str | imputed_rule | 195/195 |
-| `capacity_veh_hr_lane` | int | 1400 | 195/195 |
-| `signal_cycle_s` | int | 100 | 195/195 |
-| `tram_lane_present` | int | 0 | 195/195 |
-| `source` | str | assumed | 195/195 |
-| `sweep_low` | int | 1 | 195/195 |
-| `sweep_high` | int | 2 | 195/195 |
-| `rationale` | str | pre-tram reconstruction: road s... | 195/195 |
+| `road_variant_ref` | str | net_base2026_hunter_st_full_cap... | 401/401 |
+| `edge_id` | str | w880437939 | 401/401 |
+| `name` | str | Hunter Street | 401/401 |
+| `corridor_class` | str | corridor_trunk:base2026;corrido... | 401/401 |
+| `fields_changed` | str | num_lanes_per_dir;kerbside_use | 401/401 |
+| `field_num_lanes_per_dir_from` | float | 1.0 | 401/401 |
+| `field_num_lanes_per_dir_to` | float | 2.0 | 284/401 |
+| `num_lanes_observed_source` | str | osm | 401/401 |
+| `field_kerbside_use_from` | str | unknown | 401/401 |
+| `field_kerbside_use_to` | str | parking | 401/401 |
+| `kerbside_observed_source` | str | imputed_rule | 401/401 |
+| `capacity_veh_hr_lane` | int | 1400 | 401/401 |
+| `signal_cycle_s` | int | 100 | 401/401 |
+| `tram_lane_present` | int | 0 | 401/401 |
+| `source` | str | assumed | 401/401 |
+| `sweep_low` | int | 1 | 401/401 |
+| `sweep_high` | int | 2 | 401/401 |
+| `rationale` | str | pre-tram reconstruction: road s... | 401/401 |
 
 ### `data/processed/network/A2_crossings_osm.csv`
 
@@ -160,9 +160,9 @@ Appendix A of the proposal.
 | `located_by` | str | via_way | 401/401 |
 | `source` | str | osm | 401/401 |
 | `dist_to_base2026_m` | float | 4.2 | 401/401 |
-| `dist_to_S2c_m` | float | 4.2 | 401/401 |
-| `dist_to_S4_m` | float | 10.7 | 401/401 |
-| `dist_to_S5_m` | float | 10.7 | 401/401 |
+| `dist_to_S2c_m` | float | 197.2 | 401/401 |
+| `dist_to_S4_m` | float | 4.2 | 401/401 |
+| `dist_to_S5_m` | float | 4.2 | 401/401 |
 | `corridor_flag` | int | 1 | 401/401 |
 
 ### `data/processed/network/A5_parking_osm.csv`
@@ -1139,32 +1139,96 @@ Appendix A of the proposal.
 
 ## B1/B2 demand
 
-### `demand/plans/B2_activity_trips.csv`
+### `demand/plans/B2_activity_trips_SAT.csv`
 
-2020696 rows, 16 columns
+1995697 rows, 22 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
 | `person_id` | int | 1 | 401/401 |
+| `day_type` | str | SAT | 401/401 |
+| `tour_id` | int | 1 | 401/401 |
+| `trip_seq` | int | 1 | 401/401 |
+| `purpose` | str | HO | 401/401 |
+| `tour_purpose` | str | HO | 401/401 |
+| `dest_activity_type` | str | other | 401/401 |
+| `origin_sa1` | int | 10601110701 | 401/401 |
+| `dest_sa1` | int | 10602161537 | 401/401 |
+| `origin_x` | float | 348659.1 | 401/401 |
+| `origin_y` | float | 6383994.3 | 401/401 |
+| `dest_x` | float | 361856.7 | 401/401 |
+| `dest_y` | float | 6379774.8 | 401/401 |
+| `dep_time_s` | int | 54609 | 401/401 |
+| `arr_time_s` | int | 56767 | 401/401 |
+| `straight_dist_km` | float | 13.856 | 401/401 |
+| `activity_duration_s` | int | 5330 | 401/401 |
+| `is_tour_anchor` | int | 1 | 401/401 |
+| `party_size` | int | 1 | 401/401 |
+| `time_flexibility_band` | str | flexible | 401/401 |
+| `dest_placement` | str | poi | 401/401 |
+| `agent_tier` | str | core | 401/401 |
+
+### `demand/plans/B2_activity_trips_SUN.csv`
+
+1691188 rows, 22 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `person_id` | int | 2 | 401/401 |
+| `day_type` | str | SUN | 401/401 |
+| `tour_id` | int | 1 | 401/401 |
+| `trip_seq` | int | 1 | 401/401 |
+| `purpose` | str | HS | 401/401 |
+| `tour_purpose` | str | HS | 401/401 |
+| `dest_activity_type` | str | shopping | 401/401 |
+| `origin_sa1` | int | 10601110701 | 401/401 |
+| `dest_sa1` | int | 10601110732 | 401/401 |
+| `origin_x` | float | 348659.1 | 401/401 |
+| `origin_y` | float | 6383994.3 | 401/401 |
+| `dest_x` | float | 345400.2 | 401/401 |
+| `dest_y` | float | 6384020.7 | 401/401 |
+| `dep_time_s` | int | 38515 | 401/401 |
+| `arr_time_s` | int | 39488 | 401/401 |
+| `straight_dist_km` | float | 3.259 | 401/401 |
+| `activity_duration_s` | int | 2828 | 401/401 |
+| `is_tour_anchor` | int | 1 | 401/401 |
+| `party_size` | int | 1 | 401/401 |
+| `time_flexibility_band` | str | flexible | 401/401 |
+| `dest_placement` | str | poi | 401/401 |
+| `agent_tier` | str | core | 401/401 |
+
+### `demand/plans/B2_activity_trips_WEEKDAY.csv`
+
+2188436 rows, 22 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `person_id` | int | 1 | 401/401 |
+| `day_type` | str | WEEKDAY | 401/401 |
+| `tour_id` | int | 1 | 401/401 |
 | `trip_seq` | int | 1 | 401/401 |
 | `purpose` | str | HW | 401/401 |
+| `tour_purpose` | str | HW | 401/401 |
+| `dest_activity_type` | str | work | 401/401 |
 | `origin_sa1` | int | 10601110701 | 401/401 |
 | `dest_sa1` | int | 10602161611 | 401/401 |
 | `origin_x` | float | 348659.1 | 401/401 |
 | `origin_y` | float | 6383994.3 | 401/401 |
-| `dest_x` | float | 359477.8 | 401/401 |
-| `dest_y` | float | 6379851.8 | 401/401 |
-| `dep_time_s` | int | 25000 | 401/401 |
-| `arr_time_s` | int | 26844 | 401/401 |
-| `straight_dist_km` | float | 11.585 | 401/401 |
-| `activity_duration_s` | int | 551 | 401/401 |
+| `dest_x` | float | 360614.0 | 401/401 |
+| `dest_y` | float | 6379776.7 | 401/401 |
+| `dep_time_s` | int | 45533 | 401/401 |
+| `arr_time_s` | int | 47528 | 401/401 |
+| `straight_dist_km` | float | 12.677 | 401/401 |
+| `activity_duration_s` | int | 31662 | 401/401 |
 | `is_tour_anchor` | int | 1 | 401/401 |
 | `party_size` | int | 1 | 401/401 |
 | `time_flexibility_band` | str | fixed | 401/401 |
+| `dest_placement` | str | poi | 401/401 |
+| `agent_tier` | str | core | 401/401 |
 
 ### `demand/population/B1_households.csv`
 
-246022 rows, 10 columns
+245738 rows, 10 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -1181,7 +1245,7 @@ Appendix A of the proposal.
 
 ### `demand/population/B1_synthetic_population.csv`
 
-612680 rows, 17 columns
+612668 rows, 17 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -1192,7 +1256,7 @@ Appendix A of the proposal.
 | `age` | int | 48 | 401/401 |
 | `sex` | str | F | 401/401 |
 | `employment_status` | str | employed_part_time | 401/401 |
-| `occupation_anzsco1` | str | Mach_oper_drivers | 213/401 |
+| `occupation_anzsco1` | str | Mach_oper_drivers | 227/401 |
 | `income_band` | str | 800_999 | 401/401 |
 | `licence_holder` | int | 1 | 401/401 |
 | `household_vehicles` | int | 2 | 401/401 |

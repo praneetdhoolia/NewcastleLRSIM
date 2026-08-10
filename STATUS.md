@@ -5,8 +5,9 @@ this at session start. **Keep it current in the same commit/PR as the work it de
 — if a change makes a line here wrong, fix the line in that change, not later.
 
 **Last updated:** 10 August 2026
-**Stage:** P3 demand synthesis in progress — stage 0 (P2 shape defect) and stage 1
-(B2 activity chains) complete; MATSim plans next. **No scenario has been run. Nothing in this repo is a result.**
+**Stage:** **P3 demand synthesis complete.** Population, tour-based chains, MATSim
+plans and per-scenario run inputs all built on one network build. **No scenario has
+been run. Nothing in this repo is a result.** **No scenario has been run. Nothing in this repo is a result.**
 
 ---
 
@@ -19,8 +20,8 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P0 Scoping | ✅ complete | Base year 2026, zone system, scenario list S0–S6 settled. Scope calls closing proposal §10 are recorded in [`DECISIONS.md`](DECISIONS.md) §1. |
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
-| P3 Demand synthesis | 🟨 in progress | Stages 0–1 done: shape defect closed, network rebuilt once, **B2 activity chains rebuilt as tours** with three day types and external boundary demand. Next: MATSim plans wired to that build. |
-| P4 Calibration | ⬜ not started | 67 calibration targets built; 143 held out. |
+| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 runnable scenario×day-type input sets. 497 package checks pass. |
+| P4 Calibration | ⬜ next | 67 calibration targets built; 143 held out. Mode share is seeded near HTS but **not calibrated** — that is P4's job ([`DECISIONS.md`](DECISIONS.md) §9.3). |
 | P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run.** |
 | P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
 | P7 Write-up | ⬜ not started | |
@@ -159,6 +160,33 @@ over mode share.
 
 ---
 
+## P3 stage 2 — MATSim plans and run inputs (10 August 2026)
+
+| | |
+|---|---|
+| Plans | `demand/plans/matsim/population_{WEEKDAY,SAT,SUN}.xml.gz` — **517,936** weekday persons, 2,188,436 legs, 2,706,372 activities, at **100%** of the population |
+| Run inputs | `scenarios/matsim/<S>/<DAY>/` — **30 sets** (10 scenarios × 3 day types), each with a day-type-filtered schedule, its vehicles, a patched run network and a `config.xml` |
+| Seed mode share | car 55.7 / ride 18.6 / walk 19.3 / pt 4.0 / bike 2.4 against HTS 57.5 / 21.5 / 16.1 / 3.4 / 1.6 — an **initial condition**, not a calibration |
+| One build | day-type split runs on the **already-mapped** schedule: all 1,714 S2 route link sequences byte-identical to source, stop→link map for 4,174 facilities unchanged |
+| Run network | the scenario's **own mapped** network + E1 patch by `osm:way:id`, not `networks/matsim/variants/` (which is patched over the base and has no transit links — reference only, not runnable) |
+
+**Two defects the new checks caught, both of which would have produced a
+plausible-looking wrong answer:**
+
+1. The day-type token is dot-delimited in the era and scenario feeds
+   (`nisc001:WEEKDAY.2302960`) but **underscore-delimited** for the S1 shuttle and
+   S3 BRT (`S1SHUTTLE_WEEKDAY_0_1`). Matching only the dotted form dropped both from
+   every day type — **S1 would have run without its shuttle and S3 without its BRT**.
+2. Banned-turn removal was applied network-wide, deleting **1,235** observed turn
+   restrictions instead of the **8** on the corridor.
+
+**Carried into P4:** what C1 loses in translation to MATSim scoring — the nested-logit
+structure (`nesting_coefficient_pt = 0.65`), per-purpose value of time (collapsed to a
+trip-weighted 16.96 AUD/h) and the crowding multipliers. See
+[`DECISIONS.md`](DECISIONS.md) §9.3.
+
+---
+
 ## Open for P5 — the run load does not fit one machine
 
 Sizing done during P3 planning, recorded here so P5 does not rediscover it:
@@ -183,6 +211,7 @@ measure a real per-iteration cost before picking fractions.
 2. `python tests/check_manifest.py` — confirms the committed subset is intact.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
-4. `python tests/check_package.py` — needs the full local package **and** the built
-   networks; run it before declaring any phase complete.
+4. `python tests/check_package.py` — needs the full local package, the built networks
+   **and** the P3 demand artefacts; **497 checks**. Run it before declaring any phase
+   complete.
 5. Branch as `<git-handle>/<short-kebab-description>` (never `claude/*`).

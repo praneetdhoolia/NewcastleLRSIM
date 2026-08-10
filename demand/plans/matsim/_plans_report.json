@@ -1,0 +1,139 @@
+{
+  "seed": 20260810,
+  "seed_mode_split": {
+    "True": [
+      [
+        "car",
+        0.78
+      ],
+      [
+        "ride",
+        0.1
+      ],
+      [
+        "walk",
+        0.09
+      ],
+      [
+        "pt",
+        0.02
+      ],
+      [
+        "bike",
+        0.01
+      ]
+    ],
+    "False": [
+      [
+        "ride",
+        0.4
+      ],
+      [
+        "walk",
+        0.45
+      ],
+      [
+        "pt",
+        0.09
+      ],
+      [
+        "bike",
+        0.06
+      ]
+    ]
+  },
+  "seed_mode_sweep": {
+    "car_share_car_available": [
+      0.68,
+      0.86
+    ],
+    "pt_share_no_car": [
+      0.05,
+      0.2
+    ]
+  },
+  "hts_mode_share_pct": {
+    "car": 57.46,
+    "ride": 21.46,
+    "walk": 16.14,
+    "pt": 3.39,
+    "bike_other": 1.55
+  },
+  "typical_duration_s": {
+    "home": 43200,
+    "work": 28800,
+    "education": 21600,
+    "shopping": 3600,
+    "other": 7200,
+    "business": 3600
+  },
+  "note": "Seed modes are initial conditions for MATSim co-evolution, drawn per tour so chain-based modes stay conserved. They are not a mode-share prediction and not calibrated here; the calibration target is HTS (DECISIONS.md 2.4).",
+  "by_day": {
+    "WEEKDAY": {
+      "persons": 517936,
+      "legs": 2188436,
+      "activities": 2706372,
+      "tours": 975441,
+      "bytes": 36398312,
+      "seed_mode_share": {
+        "bike": 0.0244,
+        "car": 0.5571,
+        "pt": 0.0398,
+        "ride": 0.1861,
+        "walk": 0.1926
+      },
+      "activity_types": {
+        "business": 23263,
+        "education": 77598,
+        "home": 1493377,
+        "other": 632114,
+        "shopping": 244103,
+        "work": 235917
+      }
+    },
+    "SAT": {
+      "persons": 464729,
+      "legs": 1995697,
+      "activities": 2460426,
+      "tours": 889628,
+      "bytes": 32561558,
+      "seed_mode_share": {
+        "bike": 0.0226,
+        "car": 0.584,
+        "pt": 0.0376,
+        "ride": 0.175,
+        "walk": 0.1809
+      },
+      "activity_types": {
+        "business": 2975,
+        "education": 3145,
+        "home": 1354357,
+        "other": 742649,
+        "shopping": 309618,
+        "work": 47682
+      }
+    },
+    "SUN": {
+      "persons": 429258,
+      "legs": 1691188,
+      "activities": 2120446,
+      "tours": 753157,
+      "bytes": 28346443,
+      "seed_mode_share": {
+        "bike": 0.0227,
+        "car": 0.5843,
+        "pt": 0.0374,
+        "ride": 0.1753,
+        "walk": 0.1802
+      },
+      "activity_types": {
+        "business": 1867,
+        "education": 997,
+        "home": 1182415,
+        "other": 702773,
+        "shopping": 204960,
+        "work": 27434
+      }
+    }
+  }
+}

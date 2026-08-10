@@ -21,9 +21,10 @@ more transparent about its assumptions than the business case it examines.
   commit/PR as the work it describes.**
 - [`README.md`](README.md) is the data-package guide: layout, reproduction commands,
   sources and licences.
-- Current stage: **P2 network build complete. No scenario has been run. Nothing in the
-  repo is a result.** The MATSim network, the 15 mapped schedules and the SUMO corridor
-  are *inputs*, not outputs.
+- Current stage: **P3 demand synthesis complete. No scenario has been run. Nothing in
+  the repo is a result.** The MATSim network, the 15 mapped schedules, the SUMO corridor,
+  the synthetic population, the activity chains and the 30 assembled scenario x day-type
+  run input sets are all *inputs*, not outputs.
 
 ## Working style (apply to every change)
 
@@ -70,7 +71,15 @@ more transparent about its assumptions than the business case it examines.
 - **One build of the network per comparison.** pt2matsim's schedule mapping is not
   reproducible run to run (`DECISIONS.md` §3.5): ~18% of route link sequences differ
   between identical builds, while stop-to-link assignment is stable. Never compare a
-  scenario mapped in one build against a scenario mapped in another.
+  scenario mapped in one build against a scenario mapped in another. **Anything that
+  needs a per-day-type or per-variant schedule must derive it from the already-mapped
+  schedule** (as `build_matsim_run_inputs.py` does, by filtering `transitRoute` ids),
+  never by re-running the mapper.
+- **A scenario runs on its own mapped network, not on `networks/matsim/variants/`.**
+  The variant networks are patched over the *base* network, which carries no mapped
+  transit links; they are a reference artefact showing the E1 deltas. The runnable
+  network is the scenario's own `schedules/<S>/network.xml.gz` with the E1 patch
+  re-applied by `osm:way:id` (`DECISIONS.md` §9.3).
 - **Bulk data is not committed.** See [`.gitignore`](.gitignore) — raw downloads, GTFS
   bundles, synthetic population/plans, large derived geometry and run outputs are
   regenerable and stay out of git. The manifest is committed; the bytes are not.
@@ -143,9 +152,9 @@ those depend on ABS/TfNSW/Overpass availability and on compute, not on the diff.
 | `data/MANIFEST.csv` / `.json` | Per-file hash, rows, producing script, source, licence, retrieval date. |
 | `networks/osm/` | Raw Overpass extracts (roads, footways, rail, parking, POI, buildings). |
 | `schedules/` | GTFS era feeds + `scenarios/S0..S6` variants. |
-| `demand/` | Synthetic `population/` and `plans/` (seeded, deterministic). |
+| `demand/` | Synthetic `population/` (B1) and `plans/` (B2 tours per day type + `matsim/` plans). Seeded, deterministic. |
 | `params/` | C1 behavioural parameters + the 140-point sensitivity sweep grid. |
-| `scenarios/` | E1 scenario configs, one JSON per scenario. |
+| `scenarios/` | E1 scenario configs, one JSON per scenario, plus `matsim/` — the assembled run inputs, one directory per scenario x day type. |
 | `src/extract/` | Acquisition and clipping. |
 | `src/build/` | Layer construction (the reproduction pipeline, in README order). |
 | `src/run/`, `src/calibrate/`, `src/analyse/` | P3+ execution, calibration and analysis (empty at P1). |

@@ -18,9 +18,21 @@ schedules/raw/**
 schedules/*.zip
 schedules/scenarios/*.zip
 
-# --- synthetic demand (~308 MB, seeded and deterministic) ---
+# --- synthetic demand (~830 MB, seeded and deterministic) ---
 demand/population/*.csv
 demand/plans/*.csv
+
+# --- MATSim plans (~93 MB, regenerate with build_matsim_plans). The report IS
+#     committed: it carries the seed mode split and the plan/leg counts. ---
+demand/plans/matsim/**
+!demand/plans/matsim/_plans_report.json
+
+# --- assembled MATSim run inputs (~77 MB: day-type-filtered schedules, patched
+#     run networks and configs; regenerate with build_matsim_run_inputs). The
+#     report IS committed: it carries the day-type split, the scoring
+#     translation and what does not survive it. ---
+scenarios/matsim/**
+!scenarios/matsim/_run_inputs_report.json
 
 # --- large derived geometry ---
 data/processed/network/*.jsonl

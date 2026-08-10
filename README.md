@@ -87,7 +87,7 @@ python src/build/build_corridor_layers.py       # A4 + corridor A2
 python src/build/build_landuse_parking.py       # D1 + A5 completion
 python src/build/build_zone_attractions.py      # jobs to SA1, attraction terms
 python src/build/build_params.py                # C1
-python src/build/build_population.py            # B1, B2   (~25 min, 300 MB out)
+python src/build/build_population.py            # B1 persons + households (~30 s)
 python src/build/build_gtfs_extras.py           # A3 extras
 python src/build/build_scenario_schedules.py    # S0..S6 feeds
 python src/build/build_era1_reconstruction.py   # pre-2014 reconstruction
@@ -99,6 +99,12 @@ python src/setup/bootstrap_toolchain.py         # JDK 25, pt2matsim 26.6, SUMO 1
 python src/build/build_corridor_road_attributes.py   # corridor provenance + E1 deltas
 python src/build/build_matsim_network.py        # MATSim network + 15 mapped schedules
 python src/build/build_sumo_corridor.py         # SUMO corridor, 4 road variants
+
+# --- P3 demand synthesis (needs the P2 build above: one build, shared by all
+#     scenarios - see DECISIONS.md 3.5) ---
+python src/build/build_activity_chains.py       # B2 tours, 3 day types (~90 s, 790 MB out)
+python src/build/build_matsim_plans.py          # MATSim population per day type (~45 s)
+python src/build/build_matsim_run_inputs.py     # 30 runnable scenario x day-type sets (~45 s)
 
 python src/build/build_data_dictionary.py
 python src/build/build_manifest.py
