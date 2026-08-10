@@ -1,0 +1,61 @@
+{
+  "LGA": {
+    "n": 5,
+    "area_km2": 4049.4,
+    "names": [
+      "Cessnock",
+      "Lake Macquarie",
+      "Maitland",
+      "Newcastle",
+      "Port Stephens"
+    ]
+  },
+  "SA1": {
+    "n": 1701,
+    "key": "SA1_CODE21",
+    "by_tier": {
+      "core": 1500,
+      "external": 201
+    },
+    "area_km2_by_tier": {
+      "core": 4085.5,
+      "external": 18279.2
+    }
+  },
+  "SA2": {
+    "n": 55,
+    "key": "SA2_CODE21",
+    "by_tier": {
+      "core": 47,
+      "external": 8
+    },
+    "area_km2_by_tier": {
+      "core": 4239.5,
+      "external": 18125.1
+    }
+  },
+  "SA3": {
+    "n": 7,
+    "key": "SA3_CODE21",
+    "by_tier": {
+      "core": 5,
+      "external": 2
+    },
+    "area_km2_by_tier": {
+      "core": 2321.7,
+      "external": 20043.0
+    }
+  },
+  "DZN": {
+    "n": 265,
+    "key": "DZN_CODE21",
+    "by_tier": {
+      "core": 222,
+      "external": 43
+    },
+    "area_km2_by_tier": {
+      "core": 4085.5,
+      "external": 49122.5
+    }
+  }
+}

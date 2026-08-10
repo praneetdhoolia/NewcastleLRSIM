@@ -1,0 +1,23 @@
+{
+  "routes": 290,
+  "stops": 3873,
+  "transfers": 3584,
+  "interchange_stops": 12,
+  "interchange_stop_names": [
+    "Hunter St at Florence St",
+    "Hunter St before Tudor St",
+    "Hunter St opp Cooper St",
+    "Newcastle Interchange Light Rail",
+    "Newcastle Interchange Station Platform 1",
+    "Newcastle Interchange Station Platform 2",
+    "Newcastle Interchange Station Platform 3",
+    "Newcastle Interchange, Stand A",
+    "Newcastle Interchange, Stand B",
+    "Newcastle Interchange, Stand C",
+    "Parry St opp TAFE Hunter"
+  ],
+  "interchange_pairs": 51,
+  "interchange_cross_modal_pairs": 35,
+  "interchange_mean_walk_time_s": 112.2,
+  "interchange_max_walk_time_s": 284.2
+}

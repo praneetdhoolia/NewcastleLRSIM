@@ -1,0 +1,171 @@
+{
+  "tables": {
+    "gcp_sa1": {
+      "G01": {
+        "desc": "selected person characteristics by sex",
+        "rows": 1701,
+        "cols": 110
+      },
+      "G02": {
+        "desc": "selected medians and averages",
+        "rows": 1701,
+        "cols": 10
+      },
+      "G04A": {
+        "desc": "age by sex (part A)",
+        "rows": 1701,
+        "cols": 202
+      },
+      "G04B": {
+        "desc": "age by sex (part B)",
+        "rows": 1701,
+        "cols": 108
+      },
+      "G17A": {
+        "desc": "personal income weekly (part A)",
+        "rows": 1701,
+        "cols": 202
+      },
+      "G17B": {
+        "desc": "personal income weekly (part B)",
+        "rows": 1701,
+        "cols": 202
+      },
+      "G17C": {
+        "desc": "personal income weekly (part C)",
+        "rows": 1701,
+        "cols": 112
+      },
+      "G34": {
+        "desc": "number of motor vehicles by dwelling",
+        "rows": 1701,
+        "cols": 10
+      },
+      "G35": {
+        "desc": "household composition by persons usually resident",
+        "rows": 1701,
+        "cols": 23
+      },
+      "G36": {
+        "desc": "dwelling structure",
+        "rows": 1701,
+        "cols": 40
+      },
+      "G43": {
+        "desc": "labour force education and migration characteristics by sex",
+        "rows": 1701,
+        "cols": 68
+      },
+      "G46A": {
+        "desc": "labour force status by age by sex (part A)",
+        "rows": 1701,
+        "cols": 202
+      },
+      "G46B": {
+        "desc": "labour force status by age by sex (part B)",
+        "rows": 1701,
+        "cols": 162
+      },
+      "G54A": {
+        "desc": "industry of employment by age by sex (part A)",
+        "rows": 1701,
+        "cols": 202
+      },
+      "G54B": {
+        "desc": "industry of employment by age by sex (part B)",
+        "rows": 1701,
+        "cols": 202
+      },
+      "G60A": {
+        "desc": "occupation by age by sex (part A)",
+        "rows": 1701,
+        "cols": 202
+      },
+      "G60B": {
+        "desc": "occupation by age by sex (part B)",
+        "rows": 1701,
+        "cols": 102
+      },
+      "G62": {
+        "desc": "method of travel to work by sex",
+        "rows": 1701,
+        "cols": 110
+      }
+    },
+    "wpp_sa2": {
+      "W01A": {
+        "desc": "labour force status by age by sex (POW)",
+        "rows": 55,
+        "cols": 202
+      },
+      "W09A": {
+        "desc": "industry of employment by sex (POW, part A)",
+        "rows": 55,
+        "cols": 202
+      },
+      "W09B": {
+        "desc": "industry of employment by sex (POW, part B)",
+        "rows": 55,
+        "cols": 183
+      },
+      "W13": {
+        "desc": "occupation by sex (POW)",
+        "rows": 55,
+        "cols": 188
+      },
+      "W21A": {
+        "desc": "method of travel to work by occupation (POW, part A)",
+        "rows": 55,
+        "cols": 202
+      },
+      "W21B": {
+        "desc": "method of travel to work by occupation (POW, part B)",
+        "rows": 55,
+        "cols": 162
+      },
+      "W22A": {
+        "desc": "method of travel to work by age by sex (POW, part A)",
+        "rows": 55,
+        "cols": 202
+      },
+      "W22B": {
+        "desc": "method of travel to work by age by sex (POW, part B)",
+        "rows": 55,
+        "cols": 202
+      }
+    }
+  },
+  "summary": {
+    "population_2021": {
+      "core": 611915,
+      "external": 70448
+    },
+    "dwellings_2021_col": "Total_PDs_Dwellings",
+    "dwellings_2021": {
+      "core": 251001,
+      "external": 30224
+    },
+    "jtw_mode_core_2021_top20": {
+      "One_method_Car_as_driver_P": 157832,
+      "Worked_home_P": 56619,
+      "Did_not_go_to_work_P": 45289,
+      "One_method_Car_as_passenger_P": 9430,
+      "One_method_Walked_only_P": 4383,
+      "One_method_Truck_P": 1618,
+      "One_method_Bus_P": 1178,
+      "Two_methds_Othr_two_methds_P": 941,
+      "One_method_Bicycle_P": 903,
+      "Method_travel_to_work_ns_P": 709,
+      "One_method_Motorbike_scootr_P": 653,
+      "One_method_Other_P": 605,
+      "One_method_Train_P": 231,
+      "One_met_Taxi_or_Rideshare_P": 56,
+      "One_met_Tram_or_lt_rail_P": 52,
+      "Two_methods_Bus_Car_as_pass_P": 41,
+      "One_method_Ferry_P": 40,
+      "Three_meth_Tr_2_oth_meth_P": 32,
+      "Two_methods_Train_Bus_P": 21,
+      "Two_methods_Bus_Other_P": 16
+    }
+  }
+}

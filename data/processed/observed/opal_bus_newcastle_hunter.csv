@@ -1,0 +1,1364 @@
+Year_Month,Card_type,Contract_region,Trip
+Jul-2017,Adult,NISC 1,109623
+Jul-2017,Adult Single Bus Trip 1,NISC 1,8231
+Jul-2017,Adult Single Bus Trip 2,NISC 1,7706
+Jul-2017,Adult Single Bus Trip 3,NISC 1,2067
+Jul-2017,Child/Youth,NISC 1,29492
+Jul-2017,Child/Youth Single Bus Trip 1,NISC 1,2722
+Jul-2017,Child/Youth Single Bus Trip 2,NISC 1,3098
+Jul-2017,Child/Youth Single Bus Trip 3,NISC 1,976
+Jul-2017,Concession,NISC 1,30151
+Jul-2017,Employee,NISC 1,3030
+Jul-2017,Free Travel,NISC 1,1368
+Jul-2017,School Student,NISC 1,47977
+Jul-2017,Senior/Pensioner,NISC 1,133791
+Aug-2017,Adult,NISC 1,119724
+Aug-2017,Adult Single Bus Trip 1,NISC 1,8030
+Aug-2017,Adult Single Bus Trip 2,NISC 1,7267
+Aug-2017,Adult Single Bus Trip 3,NISC 1,1826
+Aug-2017,Child/Youth,NISC 1,24265
+Aug-2017,Child/Youth Single Bus Trip 1,NISC 1,1731
+Aug-2017,Child/Youth Single Bus Trip 2,NISC 1,1665
+Aug-2017,Child/Youth Single Bus Trip 3,NISC 1,506
+Aug-2017,Concession,NISC 1,43817
+Aug-2017,Employee,NISC 1,3123
+Aug-2017,Free Travel,NISC 1,1498
+Aug-2017,School Student,NISC 1,113964
+Aug-2017,Senior/Pensioner,NISC 1,140307
+Sep-2017,Adult,NISC 1,109085
+Sep-2017,Adult Single Bus Trip 1,NISC 1,7332
+Sep-2017,Adult Single Bus Trip 2,NISC 1,6533
+Sep-2017,Adult Single Bus Trip 3,NISC 1,1698
+Sep-2017,Child/Youth,NISC 1,26485
+Sep-2017,Child/Youth Single Bus Trip 1,NISC 1,2036
+Sep-2017,Child/Youth Single Bus Trip 2,NISC 1,2443
+Sep-2017,Child/Youth Single Bus Trip 3,NISC 1,869
+Sep-2017,Concession,NISC 1,34513
+Sep-2017,Day Pass without SAF,NISC 1,5
+Sep-2017,Employee,NISC 1,3046
+Sep-2017,Free Travel,NISC 1,1293
+Sep-2017,School Student,NISC 1,72123
+Sep-2017,Senior/Pensioner,NISC 1,132505
+Oct-2017,Adult,NISC 1,114149
+Oct-2017,Adult Single Bus Trip 1,NISC 1,7855
+Oct-2017,Adult Single Bus Trip 2,NISC 1,6503
+Oct-2017,Adult Single Bus Trip 3,NISC 1,1478
+Oct-2017,Child/Youth,NISC 1,25870
+Oct-2017,Child/Youth Single Bus Trip 1,NISC 1,1954
+Oct-2017,Child/Youth Single Bus Trip 2,NISC 1,2170
+Oct-2017,Child/Youth Single Bus Trip 3,NISC 1,710
+Oct-2017,Concession,NISC 1,38383
+Oct-2017,Day Pass without SAF,NISC 1,5
+Oct-2017,Employee,NISC 1,2965
+Oct-2017,Free Travel,NISC 1,1418
+Oct-2017,School Student,NISC 1,78733
+Oct-2017,Senior/Pensioner,NISC 1,135334
+Nov-2017,Adult,NISC 1,117439
+Nov-2017,Adult Single Bus Trip 1,NISC 1,7717
+Nov-2017,Adult Single Bus Trip 2,NISC 1,6838
+Nov-2017,Adult Single Bus Trip 3,NISC 1,1766
+Nov-2017,Child/Youth,NISC 1,23781
+Nov-2017,Child/Youth Single Bus Trip 1,NISC 1,1589
+Nov-2017,Child/Youth Single Bus Trip 2,NISC 1,1789
+Nov-2017,Child/Youth Single Bus Trip 3,NISC 1,533
+Nov-2017,Concession,NISC 1,31782
+Nov-2017,Employee,NISC 1,3073
+Nov-2017,Free Travel,NISC 1,1278
+Nov-2017,School Student,NISC 1,91824
+Nov-2017,Senior/Pensioner,NISC 1,137622
+Dec-2017,Adult,NISC 1,99536
+Dec-2017,Adult Single Bus Trip 1,NISC 1,7600
+Dec-2017,Adult Single Bus Trip 2,NISC 1,6591
+Dec-2017,Adult Single Bus Trip 3,NISC 1,1752
+Dec-2017,Child/Youth,NISC 1,29274
+Dec-2017,Child/Youth Single Bus Trip 1,NISC 1,2511
+Dec-2017,Child/Youth Single Bus Trip 2,NISC 1,3089
+Dec-2017,Child/Youth Single Bus Trip 3,NISC 1,1109
+Dec-2017,Concession,NISC 1,23601
+Dec-2017,Employee,NISC 1,2633
+Dec-2017,Free Travel,NISC 1,1217
+Dec-2017,School Student,NISC 1,29369
+Dec-2017,Senior/Pensioner,NISC 1,126873
+Jan-2018,Adult,NISC 1,96531
+Jan-2018,Adult Single Bus Trip 1,NISC 1,7092
+Jan-2018,Adult Single Bus Trip 2,NISC 1,5356
+Jan-2018,Adult Single Bus Trip 3,NISC 1,1175
+Jan-2018,Child/Youth,NISC 1,29213
+Jan-2018,Child/Youth Single Bus Trip 1,NISC 1,2283
+Jan-2018,Child/Youth Single Bus Trip 2,NISC 1,2768
+Jan-2018,Child/Youth Single Bus Trip 3,NISC 1,845
+Jan-2018,Concession,NISC 1,22376
+Jan-2018,Employee,NISC 1,2515
+Jan-2018,Free Travel,NISC 1,1153
+Jan-2018,On Demand,NISC 1,232
+Jan-2018,Other,NISC 1,24389
+Jan-2018,School Student,NISC 1,5461
+Jan-2018,Senior/Pensioner,NISC 1,123680
+Feb-2018,Adult,NISC 1,111768
+Feb-2018,Adult Single Bus Trip 1,NISC 1,6394
+Feb-2018,Adult Single Bus Trip 2,NISC 1,5020
+Feb-2018,Adult Single Bus Trip 3,NISC 1,981
+Feb-2018,Child/Youth,NISC 1,24230
+Feb-2018,Child/Youth Single Bus Trip 1,NISC 1,1092
+Feb-2018,Child/Youth Single Bus Trip 2,NISC 1,1084
+Feb-2018,Child/Youth Single Bus Trip 3,NISC 1,295
+Feb-2018,Concession,NISC 1,27641
+Feb-2018,Employee,NISC 1,2617
+Feb-2018,Free Travel,NISC 1,1060
+Feb-2018,On Demand,NISC 1,672
+Feb-2018,Other,NISC 1,55421
+Feb-2018,School Student,NISC 1,91730
+Feb-2018,Senior/Pensioner,NISC 1,121598
+Mar-2018,Adult,NISC 1,126554
+Mar-2018,Adult Single Bus Trip 1,NISC 1,6995
+Mar-2018,Adult Single Bus Trip 2,NISC 1,5173
+Mar-2018,Adult Single Bus Trip 3,NISC 1,1085
+Mar-2018,Child/Youth,NISC 1,24869
+Mar-2018,Child/Youth Single Bus Trip 1,NISC 1,1409
+Mar-2018,Child/Youth Single Bus Trip 2,NISC 1,1431
+Mar-2018,Child/Youth Single Bus Trip 3,NISC 1,335
+Mar-2018,Concession,NISC 1,41041
+Mar-2018,Employee,NISC 1,2816
+Mar-2018,Free Travel,NISC 1,1174
+Mar-2018,On Demand,NISC 1,1049
+Mar-2018,Other,NISC 1,64634
+Mar-2018,School Student,NISC 1,94826
+Mar-2018,Senior/Pensioner,NISC 1,129476
+Apr-2018,Adult,NISC 1,111555
+Apr-2018,Adult Single Bus Trip 1,NISC 1,6659
+Apr-2018,Adult Single Bus Trip 2,NISC 1,4626
+Apr-2018,Adult Single Bus Trip 3,NISC 1,902
+Apr-2018,Child/Youth,NISC 1,26281
+Apr-2018,Child/Youth Single Bus Trip 1,NISC 1,1772
+Apr-2018,Child/Youth Single Bus Trip 2,NISC 1,1844
+Apr-2018,Child/Youth Single Bus Trip 3,NISC 1,499
+Apr-2018,Concession,NISC 1,32420
+Apr-2018,Day Pass without SAF,NISC 1,4
+Apr-2018,Employee,NISC 1,2647
+Apr-2018,Free Travel,NISC 1,944
+Apr-2018,On Demand,NISC 1,1319
+Apr-2018,Other,NISC 1,41889
+Apr-2018,School Student,NISC 1,38610
+Apr-2018,Senior/Pensioner,NISC 1,120729
+May-2018,Adult,NISC 1,127063
+May-2018,Adult Single Bus Trip 1,NISC 1,6734
+May-2018,Adult Single Bus Trip 2,NISC 1,4704
+May-2018,Adult Single Bus Trip 3,NISC 1,869
+May-2018,Child/Youth,NISC 1,23622
+May-2018,Child/Youth Single Bus Trip 1,NISC 1,1170
+May-2018,Child/Youth Single Bus Trip 2,NISC 1,1280
+May-2018,Child/Youth Single Bus Trip 3,NISC 1,303
+May-2018,Concession,NISC 1,42298
+May-2018,Day Pass without SAF,NISC 1,6
+May-2018,Employee,NISC 1,2984
+May-2018,Free Travel,NISC 1,1136
+May-2018,On Demand,NISC 1,1782
+May-2018,Other,NISC 1,66092
+May-2018,School Student,NISC 1,101787
+May-2018,Senior/Pensioner,NISC 1,138166
+Jun-2018,Adult,NISC 1,109123
+Jun-2018,Adult Single Bus Trip 1,NISC 1,6148
+Jun-2018,Adult Single Bus Trip 2,NISC 1,3999
+Jun-2018,Adult Single Bus Trip 3,NISC 1,796
+Jun-2018,Child/Youth,NISC 1,19999
+Jun-2018,Child/Youth Single Bus Trip 1,NISC 1,1097
+Jun-2018,Child/Youth Single Bus Trip 2,NISC 1,1124
+Jun-2018,Child/Youth Single Bus Trip 3,NISC 1,293
+Jun-2018,Concession,NISC 1,30116
+Jun-2018,Day Pass without SAF,NISC 1,7
+Jun-2018,Employee,NISC 1,2630
+Jun-2018,Free Travel,NISC 1,893
+Jun-2018,On Demand,NISC 1,1896
+Jun-2018,Other,NISC 1,56620
+Jun-2018,School Student,NISC 1,75700
+Jun-2018,Senior/Pensioner,NISC 1,118610
+Jul-2018,Adult,NISC 1,121789
+Jul-2018,Adult Single Bus Trip 1,NISC 1,6464
+Jul-2018,Adult Single Bus Trip 2,NISC 1,4612
+Jul-2018,Adult Single Bus Trip 3,NISC 1,804
+Jul-2018,Child/Youth,NISC 1,26758
+Jul-2018,Child/Youth Single Bus Trip 1,NISC 1,1854
+Jul-2018,Child/Youth Single Bus Trip 2,NISC 1,1926
+Jul-2018,Child/Youth Single Bus Trip 3,NISC 1,444
+Jul-2018,Concession,NISC 1,28363
+Jul-2018,Day Pass Child/Youth w/o SAF,NISC 1,1
+Jul-2018,Day Pass without SAF,NISC 1,7
+Jul-2018,Employee,NISC 1,2946
+Jul-2018,Free Travel,NISC 1,1110
+Jul-2018,On Demand,NISC 1,2596
+Jul-2018,Other,NISC 1,37643
+Jul-2018,School Student,NISC 1,38706
+Jul-2018,Senior/Pensioner,NISC 1,130972
+Aug-2018,Adult,NISC 1,133930
+Aug-2018,Adult Single Bus Trip 1,NISC 1,6394
+Aug-2018,Adult Single Bus Trip 2,NISC 1,4490
+Aug-2018,Adult Single Bus Trip 3,NISC 1,783
+Aug-2018,Child/Youth,NISC 1,23447
+Aug-2018,Child/Youth Single Bus Trip 1,NISC 1,1131
+Aug-2018,Child/Youth Single Bus Trip 2,NISC 1,1130
+Aug-2018,Child/Youth Single Bus Trip 3,NISC 1,250
+Aug-2018,Concession,NISC 1,40428
+Aug-2018,Day Pass Child/Youth w/o SAF,NISC 1,1
+Aug-2018,Day Pass without SAF,NISC 1,16
+Aug-2018,Employee,NISC 1,3066
+Aug-2018,Free Travel,NISC 1,1165
+Aug-2018,On Demand,NISC 1,2318
+Aug-2018,Other,NISC 1,68810
+Aug-2018,School Student,NISC 1,84570
+Aug-2018,Senior/Pensioner,NISC 1,134584
+Sep-2018,Adult,NISC 1,124174
+Sep-2018,Adult Single Bus Trip 1,NISC 1,5992
+Sep-2018,Adult Single Bus Trip 2,NISC 1,4497
+Sep-2018,Adult Single Bus Trip 3,NISC 1,817
+Sep-2018,Child/Youth,NISC 1,22684
+Sep-2018,Child/Youth Single Bus Trip 1,NISC 1,1269
+Sep-2018,Child/Youth Single Bus Trip 2,NISC 1,1224
+Sep-2018,Child/Youth Single Bus Trip 3,NISC 1,373
+Sep-2018,Concession,NISC 1,34708
+Sep-2018,Day Pass without SAF,NISC 1,35
+Sep-2018,Employee,NISC 1,2805
+Sep-2018,Free Travel,NISC 1,1063
+Sep-2018,On Demand,NISC 1,2182
+Sep-2018,Other,NISC 1,66227
+Sep-2018,School Student,NISC 1,67104
+Sep-2018,Senior/Pensioner,NISC 1,123258
+Oct-2018,Adult,NISC 1,128028
+Oct-2018,Adult Single Bus Trip 1,NISC 1,6586
+Oct-2018,Adult Single Bus Trip 2,NISC 1,4566
+Oct-2018,Adult Single Bus Trip 3,NISC 1,811
+Oct-2018,Child/Youth,NISC 1,25448
+Oct-2018,Child/Youth Single Bus Trip 1,NISC 1,1485
+Oct-2018,Child/Youth Single Bus Trip 2,NISC 1,1514
+Oct-2018,Child/Youth Single Bus Trip 3,NISC 1,430
+Oct-2018,Concession,NISC 1,32406
+Oct-2018,Day Pass Child/Youth w/o SAF,NISC 1,1
+Oct-2018,Day Pass without SAF,NISC 1,31
+Oct-2018,Employee,NISC 1,2780
+Oct-2018,Free Travel,NISC 1,1050
+Oct-2018,On Demand,NISC 1,2295
+Oct-2018,Other,NISC 1,81377
+Oct-2018,School Student,NISC 1,46631
+Oct-2018,Senior/Pensioner,NISC 1,128971
+Nov-2018,Adult,NISC 1,134444
+Nov-2018,Adult Single Bus Trip 1,NISC 1,6448
+Nov-2018,Adult Single Bus Trip 2,NISC 1,4722
+Nov-2018,Adult Single Bus Trip 3,NISC 1,932
+Nov-2018,Child/Youth,NISC 1,23452
+Nov-2018,Child/Youth Single Bus Trip 1,NISC 1,1066
+Nov-2018,Child/Youth Single Bus Trip 2,NISC 1,1097
+Nov-2018,Child/Youth Single Bus Trip 3,NISC 1,339
+Nov-2018,Concession,NISC 1,28141
+Nov-2018,Day Pass Child/Youth w/o SAF,NISC 1,3
+Nov-2018,Day Pass without SAF,NISC 1,41
+Nov-2018,Employee,NISC 1,2966
+Nov-2018,Free Travel,NISC 1,1214
+Nov-2018,On Demand,NISC 1,2221
+Nov-2018,Other,NISC 1,174528
+Nov-2018,School Student,NISC 1,72405
+Nov-2018,Senior/Pensioner,NISC 1,133917
+Dec-2018,Adult,NISC 1,112756
+Dec-2018,Adult Single Bus Trip 1,NISC 1,6488
+Dec-2018,Adult Single Bus Trip 2,NISC 1,4640
+Dec-2018,Adult Single Bus Trip 3,NISC 1,982
+Dec-2018,Child/Youth,NISC 1,26133
+Dec-2018,Child/Youth Single Bus Trip 1,NISC 1,1669
+Dec-2018,Child/Youth Single Bus Trip 2,NISC 1,1679
+Dec-2018,Child/Youth Single Bus Trip 3,NISC 1,503
+Dec-2018,Concession,NISC 1,18758
+Dec-2018,Day Pass without SAF,NISC 1,37
+Dec-2018,Employee,NISC 1,2587
+Dec-2018,Free Travel,NISC 1,1188
+Dec-2018,On Demand,NISC 1,2595
+Dec-2018,Other,NISC 1,65839
+Dec-2018,School Student,NISC 1,29261
+Dec-2018,Senior/Pensioner,NISC 1,125220
+Jan-2019,Adult,NISC 1,113077
+Jan-2019,Adult Single Bus Trip 1,NISC 1,6538
+Jan-2019,Adult Single Bus Trip 2,NISC 1,4731
+Jan-2019,Adult Single Bus Trip 3,NISC 1,981
+Jan-2019,Child/Youth,NISC 1,31002
+Jan-2019,Child/Youth Single Bus Trip 1,NISC 1,2022
+Jan-2019,Child/Youth Single Bus Trip 2,NISC 1,2052
+Jan-2019,Child/Youth Single Bus Trip 3,NISC 1,673
+Jan-2019,Concession,NISC 1,17807
+Jan-2019,Day Pass Child/Youth w/o SAF,NISC 1,1
+Jan-2019,Day Pass without SAF,NISC 1,49
+Jan-2019,Employee,NISC 1,2571
+Jan-2019,Free Travel,NISC 1,1117
+Jan-2019,On Demand,NISC 1,2771
+Jan-2019,Other,NISC 1,48037
+Jan-2019,School Student,NISC 1,5243
+Jan-2019,Senior/Pensioner,NISC 1,122480
+Feb-2019,Adult,NISC 1,127532
+Feb-2019,Adult Single Bus Trip 1,NISC 1,6514
+Feb-2019,Adult Single Bus Trip 2,NISC 1,4588
+Feb-2019,Adult Single Bus Trip 3,NISC 1,796
+Feb-2019,Child/Youth,NISC 1,25987
+Feb-2019,Child/Youth Single Bus Trip 1,NISC 1,983
+Feb-2019,Child/Youth Single Bus Trip 2,NISC 1,1045
+Feb-2019,Child/Youth Single Bus Trip 3,NISC 1,344
+Feb-2019,Concession,NISC 1,23798
+Feb-2019,Day Pass without SAF,NISC 1,39
+Feb-2019,Employee,NISC 1,2923
+Feb-2019,Free Travel,NISC 1,1167
+Feb-2019,On Demand,NISC 1,2571
+Feb-2019,Other,NISC 1,0
+Feb-2019,School Student,NISC 1,79090
+Feb-2019,Senior/Pensioner,NISC 1,126015
+Mar-2019,Adult,NISC 1,143805
+Mar-2019,Adult Single Bus Trip 1,NISC 1,7303
+Mar-2019,Adult Single Bus Trip 2,NISC 1,4745
+Mar-2019,Adult Single Bus Trip 3,NISC 1,981
+Mar-2019,Child/Youth,NISC 1,27298
+Mar-2019,Child/Youth Single Bus Trip 1,NISC 1,1185
+Mar-2019,Child/Youth Single Bus Trip 2,NISC 1,1105
+Mar-2019,Child/Youth Single Bus Trip 3,NISC 1,300
+Mar-2019,Concession,NISC 1,36481
+Mar-2019,Day Pass Child/Youth w/o SAF,NISC 1,5
+Mar-2019,Day Pass without SAF,NISC 1,69
+Mar-2019,Employee,NISC 1,3083
+Mar-2019,Free Travel,NISC 1,1330
+Mar-2019,On Demand,NISC 1,2807
+Mar-2019,Other,NISC 1,0
+Mar-2019,School Student,NISC 1,86369
+Mar-2019,Senior/Pensioner,NISC 1,138898
+Apr-2019,Adult,NISC 1,121788
+Apr-2019,Adult Single Bus Trip 1,NISC 1,6778
+Apr-2019,Adult Single Bus Trip 2,NISC 1,4106
+Apr-2019,Adult Single Bus Trip 3,NISC 1,836
+Apr-2019,Child/Youth,NISC 1,26571
+Apr-2019,Child/Youth Single Bus Trip 1,NISC 1,1456
+Apr-2019,Child/Youth Single Bus Trip 2,NISC 1,1534
+Apr-2019,Child/Youth Single Bus Trip 3,NISC 1,425
+Apr-2019,Concession,NISC 1,28643
+Apr-2019,Day Pass without SAF,NISC 1,97
+Apr-2019,Employee,NISC 1,3058
+Apr-2019,Free Travel,NISC 1,1197
+Apr-2019,On Demand,NISC 1,2849
+Apr-2019,School Student,NISC 1,42418
+Apr-2019,Senior/Pensioner,NISC 1,128899
+May-2019,Adult,NISC 1,136071
+May-2019,Adult Single Bus Trip 1,NISC 1,7016
+May-2019,Adult Single Bus Trip 2,NISC 1,4454
+May-2019,Adult Single Bus Trip 3,NISC 1,866
+May-2019,Child/Youth,NISC 1,25450
+May-2019,Child/Youth Single Bus Trip 1,NISC 1,1023
+May-2019,Child/Youth Single Bus Trip 2,NISC 1,928
+May-2019,Child/Youth Single Bus Trip 3,NISC 1,248
+May-2019,Concession,NISC 1,36150
+May-2019,Day Pass without SAF,NISC 1,72
+May-2019,Employee,NISC 1,3417
+May-2019,Free Travel,NISC 1,1256
+May-2019,On Demand,NISC 1,3091
+May-2019,School Student,NISC 1,88248
+May-2019,Senior/Pensioner,NISC 1,143946
+Jun-2019,Adult,NISC 1,116081
+Jun-2019,Adult Single Bus Trip 1,NISC 1,5985
+Jun-2019,Adult Single Bus Trip 2,NISC 1,3743
+Jun-2019,Adult Single Bus Trip 3,NISC 1,726
+Jun-2019,Child/Youth,NISC 1,21782
+Jun-2019,Child/Youth Single Bus Trip 1,NISC 1,931
+Jun-2019,Child/Youth Single Bus Trip 2,NISC 1,932
+Jun-2019,Child/Youth Single Bus Trip 3,NISC 1,243
+Jun-2019,Concession,NISC 1,24764
+Jun-2019,Day Pass without SAF,NISC 1,38
+Jun-2019,Employee,NISC 1,2696
+Jun-2019,Free Travel,NISC 1,1085
+Jun-2019,On Demand,NISC 1,2797
+Jun-2019,School Student,NISC 1,64612
+Jun-2019,Senior/Pensioner,NISC 1,119555
+Jul-2019,Adult,NISC 1,129387
+Jul-2019,Adult Single Bus Trip 1,NISC 1,6371
+Jul-2019,Adult Single Bus Trip 2,NISC 1,4041
+Jul-2019,Adult Single Bus Trip 3,NISC 1,826
+Jul-2019,Child/Youth,NISC 1,28850
+Jul-2019,Child/Youth Single Bus Trip 1,NISC 1,1686
+Jul-2019,Child/Youth Single Bus Trip 2,NISC 1,1500
+Jul-2019,Child/Youth Single Bus Trip 3,NISC 1,483
+Jul-2019,Concession,NISC 1,23645
+Jul-2019,Day Pass Child/Youth w/o SAF,NISC 1,1
+Jul-2019,Day Pass without SAF,NISC 1,65
+Jul-2019,Employee,NISC 1,3251
+Jul-2019,Free Travel,NISC 1,1181
+Jul-2019,On Demand,NISC 1,4854
+Jul-2019,School Student,NISC 1,37958
+Jul-2019,Senior/Pensioner,NISC 1,130839
+Aug-2019,Adult,NISC 1,140117
+Aug-2019,Adult Single Bus Trip 1,NISC 1,5966
+Aug-2019,Adult Single Bus Trip 2,NISC 1,3651
+Aug-2019,Adult Single Bus Trip 3,NISC 1,804
+Aug-2019,Child/Youth,NISC 1,24368
+Aug-2019,Child/Youth Single Bus Trip 1,NISC 1,1094
+Aug-2019,Child/Youth Single Bus Trip 2,NISC 1,916
+Aug-2019,Child/Youth Single Bus Trip 3,NISC 1,316
+Aug-2019,Concession,NISC 1,33146
+Aug-2019,Day Pass Child/Youth w/o SAF,NISC 1,6
+Aug-2019,Day Pass without SAF,NISC 1,70
+Aug-2019,Employee,NISC 1,3046
+Aug-2019,Free Travel,NISC 1,1161
+Aug-2019,On Demand,NISC 1,4976
+Aug-2019,School Student,NISC 1,73084
+Aug-2019,Senior/Pensioner,NISC 1,131398
+Sep-2019,Adult,NISC 1,130674
+Sep-2019,Adult Single Bus Trip 1,NISC 1,5147
+Sep-2019,Adult Single Bus Trip 2,NISC 1,3124
+Sep-2019,Adult Single Bus Trip 3,NISC 1,644
+Sep-2019,CTP,NISC 1,8441
+Sep-2019,Child/Youth,NISC 1,24186
+Sep-2019,Child/Youth Single Bus Trip 1,NISC 1,1215
+Sep-2019,Child/Youth Single Bus Trip 2,NISC 1,990
+Sep-2019,Child/Youth Single Bus Trip 3,NISC 1,336
+Sep-2019,Concession,NISC 1,30383
+Sep-2019,Day Pass without SAF,NISC 1,58
+Sep-2019,Employee,NISC 1,2704
+Sep-2019,Free Travel,NISC 1,1220
+Sep-2019,On Demand,NISC 1,5187
+Sep-2019,School Student,NISC 1,60640
+Sep-2019,Senior/Pensioner,NISC 1,128046
+Oct-2019,Adult,NISC 1,126899
+Oct-2019,Adult Single Bus Trip 1,NISC 1,5046
+Oct-2019,Adult Single Bus Trip 2,NISC 1,2990
+Oct-2019,Adult Single Bus Trip 3,NISC 1,590
+Oct-2019,CTP,NISC 1,19905
+Oct-2019,Child/Youth,NISC 1,28538
+Oct-2019,Child/Youth Single Bus Trip 1,NISC 1,1553
+Oct-2019,Child/Youth Single Bus Trip 2,NISC 1,1208
+Oct-2019,Child/Youth Single Bus Trip 3,NISC 1,476
+Oct-2019,Concession,NISC 1,28364
+Oct-2019,Day Pass without SAF,NISC 1,75
+Oct-2019,Employee,NISC 1,2944
+Oct-2019,Free Travel,NISC 1,1350
+Oct-2019,On Demand,NISC 1,5515
+Oct-2019,School Student,NISC 1,43055
+Oct-2019,Senior/Pensioner,NISC 1,137068
+Nov-2019,Adult,NISC 1,121807
+Nov-2019,Adult Single Bus Trip 1,NISC 1,5089
+Nov-2019,Adult Single Bus Trip 2,NISC 1,2661
+Nov-2019,Adult Single Bus Trip 3,NISC 1,570
+Nov-2019,CTP,NISC 1,25755
+Nov-2019,Child/Youth,NISC 1,23800
+Nov-2019,Child/Youth Single Bus Trip 1,NISC 1,990
+Nov-2019,Child/Youth Single Bus Trip 2,NISC 1,744
+Nov-2019,Child/Youth Single Bus Trip 3,NISC 1,288
+Nov-2019,Concession,NISC 1,25789
+Nov-2019,Day Pass without SAF,NISC 1,54
+Nov-2019,Employee,NISC 1,2878
+Nov-2019,Free Travel,NISC 1,1277
+Nov-2019,On Demand,NISC 1,5629
+Nov-2019,School Student,NISC 1,57892
+Nov-2019,Senior/Pensioner,NISC 1,131972
+Dec-2019,Adult,NISC 1,103944
+Dec-2019,Adult Single Bus Trip 1,NISC 1,4934
+Dec-2019,Adult Single Bus Trip 2,NISC 1,2906
+Dec-2019,Adult Single Bus Trip 3,NISC 1,611
+Dec-2019,CTP,NISC 1,30408
+Dec-2019,Child/Youth,NISC 1,26221
+Dec-2019,Child/Youth Single Bus Trip 1,NISC 1,1547
+Dec-2019,Child/Youth Single Bus Trip 2,NISC 1,1230
+Dec-2019,Child/Youth Single Bus Trip 3,NISC 1,442
+Dec-2019,Concession,NISC 1,17777
+Dec-2019,Day Pass without SAF,NISC 1,51
+Dec-2019,Employee,NISC 1,2686
+Dec-2019,Free Travel,NISC 1,1073
+Dec-2019,On Demand,NISC 1,5723
+Dec-2019,School Student,NISC 1,26072
+Dec-2019,Senior/Pensioner,NISC 1,125738
+Jan-2020,Adult,NISC 1,98214
+Jan-2020,Adult Single Bus Trip 1,NISC 1,4739
+Jan-2020,Adult Single Bus Trip 2,NISC 1,2669
+Jan-2020,Adult Single Bus Trip 3,NISC 1,555
+Jan-2020,CTP,NISC 1,33605
+Jan-2020,Child/Youth,NISC 1,29974
+Jan-2020,Child/Youth Single Bus Trip 1,NISC 1,1712
+Jan-2020,Child/Youth Single Bus Trip 2,NISC 1,1449
+Jan-2020,Child/Youth Single Bus Trip 3,NISC 1,538
+Jan-2020,Concession,NISC 1,16604
+Jan-2020,Day Pass without SAF,NISC 1,46
+Jan-2020,Employee,NISC 1,2593
+Jan-2020,Free Travel,NISC 1,1116
+Jan-2020,On Demand,NISC 1,5944
+Jan-2020,School Student,NISC 1,8011
+Jan-2020,Senior/Pensioner,NISC 1,123044
+Feb-2020,Adult,NISC 1,108983
+Feb-2020,Adult Single Bus Trip 1,NISC 1,4660
+Feb-2020,Adult Single Bus Trip 2,NISC 1,2473
+Feb-2020,Adult Single Bus Trip 3,NISC 1,530
+Feb-2020,CTP,NISC 1,39484
+Feb-2020,Child/Youth,NISC 1,24540
+Feb-2020,Child/Youth Single Bus Trip 1,NISC 1,832
+Feb-2020,Child/Youth Single Bus Trip 2,NISC 1,680
+Feb-2020,Child/Youth Single Bus Trip 3,NISC 1,235
+Feb-2020,Concession,NISC 1,22796
+Feb-2020,Day Pass Child/Youth w/o SAF,NISC 1,8
+Feb-2020,Day Pass without SAF,NISC 1,45
+Feb-2020,Employee,NISC 1,2801
+Feb-2020,Free Travel,NISC 1,1155
+Feb-2020,On Demand,NISC 1,5172
+Feb-2020,School Student,NISC 1,67044
+Feb-2020,Senior/Pensioner,NISC 1,123402
+Mar-2020,Adult,NISC 1,85737
+Mar-2020,Adult Single Bus Trip 1,NISC 1,2037
+Mar-2020,Adult Single Bus Trip 2,NISC 1,1224
+Mar-2020,Adult Single Bus Trip 3,NISC 1,213
+Mar-2020,CTP,NISC 1,31088
+Mar-2020,Child/Youth,NISC 1,17498
+Mar-2020,Child/Youth Single Bus Trip 1,NISC 1,430
+Mar-2020,Child/Youth Single Bus Trip 2,NISC 1,259
+Mar-2020,Child/Youth Single Bus Trip 3,NISC 1,94
+Mar-2020,Concession,NISC 1,25053
+Mar-2020,Day Pass Child/Youth w/o SAF,NISC 1,3
+Mar-2020,Day Pass without SAF,NISC 1,70
+Mar-2020,Employee,NISC 1,2258
+Mar-2020,Free Travel,NISC 1,861
+Mar-2020,On Demand,NISC 1,5102
+Mar-2020,School Student,NISC 1,46925
+Mar-2020,Senior/Pensioner,NISC 1,104839
+Apr-2020,Adult,NISC 1,29676
+Apr-2020,Adult Single Bus Trip 1,NISC 1,15
+Apr-2020,Adult Single Bus Trip 2,NISC 1,11
+Apr-2020,Adult Single Bus Trip 3,NISC 1,2
+Apr-2020,CTP,NISC 1,11719
+Apr-2020,Child/Youth,NISC 1,3798
+Apr-2020,Child/Youth Single Bus Trip 1,NISC 1,4
+Apr-2020,Child/Youth Single Bus Trip 2,NISC 1,1
+Apr-2020,Child/Youth Single Bus Trip 3,NISC 1,2
+Apr-2020,Concession,NISC 1,6396
+Apr-2020,Day Pass without SAF,NISC 1,23
+Apr-2020,Employee,NISC 1,984
+Apr-2020,Free Travel,NISC 1,348
+Apr-2020,On Demand,NISC 1,3722
+Apr-2020,School Student,NISC 1,613
+Apr-2020,Senior/Pensioner,NISC 1,52773
+May-2020,Adult,NISC 1,41517
+May-2020,Adult Single Bus Trip 1,NISC 1,9
+May-2020,Adult Single Bus Trip 2,NISC 1,8
+May-2020,Adult Single Bus Trip 3,NISC 1,3
+May-2020,CTP,NISC 1,17467
+May-2020,Child/Youth,NISC 1,8226
+May-2020,Child/Youth Single Bus Trip 1,NISC 1,2
+May-2020,Child/Youth Single Bus Trip 3,NISC 1,2
+May-2020,Concession,NISC 1,8464
+May-2020,Day Pass without SAF,NISC 1,15
+May-2020,Employee,NISC 1,1152
+May-2020,Free Travel,NISC 1,491
+May-2020,On Demand,NISC 1,4716
+May-2020,School Student,NISC 1,11313
+May-2020,Senior/Pensioner,NISC 1,66104
+Jun-2020,Adult,NISC 1,56525
+Jun-2020,Adult Single Bus Trip 1,NISC 1,14
+Jun-2020,Adult Single Bus Trip 2,NISC 1,5
+Jun-2020,Adult Single Bus Trip 3,NISC 1,1
+Jun-2020,CTP,NISC 1,24470
+Jun-2020,Child/Youth,NISC 1,12389
+Jun-2020,Child/Youth Single Bus Trip 1,NISC 1,1
+Jun-2020,Child/Youth Single Bus Trip 2,NISC 1,4
+Jun-2020,Concession,NISC 1,11363
+Jun-2020,Day Pass without SAF,NISC 1,4
+Jun-2020,Employee,NISC 1,1501
+Jun-2020,Free Travel,NISC 1,675
+Jun-2020,On Demand,NISC 1,4780
+Jun-2020,School Student,NISC 1,31478
+Jun-2020,Senior/Pensioner,NISC 1,81690
+Jul-2020,Adult,NISC 1,65897
+Jul-2020,Adult Single Bus Trip 1,NISC 1,2
+Jul-2020,Adult Single Bus Trip 2,NISC 1,8
+Jul-2020,CTP,NISC 1,31444
+Jul-2020,Child/Youth,NISC 1,18211
+Jul-2020,Child/Youth Single Bus Trip 1,NISC 1,12
+Jul-2020,Child/Youth Single Bus Trip 2,NISC 1,7
+Jul-2020,Concession,NISC 1,12488
+Jul-2020,Day Pass without SAF,NISC 1,45
+Jul-2020,Employee,NISC 1,1778
+Jul-2020,Free Travel,NISC 1,877
+Jul-2020,On Demand,NISC 1,5218
+Jul-2020,School Student,NISC 1,18843
+Jul-2020,Senior/Pensioner,NISC 1,88915
+Aug-2020,Adult,NISC 1,60709
+Aug-2020,Adult Single Bus Trip 1,NISC 1,1
+Aug-2020,Adult Single Bus Trip 2,NISC 1,3
+Aug-2020,Adult Single Bus Trip 3,NISC 1,3
+Aug-2020,CTP,NISC 1,29064
+Aug-2020,Child/Youth,NISC 1,13837
+Aug-2020,Child/Youth Single Bus Trip 1,NISC 1,3
+Aug-2020,Concession,NISC 1,15478
+Aug-2020,Day Pass without SAF,NISC 1,23
+Aug-2020,Employee,NISC 1,1486
+Aug-2020,Free Travel,NISC 1,673
+Aug-2020,On Demand,NISC 1,4811
+Aug-2020,School Student,NISC 1,36322
+Aug-2020,Senior/Pensioner,NISC 1,83557
+Sep-2020,Adult,NISC 1,64273
+Sep-2020,Adult Single Bus Trip 1,NISC 1,1
+Sep-2020,CTP,NISC 1,33518
+Sep-2020,Child/Youth,NISC 1,16583
+Sep-2020,Concession,NISC 1,15973
+Sep-2020,Day Pass without SAF,NISC 1,32
+Sep-2020,Employee,NISC 1,1684
+Sep-2020,Free Travel,NISC 1,712
+Sep-2020,On Demand,NISC 1,4894
+Sep-2020,School Student,NISC 1,29972
+Sep-2020,Senior/Pensioner,NISC 1,90187
+Oct-2020,Adult,NISC 1,64755
+Oct-2020,Adult Single Bus Trip 1,NISC 1,4
+Oct-2020,Adult Single Bus Trip 2,NISC 1,1
+Oct-2020,CTP,NISC 1,36264
+Oct-2020,Child/Youth,NISC 1,17992
+Oct-2020,Concession,NISC 1,15461
+Oct-2020,Day Pass without SAF,NISC 1,30
+Oct-2020,Employee,NISC 1,1647
+Oct-2020,Free Travel,NISC 1,684
+Oct-2020,On Demand,NISC 1,4897
+Oct-2020,School Student,NISC 1,23272
+Oct-2020,Senior/Pensioner,NISC 1,93376
+Nov-2020,Adult,NISC 1,65218
+Nov-2020,Adult Single Bus Trip 1,NISC 1,1
+Nov-2020,Adult Single Bus Trip 2,NISC 1,2
+Nov-2020,CTP,NISC 1,37907
+Nov-2020,Child/Youth,NISC 1,15021
+Nov-2020,Concession,NISC 1,15104
+Nov-2020,Day Pass without SAF,NISC 1,56
+Nov-2020,Employee,NISC 1,1803
+Nov-2020,Free Travel,NISC 1,784
+Nov-2020,On Demand,NISC 1,4693
+Nov-2020,School Student,NISC 1,30304
+Nov-2020,Senior/Pensioner,NISC 1,95584
+Dec-2020,Adult,NISC 1,62826
+Dec-2020,Adult Single Bus Trip 1,NISC 1,1
+Dec-2020,Adult Single Bus Trip 2,NISC 1,1
+Dec-2020,CTP,NISC 1,40772
+Dec-2020,Child/Youth,NISC 1,19448
+Dec-2020,Concession,NISC 1,12080
+Dec-2020,Day Pass without SAF,NISC 1,37
+Dec-2020,Employee,NISC 1,1795
+Dec-2020,Free Travel,NISC 1,744
+Dec-2020,On Demand,NISC 1,4979
+Dec-2020,School Student,NISC 1,12772
+Dec-2020,Senior/Pensioner,NISC 1,93839
+Jan-2021,Adult,NISC 1,59263
+Jan-2021,Adult Single Bus Trip 1,NISC 1,3
+Jan-2021,Adult Single Bus Trip 2,NISC 1,2
+Jan-2021,CTP,NISC 1,40877
+Jan-2021,Child/Youth,NISC 1,23172
+Jan-2021,Concession,NISC 1,11053
+Jan-2021,Day Pass without SAF,NISC 1,47
+Jan-2021,Employee,NISC 1,1537
+Jan-2021,Free Travel,NISC 1,670
+Jan-2021,On Demand,NISC 1,4874
+Jan-2021,School Student,NISC 1,1375
+Jan-2021,Senior/Pensioner,NISC 1,88772
+Feb-2021,Adult,NISC 1,64508
+Feb-2021,Adult Single Bus Trip 1,NISC 1,1
+Feb-2021,CTP,NISC 1,44459
+Feb-2021,Child/Youth,NISC 1,16734
+Feb-2021,Concession,NISC 1,14578
+Feb-2021,Day Pass without SAF,NISC 1,58
+Feb-2021,Employee,NISC 1,1690
+Feb-2021,Free Travel,NISC 1,771
+Feb-2021,On Demand,NISC 1,4373
+Feb-2021,School Student,NISC 1,36510
+Feb-2021,Senior/Pensioner,NISC 1,92828
+Mar-2021,Adult,NISC 1,71794
+Mar-2021,Adult Single Bus Trip 2,NISC 1,2
+Mar-2021,Adult Single Bus Trip 3,NISC 1,1
+Mar-2021,CTP,NISC 1,49144
+Mar-2021,Child/Youth,NISC 1,15571
+Mar-2021,Concession,NISC 1,21527
+Mar-2021,Day Pass without SAF,NISC 1,47
+Mar-2021,Employee,NISC 1,1863
+Mar-2021,Free Travel,NISC 1,850
+Mar-2021,On Demand,NISC 1,4813
+Mar-2021,School Student,NISC 1,34047
+Mar-2021,Senior/Pensioner,NISC 1,102335
+Apr-2021,Adult,NISC 1,65288
+Apr-2021,Adult Single Bus Trip 1,NISC 1,3
+Apr-2021,CTP,NISC 1,48901
+Apr-2021,Child/Youth,NISC 1,20802
+Apr-2021,Concession,NISC 1,16526
+Apr-2021,Day Pass without SAF,NISC 1,13
+Apr-2021,Employee,NISC 1,1894
+Apr-2021,Free Travel,NISC 1,800
+Apr-2021,On Demand,NISC 1,4238
+Apr-2021,School Student,NISC 1,14902
+Apr-2021,Senior/Pensioner,NISC 1,98521
+May-2021,Adult,NISC 1,67919
+May-2021,Adult Single Bus Trip 1,NISC 1,5
+May-2021,Adult Single Bus Trip 3,NISC 1,1
+May-2021,CTP,NISC 1,51114
+May-2021,Child/Youth,NISC 1,15439
+May-2021,Concession,NISC 1,19953
+May-2021,Day Pass without SAF,NISC 1,48
+May-2021,Employee,NISC 1,1891
+May-2021,Free Travel,NISC 1,765
+May-2021,On Demand,NISC 1,4079
+May-2021,School Student,NISC 1,28746
+May-2021,Senior/Pensioner,NISC 1,101996
+Jun-2021,Adult,NISC 1,63381
+Jun-2021,Adult Single Bus Trip 1,NISC 1,2
+Jun-2021,CTP,NISC 1,47079
+Jun-2021,Child/Youth,NISC 1,14417
+Jun-2021,Child/Youth Single Bus Trip 1,NISC 1,1
+Jun-2021,Concession,NISC 1,13765
+Jun-2021,Day Pass without SAF,NISC 1,66
+Jun-2021,Employee,NISC 1,1076
+Jun-2021,Free Travel,NISC 1,699
+Jun-2021,On Demand,NISC 1,4111
+Jun-2021,School Student,NISC 1,21593
+Jun-2021,Senior/Pensioner,NISC 1,94503
+Jul-2021,Adult,NISC 1,56355
+Jul-2021,Adult Single Bus Trip 1,NISC 1,3
+Jul-2021,Adult Single Bus Trip 2,NISC 1,1
+Jul-2021,CTP,NISC 1,44937
+Jul-2021,Child/Youth,NISC 1,15317
+Jul-2021,Concession,NISC 1,11514
+Jul-2021,Day Pass without SAF,NISC 1,27
+Jul-2021,Employee,NISC 1,665
+Jul-2021,Free Travel,NISC 1,612
+Jul-2021,On Demand,NISC 1,4520
+Jul-2021,School Student,NISC 1,15855
+Jul-2021,Senior/Pensioner,NISC 1,87822
+Aug-2021,Adult,NISC 1,29364
+Aug-2021,Adult Single Bus Trip 1,NISC 1,5
+Aug-2021,CTP,NISC 1,21501
+Aug-2021,Child/Youth,NISC 1,4480
+Aug-2021,Concession,NISC 1,5209
+Aug-2021,Day Pass without SAF,NISC 1,32
+Aug-2021,Employee,NISC 1,441
+Aug-2021,Free Travel,NISC 1,263
+Aug-2021,On Demand,NISC 1,2459
+Aug-2021,School Student,NISC 1,4879
+Aug-2021,Senior/Pensioner,NISC 1,48531
+Sep-2021,Adult,NISC 1,27246
+Sep-2021,Adult Single Bus Trip 2,NISC 1,1
+Sep-2021,CTP,NISC 1,21575
+Sep-2021,Child/Youth,NISC 1,5035
+Sep-2021,Child/Youth Single Bus Trip 1,NISC 1,1
+Sep-2021,Concession,NISC 1,4368
+Sep-2021,Day Pass without SAF,NISC 1,41
+Sep-2021,Employee,NISC 1,526
+Sep-2021,Free Travel,NISC 1,248
+Sep-2021,On Demand,NISC 1,2652
+Sep-2021,School Student,NISC 1,623
+Sep-2021,Senior/Pensioner,NISC 1,47715
+Oct-2021,Adult,NISC 1,37695
+Oct-2021,Adult Single Bus Trip 1,NISC 1,3
+Oct-2021,Adult Single Bus Trip 2,NISC 1,2
+Oct-2021,CTP,NISC 1,33824
+Oct-2021,Child/Youth,NISC 1,8413
+Oct-2021,Concession,NISC 1,6830
+Oct-2021,Day Pass without SAF,NISC 1,34
+Oct-2021,Employee,NISC 1,839
+Oct-2021,Free Travel,NISC 1,454
+Oct-2021,On Demand,NISC 1,3717
+Oct-2021,School Student,NISC 1,6730
+Oct-2021,Senior/Pensioner,NISC 1,64174
+Nov-2021,Adult,NISC 1,50684
+Nov-2021,Adult Single Bus Trip 1,NISC 1,4
+Nov-2021,Adult Single Bus Trip 2,NISC 1,2
+Nov-2021,Adult Single Bus Trip 3,NISC 1,1
+Nov-2021,CTP,NISC 1,43566
+Nov-2021,Child/Youth,NISC 1,10117
+Nov-2021,Concession,NISC 1,9193
+Nov-2021,Day Pass without SAF,NISC 1,19
+Nov-2021,Employee,NISC 1,1359
+Nov-2021,Free Travel,NISC 1,642
+Nov-2021,On Demand,NISC 1,3957
+Nov-2021,School Student,NISC 1,19601
+Nov-2021,Senior/Pensioner,NISC 1,80095
+Dec-2021,Adult,NISC 1,48357
+Dec-2021,Adult Single Bus Trip 1,NISC 1,2
+Dec-2021,Adult Single Bus Trip 2,NISC 1,1
+Dec-2021,Adult Single Bus Trip 3,NISC 1,1
+Dec-2021,CTP,NISC 1,41631
+Dec-2021,Child/Youth,NISC 1,12171
+Dec-2021,Child/Youth Single Bus Trip 1,NISC 1,1
+Dec-2021,Concession,NISC 1,8082
+Dec-2021,Day Pass without SAF,NISC 1,35
+Dec-2021,Employee,NISC 1,1336
+Dec-2021,Free Travel,NISC 1,621
+Dec-2021,On Demand,NISC 1,4514
+Dec-2021,School Student,NISC 1,7385
+Dec-2021,Senior/Pensioner,NISC 1,81081
+Jan-2022,Adult,NISC 1,45040
+Jan-2022,Adult Single Bus Trip 1,NISC 1,1
+Jan-2022,Adult Single Bus Trip 2,NISC 1,1
+Jan-2022,Adult Single Bus Trip 3,NISC 1,1
+Jan-2022,CTP,NISC 1,39443
+Jan-2022,Child/Youth,NISC 1,12975
+Jan-2022,Concession,NISC 1,6749
+Jan-2022,Day Pass without SAF,NISC 1,26
+Jan-2022,Employee,NISC 1,1011
+Jan-2022,Free Travel,NISC 1,538
+Jan-2022,On Demand,NISC 1,4421
+Jan-2022,School Student,NISC 1,203
+Jan-2022,Senior/Pensioner,NISC 1,70031
+Feb-2022,Adult,NISC 1,54124
+Feb-2022,Adult Single Bus Trip 1,NISC 1,1
+Feb-2022,CTP,NISC 1,49155
+Feb-2022,Child/Youth,NISC 1,11594
+Feb-2022,Concession,NISC 1,10059
+Feb-2022,Day Pass without SAF,NISC 1,20
+Feb-2022,Employee,NISC 1,1341
+Feb-2022,Free Travel,NISC 1,643
+Feb-2022,On Demand,NISC 1,4149
+Feb-2022,School Student,NISC 1,20569
+Feb-2022,Senior/Pensioner,NISC 1,75358
+Mar-2022,Adult,NISC 1,64743
+Mar-2022,Adult Single Bus Trip 1,NISC 1,2
+Mar-2022,Adult Single Bus Trip 2,NISC 1,1
+Mar-2022,CTP,NISC 1,59943
+Mar-2022,Child/Youth,NISC 1,11486
+Mar-2022,Concession,NISC 1,15971
+Mar-2022,Day Pass without SAF,NISC 1,27
+Mar-2022,Employee,NISC 1,1428
+Mar-2022,Free Travel,NISC 1,735
+Mar-2022,On Demand,NISC 1,4319
+Mar-2022,School Student,NISC 1,19529
+Mar-2022,Senior/Pensioner,NISC 1,85964
+Apr-2022,Adult,NISC 1,61015
+Apr-2022,Adult Single Bus Trip 1,NISC 1,8
+Apr-2022,Adult Single Bus Trip 2,NISC 1,51
+Apr-2022,Adult Single Bus Trip 3,NISC 1,102
+Apr-2022,CTP,NISC 1,51908
+Apr-2022,Child/Youth,NISC 1,12596
+Apr-2022,Concession,NISC 1,11271
+Apr-2022,Day Pass without SAF,NISC 1,13
+Apr-2022,Employee,NISC 1,1315
+Apr-2022,Free Travel,NISC 1,638
+Apr-2022,On Demand,NISC 1,4278
+Apr-2022,School Student,NISC 1,7275
+Apr-2022,Senior/Pensioner,NISC 1,80846
+May-2022,Adult,NISC 1,65066
+May-2022,Adult Single Bus Trip 1,NISC 1,4
+May-2022,CTP,NISC 1,59896
+May-2022,Child/Youth,NISC 1,10078
+May-2022,Child/Youth Single Bus Trip 1,NISC 1,1
+May-2022,Concession,NISC 1,14688
+May-2022,Day Pass without SAF,NISC 1,43
+May-2022,Employee,NISC 1,1469
+May-2022,Free Travel,NISC 1,737
+May-2022,On Demand,NISC 1,4235
+May-2022,School Student,NISC 1,16796
+May-2022,Senior/Pensioner,NISC 1,88012
+Jun-2022,Adult,NISC 1,52803
+Jun-2022,Adult Single Bus Trip 1,NISC 1,3
+Jun-2022,Adult Single Bus Trip 2,NISC 1,4
+Jun-2022,CTP,NISC 1,47353
+Jun-2022,Child/Youth,NISC 1,8393
+Jun-2022,Concession,NISC 1,9527
+Jun-2022,Day Pass without SAF,NISC 1,30
+Jun-2022,Employee,NISC 1,1227
+Jun-2022,Free Travel,NISC 1,623
+Jun-2022,On Demand,NISC 1,3892
+Jun-2022,School Student,NISC 1,11607
+Jun-2022,Senior/Pensioner,NISC 1,72118
+Jul-2022,Adult,NISC 1,60336
+Jul-2022,CTP,NISC 1,60162
+Jul-2022,Child/Youth,NISC 1,11383
+Jul-2022,Concession,NISC 1,11782
+Jul-2022,Day Pass without SAF,NISC 1,49
+Jul-2022,Employee,NISC 1,1367
+Jul-2022,Free Travel,NISC 1,666
+Jul-2022,On Demand,NISC 1,4425
+Jul-2022,School Student,NISC 1,5792
+Jul-2022,Senior/Pensioner,NISC 1,77047
+Aug-2022,Adult,NISC 1,65334
+Aug-2022,Adult Single Bus Trip 1,NISC 1,2
+Aug-2022,CTP,NISC 1,65549
+Aug-2022,Child/Youth,NISC 1,9033
+Aug-2022,Concession,NISC 1,16145
+Aug-2022,Day Pass without SAF,NISC 1,41
+Aug-2022,Employee,NISC 1,1445
+Aug-2022,Free Travel,NISC 1,721
+Aug-2022,On Demand,NISC 1,4270
+Aug-2022,School Student,NISC 1,14370
+Aug-2022,Senior/Pensioner,NISC 1,85805
+Sep-2022,Adult,NISC 1,63729
+Sep-2022,Adult Single Bus Trip 2,NISC 1,2
+Sep-2022,CTP,NISC 1,64836
+Sep-2022,Child/Youth,NISC 1,10229
+Sep-2022,Concession,NISC 1,13162
+Sep-2022,Day Pass without SAF,NISC 1,36
+Sep-2022,Employee,NISC 1,1488
+Sep-2022,Free Travel,NISC 1,668
+Sep-2022,On Demand,NISC 1,4291
+Sep-2022,School Student,NISC 1,9367
+Sep-2022,Senior/Pensioner,NISC 1,80566
+Oct-2022,Adult,NISC 1,65297
+Oct-2022,Adult Single Bus Trip 1,NISC 1,6
+Oct-2022,Adult Single Bus Trip 2,NISC 1,1
+Oct-2022,CTP,NISC 1,69106
+Oct-2022,Child/Youth,NISC 1,10852
+Oct-2022,Concession,NISC 1,13254
+Oct-2022,Day Pass without SAF,NISC 1,40
+Oct-2022,Employee,NISC 1,1530
+Oct-2022,Free Travel,NISC 1,876
+Oct-2022,On Demand,NISC 1,3965
+Oct-2022,School Student,NISC 1,9250
+Oct-2022,Senior/Pensioner,NISC 1,84128
+Nov-2022,Adult,NISC 1,65662
+Nov-2022,Adult Single Bus Trip 1,NISC 1,3
+Nov-2022,Adult Single Bus Trip 2,NISC 1,1
+Nov-2022,Adult Single Bus Trip 3,NISC 1,1
+Nov-2022,CTP,NISC 1,70467
+Nov-2022,Child/Youth,NISC 1,9211
+Nov-2022,Concession,NISC 1,12416
+Nov-2022,Day Pass without SAF,NISC 1,42
+Nov-2022,Employee,NISC 1,1570
+Nov-2022,Free Travel,NISC 1,927
+Nov-2022,On Demand,NISC 1,3942
+Nov-2022,School Student,NISC 1,12036
+Nov-2022,Senior/Pensioner,NISC 1,90043
+Dec-2022,Adult,NISC 1,60298
+Dec-2022,CTP,NISC 1,67803
+Dec-2022,Child/Youth,NISC 1,11513
+Dec-2022,Concession,NISC 1,9131
+Dec-2022,Day Pass Child/Youth w/o SAF,NISC 1,6
+Dec-2022,Day Pass without SAF,NISC 1,39
+Dec-2022,Employee,NISC 1,1396
+Dec-2022,Free Travel,NISC 1,803
+Dec-2022,On Demand,NISC 1,4239
+Dec-2022,School Student,NISC 1,4880
+Dec-2022,Senior/Pensioner,NISC 1,85432
+Jan-2023,Adult,NISC 1,61193
+Jan-2023,CTP,NISC 1,69142
+Jan-2023,Child/Youth,NISC 1,14742
+Jan-2023,Concession,NISC 1,8622
+Jan-2023,Day Pass without SAF,NISC 1,59
+Jan-2023,Employee,NISC 1,1318
+Jan-2023,Free Travel,NISC 1,780
+Jan-2023,On Demand,NISC 1,4076
+Jan-2023,School Student,NISC 1,614
+Jan-2023,Senior/Pensioner,NISC 1,81455
+Feb-2023,Adult,NISC 1,71273
+Feb-2023,Adult Single Bus Trip 2,NISC 1,5
+Feb-2023,CTP,NISC 1,78012
+Feb-2023,Child/Youth,NISC 1,10971
+Feb-2023,Concession,NISC 1,11382
+Feb-2023,Day Pass without SAF,NISC 1,38
+Feb-2023,Employee,NISC 1,1438
+Feb-2023,Free Travel,NISC 1,813
+Feb-2023,On Demand,NISC 1,3112
+Feb-2023,School Student,NISC 1,16604
+Feb-2023,Senior/Pensioner,NISC 1,84182
+Mar-2023,Adult,NISC 1,78745
+Mar-2023,Adult Single Bus Trip 1,NISC 1,7
+Mar-2023,Adult Single Bus Trip 2,NISC 1,2
+Mar-2023,Adult Single Bus Trip 3,NISC 1,2
+Mar-2023,CTP,NISC 1,89825
+Mar-2023,Child/Youth,NISC 1,10849
+Mar-2023,Child/Youth Single Bus Trip 2,NISC 1,1
+Mar-2023,Concession,NISC 1,17642
+Mar-2023,Day Pass without SAF,NISC 1,53
+Mar-2023,Employee,NISC 1,1662
+Mar-2023,Free Travel,NISC 1,990
+Mar-2023,On Demand,NISC 1,3399
+Mar-2023,School Student,NISC 1,16646
+Mar-2023,Senior/Pensioner,NISC 1,92264
+Apr-2023,Adult,NISC 1,62572
+Apr-2023,Adult Single Bus Trip 1,NISC 1,11
+Apr-2023,Adult Single Bus Trip 2,NISC 1,2
+Apr-2023,CTP,NISC 1,75211
+Apr-2023,Child/Youth,NISC 1,10816
+Apr-2023,Concession,NISC 1,11454
+Apr-2023,Day Pass without SAF,NISC 1,23
+Apr-2023,Employee,NISC 1,1413
+Apr-2023,Free Travel,NISC 1,814
+Apr-2023,On Demand,NISC 1,4059
+Apr-2023,School Student,NISC 1,4368
+Apr-2023,Senior/Pensioner,NISC 1,78659
+May-2023,Adult,NISC 1,71838
+May-2023,Adult Single Bus Trip 1,NISC 1,3
+May-2023,Adult Single Bus Trip 3,NISC 1,1
+May-2023,CTP,NISC 1,84732
+May-2023,Child/Youth,NISC 1,8757
+May-2023,Concession,NISC 1,15940
+May-2023,Day Pass without SAF,NISC 1,42
+May-2023,Employee,NISC 1,1423
+May-2023,Free Travel,NISC 1,881
+May-2023,On Demand,NISC 1,3623
+May-2023,School Student,NISC 1,13259
+May-2023,Senior/Pensioner,NISC 1,87748
+Jun-2023,Adult,NISC 1,68352
+Jun-2023,CTP,NISC 1,80201
+Jun-2023,Child/Youth,NISC 1,8145
+Jun-2023,Concession,NISC 1,11672
+Jun-2023,Day Pass without SAF,NISC 1,40
+Jun-2023,Employee,NISC 1,1359
+Jun-2023,Free Travel,NISC 1,864
+Jun-2023,On Demand,NISC 1,3247
+Jun-2023,School Student,NISC 1,11375
+Jun-2023,Senior/Pensioner,NISC 1,83174
+Jul-2023,Adult,NISC 1,75673
+Jul-2023,Adult Single Bus Trip 1,NISC 1,1
+Jul-2023,Adult Single Bus Trip 2,NISC 1,1
+Jul-2023,CTP,NISC 1,88295
+Jul-2023,Child/Youth,NISC 1,11423
+Jul-2023,Concession,NISC 1,12943
+Jul-2023,Day Pass without SAF,NISC 1,71
+Jul-2023,Employee,NISC 1,1193
+Jul-2023,Free Travel,NISC 1,821
+Jul-2023,On Demand,NISC 1,4082
+Jul-2023,School Student,NISC 1,5188
+Jul-2023,Senior/Pensioner,NISC 1,83551
+Aug-2023,Adult,NISC 1,79522
+Aug-2023,Adult Single Bus Trip 1,NISC 1,2
+Aug-2023,CTP,NISC 1,93705
+Aug-2023,Child/Youth,NISC 1,8636
+Aug-2023,Concession,NISC 1,16540
+Aug-2023,Day Pass without SAF,NISC 1,85
+Aug-2023,Employee,NISC 1,1434
+Aug-2023,Free Travel,NISC 1,885
+Aug-2023,On Demand,NISC 1,3567
+Aug-2023,School Student,NISC 1,12986
+Aug-2023,Senior/Pensioner,NISC 1,91740
+Sep-2023,Adult,NISC 1,74815
+Sep-2023,Adult Single Bus Trip 1,NISC 1,1
+Sep-2023,Adult Single Bus Trip 3,NISC 1,1
+Sep-2023,CTP,NISC 1,89878
+Sep-2023,Child/Youth,NISC 1,9904
+Sep-2023,Concession,NISC 1,13670
+Sep-2023,Day Pass without SAF,NISC 1,50
+Sep-2023,Employee,NISC 1,1266
+Sep-2023,Free Travel,NISC 1,868
+Sep-2023,On Demand,NISC 1,3927
+Sep-2023,School Student,NISC 1,8728
+Sep-2023,Senior/Pensioner,NISC 1,86015
+Oct-2023,Adult,NISC 1,74948
+Oct-2023,Adult Single Bus Trip 1,NISC 1,2
+Oct-2023,Adult Single Bus Trip 2,NISC 1,2
+Oct-2023,CTP,NISC 1,91628
+Oct-2023,Child/Youth,NISC 1,9805
+Oct-2023,Concession,NISC 1,13828
+Oct-2023,Day Pass without SAF,NISC 1,62
+Oct-2023,Employee,NISC 1,1277
+Oct-2023,Free Travel,NISC 1,868
+Oct-2023,On Demand,NISC 1,3844
+Oct-2023,School Student,NISC 1,8840
+Oct-2023,Senior/Pensioner,NISC 1,89500
+Nov-2023,Adult,NISC 1,74961
+Nov-2023,Adult Single Bus Trip 1,NISC 1,8
+Nov-2023,Adult Single Bus Trip 2,NISC 1,10
+Nov-2023,CTP,NISC 1,93521
+Nov-2023,Child/Youth,NISC 1,8673
+Nov-2023,Concession,NISC 1,11623
+Nov-2023,Day Pass without SAF,NISC 1,54
+Nov-2023,Employee,NISC 1,1408
+Nov-2023,Free Travel,NISC 1,941
+Nov-2023,On Demand,NISC 1,3621
+Nov-2023,School Student,NISC 1,10383
+Nov-2023,Senior/Pensioner,NISC 1,91727
+Dec-2023,Adult,NISC 1,65439
+Dec-2023,Adult Single Bus Trip 1,NISC 1,7
+Dec-2023,Adult Single Bus Trip 3,NISC 1,1
+Dec-2023,CTP,NISC 1,86060
+Dec-2023,Child/Youth,NISC 1,9614
+Dec-2023,Concession,NISC 1,8508
+Dec-2023,Day Pass without SAF,NISC 1,45
+Dec-2023,Employee,NISC 1,1411
+Dec-2023,Free Travel,NISC 1,838
+Dec-2023,On Demand,NISC 1,3974
+Dec-2023,School Student,NISC 1,3810
+Dec-2023,Senior/Pensioner,NISC 1,85826
+Apr-2024,Adult,NISC 1,68500
+Apr-2024,CTP,NISC 1,93773
+Apr-2024,Child/Youth,NISC 1,10489
+Apr-2024,Concession,NISC 1,13125
+Apr-2024,Day Pass Child/Youth w/o SAF,NISC 1,11
+Apr-2024,Day Pass without SAF,NISC 1,76
+Apr-2024,Employee,NISC 1,1413
+Apr-2024,Free Travel,NISC 1,827
+Apr-2024,On Demand,NISC 1,3602
+Apr-2024,School Student,NISC 1,5097
+Apr-2024,Senior/Pensioner,NISC 1,85180
+Apr-2025,Adult,NISC 1,8858
+Apr-2025,CTP,NISC 1,14199
+Apr-2025,Child/Youth,NISC 1,874
+Apr-2025,Concession,NISC 1,1929
+Apr-2025,Day Pass without SAF,NISC 1,2
+Apr-2025,Employee,NISC 1,240
+Apr-2025,Free Travel,NISC 1,155
+Apr-2025,School Student,NISC 1,1054
+Apr-2025,Senior/Pensioner,NISC 1,10103
+Apr-2026,Adult,NISC 1,25893
+Apr-2026,CTP,NISC 1,59090
+Apr-2026,Child/Youth,NISC 1,3164
+Apr-2026,Concession,NISC 1,5657
+Apr-2026,Day Pass without SAF,NISC 1,17
+Apr-2026,Employee,NISC 1,968
+Apr-2026,Free Travel,NISC 1,429
+Apr-2026,On Demand,NISC 1,3070
+Apr-2026,School Student,NISC 1,702
+Apr-2026,Senior/Pensioner,NISC 1,34866
+Apr-2026,UNKNOWN,NISC 1,1
+Aug-2024,Adult,NISC 1,71691
+Aug-2024,CTP,NISC 1,101742
+Aug-2024,Child/Youth,NISC 1,7619
+Aug-2024,Concession,NISC 1,15870
+Aug-2024,Day Pass without SAF,NISC 1,39
+Aug-2024,Employee,NISC 1,1788
+Aug-2024,Free Travel,NISC 1,945
+Aug-2024,School Student,NISC 1,9878
+Aug-2024,Senior/Pensioner,NISC 1,90113
+Aug-2025,Adult,NISC 1,15991
+Aug-2025,CTP,NISC 1,29202
+Aug-2025,Child/Youth,NISC 1,1271
+Aug-2025,Concession,NISC 1,3281
+Aug-2025,Day Pass without SAF,NISC 1,5
+Aug-2025,Employee,NISC 1,441
+Aug-2025,Free Travel,NISC 1,194
+Aug-2025,On Demand,NISC 1,3247
+Aug-2025,School Student,NISC 1,1011
+Aug-2025,Senior/Pensioner,NISC 1,16352
+Dec-2024,Adult,NISC 1,62287
+Dec-2024,CTP,NISC 1,89429
+Dec-2024,Child/Youth,NISC 1,7954
+Dec-2024,Concession,NISC 1,7777
+Dec-2024,Day Pass Child/Youth w/o SAF,NISC 1,3
+Dec-2024,Day Pass without SAF,NISC 1,51
+Dec-2024,Employee,NISC 1,1826
+Dec-2024,Free Travel,NISC 1,774
+Dec-2024,On Demand,NISC 1,99
+Dec-2024,School Student,NISC 1,3091
+Dec-2024,Senior/Pensioner,NISC 1,86634
+Dec-2025,Adult,NISC 1,16084
+Dec-2025,CTP,NISC 1,32425
+Dec-2025,Child/Youth,NISC 1,1709
+Dec-2025,Concession,NISC 1,2167
+Dec-2025,Day Pass without SAF,NISC 1,8
+Dec-2025,Employee,NISC 1,513
+Dec-2025,Free Travel,NISC 1,260
+Dec-2025,On Demand,NISC 1,3294
+Dec-2025,School Student,NISC 1,379
+Dec-2025,Senior/Pensioner,NISC 1,21301
+Feb-2024,Adult,NISC 1,70796
+Feb-2024,CTP,NISC 1,90866
+Feb-2024,Child/Youth,NISC 1,9244
+Feb-2024,Concession,NISC 1,11292
+Feb-2024,Day Pass without SAF,NISC 1,52
+Feb-2024,Employee,NISC 1,1222
+Feb-2024,Free Travel,NISC 1,860
+Feb-2024,On Demand,NISC 1,3585
+Feb-2024,School Student,NISC 1,13365
+Feb-2024,Senior/Pensioner,NISC 1,83784
+Feb-2025,Adult,NISC 1,69913
+Feb-2025,CTP,NISC 1,103579
+Feb-2025,Child/Youth,NISC 1,7956
+Feb-2025,Concession,NISC 1,10393
+Feb-2025,Day Pass Child/Youth w/o SAF,NISC 1,3
+Feb-2025,Day Pass without SAF,NISC 1,71
+Feb-2025,Employee,NISC 1,1755
+Feb-2025,Free Travel,NISC 1,897
+Feb-2025,School Student,NISC 1,10206
+Feb-2025,Senior/Pensioner,NISC 1,84897
+Feb-2026,Adult,NISC 1,23333
+Feb-2026,CTP,NISC 1,48885
+Feb-2026,Child/Youth,NISC 1,1979
+Feb-2026,Concession,NISC 1,4804
+Feb-2026,Day Pass without SAF,NISC 1,18
+Feb-2026,Employee,NISC 1,703
+Feb-2026,Free Travel,NISC 1,324
+Feb-2026,On Demand,NISC 1,2810
+Feb-2026,School Student,NISC 1,1495
+Feb-2026,Senior/Pensioner,NISC 1,24758
+Jan-2024,Adult,NISC 1,65368
+Jan-2024,CTP,NISC 1,90031
+Jan-2024,Child/Youth,NISC 1,13171
+Jan-2024,Concession,NISC 1,8747
+Jan-2024,Day Pass without SAF,NISC 1,72
+Jan-2024,Employee,NISC 1,1326
+Jan-2024,Free Travel,NISC 1,778
+Jan-2024,On Demand,NISC 1,4555
+Jan-2024,School Student,NISC 1,290
+Jan-2024,Senior/Pensioner,NISC 1,86677
+Jan-2025,Adult,NISC 1,60705
+Jan-2025,CTP,NISC 1,88990
+Jan-2025,Child/Youth,NISC 1,9277
+Jan-2025,Concession,NISC 1,7495
+Jan-2025,Day Pass without SAF,NISC 1,36
+Jan-2025,Employee,NISC 1,1618
+Jan-2025,Free Travel,NISC 1,820
+Jan-2025,School Student,NISC 1,75
+Jan-2025,Senior/Pensioner,NISC 1,81420
+Jan-2026,Adult,NISC 1,20676
+Jan-2026,CTP,NISC 1,42233
+Jan-2026,Child/Youth,NISC 1,2723
+Jan-2026,Concession,NISC 1,2972
+Jan-2026,Day Pass without SAF,NISC 1,6
+Jan-2026,Employee,NISC 1,657
+Jan-2026,Free Travel,NISC 1,358
+Jan-2026,On Demand,NISC 1,3607
+Jan-2026,School Student,NISC 1,37
+Jan-2026,Senior/Pensioner,NISC 1,24132
+Jan-2026,UNKNOWN,NISC 1,2
+Jul-2024,Adult,NISC 1,69891
+Jul-2024,CTP,NISC 1,99204
+Jul-2024,Child/Youth,NISC 1,9699
+Jul-2024,Concession,NISC 1,12057
+Jul-2024,Day Pass without SAF,NISC 1,64
+Jul-2024,Employee,NISC 1,1628
+Jul-2024,Free Travel,NISC 1,949
+Jul-2024,On Demand,NISC 1,3861
+Jul-2024,School Student,NISC 1,4833
+Jul-2024,Senior/Pensioner,NISC 1,87638
+Jul-2025,Adult,NISC 1,15438
+Jul-2025,CTP,NISC 1,27959
+Jul-2025,Child/Youth,NISC 1,1688
+Jul-2025,Concession,NISC 1,2413
+Jul-2025,Day Pass without SAF,NISC 1,3
+Jul-2025,Employee,NISC 1,447
+Jul-2025,Free Travel,NISC 1,189
+Jul-2025,On Demand,NISC 1,3825
+Jul-2025,School Student,NISC 1,589
+Jul-2025,Senior/Pensioner,NISC 1,16339
+Jun-2024,Adult,NISC 1,63484
+Jun-2024,CTP,NISC 1,84624
+Jun-2024,Child/Youth,NISC 1,7123
+Jun-2024,Concession,NISC 1,11198
+Jun-2024,Day Pass Child/Youth w/o SAF,NISC 1,3
+Jun-2024,Day Pass without SAF,NISC 1,93
+Jun-2024,Employee,NISC 1,1584
+Jun-2024,Free Travel,NISC 1,830
+Jun-2024,On Demand,NISC 1,3193
+Jun-2024,School Student,NISC 1,8993
+Jun-2024,Senior/Pensioner,NISC 1,79968
+Jun-2025,Adult,NISC 1,12878
+Jun-2025,CTP,NISC 1,23167
+Jun-2025,Child/Youth,NISC 1,1046
+Jun-2025,Concession,NISC 1,2004
+Jun-2025,Day Pass without SAF,NISC 1,5
+Jun-2025,Employee,NISC 1,405
+Jun-2025,Free Travel,NISC 1,162
+Jun-2025,On Demand,NISC 1,3425
+Jun-2025,School Student,NISC 1,984
+Jun-2025,Senior/Pensioner,NISC 1,14985
+Jun-2026,Adult,NISC 1,44123
+Jun-2026,CTP,NISC 1,95920
+Jun-2026,Child/Youth,NISC 1,3665
+Jun-2026,Concession,NISC 1,6932
+Jun-2026,Day Pass without SAF,NISC 1,26
+Jun-2026,Employee,NISC 1,1788
+Jun-2026,Free Travel,NISC 1,663
+Jun-2026,School Student,NISC 1,2292
+Jun-2026,Senior/Pensioner,NISC 1,67207
+Mar-2024,Adult,NISC 1,76435
+Mar-2024,CTP,NISC 1,102449
+Mar-2024,Child/Youth,NISC 1,9097
+Mar-2024,Concession,NISC 1,15982
+Mar-2024,Day Pass Child/Youth w/o SAF,NISC 1,2
+Mar-2024,Day Pass without SAF,NISC 1,61
+Mar-2024,Employee,NISC 1,1243
+Mar-2024,Free Travel,NISC 1,950
+Mar-2024,On Demand,NISC 1,2034
+Mar-2024,School Student,NISC 1,12624
+Mar-2024,Senior/Pensioner,NISC 1,87433
+Mar-2024,UNKNOWN,NISC 1,1
+Mar-2025,Adult,NISC 1,74776
+Mar-2025,CTP,NISC 1,119846
+Mar-2025,Child/Youth,NISC 1,7353
+Mar-2025,Concession,NISC 1,16008
+Mar-2025,Day Pass Child/Youth w/o SAF,NISC 1,34
+Mar-2025,Day Pass without SAF,NISC 1,57
+Mar-2025,Employee,NISC 1,1938
+Mar-2025,Free Travel,NISC 1,1072
+Mar-2025,School Student,NISC 1,10528
+Mar-2025,Senior/Pensioner,NISC 1,88158
+Mar-2026,Adult,NISC 1,26630
+Mar-2026,CTP,NISC 1,56795
+Mar-2026,Child/Youth,NISC 1,2306
+Mar-2026,Concession,NISC 1,5712
+Mar-2026,Day Pass without SAF,NISC 1,8
+Mar-2026,Employee,NISC 1,969
+Mar-2026,Free Travel,NISC 1,364
+Mar-2026,On Demand,NISC 1,3016
+Mar-2026,School Student,NISC 1,1425
+Mar-2026,Senior/Pensioner,NISC 1,31498
+May-2024,Adult,NISC 1,72911
+May-2024,CTP,NISC 1,98440
+May-2024,Child/Youth,NISC 1,7899
+May-2024,Concession,NISC 1,16883
+May-2024,Day Pass Child/Youth w/o SAF,NISC 1,2
+May-2024,Day Pass without SAF,NISC 1,62
+May-2024,Employee,NISC 1,1785
+May-2024,Free Travel,NISC 1,883
+May-2024,On Demand,NISC 1,3165
+May-2024,School Student,NISC 1,11604
+May-2024,Senior/Pensioner,NISC 1,87939
+May-2025,Adult,NISC 1,7333
+May-2025,CTP,NISC 1,12997
+May-2025,Child/Youth,NISC 1,592
+May-2025,Concession,NISC 1,1615
+May-2025,Day Pass without SAF,NISC 1,6
+May-2025,Employee,NISC 1,190
+May-2025,Free Travel,NISC 1,98
+May-2025,On Demand,NISC 1,3394
+May-2025,School Student,NISC 1,623
+May-2025,Senior/Pensioner,NISC 1,7607
+May-2026,Adult,NISC 1,44638
+May-2026,CTP,NISC 1,98284
+May-2026,Child/Youth,NISC 1,3965
+May-2026,Concession,NISC 1,7332
+May-2026,Day Pass without SAF,NISC 1,28
+May-2026,Employee,NISC 1,1889
+May-2026,Free Travel,NISC 1,756
+May-2026,On Demand,NISC 1,3221
+May-2026,School Student,NISC 1,2505
+May-2026,Senior/Pensioner,NISC 1,64338
+Nov-2024,Adult,NISC 1,68769
+Nov-2024,CTP,NISC 1,100031
+Nov-2024,Child/Youth,NISC 1,7671
+Nov-2024,Concession,NISC 1,10760
+Nov-2024,Day Pass Child/Youth w/o SAF,NISC 1,1
+Nov-2024,Day Pass without SAF,NISC 1,27
+Nov-2024,Employee,NISC 1,1868
+Nov-2024,Free Travel,NISC 1,988
+Nov-2024,School Student,NISC 1,7289
+Nov-2024,Senior/Pensioner,NISC 1,89367
+Nov-2025,Adult,NISC 1,17454
+Nov-2025,CTP,NISC 1,36212
+Nov-2025,Child/Youth,NISC 1,1602
+Nov-2025,Concession,NISC 1,2894
+Nov-2025,Day Pass without SAF,NISC 1,7
+Nov-2025,Employee,NISC 1,590
+Nov-2025,Free Travel,NISC 1,269
+Nov-2025,School Student,NISC 1,880
+Nov-2025,Senior/Pensioner,NISC 1,21966
+Oct-2024,Adult,NISC 1,70593
+Oct-2024,CTP,NISC 1,100688
+Oct-2024,Child/Youth,NISC 1,9085
+Oct-2024,Concession,NISC 1,13303
+Oct-2024,Day Pass Child/Youth w/o SAF,NISC 1,1
+Oct-2024,Day Pass without SAF,NISC 1,47
+Oct-2024,Employee,NISC 1,1839
+Oct-2024,Free Travel,NISC 1,1025
+Oct-2024,School Student,NISC 1,5490
+Oct-2024,Senior/Pensioner,NISC 1,90060
+Oct-2025,Adult,NISC 1,19110
+Oct-2025,CTP,NISC 1,36683
+Oct-2025,Child/Youth,NISC 1,1976
+Oct-2025,Concession,NISC 1,3621
+Oct-2025,Day Pass without SAF,NISC 1,13
+Oct-2025,Employee,NISC 1,639
+Oct-2025,Free Travel,NISC 1,253
+Oct-2025,On Demand,NISC 1,3561
+Oct-2025,School Student,NISC 1,673
+Oct-2025,Senior/Pensioner,NISC 1,22221
+Sep-2024,Adult,NISC 1,68568
+Sep-2024,CTP,NISC 1,97559
+Sep-2024,Child/Youth,NISC 1,7286
+Sep-2024,Concession,NISC 1,14723
+Sep-2024,Day Pass Child/Youth w/o SAF,NISC 1,6
+Sep-2024,Day Pass without SAF,NISC 1,53
+Sep-2024,Employee,NISC 1,1665
+Sep-2024,Free Travel,NISC 1,877
+Sep-2024,School Student,NISC 1,8330
+Sep-2024,Senior/Pensioner,NISC 1,87639
+Sep-2025,Adult,NISC 1,17181
+Sep-2025,CTP,NISC 1,31500
+Sep-2025,Child/Youth,NISC 1,1487
+Sep-2025,Concession,NISC 1,3419
+Sep-2025,Day Pass without SAF,NISC 1,11
+Sep-2025,Employee,NISC 1,466
+Sep-2025,Free Travel,NISC 1,214
+Sep-2025,On Demand,NISC 1,3184
+Sep-2025,School Student,NISC 1,844
+Sep-2025,Senior/Pensioner,NISC 1,18873

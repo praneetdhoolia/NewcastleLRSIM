@@ -1,0 +1,24 @@
+{
+  "households": 246022,
+  "persons": 612680,
+  "trips": 2020696,
+  "by_purpose": {
+    "HW": 240595,
+    "HE": 77317,
+    "HS": 254790,
+    "HO": 564341,
+    "WB": 66996,
+    "NHB": 816657
+  },
+  "employed": 308589,
+  "students": 107453,
+  "zero_car_hh": 14746,
+  "seed": 20260810,
+  "sample_fraction": 1.0,
+  "hts_year": "2024/25",
+  "trip_rate_per_person_day": 3.473,
+  "realised_trip_rate": 3.298,
+  "mean_household_size": 2.49,
+  "pct_zero_car_households": 6.0,
+  "pct_employed_of_persons": 50.4
+}

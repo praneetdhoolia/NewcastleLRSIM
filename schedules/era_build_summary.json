@@ -1,0 +1,310 @@
+{
+  "era2_2016_rail_truncated": {
+    "note": "Heavy rail truncated at Hamilton/Wickham; pre-franchise State Transit Newcastle buses; no LR",
+    "sources": {
+      "complete": {
+        "file": "complete.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20160831",
+            "trips": 2388
+          },
+          "SAT": {
+            "date": "20160903",
+            "trips": 1752
+          },
+          "SUN": {
+            "date": "20160904",
+            "trips": 1247
+          }
+        },
+        "stops": 4991,
+        "routes": 112,
+        "trips": 5387
+      }
+    },
+    "output": "schedules\\era2_2016_rail_truncated.zip",
+    "totals": {
+      "routes": 112,
+      "stops": 4991,
+      "trips": 5387,
+      "stop_times": 251490
+    }
+  },
+  "era3_2018_keolis_interchange": {
+    "note": "Keolis Downer franchise; Newcastle Interchange open; no LR",
+    "sources": {
+      "nisc001": {
+        "file": "nisc001.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20181017",
+            "trips": 1554
+          },
+          "SAT": {
+            "date": "20181110",
+            "trips": 877
+          },
+          "SUN": {
+            "date": "20181021",
+            "trips": 760
+          }
+        },
+        "stops": 2510,
+        "routes": 170,
+        "trips": 3191
+      },
+      "sydneytrains": {
+        "file": "sydneytrains.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20181031",
+            "trips": 292
+          },
+          "SAT": {
+            "date": "20181103",
+            "trips": 185
+          },
+          "SUN": {
+            "date": "20181104",
+            "trips": 183
+          }
+        },
+        "stops": 394,
+        "routes": 16,
+        "trips": 660
+      },
+      "nswtrains": {
+        "file": "nswtrains.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20181003",
+            "trips": 102
+          },
+          "SAT": {
+            "date": "20181006",
+            "trips": 62
+          },
+          "SUN": {
+            "date": "20181007",
+            "trips": 60
+          }
+        },
+        "stops": 173,
+        "routes": 11,
+        "trips": 224
+      }
+    },
+    "output": "schedules\\era3_2018_keolis_interchange.zip",
+    "totals": {
+      "routes": 197,
+      "stops": 3077,
+      "trips": 4075,
+      "stop_times": 165617
+    }
+  },
+  "era4_2019_lr_open": {
+    "note": "LR open; LR feed epoch Feb-2020 (earliest archived)",
+    "sources": {
+      "nisc001": {
+        "file": "nisc001.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20190327",
+            "trips": 1437
+          },
+          "SAT": {
+            "date": "20190330",
+            "trips": 781
+          },
+          "SUN": {
+            "date": "20190331",
+            "trips": 666
+          }
+        },
+        "stops": 2500,
+        "routes": 169,
+        "trips": 2884
+      },
+      "sydneytrains": {
+        "file": "sydneytrains.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20190403",
+            "trips": 282
+          },
+          "SAT": {
+            "date": "20190406",
+            "trips": 162
+          },
+          "SUN": {
+            "date": "20190331",
+            "trips": 151
+          }
+        },
+        "stops": 373,
+        "routes": 15,
+        "trips": 595
+      },
+      "nswtrains": {
+        "file": "nswtrains.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20190327",
+            "trips": 102
+          },
+          "SAT": {
+            "date": "20190413",
+            "trips": 84
+          },
+          "SUN": {
+            "date": "20190414",
+            "trips": 82
+          }
+        },
+        "stops": 173,
+        "routes": 11,
+        "trips": 268
+      },
+      "lightrail": {
+        "file": "lightrail.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20200219",
+            "trips": 252
+          },
+          "SAT": {
+            "date": "20200222",
+            "trips": 148
+          },
+          "SUN": {
+            "date": "20200223",
+            "trips": 129
+          }
+        },
+        "stops": 11,
+        "routes": 1,
+        "trips": 529
+      }
+    },
+    "output": "schedules\\era4_2019_lr_open.zip",
+    "totals": {
+      "routes": 196,
+      "stops": 3057,
+      "trips": 4276,
+      "stop_times": 165481
+    }
+  },
+  "base2026": {
+    "note": "Base year 2026 as-built network",
+    "sources": {
+      "nisc001": {
+        "file": "nisc001.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20260812",
+            "trips": 1456
+          },
+          "SAT": {
+            "date": "20260815",
+            "trips": 765
+          },
+          "SUN": {
+            "date": "20260809",
+            "trips": 642
+          }
+        },
+        "stops": 2438,
+        "routes": 174,
+        "trips": 2863
+      },
+      "lightrail": {
+        "file": "lightrail.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20260805",
+            "trips": 252
+          },
+          "SAT": {
+            "date": "20260808",
+            "trips": 148
+          },
+          "SUN": {
+            "date": "20260809",
+            "trips": 150
+          }
+        },
+        "stops": 11,
+        "routes": 1,
+        "trips": 550
+      },
+      "regionbuses": {
+        "file": "regionbuses.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20260805",
+            "trips": 89
+          },
+          "SAT": {
+            "date": "20260801",
+            "trips": 4
+          },
+          "SUN": {
+            "date": "20260802",
+            "trips": 4
+          }
+        },
+        "stops": 789,
+        "routes": 56,
+        "trips": 97
+      },
+      "sydneytrains": {
+        "file": "sydneytrains.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20260812",
+            "trips": 283
+          },
+          "SAT": {
+            "date": "20260808",
+            "trips": 163
+          },
+          "SUN": {
+            "date": "20260809",
+            "trips": 159
+          }
+        },
+        "stops": 394,
+        "routes": 16,
+        "trips": 605
+      },
+      "nswtrains": {
+        "file": "nswtrains.zip",
+        "daytypes": {
+          "WEEKDAY": {
+            "date": "20260923",
+            "trips": 108
+          },
+          "SAT": {
+            "date": "20260822",
+            "trips": 77
+          },
+          "SUN": {
+            "date": "20260823",
+            "trips": 74
+          }
+        },
+        "stops": 241,
+        "routes": 43,
+        "trips": 259
+      }
+    },
+    "output": "schedules\\base2026.zip",
+    "totals": {
+      "routes": 290,
+      "stops": 3873,
+      "trips": 4374,
+      "stop_times": 162881
+    }
+  }
+}

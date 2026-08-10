@@ -1,0 +1,120 @@
+station_key,name,road_name,suburb,lga,lat,lon,aadt,survey_year,split
+55710,Pacific Highway,Pacific Highway,Tomago,Port Stephens,-32.818165,151.692841,33114.0,2021,calibration
+55712,Pacific Highway,Pacific Highway,Pinny Beach,Lake Macquarie,-33.100418,151.629105,13552.0,2018,calibration
+55717,Tarean Road,Tarean Road,Karuah,Port Stephens,-32.65453,151.967926,889.0,2018,calibration
+55728,Mccaffrey Drive,Mccaffrey Drive,New Lambton Heights,Newcastle,-32.928505,151.692581,10439.0,2010,holdout
+55729,Pacific Motorway,Pacific Motorway,Black Hill,Newcastle,-32.822712,151.63385,22484.0,2016,calibration
+55733,Minmi Road,Minmi Road,Wallsend,Newcastle,-32.890247,151.664948,15506.0,2008,holdout
+55738,Minmi Road,Minmi Road,Fletcher,Newcastle,-32.875069,151.646225,3958.0,2008,holdout
+55740,New England Highway,New England Highway,Harpers Hill,Maitland,-32.707191,151.419418,11944.0,2010,holdout
+55758,Maitland Road,Maitland Road,Hexham,Newcastle,-32.832359,151.686005,14758.0,2010,holdout
+55760,New England Highway,New England Highway,Tarro,Newcastle,-32.81049,151.673676,45439.0,2018,calibration
+55761,William Bailey Street,William Bailey Street,Raymond Terrace,Port Stephens,-32.758965,151.749908,10666.0,2010,holdout
+55763,New England Highway,New England Highway,Beresfield,Newcastle,-32.801376,151.639969,5721.0,2010,holdout
+55767,New England Highway,New England Highway,Rutherford,Maitland,-32.710777,151.516357,12490.0,2007,holdout
+55775,The Bucketts Way,The Bucketts Way,Twelve Mile Creek,Port Stephens,-32.641918,151.868454,2102.0,2010,holdout
+55777,Pacific Motorway,Pacific Motorway,West Wallsend,Lake Macquarie,-32.894691,151.584503,1949.0,2016,calibration
+55779,Awaba Road,Awaba Road,Toronto,Lake Macquarie,-33.003853,151.569412,4444.0,2018,calibration
+55781,Pacific Motorway,Pacific Motorway,Freemans Waterhole,Lake Macquarie,-32.988148,151.517807,2362.0,2018,calibration
+55783,Pacific Motorway,Pacific Motorway,Freemans Waterhole,Lake Macquarie,-32.987953,151.518845,26628.0,2018,calibration
+55826,Newcastle Street,Newcastle Street,East Maitland,Maitland,-32.745865,151.580826,24799.0,2018,calibration
+55839,Raymond Terrace Road,Raymond Terrace Road,Millers Forest,Maitland,-32.752235,151.72522,7213.0,2018,calibration
+55847,Charlestown Road,Charlestown Road,Charlestown,Lake Macquarie,-32.96093,151.695877,15027.0,2008,holdout
+55856,Nelson Bay Road,Nelson Bay Road,Williamtown,Port Stephens,-32.813347,151.843857,16900.0,2016,calibration
+55860,Cessnock Road,Cessnock Road,Abermain,Cessnock,-32.821819,151.419708,10702.0,2018,calibration
+55863,Branxton-Toronto Rd,Freemans Drive,Freemans Waterhole,Lake Macquarie,-32.9706268310547,151.482223510742,5153.0,2020,calibration
+55865,John Renshaw Drive,John Renshaw Drive,Buchanan,Cessnock,-32.830002,151.517593,10643.0,2010,holdout
+55869,Pacific Highway,Pacific Highway,Charlestown,Lake Macquarie,-32.963619,151.695831,18942.0,2018,calibration
+55870,Maitland Road,Maitland Road,Mayfield,Newcastle,-32.905552,151.746658,13117.0,2015,calibration
+55872,Lookout Road,Lookout Road,New Lambton Heights,Newcastle,-32.92556,151.696289,27393.0,2018,calibration
+55874,Belford Street,Belford Street,Broadmeadow,Newcastle,-32.923946,151.741364,11227.0,2018,calibration
+55876,Glebe Road,Glebe Road,Hamilton South,Newcastle,-32.93697,151.74263,10488.0,2018,calibration
+55878,Maud Street,Maud Street,Waratah,Newcastle,-32.896118,151.720154,12929.0,2017,calibration
+55879,Lake Road,Lake Road,Argenton,Lake Macquarie,-32.941467,151.624649,17746.0,2018,calibration
+55881,Hannell Street,Hannell Street,Wickham,Newcastle,-32.919144,151.759262,19405.0,2017,calibration
+55883,Red Head Road,Red Head Road,Redhead,Lake Macquarie,-33.0074653625488,151.715789794922,6881.0,2018,calibration
+55885,Warners Bay Road,Warners Bay Road,Mount Hutton,Lake Macquarie,-32.982449,151.668076,8980.0,2024,calibration
+55886,Croudace Bay Road,Croudace Bay Road,Belmont,Lake Macquarie,-33.025345,151.650024,8636.0,2018,calibration
+55888,Pacific Motorway,Pacific Motorway,Wyee,Lake Macquarie,-33.181824,151.467636,33258.0,2016,calibration
+55893,Maitland Street,Maitland Street,Branxton,Cessnock,-32.655998,151.356186,13182.0,2010,holdout
+55906,Pacific Highway,Pacific Highway,Belmont South,Lake Macquarie,-33.046574,151.65564,24917.0,2010,holdout
+55908,Pacific Highway,Pacific Highway,Gateshead,Lake Macquarie,-32.989079,151.691086,23385.0,2010,holdout
+55909,Pacific Highway,Pacific Highway,Charlestown,Lake Macquarie,-32.970573,151.691971,12336.0,2010,holdout
+55911,City Road,City Road,Adamstown Heights,Newcastle,-32.952587,151.71228,30816.0,2010,holdout
+55913,City Road,City Road,Adamstown Heights,Newcastle,-32.950916,151.718887,26463.0,2010,holdout
+55915,City Road,City Road,Merewether,Newcastle,-32.938641,151.747421,15532.0,2010,holdout
+55918,Parry Street,Parry Street,Newcastle West,Newcastle,-32.926353,151.757492,15931.0,2010,holdout
+55922,Maitland Road,Maitland Road,Islington,Newcastle,-32.916351,151.749054,13930.0,2008,holdout
+55923,Maitland Road,Maitland Road,Mayfield,Newcastle,-32.896961,151.736084,14020.0,2008,holdout
+55925,Maitland Road,Maitland Road,Mayfield West,Newcastle,-32.889408,151.725937,14708.0,2008,holdout
+55927,Adelaide Street,Adelaide Street,Raymond Terrace,Port Stephens,-32.763119,151.745727,6430.0,2008,holdout
+55938,Newcastle Inner City Bypass,Newcastle Inner City Bypass,Hillsborough,Lake Macquarie,-32.970833,151.676498,16582.0,2008,holdout
+55940,Charlestown Road,Charlestown Road,Charlestown,Lake Macquarie,-32.955757,151.686371,9852.0,2008,holdout
+55941,Newcastle Inner City Bypass,Newcastle Inner City Bypass,Kotara,Newcastle,-32.945713,151.685898,30864.0,2010,holdout
+55945,Lookout Road,Lookout Road,New Lambton Heights,Newcastle,-32.934795,151.68924,26459.0,2010,holdout
+55947,Croudace Street,Croudace Street,Lambton,Newcastle,-32.912956,151.704605,23684.0,2010,holdout
+55949,Newcastle Road,Newcastle Road,Lambton,Newcastle,-32.909092,151.705093,32473.0,2010,holdout
+55952,Sandgate Road,Sandgate Road,Shortland,Newcastle,-32.888538,151.695129,8745.0,2018,calibration
+55954,Wallsend Road,Wallsend Road,Sandgate,Newcastle,-32.872467,151.704636,19242.0,2010,holdout
+55958,Donald Street,Donald Street,Hamilton,Newcastle,-32.918491,151.740524,19846.0,2020,calibration
+55961,Paterson Road,Paterson Road,Bolwarra Heights,Maitland,-32.69735,151.593414,2089.0,2007,holdout
+55977,Nelson Bay Road,Nelson Bay Road,Fern Bay,Port Stephens,-32.859875,151.798142,10876.0,2010,holdout
+55978,Nelson Bay Road,Nelson Bay Road,Salt Ash,Port Stephens,-32.794167,151.895355,6842.0,2008,holdout
+55980,Nelson Bay Road,Nelson Bay Road,Anna Bay,Port Stephens,-32.763077,152.086517,5610.0,2008,holdout
+55993,St James Road,St James Road,New Lambton,Newcastle,-32.933174,151.720428,6891.0,2010,holdout
+56012,Newcastle Road,Newcastle Road,Jesmond,Newcastle,-32.904766,151.68985,27733.0,2010,holdout
+56019,Newcastle Link Road,Newcastle Link Road,Cameron Park,Lake Macquarie,-32.901955,151.618088,17984.0,2010,holdout
+56023,Excelsior Parade,Excelsior Parade,Toronto,Lake Macquarie,-33.015865,151.591385,12561.0,2010,holdout
+56025,Wangi Road,Wangi Road,Rathmines,Lake Macquarie,-33.033993,151.563431,12580.0,2010,holdout
+56028,Macquarie Street,Main Road,Dora Creek,Lake Macquarie,-33.0840721130371,151.5009765625,8108.0,2014,calibration
+56039,Wollombi Road,Wollombi Road,Pelton,Cessnock,-32.869453,151.312653,4502.0,2008,holdout
+56043,Maitland Road,Maitland Road,Cessnock,Cessnock,-32.831741,151.357803,10221.0,2010,holdout
+56044,Lang Street,Lang Street,Kurri Kurri,Cessnock,-32.816906,151.484131,7304.0,2010,holdout
+56053,Wine Country Drive,Wine Country Drive,Nulkaba,Cessnock,-32.792561,151.348862,8071.0,2010,holdout
+56057,Vincent Street,Vincent Street,Cessnock,Cessnock,-32.832958,151.356674,6430.0,2008,holdout
+56064,Lambton Road,Lambton Road,Broadmeadow,Newcastle,-32.923252,151.723557,17645.0,2010,holdout
+56071,Main Road,Main Road,Cardiff,Lake Macquarie,-32.93951,151.658188,6415.0,2008,holdout
+56073,Main Road,Main Road,Cardiff,Lake Macquarie,-32.938793,151.657486,23836.0,2010,holdout
+56075,Main Road,Main Road,Glendale,Lake Macquarie,-32.931751,151.652329,19517.0,2010,holdout
+56077,Main Road,Main Road,Glendale,Lake Macquarie,-32.928658,151.641113,14635.0,2020,calibration
+56079,George Booth Drive,George Booth Drive,Edgeworth,Lake Macquarie,-32.922962,151.608902,10805.0,2010,holdout
+56086,Tomago Road,Tomago Road,Tomago,Port Stephens,-32.820675,151.699371,7967.0,2010,holdout
+56088,Cabbage Tree Road,Cabbage Tree Road,Williamtown,Port Stephens,-32.816422,151.835968,4756.0,2010,holdout
+56090,Stewart Avenue,Stewart Avenue,Newcastle West,Newcastle,-32.926315,151.758545,12434.0,2010,holdout
+56091,Dudley Road,Dudley Road,Whitebridge,Lake Macquarie,-32.978565,151.708511,6500.0,2008,holdout
+56097,The Esplanade,The Esplanade,Speers Point,Lake Macquarie,-32.965401,151.623657,18810.0,2010,holdout
+56098,Hanbury Street,Hanbury Street,Mayfield,Newcastle,-32.897934,151.73584,8204.0,2010,holdout
+56111,Richardson Road,Richardson Road,Raymond Terrace,Port Stephens,-32.754311,151.758881,9574.0,2010,holdout
+56113,Richardson Road,Richardson Road,Campvale,Port Stephens,-32.769081,151.848694,5997.0,2010,holdout
+56117,Medowie Road,Medowie Road,Williamtown,Port Stephens,-32.800995,151.851578,5351.0,2010,holdout
+56120,Medowie Road,Medowie Road,Ferodale,Port Stephens,-32.675453,151.839539,1581.0,2010,holdout
+56127,King Street,King Street,Warners Bay,Lake Macquarie,-32.975227,151.64682,13600.0,2008,holdout
+56135,Carnley Avenue,Carnley Avenue,Kotara,Newcastle,-32.940269,151.689133,12552.0,2008,holdout
+56136,University Drive,University Drive,Callaghan,Newcastle,-32.896828,151.696411,13565.0,2010,holdout
+56138,Bridges Road,Bridges Road,New Lambton,Newcastle,-32.930031,151.715362,22717.0,2010,holdout
+56142,John Renshaw Drive,John Renshaw Drive,Beresfield,Newcastle,-32.815563,151.627701,6388.0,2014,calibration
+56144,Wallsend Road,Wallsend Road,Cardiff Heights,Lake Macquarie,-32.936203,151.672257,5979.0,2008,holdout
+56145,Myall Road,Myall Road,Garden Suburb,Lake Macquarie,-32.948448,151.682785,11173.0,2010,holdout
+56146,John Renshaw Drive,John Renshaw Drive,Buchanan,Cessnock,-32.828461,151.535095,5658.0,2010,holdout
+56162,Tourle Street,Tourle Street,Mayfield West,Newcastle,-32.88147,151.732773,17841.0,2015,calibration
+56172,Freyberg Street,Freyberg Street,New Lambton,Newcastle,-32.934475,151.711319,13218.0,2010,holdout
+56173,Hillsborough Road,Hillsborough Road,Warners Bay,Lake Macquarie,-32.966431,151.653732,17914.0,2010,holdout
+56175,Elizabeth Street,Elizabeth Street,Carrington,Newcastle,-32.907333,151.761337,4144.0,2008,holdout
+56181,Griffiths Road,Griffiths Road,Lambton,Newcastle,-32.910042,151.715942,29319.0,2010,holdout
+56183,Mitchell Avenue,Mitchell Avenue,Kurri Kurri,Cessnock,-32.805946,151.467377,4236.0,2010,holdout
+56186,Lake Road,Lake Road,Glendale,Lake Macquarie,-32.924507,151.651627,20593.0,2010,holdout
+56191,Wilkinson Avenue,Wilkinson Avenue,Birmingham Gardens,Newcastle,-32.896271,151.693451,5777.0,2008,holdout
+56195,Nelson Bay Road,Nelson Bay Road,Nelson Bay,Port Stephens,-32.743103,152.115234,8306.0,2010,holdout
+56196,Minmi Road,Minmi Road,Cameron Park,Lake Macquarie,-32.903702,151.622528,9523.0,2010,holdout
+56197,New England Highway,New England Highway,East Maitland,Maitland,-32.757607,151.591049,28561.0,2010,holdout
+56200,Main Road,Main Road,Shortland,Newcastle,-32.879936,151.697235,13754.0,2010,holdout
+56202,Grandview Road,Grandview Road,New Lambton Heights,Newcastle,-32.933109,151.688553,1612.0,2008,holdout
+56205,Nelson Bay Road,Nelson Bay Road,Kooragang,Newcastle,-32.884647,151.786591,15023.0,2018,calibration
+56206,Five Islands Road,Five Islands Road,Teralba,Lake Macquarie,-32.965328,151.608093,24506.0,2010,holdout
+56207,T C Frith Avenue,T C Frith Avenue,Boolaroo,Lake Macquarie,-32.953861,151.618484,13711.0,2010,holdout
+56208,Industrial Drive,Industrial Drive,Mayfield West,Newcastle,-32.885941,151.727203,19910.0,2010,holdout
+56209,Werribi Street,Werribi Street,Mayfield West,Newcastle,-32.886734,151.727875,7589.0,2010,holdout
+56210,Turton Road,Turton Road,Waratah,Newcastle,-32.913822,151.725937,14477.0,2010,holdout
+56211,Turton Road,Turton Road,New Lambton,Newcastle,-32.916714,151.725189,23459.0,2010,holdout
+56213,The Esplanade,The Esplanade,Speers Point,Lake Macquarie,-32.957855,151.618317,16420.0,2010,holdout
+99990015,Hunter Expressway,Hunter Expressway,Buchanan,Cessnock,-32.835659,151.538528,21558.0,2025,calibration

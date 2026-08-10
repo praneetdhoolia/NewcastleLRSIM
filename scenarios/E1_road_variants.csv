@@ -1,0 +1,5 @@
+road_variant_ref,description,hunter_st_lanes_per_direction,kerbside_parking_removed,banned_turn_movements,signal_cycle_s,tram_lane_present,source
+net_base2026,"As built, with the tram in place",1,1,14,110,1,osm + assumed
+net_base2026_hunter_st_full_capacity,Hunter/Scott St without the tram: lane and kerbside restored,2,0,0,100,0,assumed
+net_base2026_broadmeadow_extension,As built plus lane take on Hunter/Tudor St to Broadmeadow,1,1,22,110,1,assumed
+net_base2026_jhh_extension,As built plus lane take to Broadmeadow and John Hunter Hospital,1,1,30,110,1,assumed

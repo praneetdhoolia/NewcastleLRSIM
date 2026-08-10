@@ -1,0 +1,211 @@
+target_id,metric,geography,period,value,unit,source,split,note
+V001,lr_boardings_monthly_mean,Newcastle Light Rail,2019-03..2020-02,103892.0,boardings/month,TfNSW Opal Trips - Light Rail,calibration,"Post-opening, pre-pandemic baseline"
+V002,lr_boardings_daily_mean,Newcastle Light Rail,2019-03..2020-02,3417.0,boardings/day,TfNSW Opal Trips - Light Rail,calibration,Derived from monthly
+V003,lr_boardings_monthly_mean,Newcastle Light Rail,2025-07..latest,83753.0,boardings/month,TfNSW Opal Trips - Light Rail,calibration,Post-2024 methodology epoch; not comparable with pre-2024 series
+V004,lr_cardtype_share,Newcastle Light Rail,all,32.45,per cent,TfNSW Opal Trips - Light Rail,calibration,Adult
+V005,lr_cardtype_share,Newcastle Light Rail,all,31.73,per cent,TfNSW Opal Trips - Light Rail,calibration,CTP
+V006,lr_cardtype_share,Newcastle Light Rail,all,4.69,per cent,TfNSW Opal Trips - Light Rail,calibration,Child/Youth
+V007,lr_cardtype_share,Newcastle Light Rail,all,5.15,per cent,TfNSW Opal Trips - Light Rail,calibration,Concession
+V008,lr_cardtype_share,Newcastle Light Rail,all,0.0,per cent,TfNSW Opal Trips - Light Rail,calibration,Day Pass Child/Youth w/o SAF
+V009,lr_cardtype_share,Newcastle Light Rail,all,0.01,per cent,TfNSW Opal Trips - Light Rail,calibration,Day Pass without SAF
+V010,lr_cardtype_share,Newcastle Light Rail,all,0.58,per cent,TfNSW Opal Trips - Light Rail,calibration,Employee
+V011,lr_cardtype_share,Newcastle Light Rail,all,0.4,per cent,TfNSW Opal Trips - Light Rail,calibration,Free Travel
+V012,lr_cardtype_share,Newcastle Light Rail,all,1.01,per cent,TfNSW Opal Trips - Light Rail,calibration,School Student
+V013,lr_cardtype_share,Newcastle Light Rail,all,23.45,per cent,TfNSW Opal Trips - Light Rail,calibration,Senior/Pensioner
+V014,lr_cardtype_share,Newcastle Light Rail,all,0.32,per cent,TfNSW Opal Trips - Light Rail,calibration,Sgl Trip LR Adult
+V015,lr_cardtype_share,Newcastle Light Rail,all,0.22,per cent,TfNSW Opal Trips - Light Rail,calibration,Sgl Trip LR Child/Youth
+V016,lr_cardtype_share,Newcastle Light Rail,all,0.0,per cent,TfNSW Opal Trips - Light Rail,calibration,UNKNOWN
+V017,lr_tapon_share_by_stop,Newcastle Interchange Light Rail,to 2024-06,36.22,per cent of tap-ons,TfNSW Opal Light Rail by tap-on station,holdout,Pre-2024 methodology epoch
+V018,lr_tapon_share_by_stop,Civic Light Rail,to 2024-06,16.75,per cent of tap-ons,TfNSW Opal Light Rail by tap-on station,holdout,Pre-2024 methodology epoch
+V019,lr_tapon_share_by_stop,Queens Wharf Light Rail,to 2024-06,14.59,per cent of tap-ons,TfNSW Opal Light Rail by tap-on station,holdout,Pre-2024 methodology epoch
+V020,lr_tapon_share_by_stop,Newcastle Beach Light Rail,to 2024-06,14.17,per cent of tap-ons,TfNSW Opal Light Rail by tap-on station,holdout,Pre-2024 methodology epoch
+V021,lr_tapon_share_by_stop,Honeysuckle Light Rail,to 2024-06,11.28,per cent of tap-ons,TfNSW Opal Light Rail by tap-on station,holdout,Pre-2024 methodology epoch
+V022,lr_tapon_share_by_stop,Crown Street Light Rail,to 2024-06,7.0,per cent of tap-ons,TfNSW Opal Light Rail by tap-on station,holdout,Pre-2024 methodology epoch
+V023,bus_boardings_monthly_mean,NISC 1 contract region,2019-03..2020-02,395539.0,boardings/month,TfNSW Opal Trips - Bus (NISC 1),calibration,
+V024,lr_share_of_local_pt_boardings,Newcastle (LR + NISC 1 bus),2019-03..2020-02,20.8,per cent,Derived from TfNSW Opal,calibration,"Hypothesis A1 falsifies below about 10 per cent. Boardings, not person-legs; the model must reproduce the person-leg version."
+V025,station_entry_monthly_mean,Adamstown  Station,from 2024-11,2394.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V026,station_exit_monthly_mean,Adamstown  Station,from 2024-11,2367.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V027,station_entry_monthly_mean,Awaba  Station,from 2024-11,539.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V028,station_exit_monthly_mean,Awaba  Station,from 2024-11,468.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V029,station_entry_monthly_mean,Booragul  Station,from 2024-11,794.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V030,station_exit_monthly_mean,Booragul  Station,from 2024-11,768.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V031,station_entry_monthly_mean,Broadmeadow  Station,from 2024-11,21472.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V032,station_exit_monthly_mean,Broadmeadow  Station,from 2024-11,19689.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V033,station_entry_monthly_mean,Cardiff  Station,from 2024-11,21552.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V034,station_exit_monthly_mean,Cardiff  Station,from 2024-11,19969.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V035,station_entry_monthly_mean,Cockle Creek  Station,from 2024-11,1220.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V036,station_exit_monthly_mean,Cockle Creek  Station,from 2024-11,1294.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V037,station_entry_monthly_mean,Dora Creek  Station,from 2024-11,984.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V038,station_exit_monthly_mean,Dora Creek  Station,from 2024-11,933.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V039,station_entry_monthly_mean,East Maitland  Station,from 2024-11,744.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V040,station_exit_monthly_mean,East Maitland  Station,from 2024-11,611.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V041,station_entry_monthly_mean,Fassifern  Station,from 2024-11,9934.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V042,station_exit_monthly_mean,Fassifern  Station,from 2024-11,9108.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V043,station_entry_monthly_mean,Hamilton  Station,from 2024-11,15740.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V044,station_exit_monthly_mean,Hamilton  Station,from 2024-11,15937.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V045,station_entry_monthly_mean,Hexham  Station,from 2024-11,209.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V046,station_exit_monthly_mean,Hexham  Station,from 2024-11,214.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V047,station_entry_monthly_mean,Kotara  Station,from 2024-11,1342.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V048,station_exit_monthly_mean,Kotara  Station,from 2024-11,1529.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V049,station_entry_monthly_mean,Maitland  Station,from 2024-11,9282.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V050,station_exit_monthly_mean,Maitland  Station,from 2024-11,8538.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V051,station_entry_monthly_mean,Metford  Station,from 2024-11,1554.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V052,station_exit_monthly_mean,Metford  Station,from 2024-11,1445.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V053,station_entry_monthly_mean,Morisset  Station,from 2024-11,16939.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V054,station_exit_monthly_mean,Morisset  Station,from 2024-11,15290.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V055,station_entry_monthly_mean,Newcastle Interchange Light Rail,from 2024-11,29061.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V056,station_exit_monthly_mean,Newcastle Interchange Light Rail,from 2024-11,23959.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V057,station_entry_monthly_mean,Newcastle Interchange Station,from 2024-11,45301.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V058,station_exit_monthly_mean,Newcastle Interchange Station,from 2024-11,45133.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V059,station_entry_monthly_mean,Sandgate  Station,from 2024-11,368.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V060,station_exit_monthly_mean,Sandgate  Station,from 2024-11,337.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V061,station_entry_monthly_mean,Tarro  Station,from 2024-11,137.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V062,station_exit_monthly_mean,Tarro  Station,from 2024-11,106.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V063,station_entry_monthly_mean,Teralba  Station,from 2024-11,1121.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V064,station_exit_monthly_mean,Teralba  Station,from 2024-11,1007.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V065,station_entry_monthly_mean,Thornton  Station,from 2024-11,5687.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V066,station_exit_monthly_mean,Thornton  Station,from 2024-11,5148.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V067,station_entry_monthly_mean,Victoria Street  Station,from 2024-11,6537.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V068,station_exit_monthly_mean,Victoria Street  Station,from 2024-11,6173.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V069,station_entry_monthly_mean,Warabrook  Station,from 2024-11,4398.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V070,station_exit_monthly_mean,Warabrook  Station,from 2024-11,4508.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V071,station_entry_monthly_mean,Waratah  Station,from 2024-11,3887.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V072,station_exit_monthly_mean,Waratah  Station,from 2024-11,3642.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V073,station_entry_monthly_mean,Waratah Mills Light Rail,from 2024-11,5377.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V074,station_exit_monthly_mean,Waratah Mills Light Rail,from 2024-11,4887.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V075,station_entry_monthly_mean,Wyee  Station,from 2024-11,6028.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V076,station_exit_monthly_mean,Wyee  Station,from 2024-11,5234.0,trips/month,TfNSW station entries and exits (Opal batch),holdout,"Values reported as ""Less than 50"" are censored and excluded"
+V077,road_aadt,"Pacific Highway (Tomago, Port Stephens)",2021,33114.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55710; latest survey year
+V078,road_aadt,"Pacific Highway (Pinny Beach, Lake Macquarie)",2018,13552.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55712; latest survey year
+V079,road_aadt,"Tarean Road (Karuah, Port Stephens)",2018,889.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55717; latest survey year
+V080,road_aadt,"Mccaffrey Drive (New Lambton Heights, Newcastle)",2010,10439.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55728; latest survey year
+V081,road_aadt,"Pacific Motorway (Black Hill, Newcastle)",2016,22484.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55729; latest survey year
+V082,road_aadt,"Minmi Road (Wallsend, Newcastle)",2008,15506.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55733; latest survey year
+V083,road_aadt,"Minmi Road (Fletcher, Newcastle)",2008,3958.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55738; latest survey year
+V084,road_aadt,"New England Highway (Harpers Hill, Maitland)",2010,11944.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55740; latest survey year
+V085,road_aadt,"Maitland Road (Hexham, Newcastle)",2010,14758.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55758; latest survey year
+V086,road_aadt,"New England Highway (Tarro, Newcastle)",2018,45439.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55760; latest survey year
+V087,road_aadt,"William Bailey Street (Raymond Terrace, Port Stephens)",2010,10666.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55761; latest survey year
+V088,road_aadt,"New England Highway (Beresfield, Newcastle)",2010,5721.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55763; latest survey year
+V089,road_aadt,"New England Highway (Rutherford, Maitland)",2007,12490.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55767; latest survey year
+V090,road_aadt,"The Bucketts Way (Twelve Mile Creek, Port Stephens)",2010,2102.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55775; latest survey year
+V091,road_aadt,"Pacific Motorway (West Wallsend, Lake Macquarie)",2016,1949.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55777; latest survey year
+V092,road_aadt,"Awaba Road (Toronto, Lake Macquarie)",2018,4444.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55779; latest survey year
+V093,road_aadt,"Pacific Motorway (Freemans Waterhole, Lake Macquarie)",2018,2362.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55781; latest survey year
+V094,road_aadt,"Pacific Motorway (Freemans Waterhole, Lake Macquarie)",2018,26628.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55783; latest survey year
+V095,road_aadt,"Newcastle Street (East Maitland, Maitland)",2018,24799.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55826; latest survey year
+V096,road_aadt,"Raymond Terrace Road (Millers Forest, Maitland)",2018,7213.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55839; latest survey year
+V097,road_aadt,"Charlestown Road (Charlestown, Lake Macquarie)",2008,15027.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55847; latest survey year
+V098,road_aadt,"Nelson Bay Road (Williamtown, Port Stephens)",2016,16900.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55856; latest survey year
+V099,road_aadt,"Cessnock Road (Abermain, Cessnock)",2018,10702.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55860; latest survey year
+V100,road_aadt,"Branxton-Toronto Rd (Freemans Waterhole, Lake Macquarie)",2020,5153.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55863; latest survey year
+V101,road_aadt,"John Renshaw Drive (Buchanan, Cessnock)",2010,10643.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55865; latest survey year
+V102,road_aadt,"Pacific Highway (Charlestown, Lake Macquarie)",2018,18942.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55869; latest survey year
+V103,road_aadt,"Maitland Road (Mayfield, Newcastle)",2015,13117.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55870; latest survey year
+V104,road_aadt,"Lookout Road (New Lambton Heights, Newcastle)",2018,27393.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55872; latest survey year
+V105,road_aadt,"Belford Street (Broadmeadow, Newcastle)",2018,11227.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55874; latest survey year
+V106,road_aadt,"Glebe Road (Hamilton South, Newcastle)",2018,10488.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55876; latest survey year
+V107,road_aadt,"Maud Street (Waratah, Newcastle)",2017,12929.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55878; latest survey year
+V108,road_aadt,"Lake Road (Argenton, Lake Macquarie)",2018,17746.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55879; latest survey year
+V109,road_aadt,"Hannell Street (Wickham, Newcastle)",2017,19405.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55881; latest survey year
+V110,road_aadt,"Red Head Road (Redhead, Lake Macquarie)",2018,6881.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55883; latest survey year
+V111,road_aadt,"Warners Bay Road (Mount Hutton, Lake Macquarie)",2024,8980.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55885; latest survey year
+V112,road_aadt,"Croudace Bay Road (Belmont, Lake Macquarie)",2018,8636.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55886; latest survey year
+V113,road_aadt,"Pacific Motorway (Wyee, Lake Macquarie)",2016,33258.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55888; latest survey year
+V114,road_aadt,"Maitland Street (Branxton, Cessnock)",2010,13182.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55893; latest survey year
+V115,road_aadt,"Pacific Highway (Belmont South, Lake Macquarie)",2010,24917.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55906; latest survey year
+V116,road_aadt,"Pacific Highway (Gateshead, Lake Macquarie)",2010,23385.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55908; latest survey year
+V117,road_aadt,"Pacific Highway (Charlestown, Lake Macquarie)",2010,12336.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55909; latest survey year
+V118,road_aadt,"City Road (Adamstown Heights, Newcastle)",2010,30816.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55911; latest survey year
+V119,road_aadt,"City Road (Adamstown Heights, Newcastle)",2010,26463.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55913; latest survey year
+V120,road_aadt,"City Road (Merewether, Newcastle)",2010,15532.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55915; latest survey year
+V121,road_aadt,"Parry Street (Newcastle West, Newcastle)",2010,15931.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55918; latest survey year
+V122,road_aadt,"Maitland Road (Islington, Newcastle)",2008,13930.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55922; latest survey year
+V123,road_aadt,"Maitland Road (Mayfield, Newcastle)",2008,14020.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55923; latest survey year
+V124,road_aadt,"Maitland Road (Mayfield West, Newcastle)",2008,14708.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55925; latest survey year
+V125,road_aadt,"Adelaide Street (Raymond Terrace, Port Stephens)",2008,6430.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55927; latest survey year
+V126,road_aadt,"Newcastle Inner City Bypass (Hillsborough, Lake Macquarie)",2008,16582.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55938; latest survey year
+V127,road_aadt,"Charlestown Road (Charlestown, Lake Macquarie)",2008,9852.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55940; latest survey year
+V128,road_aadt,"Newcastle Inner City Bypass (Kotara, Newcastle)",2010,30864.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55941; latest survey year
+V129,road_aadt,"Lookout Road (New Lambton Heights, Newcastle)",2010,26459.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55945; latest survey year
+V130,road_aadt,"Croudace Street (Lambton, Newcastle)",2010,23684.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55947; latest survey year
+V131,road_aadt,"Newcastle Road (Lambton, Newcastle)",2010,32473.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55949; latest survey year
+V132,road_aadt,"Sandgate Road (Shortland, Newcastle)",2018,8745.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55952; latest survey year
+V133,road_aadt,"Wallsend Road (Sandgate, Newcastle)",2010,19242.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55954; latest survey year
+V134,road_aadt,"Donald Street (Hamilton, Newcastle)",2020,19846.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=55958; latest survey year
+V135,road_aadt,"Paterson Road (Bolwarra Heights, Maitland)",2007,2089.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55961; latest survey year
+V136,road_aadt,"Nelson Bay Road (Fern Bay, Port Stephens)",2010,10876.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55977; latest survey year
+V137,road_aadt,"Nelson Bay Road (Salt Ash, Port Stephens)",2008,6842.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55978; latest survey year
+V138,road_aadt,"Nelson Bay Road (Anna Bay, Port Stephens)",2008,5610.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55980; latest survey year
+V139,road_aadt,"St James Road (New Lambton, Newcastle)",2010,6891.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=55993; latest survey year
+V140,road_aadt,"Newcastle Road (Jesmond, Newcastle)",2010,27733.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56012; latest survey year
+V141,road_aadt,"Newcastle Link Road (Cameron Park, Lake Macquarie)",2010,17984.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56019; latest survey year
+V142,road_aadt,"Excelsior Parade (Toronto, Lake Macquarie)",2010,12561.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56023; latest survey year
+V143,road_aadt,"Wangi Road (Rathmines, Lake Macquarie)",2010,12580.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56025; latest survey year
+V144,road_aadt,"Macquarie Street (Dora Creek, Lake Macquarie)",2014,8108.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=56028; latest survey year
+V145,road_aadt,"Wollombi Road (Pelton, Cessnock)",2008,4502.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56039; latest survey year
+V146,road_aadt,"Maitland Road (Cessnock, Cessnock)",2010,10221.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56043; latest survey year
+V147,road_aadt,"Lang Street (Kurri Kurri, Cessnock)",2010,7304.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56044; latest survey year
+V148,road_aadt,"Wine Country Drive (Nulkaba, Cessnock)",2010,8071.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56053; latest survey year
+V149,road_aadt,"Vincent Street (Cessnock, Cessnock)",2008,6430.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56057; latest survey year
+V150,road_aadt,"Lambton Road (Broadmeadow, Newcastle)",2010,17645.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56064; latest survey year
+V151,road_aadt,"Main Road (Cardiff, Lake Macquarie)",2008,6415.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56071; latest survey year
+V152,road_aadt,"Main Road (Cardiff, Lake Macquarie)",2010,23836.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56073; latest survey year
+V153,road_aadt,"Main Road (Glendale, Lake Macquarie)",2010,19517.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56075; latest survey year
+V154,road_aadt,"Main Road (Glendale, Lake Macquarie)",2020,14635.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=56077; latest survey year
+V155,road_aadt,"George Booth Drive (Edgeworth, Lake Macquarie)",2010,10805.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56079; latest survey year
+V156,road_aadt,"Tomago Road (Tomago, Port Stephens)",2010,7967.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56086; latest survey year
+V157,road_aadt,"Cabbage Tree Road (Williamtown, Port Stephens)",2010,4756.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56088; latest survey year
+V158,road_aadt,"Stewart Avenue (Newcastle West, Newcastle)",2010,12434.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56090; latest survey year
+V159,road_aadt,"Dudley Road (Whitebridge, Lake Macquarie)",2008,6500.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56091; latest survey year
+V160,road_aadt,"The Esplanade (Speers Point, Lake Macquarie)",2010,18810.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56097; latest survey year
+V161,road_aadt,"Hanbury Street (Mayfield, Newcastle)",2010,8204.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56098; latest survey year
+V162,road_aadt,"Richardson Road (Raymond Terrace, Port Stephens)",2010,9574.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56111; latest survey year
+V163,road_aadt,"Richardson Road (Campvale, Port Stephens)",2010,5997.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56113; latest survey year
+V164,road_aadt,"Medowie Road (Williamtown, Port Stephens)",2010,5351.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56117; latest survey year
+V165,road_aadt,"Medowie Road (Ferodale, Port Stephens)",2010,1581.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56120; latest survey year
+V166,road_aadt,"King Street (Warners Bay, Lake Macquarie)",2008,13600.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56127; latest survey year
+V167,road_aadt,"Carnley Avenue (Kotara, Newcastle)",2008,12552.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56135; latest survey year
+V168,road_aadt,"University Drive (Callaghan, Newcastle)",2010,13565.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56136; latest survey year
+V169,road_aadt,"Bridges Road (New Lambton, Newcastle)",2010,22717.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56138; latest survey year
+V170,road_aadt,"John Renshaw Drive (Beresfield, Newcastle)",2014,6388.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=56142; latest survey year
+V171,road_aadt,"Wallsend Road (Cardiff Heights, Lake Macquarie)",2008,5979.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56144; latest survey year
+V172,road_aadt,"Myall Road (Garden Suburb, Lake Macquarie)",2010,11173.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56145; latest survey year
+V173,road_aadt,"John Renshaw Drive (Buchanan, Cessnock)",2010,5658.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56146; latest survey year
+V174,road_aadt,"Tourle Street (Mayfield West, Newcastle)",2015,17841.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=56162; latest survey year
+V175,road_aadt,"Freyberg Street (New Lambton, Newcastle)",2010,13218.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56172; latest survey year
+V176,road_aadt,"Hillsborough Road (Warners Bay, Lake Macquarie)",2010,17914.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56173; latest survey year
+V177,road_aadt,"Elizabeth Street (Carrington, Newcastle)",2008,4144.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56175; latest survey year
+V178,road_aadt,"Griffiths Road (Lambton, Newcastle)",2010,29319.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56181; latest survey year
+V179,road_aadt,"Mitchell Avenue (Kurri Kurri, Cessnock)",2010,4236.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56183; latest survey year
+V180,road_aadt,"Lake Road (Glendale, Lake Macquarie)",2010,20593.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56186; latest survey year
+V181,road_aadt,"Wilkinson Avenue (Birmingham Gardens, Newcastle)",2008,5777.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56191; latest survey year
+V182,road_aadt,"Nelson Bay Road (Nelson Bay, Port Stephens)",2010,8306.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56195; latest survey year
+V183,road_aadt,"Minmi Road (Cameron Park, Lake Macquarie)",2010,9523.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56196; latest survey year
+V184,road_aadt,"New England Highway (East Maitland, Maitland)",2010,28561.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56197; latest survey year
+V185,road_aadt,"Main Road (Shortland, Newcastle)",2010,13754.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56200; latest survey year
+V186,road_aadt,"Grandview Road (New Lambton Heights, Newcastle)",2008,1612.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56202; latest survey year
+V187,road_aadt,"Nelson Bay Road (Kooragang, Newcastle)",2018,15023.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=56205; latest survey year
+V188,road_aadt,"Five Islands Road (Teralba, Lake Macquarie)",2010,24506.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56206; latest survey year
+V189,road_aadt,"T C Frith Avenue (Boolaroo, Lake Macquarie)",2010,13711.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56207; latest survey year
+V190,road_aadt,"Industrial Drive (Mayfield West, Newcastle)",2010,19910.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56208; latest survey year
+V191,road_aadt,"Werribi Street (Mayfield West, Newcastle)",2010,7589.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56209; latest survey year
+V192,road_aadt,"Turton Road (Waratah, Newcastle)",2010,14477.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56210; latest survey year
+V193,road_aadt,"Turton Road (New Lambton, Newcastle)",2010,23459.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56211; latest survey year
+V194,road_aadt,"The Esplanade (Speers Point, Lake Macquarie)",2010,16420.0,vehicles/day,NSW Roads traffic volume counts,holdout,station_key=56213; latest survey year
+V195,road_aadt,"Hunter Expressway (Buchanan, Cessnock)",2025,21558.0,vehicles/day,NSW Roads traffic volume counts,calibration,station_key=99990015; latest survey year
+V196,hts_mode_share,Newcastle LGA,2018/19,5.3,per cent of trips,NSW Household Travel Survey,calibration,Bus
+V197,hts_mode_share,Newcastle LGA,2018/19,5.5,per cent of trips,NSW Household Travel Survey,calibration,Other
+V198,hts_mode_share,Newcastle LGA,2018/19,2.0,per cent of trips,NSW Household Travel Survey,calibration,Train
+V199,hts_mode_share,Newcastle LGA,2018/19,61.3,per cent of trips,NSW Household Travel Survey,calibration,Vehicle Driver
+V200,hts_mode_share,Newcastle LGA,2018/19,15.3,per cent of trips,NSW Household Travel Survey,calibration,Vehicle Passenger
+V201,hts_mode_share,Newcastle LGA,2018/19,10.7,per cent of trips,NSW Household Travel Survey,calibration,Walk Only
+V202,hts_mode_share,Newcastle LGA,2024/25,3.2,per cent of trips,NSW Household Travel Survey,calibration,Other
+V203,hts_mode_share,Newcastle LGA,2024/25,3.8,per cent of trips,NSW Household Travel Survey,calibration,Public transport
+V204,hts_mode_share,Newcastle LGA,2024/25,59.0,per cent of trips,NSW Household Travel Survey,calibration,Vehicle driver
+V205,hts_mode_share,Newcastle LGA,2024/25,20.6,per cent of trips,NSW Household Travel Survey,calibration,Vehicle passenger
+V206,hts_mode_share,Newcastle LGA,2024/25,0.0,per cent of trips,NSW Household Travel Survey,calibration,Walk linked
+V207,hts_mode_share,Newcastle LGA,2024/25,13.4,per cent of trips,NSW Household Travel Survey,calibration,Walk only
+V208,lr_scheduled_runtime,Newcastle Light Rail direction 0,2026,12.0,minutes,TfNSW GTFS base2026,calibration,"Scheduled, not observed. Observed run time requires GTFS-Realtime."
+V209,lr_scheduled_runtime,Newcastle Light Rail direction 1,2026,12.0,minutes,TfNSW GTFS base2026,calibration,"Scheduled, not observed. Observed run time requires GTFS-Realtime."
+V210,lr_alignment_length,Newcastle Light Rail,2026,2729.0,metres,TfNSW GTFS shapes,calibration,

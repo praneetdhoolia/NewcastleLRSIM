@@ -1,0 +1,25 @@
+{
+  "source_feed": "schedules/era2_2016_rail_truncated.zip",
+  "output": "schedules/era1_pre2014_reconstructed.zip",
+  "trips_extended": 219,
+  "truncation_termini_in_source": {
+    "Hamilton Station, Platform 2": 219,
+    "Telarah Station, Platform 1": 94,
+    "Central Station, Platform 9": 33,
+    "Central Station, Platform 10": 21,
+    "Central Station, Platform 2": 15,
+    "Dungog Station, Platform 2": 11,
+    "Maitland Station, Platform 4": 8,
+    "Gosford Station, Platform 1": 8
+  },
+  "closed_stations": [
+    "Wickham Station (closed 2014)",
+    "Civic Station (closed 2014)",
+    "Newcastle Station (closed 2014)"
+  ],
+  "reconstructed_extension_length_m": 1903.0,
+  "line_speed_kmh": 60.0,
+  "station_dwell_s": 30.0,
+  "status": "RECONSTRUCTION - frequency and stopping pattern are 2016, not 2014. Validate against a 2014 public timetable before use in any published figure.",
+  "source": "assumed"
+}

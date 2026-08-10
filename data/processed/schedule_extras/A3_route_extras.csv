@@ -1,0 +1,291 @@
+route_id,mode,route_short_name,route_long_name,vehicle_type_id,contract_area,franchise_operator,valid_from,valid_to,source_feed
+nisc001:3000_10X,other,10X,Charlestown to Newcastle Interchange (Express Service),BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_11,other,11,Charlestown to Newcastle via Jesmond,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_12,other,12,Maryland to Merewether Beach via Wallsend and Newcastle Interchange,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_13,other,13,Glendale to Newcastle via Cardiff & John Hunter Hospital,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_14,other,14,"Swansea Heads to Newcastle via Belmont, Charlestown & Kotara",BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_21,other,21,Broadmeadow to Newcastle via Merewether,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_22,other,22,Charlestown to Newcastle West via Merewether,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_23,other,23,Wallsend to Newcastle East via Lambton & Newcastle Interchange,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_24,other,24,Wallsend to Marketown via Mayfield,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_25,other,25,Charlestown to Broadmeadow via Kotara,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_26,other,26,Wallsend to Newcastle West via Kotara & Newcastle Interchange,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_27,other,27,Wallsend to Broadmeadow via Newcastle University,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_28,other,28,Mount Hutton to Newcastle West via Broadmeadow & Newcastle Interchange,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_29,other,29,Swansea North to Glendale via Belmont & Cardiff,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_41,other,41,Belmont to Charlestown via Croudace Bay & Mount Hutton,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_42,other,42,Wallsend to John Hunter Hospital,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_43,other,43,Belmont to Charlestown via Floraville & Mount Hutton,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_44,other,44,"Warners Bay to Kotara via Glendale, Cardiff & Macquarie Hills",BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_46,other,46,Glendale to Wallsend,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_47,other,47,Jesmond to Marketown via Warabrook,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_48,other,48,Belmont to Warners Bay via Redhead & Charlestown,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_500,other,500,Belmont North to Belmont,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_501,other,501,Jewells to Belmont,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_502,other,502,Jewells to Belmont High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_504,other,504,Belmont Depot to Jewells,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_507,other,507,Jewells to Belmont,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_508,other,508,Kahibah - Belmont Christian College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_522,other,522,"Newcastle West to Belmont via Broadmeadow, Kahibah & Charlestown",BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_526,other,526,Jesmond to Broadmeadow via Waratah & Georgetown,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_549,other,549,"City West, Stewart Ave to Swansea North",BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_550,other,550,Swansea Heads to Newcastle West via Adamstown & Newcastle Interchange,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_551,other,551,Broadmeadow to Belmont North via Adamstown & Jewels,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_55N,other,55N,Stockton to Newcastle (Night Service),BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_563,other,563,Broadmeadow to Warners Bay via Glendale & Speers Point,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_570,other,570,Swansea Heads to Newcastle West via Adamstown & Newcastle Interchange,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_700,other,700,Warabrook to Mayfield,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_701,other,701,Adamstown Heights to Adamstown Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_702,other,702,Birmingham Gardens to Shortland Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_704,other,704,Charlestown to New Lambton South Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_705,other,705,Mayfield East to Lambton High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_706,other,706,Warabrook to Merewether High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_707,other,707,Whitebridge to St Josephs Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_708,other,708,Redhead to St Josephs Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_710,other,710,Newcastle Interchange to Callaghan College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_711,other,711,Adamstown Hts to Belair Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_712,other,712,Glebe to Holy Family School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_714,other,714,Merewether High to Hamilton,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_715,other,715,Cooks Hill to Merewether High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_718,other,718,Carrington to Hunter School of Performing Arts,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_719,other,719,Newcastle Station to Newcastle High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_720,other,720,Belmont Depot to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_721,other,721,Belmont Depot to Hunter Sports High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_723,other,723,St Pauls to Redhead Bluff,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_724,other,724,Highfields to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_725,other,725,Highfields to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_726,other,726,St Francis Xavier to Hunter Sports High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_727,other,727,Speers Point to Hunter Sports High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_728,other,728,Redhead Bluff to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_729,other,729,Jesmond to Trinity Catholic College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_730,other,730,Jesmond to Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_731,other,731,Merewether Heights to St Phillips College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_732,other,732,St Phillips College to Newcastle station,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_733,other,733,Waratah Callahan College - Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_734,other,734,Merewether High to Cardiff High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_735,other,735,Cooks Hill to Hunter Christian School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_736,other,736,Cardiff to Cardiff South Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_737,other,737,St Phillips College to Broadmeadow Station,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_739,other,739,Warabrook to Wallsend Campus Callaghan College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_741,other,741,Mount Hutton to St Marys Gateshead,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_743,other,743,Hunter School Of Performing Arts to The Junction,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_744,other,744,Windale Shops to Gateshead Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_747,other,747,Pelican to Swansea High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_748,other,748,Swansea Heads to St Patricks,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_749,other,749,Marks Point to Swansea High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_751,other,751,Charlestown to St Josephs Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_753,other,753,Warabrook to Corpus Christi School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_755,other,755,Waratah West to San Clemente,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_756,other,756,Hillsborough to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_757,other,757,Charlestown to Hunter Sports High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_758,other,758,Charlestown to Warners Bay High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_759,other,759,Hunter Sports High to Charlestown,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_760,other,760,Elermore Vale to New Lambton Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_761,other,761,Lambton High School to Grinsell St near Carnley Av,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_763,other,763,Charlestown to Glendale High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_765,other,765,New Lambton Heights to Lambton High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_767,other,767,Blacksmiths to St Marys School Gateshead,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_768,other,768,New Lambton Heights to Wallsend South Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_770,other,770,Wallsend to Lambton High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_771,other,771,Dudley to Hunter Sports High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_772,other,772,Caves Beach to St Marys Gateshead,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_773,other,773,Charlestown to Trinity Catholic College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_774,other,774,Shortland to Callaghan College Waratah Campus,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_775,other,775,Swansea Heads to St Marys Gateshead,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_776,other,776,New Lambton Primary to Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_778,other,778,St James Primary to Kotara South,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_779,other,779,St Marys School to Blacksmiths,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_780,other,780,Kotara to Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_781,other,781,Belmont Depot to Glendale High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_782,other,782,Glendale to Cardiff High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_783,other,783,Carrington to Mayfield West Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_786,other,786,Marks Point to St Patricks Primary School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_789,other,789,Elermore Vale to Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_790,other,790,Eleebana to Warners Bay High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_791,other,791,Highfields to Kahibah Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_792,other,792,Eleebana to Warners Bay Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_793,other,793,St Marys Warners Bay to Tingira Heights,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_794,other,794,Belmont Depot to St Marys Warners Bay,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_796,other,796,Waners Bay High to Warners Bay Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_797,other,797,Swansea South to Swansea High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_798,other,798,Belmont Depot to Hunter Sports High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_799,other,799,Swansea South to Swansea High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_800,other,800,Jewells to Belmont HS,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_801,other,801,Belmont South to Belmont Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_802,other,802,warners Bay to Mount Hutton Primary School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_804,other,804,Mount Hutton to Warners Bay High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_806,other,806,Swansea to Belmont High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_808,other,808,Trinity Catholic College to The Junction,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_809,other,809,Belmont Depot to St Pauls HS,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_810,other,810,Boolaroo to Warners Bay Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_811,other,811,St Kevins to St Pauls Booragul,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_812,other,812,St Kevins to St Pauls Booragul,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_813,other,813,Cardiff South to St Pauls Booragul,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_814,other,814,Belmont to St Pauls Booragul,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_815,other,815,Newcastle Station to Trinity Catholic College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_816,other,816,Hamilton East to Trinity Catholic College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_817,other,817,Merewether Heights to Kotara HS,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_818,other,818,Newcastle Station to Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_819,other,819,Newcastle West to Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_820,other,820,St Marys to Lakelands,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_822,other,822,Belmont Depot to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_823,other,823,Belmont Depot to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_824,other,824,Belmont Depot to Newcastle East Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_825,other,825,Macquarie Hills to St Marys to Biddabah Public School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_826,other,826,Belmont Depot to St Marys Gateshead,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_829,other,829,Belmont Depot to Whitebridge High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_830,other,830,New Lambton Heights to Merewether High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_831,other,831,New Lambton Heights to New Lambton Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_832,other,832,New Lambton Heights to Merewether High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_833,other,833,Rankin Park to Merewether High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_834,other,834,Wallsend to Trinity Catholic College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_835,other,835,Wallsend to Kotara High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_836,other,836,New Lambton Heights to Newcastle Grammar,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_837,other,837,Charlestown to Warners Bay High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_838,other,838,Wallsend to Trinity Catholic College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_839,other,839,Jesmond to Lambton High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_840,other,840,Charlestown to Hunter Christian School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_841,other,841,Charlestown to Hunter Christian School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_842,other,842,Lakelands to Hunter Christian School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_844,other,844,Belmont Christian College to Swansea High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_845,other,845,New Lambton Heights to Hunter Christian School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_846,other,846,St Marys Warners Bay to Belmont Christian College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_847,other,847,St Patricks to Belmont Christian College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_848,other,848,Croudace Bay to Belmont Primary School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_849,other,849,Charlestown to Lambton High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_850,other,850,Adamstown Heights to St Phillips,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_851,other,851,Belmont Depot to Warners Bay High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_852,other,852,Belmont Depot to Warners Bay High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_853,other,853,Belmont Depot to Warners Bay High,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_855,other,855,Eleebana to St Francis Xavier,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_856,other,856,Croudace Bay to Valentine Primary,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_857,other,857,St Francis Xavier to Belmont,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_858,other,858,Hunter Christian - Ambleside Cct Lakelands,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_859,other,859,North Lambton to Callaghan College Wallsend Campus,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_860,other,860,Belmont Christian School to Charlestown,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_861,other,861,St Francis Xavier to Marks Point,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_862,other,862,Cardiff South to Belmont Christian School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_863,other,863,New Lambton to Belmont Christian School,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_864,other,864,Mount Hutton to Macquarie College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_865,other,865,Belmont Depot to Macquarie College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_867,other,867,Newcastle High to Trinity Catholic College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_868,other,868,Hamilton Depot to Macquarie College,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_869,other,869,Charlestown to Hunter School of Performing Arts,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_870,other,870,Callaghan College Wallsend Campus to Shortland,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+nisc001:3000_Stkn,ferry,Stkn,Stockton Ferry,BUS_RIGID_12M,NISC 1,Keolis Downer Hunter (Newcastle Transport),2017-07-01,,nisc001
+lightrail:NT_NLR,lr,NLR,Newcastle Light Rail,CAF_URBOS_100_NLR,NISC 1 (light rail),Keolis Downer Hunter (Newcastle Transport),2019-02-17,,lightrail
+regionbuses:5064_S292,other,S292,Lambs Valley to Lochinvar Schools via Luskintyre Rd,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5066_S520,other,S520,Aberglasslyn to Rutherford PS & St Pauls Rutherford,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5066_S521,other,S521,"Butterwick, Duns Creek & Martins Creek to Paterson Public",BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5066_S522,other,S522,"Branxton, North Rothbury & Greta to Greta & Branxton Schools",BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5066_S526,other,S526,North Rothbury to Rutherford Technology High School,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5330_S438,other,S438,East Seaham to Dungog Schools via Clarence Town,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5330_S439,other,S439,Glen Oak to Dungog Schools via Clarence Town,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5330_S440,other,S440,Clarence Town to Glen William Public via Glen Martin Rd,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5330_S441,other,S441,Seaham to Dungog Schools via Clarence Town,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5330_S443,other,S443,Clarence Town to Dungog Schools via Glen Martin & Alison,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5333_S280,other,S280,Retreat Rd to Singleton,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5333_S281,other,S281,Retreat Rd to Singleton via Wanaruah Cl,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5333_S282,other,S282,Carrowbrook to Singleton,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5367_S271,other,S271,Dawsons Hill to Singleton Schools via Mount Pleasant,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5367_S272,other,S272,Millbrodale Rd to Singleton Schools via Broke,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5367_S273,other,S273,Wollombi Rd to Singleton Schools via Broke,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5409_S192,other,S192,Maison Dieu to McDougalls Hill via Singleton Schools,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5409_S193,other,S193,Hambledon Hill to Singleton Schools via McDougalls Hill,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5600_S187,other,S187,Vacy to Paterson Public & Vacy Public via Hilldale,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5600_S188,other,S188,Lostock to Vacy Public via Fishers Hill,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5600_S189,other,S189,Paterson to Dungog Schools via Vacy,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5600_S191,other,S191,Paterson to Dungog Schools via Butterwick,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5785_S673,other,S673,"Newline Rd to Seaham Public via Eagleton, Balickera & East Seaham",BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5785_S674,other,S674,Hawks Nest to Medowie Christian via Pacific Hwy,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5785_S680,other,S680,Seaham Public to Glenelg St via Limeburners Creek Rd,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5785_S684,other,S684,Medowie Christian to Booner St via Karuah Public,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5944_S833,other,S833,Singleton to Scone Schools via Muswellbrook & Aberdeen,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_150,other,150,"Taree to Newcastle Interchange via Tuncurry, Forster & Hawks Nest",BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_151,other,151,Taree Station to Newcastle Interchange via Tuncurry & Forster,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_152,other,152,Hawks Nest to Newcastle,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S620,other,S620,Hawks Nest to Catherine McAuley College via Raymond Terrace Schools,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S621,other,S621,Mullwee to Raymond Terrace Schools via Swan Bay & Eagleton,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S622,other,S622,Kuruah to Callaghan College via Mayfield West & Mayfield Schools,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S623,other,S623,Stroud to Booral Public via the Bucketts Way,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S624,other,S624,"East Seaham to Jesmond, Lambton & Merewether Schools via Eagleton",BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S625,other,S625,Raymond Terrace to Booral Public via Allworth Rd,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S626,other,S626,Booral to Raymond Terrace & Heatherbrae Schools via Allworth,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S627,other,S627,Karuah to Raymond Terrace & Heatherbrae Schools via Raymond Terrace,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S630,other,S630,Raymond Terrace Schools to Callaghan & Waratah Schools,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S631,other,S631,Raymond Terrace to Karuah Public via Swan Bay,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S632,other,S632,Hawks Nest to Catherine McAuley Catholic College via Karuah,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S646,other,S646,San Clemente High to Booral via Allworth,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S647,other,S647,Karuah Public to Kings Hill via Mullwee,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S648,other,S648,Booral Public to Euwylong via Allworth,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S649,other,S649,Twelve Mile Creek to Stroud via The Bucketts Way & Cowper St,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S650,other,S650,Catherine McAuley College to Hawks Nest via Heatherbrae,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S651,other,S651,Raymond Terrace Public to Karuah via Seaham,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S652,other,S652,Callaghan Colleges to Raymond Terrace via Hexham,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S653,other,S653,Merewether High to Balickera via Raymond Terrace & Eagleton,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S654,other,S654,Irrawang Public to Swan Bay via Eagleton,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S656,other,S656,Hunter River High to Karuah via Twelve Mile Creek,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S657,other,S657,Catherine McAuley Catholic College to Hawks Nest via Karuah,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:5970_S689,other,S689,Pindimar Road to McAuley Catholic College via Karuah,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:6067_S851,other,S851,Oakhampton Heights to East Maitland Schools,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:6068_S852,other,S852,Stroud to Medowie Christian School via Booral,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+regionbuses:8220_S444,other,S444,Boatfalls Drive to Clarence Town Public School,BUS_RIGID_12M,Newcastle Hunter region,Hunter Valley Buses,2024-09-01,,regionbuses
+sydneytrains:CCN_1a,heavy_rail,CCN,Central to Newcastle Interchange via Strathfield,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CCN_1b,heavy_rail,CCN,Central to Newcastle Interchange via Gordon,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CCN_1c,heavy_rail,CCN,Central to Newcastle Interchange via Strathfield,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CCN_2a,heavy_rail,CCN,Newcastle Interchange to Central via Strathfield,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CCN_2b,heavy_rail,CCN,Newcastle Interchange to Central via Gordon,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CTY_NC1a,heavy_rail,NRC,Sydney (Central) to Brisbane (Roma Street),HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CTY_NC2,heavy_rail,NRC,Brisbane (Roma Street) to Sydney (Central),HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CTY_NW1c,heavy_rail,NRW,Sydney (Central) to Moree,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CTY_NW1d,heavy_rail,NRW,Sydney (Central) to Armidale,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:CTY_NW2a,heavy_rail,NRW,Moree to Sydney (Central),HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:HUN_1a,heavy_rail,HUN,Newcastle Interchange to Dungog,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:HUN_1b,heavy_rail,HUN,Newcastle Interchange to Scone,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:HUN_2a,heavy_rail,HUN,Dungog to Newcastle Interchange,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:HUN_2b,heavy_rail,HUN,Scone to Newcastle Interchange,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:RTTA_DEF,heavy_rail,,Out Of Service,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+sydneytrains:RTTA_REV,heavy_rail,,Non Revenue,HEAVY_RAIL_EMU,Intercity,Sydney Trains,,,sydneytrains
+nswtrains:4T.C.135,other,135,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.136,other,136,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2303,other,2303,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2305,other,2305,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2309,other,2309,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2311,other,2311,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2404,other,2404,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2406,other,2406,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2410,other,2410,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.2412,other,2412,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3101,other,3101,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3107,other,3107,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3109,other,3109,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3204,other,3204,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3208,other,3208,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3214,other,3214,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3303,other,3303,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3307,other,3307,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3309,other,3309,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3404,other,3404,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3408,other,3408,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3414,other,3414,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3501,other,3501,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3507,other,3507,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3509,other,3509,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3604,other,3604,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3608,other,3608,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.3614,other,3614,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.4317,other,4317,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.4319,other,4319,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.4323,other,4323,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.4418,other,4418,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.4420,other,4420,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.C.4424,other,4424,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.HUN,other,HUN,Hunter Line,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NP23,other,223,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NP24,other,224,North West NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NT31,other,31,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NT32,other,32,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NT33,other,33,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NT34,other,34,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NT35,other,35,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains
+nswtrains:4T.T.NT36,other,36,North Coast NSW,BUS_RIGID_12M,Regional,NSW TrainLink,,,nswtrains

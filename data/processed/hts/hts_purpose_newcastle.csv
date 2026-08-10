@@ -1,0 +1,952 @@
+geography,source_file,FINANCIAL_YEAR,HH_LGA_ID,area_name,TRAVEL_PURPOSE,JOURNEYS_BY_MODE,PCT_OF_TOTAL_JOURNEYS,DISTANCE_BY_PURPOSE,PCT_OF_TOTAL_DISTANCE,JOURNEY_AVG_DISTANCE,JOURNEY_AVG_TIME,HH_SA3_ID
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Commute*,32000,19.1,861000,38.1,26.7,29.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Education/childcare*,19000,11.5,135000,6.0,7.0,12.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Other**,5000,2.8,14000,0.6,2.9,7.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Personal business*,11000,6.3,102000,4.5,9.5,20.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Serve passenger*,33000,19.5,342000,15.1,10.4,13.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Shopping*,38000,22.3,343000,15.2,9.1,12.1,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Social/recreation,25000,14.9,304000,13.4,12.1,18.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,1720.0,Cessnock,Work related business**,6000,3.8,162000,7.2,25.5,26.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Commute,96000,13.7,1839000,25.3,19.2,27.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Education/childcare,73000,10.5,525000,7.2,7.2,18.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Other*,6000,0.8,38000,0.5,6.5,14.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Personal business,62000,8.9,527000,7.3,8.5,15.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Serve passenger,94000,13.5,724000,10.0,7.7,15.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Shopping,123000,17.6,889000,12.3,7.2,14.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Social/recreation,203000,28.9,1810000,24.9,8.9,21.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,4650.0,Lake Macquarie,Work related business*,43000,6.1,905000,12.5,21.2,29.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Commute,40000,10.7,786000,20.7,19.6,25.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Education/childcare,28000,7.6,128000,3.4,4.5,10.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Other*,4000,1.1,44000,1.1,10.9,17.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Personal business,23000,6.1,162000,4.3,7.1,13.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Serve passenger*,88000,23.6,673000,17.7,7.7,13.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Shopping,66000,17.7,483000,12.7,7.3,13.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Social/recreation,102000,27.3,909000,23.9,8.9,18.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5050.0,Maitland,Work related business*,22000,5.9,619000,16.3,28.3,34.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Commute,87000,15.6,999000,19.4,11.5,21.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Education/childcare,41000,7.4,123000,2.4,3.0,12.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Other,9000,1.6,60000,1.2,6.9,12.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Personal business,59000,10.6,331000,6.5,5.6,13.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Serve passenger,87000,15.7,556000,10.8,6.4,13.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Shopping,86000,15.5,520000,10.1,6.0,13.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Social/recreation,177000,31.7,2405000,46.8,13.6,22.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,5900.0,Newcastle,Work related business*,11000,2.0,143000,2.8,12.8,24.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Commute,24000,12.8,476000,18.9,19.7,24.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Education/childcare*,20000,10.5,255000,10.1,12.9,23.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Other**,1000,0.4,7000,0.3,10.3,13.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Personal business,21000,11.0,216000,8.6,10.4,18.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Serve passenger*,32000,17.3,319000,12.7,9.9,14.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Shopping,30000,16.2,219000,8.7,7.2,10.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Social/recreation,52000,27.6,784000,31.2,15.1,15.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2024/25,6400.0,Port Stephens,Work related business**,8000,4.2,241000,9.6,30.5,36.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Commute*,32000,15.2,812000,29.8,25.2,30.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Education/childcare*,24000,11.4,190000,7.0,7.9,14.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Other**,3000,1.6,3000,0.1,0.8,6.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Personal business*,18000,8.5,162000,5.9,9.0,18.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Serve passenger*,50000,23.6,483000,17.7,9.7,14.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Shopping,42000,20.1,454000,16.6,10.7,16.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Social/recreation,33000,15.6,394000,14.4,11.9,19.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,1720.0,Cessnock,Work related business**,9000,4.1,233000,8.5,27.1,26.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Commute,82000,12.4,1573000,22.9,19.1,27.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Education/childcare,70000,10.7,558000,8.1,7.9,19.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Other*,5000,0.7,33000,0.5,7.1,14.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Personal business,63000,9.6,528000,7.7,8.3,16.1,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Serve passenger,99000,15.1,834000,12.2,8.4,17.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Shopping,101000,15.3,770000,11.2,7.6,15.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Social/recreation,199000,30.1,1678000,24.4,8.4,20.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,4650.0,Lake Macquarie,Work related business,41000,6.2,890000,13.0,21.8,30.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Commute,40000,11.0,882000,21.7,22.1,27.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Education/childcare*,26000,7.2,174000,4.3,6.7,12.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Other**,3000,0.9,40000,1.0,11.9,19.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Personal business*,20000,5.4,121000,3.0,6.1,12.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Serve passenger*,88000,24.3,790000,19.4,8.9,15.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Shopping,57000,15.7,437000,10.7,7.6,13.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Social/recreation*,106000,29.3,970000,23.8,9.1,18.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5050.0,Maitland,Work related business*,22000,6.2,660000,16.2,29.4,37.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Commute,72000,13.4,974000,19.8,13.5,23.1,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Education/childcare,37000,6.8,115000,2.3,3.1,12.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Other*,9000,1.6,81000,1.7,9.5,15.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Personal business,53000,9.8,392000,8.0,7.4,16.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Serve passenger,90000,16.8,535000,10.9,5.9,13.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Shopping,78000,14.6,463000,9.4,5.9,13.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Social/recreation,178000,33.1,2011000,41.0,11.3,20.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,5900.0,Newcastle,Work related business*,21000,3.9,338000,6.9,16.1,23.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Commute,31000,13.6,637000,22.7,20.4,27.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Education/childcare*,26000,11.4,373000,13.3,14.2,24.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Other**,1000,0.3,8000,0.3,11.1,14.1,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Personal business,28000,12.4,319000,11.4,11.2,18.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Serve passenger*,37000,16.2,359000,12.8,9.7,15.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Shopping,40000,17.3,343000,12.2,8.6,13.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Social/recreation,56000,24.6,456000,16.2,8.1,14.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2023/24,6400.0,Port Stephens,Work related business*,10000,4.2,311000,11.1,32.2,37.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Commute*,21000,12.0,500000,24.6,24.0,25.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Education/childcare*,22000,12.7,190000,9.3,8.6,14.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Other**,1000,0.7,1000,0.1,1.1,6.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Personal business*,18000,10.6,157000,7.7,8.5,15.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Serve passenger*,41000,23.8,384000,18.9,9.3,14.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Shopping,38000,21.7,473000,23.3,12.5,17.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Social/recreation*,27000,15.6,264000,13.0,9.7,17.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,1720.0,Cessnock,Work related business**,5000,2.9,62000,3.0,12.4,20.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Commute,69000,10.1,1272000,16.8,18.4,26.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Education/childcare*,68000,10.0,482000,6.4,7.1,18.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Other*,3000,0.5,11000,0.1,3.1,9.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Personal business,70000,10.4,657000,8.7,9.3,18.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Serve passenger,99000,14.6,768000,10.2,7.8,17.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Shopping,103000,15.2,775000,10.3,7.5,15.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Social/recreation,224000,32.9,2615000,34.6,11.7,25.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,4650.0,Lake Macquarie,Work related business*,43000,6.3,983000,13.0,23.0,30.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Commute,42000,11.0,941000,22.0,22.4,27.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Education/childcare*,27000,7.0,201000,4.7,7.4,14.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Other*,5000,1.2,49000,1.1,10.2,16.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Personal business*,17000,4.4,97000,2.3,5.7,11.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Serve passenger*,108000,28.1,975000,22.8,9.1,15.6,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Shopping,61000,15.8,510000,11.9,8.4,14.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Social/recreation,109000,28.6,1015000,23.7,9.3,18.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5050.0,Maitland,Work related business*,15000,3.9,495000,11.6,33.2,34.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Commute,68000,12.1,1050000,23.4,15.5,24.1,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Education/childcare,36000,6.4,119000,2.7,3.3,12.1,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Other*,7000,1.3,80000,1.8,11.0,36.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Personal business,55000,9.8,366000,8.2,6.7,15.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Serve passenger,92000,16.6,578000,12.9,6.3,12.8,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Shopping,81000,14.5,483000,10.8,6.0,13.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Social/recreation,198000,35.4,1400000,31.3,7.1,16.2,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,5900.0,Newcastle,Work related business*,22000,3.9,403000,9.0,18.5,23.0,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Commute,31000,13.1,612000,19.4,19.5,26.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Education/childcare*,27000,11.5,433000,13.7,15.8,24.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Other**,1000,0.5,8000,0.3,6.9,10.7,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Personal business,35000,14.5,550000,17.5,15.9,23.9,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Serve passenger*,40000,16.9,465000,14.7,11.5,17.4,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Shopping,37000,15.6,313000,9.9,8.4,13.5,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Social/recreation,55000,23.2,442000,14.0,8.0,14.3,
+lga,hts_by_lga_2020-21_to_2024-25.xlsx,2022/23,6400.0,Port Stephens,Work related business*,11000,4.6,330000,10.5,30.4,34.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Commute,22000,13.5,789000,34.0,35.3,40.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Education/childcare,20000,12.2,115000,5.0,5.7,10.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Other,3000,1.6,25000,1.1,9.6,15.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Personal business,12000,7.4,218000,9.4,17.9,21.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Serve passenger,57000,34.6,333000,14.4,5.8,8.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Shopping,21000,12.7,377000,16.2,18.0,27.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Social/recreation,27000,16.0,414000,17.8,15.6,20.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,1720.0,Cessnock,Work related business,4000,2.1,50000,2.2,14.4,22.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Commute,92000,13.2,1919000,26.6,20.8,30.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Education/childcare,54000,7.8,340000,4.7,6.2,18.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Other,9000,1.2,80000,1.1,9.3,22.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Personal business,59000,8.5,607000,8.4,10.3,19.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Serve passenger,125000,17.9,934000,12.9,7.5,14.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Shopping,135000,19.4,1064000,14.7,7.9,14.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Social/recreation,182000,26.0,1675000,23.2,9.2,18.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,4650.0,Lake Macquarie,Work related business,42000,6.0,602000,8.3,14.5,24.0,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Commute,38000,17.5,893000,36.0,23.6,31.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Education/childcare,18000,8.1,95000,3.8,5.4,15.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Other,1000,0.4,3000,0.1,3.5,12.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Personal business,14000,6.3,87000,3.5,6.4,21.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Serve passenger,30000,13.7,240000,9.6,8.1,15.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Shopping,55000,25.6,302000,12.2,5.5,13.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Social/recreation,46000,21.3,574000,23.1,12.4,18.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5050.0,Maitland,Work related business,15000,6.9,289000,11.7,19.4,29.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Commute,106000,19.4,1454000,32.9,13.7,26.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Education/childcare,43000,7.9,221000,5.0,5.1,17.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Other,9000,1.6,53000,1.2,6.2,14.0,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Personal business,38000,6.9,224000,5.1,6.0,14.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Serve passenger,83000,15.2,349000,7.9,4.2,12.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Shopping,103000,18.7,613000,13.9,6.0,16.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Social/recreation,147000,26.8,968000,21.9,6.6,15.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,5900.0,Newcastle,Work related business,19000,3.5,536000,12.1,28.0,37.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Commute,27000,14.6,406000,15.3,15.2,19.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Education/childcare,10000,5.6,73000,2.8,7.2,14.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Other,3000,1.5,16000,0.6,6.0,10.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Personal business,16000,8.8,90000,3.4,5.6,12.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Serve passenger,36000,19.8,437000,16.5,12.1,26.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Shopping,42000,22.8,329000,12.4,7.9,12.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Social/recreation,39000,21.6,884000,33.3,22.4,27.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2019/20,6400.0,Port Stephens,Work related business,10000,5.4,416000,15.7,42.3,39.0,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Commute,21000,11.4,760000,27.5,35.5,40.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Education/childcare,22000,11.6,127000,4.6,5.8,12.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Other,5000,2.6,45000,1.6,9.3,14.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Personal business,14000,7.4,358000,13.0,26.0,29.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Serve passenger,67000,35.9,477000,17.3,7.1,10.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Shopping,18000,9.8,350000,12.7,19.0,23.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Social/recreation,35000,18.8,603000,21.8,17.1,21.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,1720.0,Cessnock,Work related business,5000,2.5,41000,1.5,8.7,13.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Commute,89000,13.3,1741000,26.8,19.5,30.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Education/childcare,46000,6.9,284000,4.4,6.1,17.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Other,10000,1.5,60000,0.9,6.0,17.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Personal business,67000,10.0,756000,11.7,11.3,21.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Serve passenger,108000,16.0,861000,13.3,8.0,15.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Shopping,125000,18.6,838000,12.9,6.7,13.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Social/recreation,178000,26.5,1258000,19.4,7.1,16.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,4650.0,Lake Macquarie,Work related business,49000,7.3,686000,10.6,14.1,24.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Commute,38000,21.3,826000,44.5,21.7,33.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Education/childcare,11000,6.0,77000,4.1,7.1,18.0,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Other,1000,0.8,3000,0.2,2.2,11.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Personal business,10000,5.7,27000,1.5,2.7,18.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Serve passenger,25000,13.7,187000,10.1,7.6,16.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Shopping,42000,23.5,149000,8.0,3.5,10.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Social/recreation,38000,21.0,356000,19.2,9.5,16.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5050.0,Maitland,Work related business,14000,8.0,232000,12.5,16.1,24.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Commute,105000,19.9,1632000,36.3,15.6,29.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Education/childcare,39000,7.4,249000,5.5,6.4,19.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Other,9000,1.6,41000,0.9,4.8,14.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Personal business,50000,9.4,256000,5.7,5.2,13.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Serve passenger,82000,15.6,370000,8.2,4.5,13.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Shopping,108000,20.5,741000,16.5,6.9,15.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Social/recreation,116000,22.0,735000,16.4,6.3,14.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,5900.0,Newcastle,Work related business,19000,3.5,469000,10.4,25.3,37.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Commute,29000,15.0,457000,16.9,16.0,19.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Education/childcare,12000,6.4,83000,3.1,6.8,13.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Other,3000,1.6,18000,0.7,6.0,10.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Personal business,13000,6.9,77000,2.8,5.9,11.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Serve passenger,42000,22.2,511000,18.9,12.1,26.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Shopping,44000,23.0,303000,11.2,6.9,11.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Social/recreation,35000,18.3,799000,29.5,22.9,26.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2018/19,6400.0,Port Stephens,Work related business,12000,6.5,461000,17.0,37.1,34.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Commute,19000,10.3,569000,21.3,29.8,35.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Education/childcare,20000,10.7,100000,3.7,5.1,12.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Other,4000,2.0,34000,1.3,9.3,14.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Personal business,19000,10.1,310000,11.6,16.7,21.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Serve passenger,56000,30.3,518000,19.4,9.2,12.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Shopping,28000,15.1,569000,21.3,20.4,23.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Social/recreation,34000,18.5,509000,19.1,14.9,21.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,1720.0,Cessnock,Work related business,5000,3.0,63000,2.4,11.5,17.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Commute,93000,14.0,1646000,25.9,17.7,28.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Education/childcare,50000,7.5,295000,4.6,5.9,17.0,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Other,10000,1.5,59000,0.9,5.9,16.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Personal business,61000,9.2,457000,7.2,7.4,15.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Serve passenger,104000,15.6,832000,13.1,8.0,15.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Shopping,126000,18.8,856000,13.5,6.8,13.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Social/recreation,183000,27.4,1560000,24.6,8.5,17.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,4650.0,Lake Macquarie,Work related business,40000,6.0,638000,10.1,16.0,27.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Commute,40000,19.4,770000,37.8,19.3,27.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Education/childcare,20000,9.7,96000,4.7,4.8,14.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Other,1000,0.7,2000,0.1,1.5,9.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Personal business,10000,4.7,27000,1.3,2.7,16.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Serve passenger,28000,13.6,151000,7.4,5.4,12.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Shopping,49000,23.9,221000,10.8,4.5,10.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Social/recreation,45000,21.6,542000,26.6,12.2,19.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5050.0,Maitland,Work related business,13000,6.5,230000,11.3,17.2,26.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Commute,86000,17.5,1082000,30.4,12.6,25.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Education/childcare,38000,7.8,219000,6.2,5.7,19.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Other,8000,1.6,46000,1.3,6.0,15.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Personal business,38000,7.7,190000,5.4,5.0,13.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Serve passenger,82000,16.7,361000,10.2,4.4,12.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Shopping,99000,20.1,624000,17.6,6.3,15.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Social/recreation,125000,25.5,877000,24.7,7.0,15.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,5900.0,Newcastle,Work related business,15000,3.0,155000,4.4,10.6,23.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Commute,27000,16.3,292000,10.8,10.8,14.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Education/childcare,10000,6.2,128000,4.7,12.5,20.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Other,3000,1.7,62000,2.3,21.7,23.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Personal business,15000,8.8,156000,5.8,10.6,15.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Serve passenger,37000,22.3,497000,18.4,13.4,26.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Shopping,36000,21.3,368000,13.6,10.4,15.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Social/recreation,30000,17.7,698000,25.8,23.6,28.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2017/18,6400.0,Port Stephens,Work related business,9000,5.7,504000,18.6,53.3,49.0,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Commute,24000,12.7,585000,27.0,24.3,29.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Education/childcare,19000,10.1,85000,3.9,4.5,10.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Other,2000,0.9,11000,0.5,6.4,10.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Personal business,15000,7.7,157000,7.3,10.8,15.8,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Serve passenger,63000,33.3,490000,22.6,7.8,11.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Shopping,28000,14.7,447000,20.7,16.1,21.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Social/recreation,34000,17.9,319000,14.8,9.4,17.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,1720.0,Cessnock,Work related business,5000,2.7,69000,3.2,13.7,19.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Commute,103000,15.2,1670000,28.2,16.2,26.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Education/childcare,57000,8.4,313000,5.3,5.5,16.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Other,13000,1.8,76000,1.3,6.1,14.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Personal business,65000,9.6,436000,7.4,6.7,14.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Serve passenger,100000,14.7,751000,12.7,7.5,14.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Shopping,139000,20.5,842000,14.2,6.1,13.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Social/recreation,164000,24.1,1316000,22.2,8.0,17.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,4650.0,Lake Macquarie,Work related business,38000,5.6,519000,8.8,13.6,23.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Commute,39000,15.3,1024000,37.2,26.4,31.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Education/childcare,18000,7.1,107000,3.9,5.9,15.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Other,3000,1.1,18000,0.7,6.6,10.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Personal business,11000,4.2,104000,3.8,9.7,15.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Serve passenger,46000,18.1,372000,13.5,8.1,14.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Shopping,52000,20.6,273000,9.9,5.2,10.9,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Social/recreation,67000,26.5,600000,21.8,8.9,16.2,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5050.0,Maitland,Work related business,18000,7.1,253000,9.2,14.1,23.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Commute,86000,15.9,806000,20.6,9.4,22.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Education/childcare,34000,6.3,177000,4.5,5.3,18.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Other,15000,2.7,138000,3.5,9.5,17.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Personal business,38000,7.1,172000,4.4,4.5,12.6,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Serve passenger,88000,16.3,417000,10.7,4.8,12.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Shopping,94000,17.4,572000,14.6,6.1,14.7,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Social/recreation,147000,27.2,1228000,31.4,8.4,17.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,5900.0,Newcastle,Work related business,38000,7.1,395000,10.1,10.3,17.3,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Commute,32000,14.6,348000,11.0,11.0,15.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Education/childcare,23000,10.8,201000,6.4,8.6,18.0,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Other,10000,4.7,107000,3.4,10.6,14.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Personal business,18000,8.2,218000,6.9,12.2,17.4,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Serve passenger,36000,16.5,672000,21.3,18.8,25.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Shopping,35000,16.0,439000,13.9,12.6,18.1,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Social/recreation,51000,23.7,937000,29.7,18.2,23.5,
+lga,hts_by_lga_2009-10_to_2019-20.xlsx,2016/17,6400.0,Port Stephens,Work related business,12000,5.5,233000,7.4,19.4,27.9,
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Commute,58000,14.4,1074000,28.6,18.4,26.9,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Education/childcare,41000,10.2,174000,4.6,4.2,13.7,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Other**,4000,1.1,28000,0.7,6.3,15.5,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Personal business,35000,8.5,249000,6.6,7.2,16.2,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Serve passenger*,51000,12.5,305000,8.1,6.0,15.0,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Shopping,74000,18.2,487000,13.0,6.6,13.1,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Social/recreation,125000,30.8,1109000,29.5,8.9,22.3,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - East,Work related business*,18000,4.3,333000,8.8,19.0,24.2,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Commute,39000,13.7,784000,23.6,20.1,28.7,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Education/childcare*,29000,10.3,319000,9.6,10.9,23.3,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Other*,2000,0.6,11000,0.3,6.4,11.3,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Personal business,27000,9.5,264000,7.9,9.8,15.2,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Serve passenger*,44000,15.3,384000,11.6,8.8,14.5,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Shopping,51000,17.8,407000,12.3,8.0,15.1,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Social/recreation,72000,25.3,651000,19.6,9.0,19.4,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lake Macquarie - West,Work related business*,22000,7.6,500000,15.1,22.9,31.9,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Commute,42000,14.4,1115000,34.0,26.7,29.1,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Education/childcare*,36000,12.2,246000,7.5,6.9,16.6,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Other**,5000,1.6,19000,0.6,4.1,9.5,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Personal business*,39000,13.3,304000,9.3,7.9,12.8,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Serve passenger*,64000,21.9,499000,15.2,7.8,11.1,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Shopping,49000,16.8,389000,11.9,8.0,11.4,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Social/recreation,38000,13.0,421000,12.8,11.2,18.6,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Lower Hunter,Work related business*,20000,6.8,283000,8.7,14.4,22.9,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Commute,40000,11.1,764000,20.5,19.3,25.0,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Education/childcare*,25000,6.9,119000,3.2,4.8,11.0,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Other*,3000,0.9,37000,1.0,11.3,17.4,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Personal business*,20000,5.7,144000,3.9,7.1,13.7,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Serve passenger*,85000,23.9,655000,17.6,7.7,13.9,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Shopping,62000,17.3,477000,12.8,7.7,14.0,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Social/recreation,99000,27.8,883000,23.7,8.9,18.5,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Maitland,Work related business*,23000,6.4,652000,17.5,28.7,34.7,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Commute,90000,15.0,1092000,19.8,12.1,21.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Education/childcare*,43000,7.1,138000,2.5,3.2,13.8,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Other,10000,1.7,77000,1.4,7.7,13.6,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Personal business,62000,10.4,354000,6.4,5.7,13.7,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Serve passenger,98000,16.3,677000,12.3,6.9,13.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Shopping,97000,16.2,615000,11.2,6.3,13.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Social/recreation,185000,30.9,2385000,43.4,12.9,22.1,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Newcastle,Work related business*,15000,2.4,164000,3.0,11.2,22.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Commute,25000,13.2,451000,16.8,18.1,23.0,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Education/childcare*,24000,12.5,344000,12.8,14.6,24.4,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Other*,2000,1.0,34000,1.3,18.0,17.9,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Personal business,20000,10.8,205000,7.6,10.0,18.1,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Serve passenger*,26000,13.8,294000,10.9,11.3,15.0,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Shopping,26000,13.8,201000,7.5,7.7,11.1,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Social/recreation,58000,30.6,929000,34.6,16.1,18.7,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2024/25,,Port Stephens,Work related business*,8000,4.2,228000,8.5,28.6,35.5,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Commute,44000,12.2,833000,25.3,18.8,27.6,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Education/childcare*,34000,9.5,160000,4.8,4.7,13.6,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Other**,4000,1.1,27000,0.8,6.6,14.3,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Personal business,39000,10.7,271000,8.2,7.0,16.0,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Serve passenger,53000,14.6,327000,9.9,6.2,19.2,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Shopping,61000,16.9,501000,15.2,8.2,15.4,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Social/recreation,111000,30.8,883000,26.8,7.9,22.6,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - East,Work related business,15000,4.1,297000,9.0,20.1,25.7,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Commute,39000,13.0,754000,21.9,19.5,28.2,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Education/childcare*,33000,11.0,358000,10.4,11.0,23.9,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Other**,1000,0.4,9000,0.2,7.2,12.4,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Personal business,27000,9.0,260000,7.6,9.8,16.5,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Serve passenger,48000,16.2,491000,14.2,10.3,15.9,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Shopping,44000,14.8,311000,9.0,7.1,14.8,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Social/recreation,83000,28.0,734000,21.3,8.9,19.0,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lake Macquarie - West,Work related business*,23000,7.6,529000,15.4,23.5,32.5,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Commute,32000,10.0,844000,23.2,26.5,30.1,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Education/childcare*,49000,15.3,383000,10.5,7.8,17.0,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Other*,3000,0.9,9000,0.2,2.9,10.0,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Personal business*,48000,14.9,541000,14.9,11.3,16.5,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Serve passenger**,83000,25.9,582000,16.0,7.0,11.0,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Shopping,48000,14.9,417000,11.4,8.7,14.0,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Social/recreation,37000,11.7,560000,15.4,15.0,22.3,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Lower Hunter,Work related business*,20000,6.4,305000,8.4,15.0,24.8,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Commute,40000,11.5,865000,21.9,21.9,27.2,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Education/childcare*,21000,6.2,148000,3.7,7.0,12.7,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Other*,4000,1.0,43000,1.1,12.0,20.0,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Personal business,19000,5.4,123000,3.1,6.6,13.3,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Serve passenger*,81000,23.5,710000,18.0,8.8,15.3,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Shopping,54000,15.8,427000,10.8,7.9,14.1,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Social/recreation,102000,29.7,926000,23.4,9.1,18.5,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Maitland,Work related business,24000,6.9,709000,17.9,29.8,37.2,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Commute,78000,13.0,1094000,20.2,14.1,23.5,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Education/childcare,41000,6.8,148000,2.7,3.6,13.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Other*,9000,1.4,78000,1.4,9.1,14.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Personal business,57000,9.6,411000,7.6,7.2,15.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Serve passenger,104000,17.5,689000,12.7,6.6,14.0,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Shopping,89000,14.9,554000,10.2,6.2,14.3,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Social/recreation,194000,32.6,2083000,38.4,10.7,19.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Newcastle,Work related business*,24000,4.1,364000,6.7,14.9,22.5,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Commute,33000,14.8,641000,21.0,19.3,25.0,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Education/childcare*,26000,11.4,441000,14.4,17.3,26.8,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Other**,2000,1.0,46000,1.5,21.4,20.1,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Personal business,28000,12.3,305000,10.0,11.1,18.3,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Serve passenger*,31000,13.6,367000,12.0,12.0,16.5,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Shopping,33000,14.7,295000,9.7,8.9,13.8,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Social/recreation,63000,27.9,662000,21.7,10.5,19.1,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2023/24,,Port Stephens,Work related business*,10000,4.4,295000,9.7,30.1,36.9,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Commute,39000,10.0,714000,21.4,18.5,25.3,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Education/childcare*,34000,8.9,148000,4.4,4.3,12.1,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Other**,3000,0.7,8000,0.2,2.7,10.0,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Personal business,43000,11.1,340000,10.2,8.0,17.5,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Serve passenger,59000,15.3,363000,10.9,6.2,17.7,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Shopping,69000,18.0,556000,16.6,8.0,15.3,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Social/recreation,124000,32.2,914000,27.3,7.4,22.3,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - East,Work related business*,14000,3.7,299000,9.0,20.7,25.4,11101.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Commute,30000,10.6,556000,12.9,18.3,28.5,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Education/childcare*,29000,10.0,296000,6.9,10.3,23.8,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Other**,1000,0.3,4000,0.1,3.9,8.2,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Personal business,28000,9.8,325000,7.5,11.5,18.6,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Serve passenger*,41000,14.4,429000,10.0,10.4,16.4,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Shopping,36000,12.4,260000,6.0,7.3,15.5,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Social/recreation,96000,33.4,1784000,41.4,18.6,31.6,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lake Macquarie - West,Work related business*,26000,9.0,659000,15.3,25.5,35.0,11102.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lower Hunter,Education/childcare*,36000,12.9,213000,7.8,5.9,13.6,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lower Hunter,Other*,2000,0.7,8000,0.3,4.3,11.6,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lower Hunter,Personal business*,47000,16.6,504000,18.4,10.8,15.8,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lower Hunter,Serve passenger**,73000,25.8,396000,14.4,5.4,9.5,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lower Hunter,Shopping,44000,15.6,357000,13.0,8.1,13.6,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lower Hunter,Social/recreation,43000,15.1,493000,18.0,11.6,19.4,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Lower Hunter,Work related business*,15000,5.4,255000,9.3,16.7,20.5,10601.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Commute,41000,11.7,921000,22.5,22.2,26.7,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Education/childcare*,22000,6.4,172000,4.2,7.7,14.9,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Other*,5000,1.4,52000,1.3,10.5,17.1,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Personal business*,15000,4.3,96000,2.3,6.4,11.7,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Serve passenger*,95000,27.0,855000,20.9,9.0,15.2,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Shopping,56000,15.9,508000,12.4,9.1,15.3,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Social/recreation,102000,28.8,930000,22.8,9.2,18.3,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Maitland,Work related business*,16000,4.6,554000,13.5,33.8,35.2,10602.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Commute,72000,11.9,1143000,23.0,15.9,24.5,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Education/childcare,39000,6.4,152000,3.0,3.9,13.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Other*,7000,1.1,74000,1.5,10.8,33.7,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Personal business,58000,9.5,386000,7.8,6.7,15.3,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Serve passenger,106000,17.6,749000,15.0,7.0,13.8,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Shopping,91000,15.1,582000,11.7,6.4,13.9,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Social/recreation,207000,34.3,1464000,29.4,7.1,16.3,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Newcastle,Work related business*,25000,4.1,426000,8.6,17.0,22.3,11103.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Commute,32000,12.9,623000,17.5,19.2,26.3,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Education/childcare*,34000,13.6,523000,14.7,15.3,24.8,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Other*,3000,1.0,63000,1.8,24.1,22.1,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Personal business*,34000,13.5,546000,15.4,16.1,24.1,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Serve passenger*,37000,14.9,519000,14.6,13.8,18.4,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Shopping,33000,13.2,265000,7.5,7.9,13.0,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Social/recreation,68000,27.1,740000,20.8,10.8,19.5,10603.0
+sa3,hts_by_sa3_2020-21_to_2024-25.xlsx,2022/23,,Port Stephens,Work related business*,9000,3.8,277000,7.8,29.3,34.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Commute,54000,12.8,1003000,26.2,18.5,29.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Education/childcare,29000,6.9,166000,4.3,5.6,16.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Other,7000,1.6,36000,0.9,5.4,17.7,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Personal business,36000,8.4,359000,9.4,10.0,18.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Serve passenger,80000,18.9,540000,14.1,6.7,12.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Shopping,88000,20.8,637000,16.6,7.2,14.4,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Social/recreation,107000,25.2,807000,21.1,7.5,16.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - East,Work related business,23000,5.4,279000,7.3,12.1,22.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Commute,37000,13.8,891000,26.7,24.2,33.3,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Education/childcare,23000,8.8,169000,5.1,7.2,20.7,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Other,2000,0.7,45000,1.4,24.4,39.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Personal business,23000,8.5,226000,6.8,10.0,19.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Serve passenger,43000,16.3,383000,11.5,8.8,18.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Shopping,45000,16.8,411000,12.3,9.2,14.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Social/recreation,76000,28.5,903000,27.1,11.9,22.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lake Macquarie - West,Work related business,17000,6.6,306000,9.2,17.5,26.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Commute,32000,12.7,1024000,26.4,31.9,37.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Education/childcare,25000,10.0,153000,3.9,6.1,11.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Other,5000,1.9,63000,1.6,13.2,22.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Personal business,17000,6.9,352000,9.1,20.4,23.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Serve passenger,73000,29.0,507000,13.1,6.9,10.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Shopping,32000,12.8,440000,11.3,13.6,21.5,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Social/recreation,57000,22.7,873000,22.5,15.2,22.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Lower Hunter,Work related business,10000,4.0,469000,12.1,46.2,55.5,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Commute,37000,17.3,894000,36.0,24.1,30.6,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Education/childcare,17000,7.8,89000,3.6,5.3,13.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Other,1000,0.4,3000,0.1,3.2,12.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Personal business,13000,6.3,85000,3.4,6.4,23.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Serve passenger,30000,14.3,244000,9.8,8.0,15.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Shopping,52000,24.5,295000,11.9,5.6,13.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Social/recreation,47000,22.0,571000,23.0,12.1,18.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Maitland,Work related business,16000,7.5,302000,12.2,18.9,28.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Commute,110000,19.4,1489000,32.9,13.5,27.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Education/childcare,46000,8.1,227000,5.0,5.0,18.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Other,9000,1.5,52000,1.1,6.0,13.6,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Personal business,39000,6.9,225000,5.0,5.8,14.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Serve passenger,84000,14.8,348000,7.7,4.2,12.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Shopping,110000,19.4,647000,14.3,5.9,15.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Social/recreation,150000,26.5,1001000,22.1,6.7,15.6,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Newcastle,Work related business,19000,3.4,540000,11.9,28.2,38.1,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Commute,28000,14.3,421000,15.3,15.1,19.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Education/childcare,10000,4.9,71000,2.6,7.5,15.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Other,3000,1.4,16000,0.6,6.1,10.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Personal business,18000,9.4,103000,3.7,5.6,13.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Serve passenger,36000,18.5,418000,15.2,11.6,25.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Shopping,49000,25.4,500000,18.2,10.1,15.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Social/recreation,41000,21.1,846000,30.7,20.6,26.2,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2019/20,,Port Stephens,Work related business,10000,5.0,376000,13.7,38.4,36.0,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Commute,48000,11.3,720000,21.4,14.9,26.5,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Education/childcare,28000,6.6,164000,4.9,5.8,17.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Other,7000,1.7,12000,0.4,1.6,12.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Personal business,46000,10.7,483000,14.3,10.6,20.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Serve passenger,73000,17.2,497000,14.8,6.8,12.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Shopping,84000,19.7,538000,16.0,6.4,13.7,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Social/recreation,114000,26.7,673000,20.0,5.9,14.0,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - East,Work related business,26000,6.1,282000,8.4,10.8,21.4,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Commute,39000,17.3,1012000,34.5,25.8,36.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Education/childcare,17000,7.6,122000,4.2,7.1,21.3,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Other,2000,0.9,45000,1.5,21.4,34.7,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Personal business,19000,8.3,206000,7.0,11.0,22.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Serve passenger,32000,14.0,350000,11.9,11.0,20.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Shopping,40000,17.4,284000,9.7,7.2,13.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Social/recreation,58000,25.6,548000,18.7,9.4,21.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lake Macquarie - West,Work related business,20000,9.0,365000,12.5,17.9,27.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Commute,34000,10.5,1073000,24.0,32.0,37.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Education/childcare,31000,9.7,157000,3.5,5.1,11.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Other,6000,2.0,60000,1.3,9.3,14.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Personal business,21000,6.6,552000,12.3,26.0,28.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Serve passenger,104000,32.5,750000,16.8,7.2,10.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Shopping,35000,10.9,398000,8.9,11.4,16.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Social/recreation,79000,24.5,1268000,28.3,16.1,23.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Lower Hunter,Work related business,10000,3.3,218000,4.9,21.0,26.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Commute,38000,21.2,824000,43.6,21.4,29.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Education/childcare,9000,5.1,73000,3.8,7.9,15.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Other,2000,0.8,3000,0.2,1.9,11.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Personal business,9000,4.9,25000,1.3,2.8,21.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Serve passenger,29000,15.9,216000,11.4,7.5,16.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Shopping,40000,21.8,138000,7.3,3.5,10.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Social/recreation,40000,22.2,379000,20.0,9.4,16.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Maitland,Work related business,15000,8.1,233000,12.3,15.9,24.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Commute,108000,20.0,1645000,36.0,15.3,30.1,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Education/childcare,41000,7.6,252000,5.5,6.1,20.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Other,9000,1.6,39000,0.9,4.6,13.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Personal business,50000,9.3,250000,5.5,5.0,12.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Serve passenger,82000,15.2,365000,8.0,4.5,13.4,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Shopping,114000,21.2,786000,17.2,6.9,15.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Social/recreation,117000,21.8,746000,16.3,6.4,14.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Newcastle,Work related business,18000,3.4,489000,10.7,27.0,39.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Commute,27000,14.5,421000,16.0,15.4,18.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Education/childcare,10000,5.2,70000,2.7,7.2,14.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Other,3000,1.4,16000,0.6,6.0,10.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Personal business,15000,8.0,87000,3.3,5.7,12.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Serve passenger,38000,20.0,437000,16.7,11.6,25.2,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Shopping,50000,26.2,475000,18.1,9.6,15.0,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Social/recreation,35000,18.4,708000,27.0,20.4,24.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2018/19,,Port Stephens,Work related business,12000,6.3,408000,15.6,34.0,32.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Commute,54000,13.2,711000,22.2,13.1,24.4,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Education/childcare,31000,7.7,161000,5.0,5.1,15.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Other,8000,2.0,22000,0.7,2.6,12.5,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Personal business,37000,8.9,217000,6.8,5.9,12.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Serve passenger,64000,15.6,410000,12.8,6.4,12.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Shopping,80000,19.4,499000,15.6,6.3,13.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Social/recreation,112000,27.4,859000,26.9,7.7,16.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - East,Work related business,24000,5.8,316000,9.9,13.4,23.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Commute,40000,15.9,998000,30.4,25.1,34.9,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Education/childcare,17000,6.9,138000,4.2,8.0,21.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Other,2000,0.7,40000,1.2,22.9,36.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Personal business,23000,9.1,239000,7.3,10.5,20.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Serve passenger,39000,15.4,422000,12.9,10.9,20.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Shopping,45000,17.9,373000,11.4,8.3,13.7,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Social/recreation,69000,27.4,726000,22.1,10.6,21.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lake Macquarie - West,Work related business,17000,6.7,343000,10.5,20.3,33.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Commute,37000,14.1,963000,24.8,26.1,30.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Education/childcare,22000,8.5,145000,3.7,6.6,13.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Other,5000,2.0,31000,0.8,6.0,11.5,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Personal business,22000,8.6,408000,10.5,18.2,22.5,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Serve passenger,68000,26.0,645000,16.6,9.5,13.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Shopping,34000,13.0,529000,13.6,15.5,19.5,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Social/recreation,64000,24.6,987000,25.5,15.4,22.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Lower Hunter,Work related business,8000,3.2,169000,4.4,20.1,25.9,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Commute,41000,18.6,769000,35.9,18.7,25.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Education/childcare,20000,9.2,98000,4.6,4.8,13.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Other,2000,0.8,5000,0.2,2.8,11.0,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Personal business,12000,5.6,34000,1.6,2.7,18.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Serve passenger,30000,13.4,163000,7.6,5.5,12.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Shopping,51000,23.2,221000,10.3,4.3,10.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Social/recreation,50000,22.6,592000,27.7,11.9,19.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Maitland,Work related business,15000,6.6,260000,12.1,17.8,27.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Commute,87000,17.3,1080000,29.9,12.4,25.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Education/childcare,41000,8.2,227000,6.3,5.5,19.6,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Other,8000,1.5,44000,1.2,5.9,15.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Personal business,40000,8.0,187000,5.2,4.7,12.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Serve passenger,83000,16.5,357000,9.9,4.3,12.3,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Shopping,106000,21.2,707000,19.6,6.7,15.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Social/recreation,123000,24.6,861000,23.8,7.0,15.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Newcastle,Work related business,14000,2.8,148000,4.1,10.7,23.6,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Commute,25000,14.6,286000,10.8,11.2,15.0,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Education/childcare,10000,5.6,120000,4.5,12.4,20.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Other,3000,1.5,38000,1.4,14.5,17.9,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Personal business,17000,9.8,179000,6.7,10.4,15.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Serve passenger,37000,21.3,492000,18.5,13.2,25.9,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Shopping,42000,23.9,460000,17.3,11.0,15.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Social/recreation,32000,18.1,664000,25.0,21.0,25.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2017/18,,Port Stephens,Work related business,9000,5.1,417000,15.7,46.5,41.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Commute,63000,14.4,749000,22.8,11.9,22.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Education/childcare,35000,7.9,168000,5.1,4.8,13.0,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Other,9000,2.1,47000,1.4,5.2,11.7,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Personal business,40000,9.1,246000,7.5,6.2,13.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Serve passenger,66000,15.2,413000,12.5,6.2,12.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Shopping,92000,21.2,530000,16.1,5.7,12.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Social/recreation,105000,24.0,804000,24.4,7.7,17.0,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - East,Work related business,27000,6.2,333000,10.1,12.4,21.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Commute,38000,16.1,880000,33.9,23.0,32.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Education/childcare,22000,9.2,144000,5.5,6.6,22.7,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Other,4000,1.5,29000,1.1,8.3,22.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Personal business,24000,10.3,184000,7.1,7.5,14.9,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Serve passenger,33000,14.0,337000,13.0,10.1,17.3,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Shopping,47000,19.9,319000,12.3,6.8,15.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Social/recreation,59000,24.6,527000,20.3,9.0,18.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lake Macquarie - West,Work related business,10000,4.4,180000,6.9,17.2,29.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Commute,42000,15.4,1021000,28.5,24.4,28.7,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Education/childcare,22000,8.0,140000,3.9,6.4,13.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Other,4000,1.4,19000,0.5,5.0,9.9,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Personal business,20000,7.4,274000,7.6,13.5,18.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Serve passenger,74000,27.3,644000,18.0,8.6,13.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Shopping,37000,13.5,460000,12.8,12.5,17.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Social/recreation,65000,24.0,856000,23.9,13.1,21.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Lower Hunter,Work related business,8000,3.0,168000,4.7,20.8,26.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Commute,39000,15.6,1024000,37.6,26.4,31.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Education/childcare,18000,7.1,106000,3.9,6.0,16.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Other,3000,1.1,20000,0.7,7.0,10.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Personal business,11000,4.5,112000,4.1,10.0,15.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Serve passenger,45000,18.0,362000,13.3,8.1,14.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Shopping,52000,20.8,277000,10.2,5.3,11.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Social/recreation,67000,26.9,593000,21.8,8.8,16.0,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Maitland,Work related business,15000,6.0,229000,8.4,15.4,23.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Commute,86000,15.5,817000,20.1,9.5,21.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Education/childcare,34000,6.2,182000,4.5,5.3,18.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Other,14000,2.5,133000,3.3,9.5,17.3,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Personal business,41000,7.3,177000,4.4,4.3,12.3,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Serve passenger,90000,16.2,429000,10.6,4.8,12.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Shopping,101000,18.2,650000,16.0,6.4,15.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Social/recreation,145000,26.0,1212000,29.9,8.4,17.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Newcastle,Work related business,45000,8.0,460000,11.3,10.3,18.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Commute,31000,13.6,346000,10.8,11.0,15.4,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Education/childcare,23000,10.1,202000,6.3,8.7,18.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Other,10000,4.5,91000,2.8,8.7,12.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Personal business,20000,8.7,234000,7.3,11.6,17.0,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Serve passenger,37000,16.0,690000,21.5,18.7,25.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Shopping,41000,17.8,523000,16.3,12.7,17.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Social/recreation,56000,24.2,950000,29.6,16.9,22.1,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2016/17,,Port Stephens,Work related business,12000,5.1,170000,5.3,14.4,23.0,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Commute,66000,14.5,699000,18.9,10.6,21.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Education/childcare,32000,7.2,172000,4.7,5.3,13.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Other,16000,3.5,80000,2.2,5.0,12.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Personal business,34000,7.5,158000,4.3,4.6,13.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Serve passenger,68000,15.0,360000,9.7,5.3,11.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Shopping,81000,17.8,370000,10.0,4.6,11.5,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Social/recreation,128000,28.2,1432000,38.8,11.2,19.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - East,Work related business,29000,6.4,422000,11.4,14.6,23.0,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Commute,37000,13.9,656000,23.9,17.6,27.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Education/childcare,19000,7.2,197000,7.2,10.2,25.3,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Other,5000,1.7,19000,0.7,4.1,13.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Personal business,32000,11.8,253000,9.2,8.0,16.3,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Serve passenger,45000,16.9,511000,18.6,11.3,19.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Shopping,56000,21.0,408000,14.9,7.2,16.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Social/recreation,63000,23.5,564000,20.6,9.0,18.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lake Macquarie - West,Work related business,11000,4.0,134000,4.9,12.3,22.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Commute,37000,16.8,860000,29.2,23.4,27.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Education/childcare,12000,5.3,133000,4.5,11.4,20.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Other,5000,2.1,26000,0.9,5.7,12.7,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Personal business,21000,9.5,230000,7.8,11.1,16.9,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Serve passenger,37000,17.0,371000,12.6,10.0,16.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Shopping,37000,17.1,495000,16.8,13.2,17.9,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Social/recreation,60000,27.4,648000,21.9,10.8,18.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Lower Hunter,Work related business,10000,4.8,190000,6.4,18.2,20.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Commute,42000,14.5,994000,29.7,23.5,28.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Education/childcare,28000,9.7,219000,6.5,7.7,21.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Other,11000,3.8,116000,3.5,10.4,18.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Personal business,15000,5.3,166000,5.0,10.8,16.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Serve passenger,51000,17.6,442000,13.2,8.6,14.6,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Shopping,57000,19.6,360000,10.8,6.3,11.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Social/recreation,68000,23.5,608000,18.2,8.9,17.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Maitland,Work related business,17000,6.0,439000,13.1,25.2,34.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Commute,83000,12.1,725000,15.9,8.8,20.1,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Education/childcare,44000,6.4,174000,3.8,4.0,20.3,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Other,31000,4.5,267000,5.8,8.7,17.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Personal business,26000,3.9,86000,1.9,3.3,11.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Serve passenger,110000,16.0,553000,12.1,5.0,11.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Shopping,111000,16.2,480000,10.5,4.3,11.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Social/recreation,222000,32.5,1545000,33.8,6.9,17.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Newcastle,Work related business,57000,8.4,745000,16.3,13.0,20.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Commute,37000,14.1,722000,18.9,19.4,23.4,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Education/childcare,34000,12.9,308000,8.1,9.1,18.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Other,11000,4.3,89000,2.3,7.8,12.9,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Personal business,18000,6.8,252000,6.6,14.0,19.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Serve passenger,47000,17.9,909000,23.8,19.2,22.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Shopping,43000,16.3,521000,13.6,12.1,16.4,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Social/recreation,53000,20.2,763000,20.0,14.3,20.0,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2015/16,,Port Stephens,Work related business,20000,7.5,255000,6.7,12.9,20.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Commute,59000,12.1,593000,16.3,10.1,19.7,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Education/childcare,32000,6.5,263000,7.2,8.3,19.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Other,20000,4.2,84000,2.3,4.1,10.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Personal business,41000,8.4,194000,5.3,4.7,14.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Serve passenger,79000,16.2,473000,13.0,6.0,12.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Shopping,93000,19.1,357000,9.8,3.8,10.5,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Social/recreation,125000,25.7,1112000,30.5,8.9,17.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - East,Work related business,38000,7.7,571000,15.7,15.2,25.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Commute,35000,13.4,566000,22.4,16.2,24.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Education/childcare,26000,10.0,210000,8.3,8.1,21.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Other,6000,2.5,39000,1.6,6.1,14.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Personal business,22000,8.4,136000,5.4,6.2,15.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Serve passenger,53000,20.3,503000,20.0,9.5,16.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Shopping,48000,18.4,319000,12.7,6.6,14.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Social/recreation,58000,22.2,485000,19.2,8.4,16.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lake Macquarie - West,Work related business,13000,4.8,262000,10.4,20.9,28.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Commute,30000,16.6,789000,34.6,26.3,29.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Education/childcare,10000,5.5,81000,3.6,8.2,16.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Other,6000,3.5,77000,3.4,12.2,20.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Personal business,13000,7.4,148000,6.5,11.2,17.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Serve passenger,42000,23.0,339000,14.9,8.2,14.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Shopping,28000,15.4,214000,9.4,7.7,13.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Social/recreation,43000,23.9,495000,21.7,11.5,18.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Lower Hunter,Work related business,9000,4.8,139000,6.1,16.1,19.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Commute,42000,15.4,979000,29.3,23.3,28.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Education/childcare,22000,8.0,187000,5.6,8.6,25.6,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Other,13000,4.8,160000,4.8,12.1,18.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Personal business,15000,5.6,249000,7.4,16.2,22.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Serve passenger,48000,17.4,435000,13.0,9.2,15.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Shopping,54000,19.8,284000,8.5,5.2,10.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Social/recreation,59000,21.5,470000,14.1,8.0,15.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Maitland,Work related business,21000,7.5,575000,17.2,27.9,35.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Commute,88000,12.6,671000,15.9,7.6,19.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Education/childcare,57000,8.1,271000,6.4,4.8,20.1,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Other,31000,4.4,252000,6.0,8.2,18.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Personal business,36000,5.1,149000,3.5,4.1,14.3,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Serve passenger,117000,16.8,582000,13.8,5.0,11.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Shopping,108000,15.4,387000,9.2,3.6,10.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Social/recreation,206000,29.5,1262000,29.8,6.1,16.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Newcastle,Work related business,56000,8.1,653000,15.4,11.6,18.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Commute,35000,12.3,647000,18.6,18.7,23.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Education/childcare,32000,11.4,335000,9.6,10.5,24.1,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Other,13000,4.6,94000,2.7,7.2,12.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Personal business,16000,5.7,131000,3.7,8.2,14.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Serve passenger,44000,15.7,650000,18.6,14.8,18.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Shopping,38000,13.6,365000,10.5,9.6,14.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Social/recreation,71000,25.2,846000,24.3,12.0,18.9,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2014/15,,Port Stephens,Work related business,32000,11.4,420000,12.0,13.2,19.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Commute,49000,10.8,546000,15.0,11.1,20.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Education/childcare,24000,5.3,221000,6.1,9.2,24.0,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Other,16000,3.5,60000,1.6,3.8,9.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Personal business,42000,9.3,183000,5.1,4.3,13.3,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Serve passenger,83000,18.3,533000,14.7,6.4,13.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Shopping,92000,20.1,463000,12.8,5.1,12.7,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Social/recreation,116000,25.6,1097000,30.2,9.4,18.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - East,Work related business,32000,7.0,524000,14.4,16.4,26.7,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Commute,34000,12.4,561000,18.1,16.5,23.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Education/childcare,29000,10.5,325000,10.5,11.3,25.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Other,8000,3.0,66000,2.1,8.1,14.3,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Personal business,17000,6.2,146000,4.7,8.6,18.9,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Serve passenger,57000,20.6,587000,18.9,10.4,16.7,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Shopping,46000,16.8,403000,13.0,8.7,13.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Social/recreation,68000,24.9,605000,19.5,8.9,15.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lake Macquarie - West,Work related business,16000,5.8,404000,13.0,25.4,31.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Commute,26000,13.2,673000,26.5,26.1,30.0,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Education/childcare,10000,5.3,116000,4.6,11.1,21.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Other,8000,4.3,110000,4.3,13.1,22.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Personal business,13000,6.9,150000,5.9,11.2,18.9,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Serve passenger,33000,17.0,332000,13.1,10.0,15.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Shopping,38000,19.6,301000,11.9,7.9,13.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Social/recreation,45000,23.2,557000,21.9,12.3,20.9,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Lower Hunter,Work related business,21000,10.6,299000,11.8,14.5,19.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Commute,37000,13.4,579000,18.8,15.5,22.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Education/childcare,29000,10.4,241000,7.8,8.3,25.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Other,15000,5.3,164000,5.3,11.1,17.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Personal business,12000,4.2,194000,6.3,16.5,22.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Serve passenger,50000,18.1,438000,14.2,8.7,14.6,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Shopping,52000,18.8,280000,9.1,5.3,10.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Social/recreation,52000,18.6,428000,13.9,8.2,15.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Maitland,Work related business,31000,11.1,755000,24.5,24.5,29.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Commute,92000,13.3,971000,21.5,10.5,20.1,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Education/childcare,61000,8.7,296000,6.5,4.9,17.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Other,31000,4.4,261000,5.8,8.4,17.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Personal business,40000,5.7,210000,4.6,5.3,15.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Serve passenger,114000,16.4,588000,13.0,5.1,11.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Shopping,117000,16.8,411000,9.1,3.5,11.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Social/recreation,194000,27.8,1157000,25.6,6.0,15.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Newcastle,Work related business,49000,7.0,622000,13.8,12.8,20.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Commute,34000,13.8,811000,24.7,23.6,29.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Education/childcare,23000,9.1,308000,9.4,13.5,30.2,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Other,9000,3.6,119000,3.6,13.2,18.2,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Personal business,12000,4.8,67000,2.1,5.7,13.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Serve passenger,40000,16.1,448000,13.6,11.1,15.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Shopping,43000,17.2,355000,10.8,8.3,13.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Social/recreation,57000,23.1,801000,24.4,13.9,21.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2013/14,,Port Stephens,Work related business,31000,12.3,376000,11.4,12.3,16.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Commute,51000,10.5,617000,16.5,12.1,21.4,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Education/childcare,28000,5.8,235000,6.3,8.4,24.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Other,12000,2.4,61000,1.6,5.3,14.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Personal business,47000,9.7,263000,7.0,5.6,14.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Serve passenger,105000,21.6,799000,21.4,7.6,14.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Shopping,106000,21.9,583000,15.6,5.5,12.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Social/recreation,108000,22.4,702000,18.8,6.5,14.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - East,Work related business,27000,5.7,470000,12.6,17.2,27.0,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Commute,31000,13.6,590000,20.0,18.9,25.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Education/childcare,24000,10.7,278000,9.4,11.3,25.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Other,8000,3.5,74000,2.5,9.2,16.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Personal business,13000,5.5,121000,4.1,9.5,18.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Serve passenger,42000,18.1,383000,12.9,9.2,14.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Shopping,40000,17.3,374000,12.7,9.4,13.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Social/recreation,59000,25.7,593000,20.1,10.1,16.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lake Macquarie - West,Work related business,13000,5.5,541000,18.3,42.7,44.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Commute,29000,15.3,641000,24.5,22.0,27.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Education/childcare,13000,6.8,102000,3.9,7.9,17.7,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Other,10000,5.1,232000,8.8,24.0,27.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Personal business,12000,6.1,107000,4.1,9.3,17.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Serve passenger,28000,14.6,276000,10.5,9.9,15.0,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Shopping,34000,18.1,297000,11.4,8.7,15.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Social/recreation,36000,19.0,525000,20.1,14.6,21.7,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Lower Hunter,Work related business,29000,15.1,439000,16.8,15.3,24.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Commute,41000,15.9,692000,22.9,16.9,23.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Education/childcare,23000,8.9,154000,5.1,6.7,20.6,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Other,10000,3.7,126000,4.2,13.3,16.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Personal business,9000,3.5,158000,5.2,17.5,23.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Serve passenger,48000,18.7,371000,12.3,7.7,12.7,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Shopping,46000,17.8,233000,7.7,5.1,10.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Social/recreation,53000,20.7,718000,23.8,13.4,20.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Maitland,Work related business,28000,10.8,562000,18.6,20.1,23.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Commute,94000,14.1,1071000,22.6,11.4,21.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Education/childcare,50000,7.6,224000,4.7,4.5,16.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Other,23000,3.4,231000,4.9,10.3,19.3,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Personal business,48000,7.3,245000,5.2,5.1,15.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Serve passenger,103000,15.5,520000,11.0,5.0,12.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Shopping,126000,18.9,539000,11.4,4.3,12.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Social/recreation,163000,24.5,950000,20.0,5.8,15.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Newcastle,Work related business,57000,8.6,963000,20.3,16.8,23.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Commute,34000,14.2,649000,17.9,19.0,23.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Education/childcare,22000,8.9,310000,8.6,14.4,29.1,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Other,9000,3.8,134000,3.7,14.7,18.9,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Personal business,11000,4.5,69000,1.9,6.3,12.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Serve passenger,31000,12.6,380000,10.5,12.4,15.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Shopping,45000,18.8,420000,11.6,9.3,13.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Social/recreation,61000,25.2,1285000,35.5,21.1,27.4,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2012/13,,Port Stephens,Work related business,29000,11.9,370000,10.2,12.9,16.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Commute,55000,11.0,866000,20.3,15.7,23.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Education/childcare,27000,5.4,167000,3.9,6.1,20.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Other,7000,1.4,43000,1.0,6.0,20.4,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Personal business,45000,9.0,268000,6.3,6.0,13.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Serve passenger,105000,21.0,811000,19.0,7.7,14.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Shopping,123000,24.4,843000,19.7,6.9,15.4,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Social/recreation,111000,22.0,792000,18.5,7.2,16.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - East,Work related business,29000,5.8,481000,11.3,16.4,22.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Commute,35000,13.1,710000,20.6,20.4,26.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Education/childcare,22000,8.5,244000,7.1,10.8,21.7,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Other,7000,2.5,46000,1.3,7.0,12.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Personal business,27000,10.3,320000,9.3,11.8,18.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Serve passenger,41000,15.6,448000,13.0,10.9,14.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Shopping,46000,17.4,510000,14.8,11.1,15.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Social/recreation,61000,23.1,607000,17.6,9.9,16.7,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lake Macquarie - West,Work related business,25000,9.6,565000,16.4,22.3,27.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Commute,20000,12.5,346000,16.1,17.0,22.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Education/childcare,14000,8.9,119000,5.5,8.2,19.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Other,7000,4.6,183000,8.5,24.4,25.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Personal business,10000,6.3,68000,3.2,6.6,12.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Serve passenger,16000,9.9,127000,5.9,7.9,12.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Shopping,30000,18.6,304000,14.2,10.0,16.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Social/recreation,35000,21.3,433000,20.2,12.5,19.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Lower Hunter,Work related business,29000,17.9,565000,26.4,19.3,28.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Commute,32000,13.8,617000,21.9,19.0,26.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Education/childcare,23000,9.7,177000,6.3,7.8,17.0,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Other,6000,2.5,63000,2.2,10.6,15.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Personal business,10000,4.1,112000,4.0,11.8,19.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Serve passenger,43000,18.5,362000,12.8,8.3,13.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Shopping,38000,16.3,231000,8.2,6.0,12.2,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Social/recreation,55000,23.5,799000,28.3,14.5,22.3,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Maitland,Work related business,27000,11.6,461000,16.3,17.0,22.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Commute,89000,13.9,1111000,23.6,12.5,22.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Education/childcare,38000,6.0,153000,3.2,4.0,17.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Other,21000,3.3,245000,5.2,11.5,18.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Personal business,48000,7.6,233000,4.9,4.8,14.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Serve passenger,96000,15.0,503000,10.7,5.2,13.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Shopping,134000,21.0,621000,13.2,4.6,11.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Social/recreation,157000,24.5,980000,20.8,6.3,14.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Newcastle,Work related business,56000,8.7,871000,18.5,15.7,22.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Commute,29000,13.4,606000,17.9,20.7,23.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Education/childcare,12000,5.4,169000,5.0,14.1,23.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Other,7000,3.3,205000,6.0,28.4,33.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Personal business,9000,3.9,89000,2.6,10.3,19.0,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Serve passenger,33000,15.0,292000,8.6,8.9,11.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Shopping,50000,22.6,503000,14.8,10.1,13.5,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Social/recreation,46000,20.8,1153000,34.0,25.2,29.2,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2011/12,,Port Stephens,Work related business,34000,15.6,370000,10.9,10.8,15.4,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Commute,58000,10.2,874000,19.5,15.0,22.5,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Education/childcare,40000,7.0,254000,5.6,6.3,21.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Other,10000,1.7,53000,1.2,5.3,18.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Personal business,46000,8.1,275000,6.1,6.0,13.9,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Serve passenger,119000,20.8,820000,18.2,6.9,13.2,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Shopping,127000,22.3,773000,17.2,6.1,13.7,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Social/recreation,134000,23.4,883000,19.6,6.6,16.3,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - East,Work related business,38000,6.7,564000,12.6,14.8,21.3,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Commute,28000,11.3,531000,16.2,18.7,25.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Education/childcare,21000,8.3,176000,5.4,8.5,18.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Other,3000,1.4,18000,0.5,5.1,10.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Personal business,31000,12.2,382000,11.7,12.4,18.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Serve passenger,40000,15.8,453000,13.8,11.4,14.9,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Shopping,48000,18.9,468000,14.3,9.8,14.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Social/recreation,55000,22.0,572000,17.5,10.3,17.8,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lake Macquarie - West,Work related business,26000,10.2,675000,20.6,26.1,29.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Commute,20000,14.0,258000,14.3,13.0,17.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Education/childcare,14000,10.2,89000,4.9,6.1,17.5,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Other,7000,5.1,173000,9.6,24.0,22.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Personal business,10000,7.3,92000,5.1,8.8,13.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Serve passenger,16000,11.4,81000,4.5,5.0,9.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Shopping,21000,15.0,234000,13.0,11.0,16.3,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Social/recreation,31000,21.5,402000,22.3,13.2,18.0,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Lower Hunter,Work related business,22000,15.5,473000,26.3,21.4,31.1,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Commute,29000,15.4,585000,23.9,20.2,25.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Education/childcare,17000,8.9,136000,5.6,8.1,15.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Other,4000,2.1,56000,2.3,14.3,17.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Personal business,12000,6.2,135000,5.5,11.4,19.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Serve passenger,30000,15.8,252000,10.3,8.5,13.4,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Shopping,33000,17.3,193000,7.9,5.9,11.8,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Social/recreation,45000,24.1,744000,30.3,16.4,24.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Maitland,Work related business,19000,10.3,350000,14.3,18.0,24.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Commute,77000,12.8,836000,20.8,10.8,21.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Education/childcare,36000,6.0,150000,3.7,4.1,20.4,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Other,16000,2.6,192000,4.8,12.3,19.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Personal business,50000,8.4,249000,6.2,4.9,13.6,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Serve passenger,98000,16.3,530000,13.2,5.4,13.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Shopping,122000,20.3,686000,17.0,5.6,12.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Social/recreation,161000,26.7,755000,18.8,4.7,14.9,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Newcastle,Work related business,41000,6.9,628000,15.6,15.1,22.7,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Commute,29000,13.0,558000,16.6,19.6,19.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Education/childcare,12000,5.6,164000,4.9,13.4,17.8,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Other,9000,4.0,162000,4.8,18.5,27.4,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Personal business,9000,4.1,137000,4.1,15.0,21.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Serve passenger,35000,15.9,314000,9.3,9.0,11.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Shopping,43000,19.4,418000,12.4,9.8,12.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Social/recreation,56000,25.2,1148000,34.1,20.7,23.9,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2010/11,,Port Stephens,Work related business,28000,12.8,463000,13.7,16.4,22.2,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Commute,64000,11.6,909000,20.6,14.2,21.5,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Education/childcare,43000,7.9,234000,5.3,5.4,17.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Other,10000,1.9,39000,0.9,3.7,10.1,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Personal business,42000,7.7,206000,4.7,4.8,13.4,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Serve passenger,96000,17.4,538000,12.2,5.6,11.5,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Shopping,117000,21.2,799000,18.1,6.8,15.8,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Social/recreation,132000,23.9,1007000,22.9,7.6,17.3,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - East,Work related business,47000,8.5,675000,15.3,14.5,20.6,11101.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Commute,30000,11.2,529000,16.3,17.6,23.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Education/childcare,27000,10.2,197000,6.1,7.2,19.0,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Other,3000,1.0,12000,0.4,4.1,6.6,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Personal business,28000,10.6,345000,10.6,12.1,18.9,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Serve passenger,46000,17.1,482000,14.9,10.5,14.4,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Shopping,48000,17.7,502000,15.5,10.5,16.2,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Social/recreation,57000,21.4,535000,16.5,9.3,18.5,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lake Macquarie - West,Work related business,29000,10.9,642000,19.8,22.0,27.1,11102.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Commute,17000,11.5,202000,10.8,12.2,16.7,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Education/childcare,14000,9.9,134000,7.2,9.4,24.5,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Other,3000,1.9,12000,0.7,4.4,7.7,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Personal business,12000,8.3,149000,8.0,12.3,13.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Serve passenger,22000,15.0,152000,8.2,7.0,10.6,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Shopping,27000,18.4,340000,18.2,12.7,15.2,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Social/recreation,31000,21.4,494000,26.5,15.9,21.4,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Lower Hunter,Work related business,20000,13.5,380000,20.4,19.4,25.8,10601.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Commute,24000,12.7,427000,23.1,17.7,21.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Education/childcare,11000,5.9,84000,4.5,7.5,15.0,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Other,3000,1.7,27000,1.4,8.3,13.0,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Personal business,15000,7.7,166000,9.0,11.3,19.5,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Serve passenger,24000,12.7,192000,10.3,8.0,12.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Shopping,38000,19.9,196000,10.6,5.2,12.1,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Social/recreation,53000,27.8,433000,23.4,8.2,15.9,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Maitland,Work related business,22000,11.6,329000,17.7,15.0,26.6,10602.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Commute,78000,13.8,725000,20.3,9.3,18.1,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Education/childcare,39000,7.0,212000,5.9,5.4,19.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Other,13000,2.2,152000,4.2,12.0,17.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Personal business,52000,9.1,335000,9.4,6.5,14.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Serve passenger,91000,16.1,492000,13.8,5.4,13.2,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Shopping,112000,19.8,596000,16.7,5.3,11.8,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Social/recreation,152000,26.9,787000,22.0,5.2,15.5,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Newcastle,Work related business,29000,5.2,274000,7.7,9.4,18.0,11103.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Commute,27000,12.6,504000,20.6,18.8,20.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Education/childcare,18000,8.3,194000,7.9,10.9,19.4,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Other,6000,3.0,91000,3.7,14.3,22.7,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Personal business,14000,6.7,204000,8.3,14.2,22.2,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Serve passenger,34000,15.7,211000,8.6,6.3,10.3,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Shopping,31000,14.3,211000,8.6,6.9,10.6,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Social/recreation,52000,24.3,439000,17.9,8.4,13.1,10603.0
+sa3,hts_by_sa3_2009-10_to_2019-20.xlsx,2009/10,,Port Stephens,Work related business,32000,15.2,599000,24.4,18.5,24.2,10603.0

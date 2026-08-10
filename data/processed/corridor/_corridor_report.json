@@ -1,0 +1,33 @@
+{
+  "alignment_length_m": {
+    "NLR.OUTBOUND": 2729.3,
+    "NLR.INBOUND": 2729.3
+  },
+  "scheduled_end_to_end_s": {
+    "0": 720,
+    "1": 720
+  },
+  "kinematic_end_to_end_s": {
+    "0": 290.1,
+    "1": 290.2
+  },
+  "residual_allocation": {
+    "0": {
+      "residual_total_s": 429.9,
+      "dwell_total_s": 112.0,
+      "signal_and_recovery_s": 317.9,
+      "n_intermediate_stops": 4
+    },
+    "1": {
+      "residual_total_s": 429.8,
+      "dwell_total_s": 112.0,
+      "signal_and_recovery_s": 317.8,
+      "n_intermediate_stops": 4
+    }
+  },
+  "n_corridor_signals": 14,
+  "charging_dwell_share_of_runtime": {
+    "0": 11.1,
+    "1": 11.1
+  }
+}

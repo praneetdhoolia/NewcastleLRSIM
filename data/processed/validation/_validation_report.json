@@ -1,0 +1,21 @@
+{
+  "n_targets": 210,
+  "by_split": {
+    "holdout": 143,
+    "calibration": 67
+  },
+  "by_metric": {
+    "road_aadt": 119,
+    "station_entry_monthly_mean": 26,
+    "station_exit_monthly_mean": 26,
+    "lr_cardtype_share": 13,
+    "hts_mode_share": 12,
+    "lr_tapon_share_by_stop": 6,
+    "lr_boardings_monthly_mean": 2,
+    "lr_scheduled_runtime": 2,
+    "lr_boardings_daily_mean": 1,
+    "bus_boardings_monthly_mean": 1,
+    "lr_share_of_local_pt_boardings": 1,
+    "lr_alignment_length": 1
+  }
+}

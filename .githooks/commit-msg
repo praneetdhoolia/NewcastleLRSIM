@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# commit-msg — strip any reference to the claude.ai/code session from commit messages.
+#
+# Enforces the CLAUDE.md rule deterministically at the GIT layer: git runs this on
+# EVERY commit regardless of how the message was supplied (-m, -F, heredoc, editor),
+# so a session link can never land in history even if it is added upstream (the web
+# harness instructs the agent to append a "Claude-Session:" trailer; this removes it).
+#
+# Strip, don't reject: drop the offending line(s) and let the commit succeed. git's
+# default message cleanup trims the leftover trailing blank line.
+#
+# Activated per session via core.hooksPath -> .githooks (set by the SessionStart hook
+# in .claude/settings.json), because a cloud container is ephemeral and .git/hooks
+# is not tracked.
+set -euo pipefail
+
+msg_file="$1"
+tmp="$(mktemp)"
+
+# Remove lines carrying the actual session LINK or the Claude-Session trailer label.
+# Match the URL form (https://claude.ai/code/...) and the trailer label — NOT bare
+# mentions of the string, so prose that discusses this very policy is preserved.
+# `|| true`: grep -v exits 1 when nothing remains; that is not an error here.
+grep -viE 'https?://claude\.ai/code|^[[:space:]]*Claude-Session:[[:space:]]*' "$msg_file" > "$tmp" || true
+
+cat "$tmp" > "$msg_file"
+rm -f "$tmp"

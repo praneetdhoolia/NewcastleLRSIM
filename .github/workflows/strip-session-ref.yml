@@ -1,0 +1,54 @@
+name: strip-session-ref
+
+# Strip any claude.ai/code session link / `Claude-Session:` trailer from a PR BODY.
+#
+# Why this lives server-side (and not in a git hook or a PreToolUse hook): a PR body is
+# GitHub metadata, NOT git history, so the `.githooks/commit-msg` strip hook can never see
+# it; and the `PreToolUse` hooks only intercept the AGENT's own `mcp__github__*` / `gh pr`
+# tool calls, so a body injected by the claude.ai/code PLATFORM at PR-creation time (outside
+# the agent's tool loop) slips past them. This workflow is the only enforcement point that
+# catches a platform-created body. It is a scrub-AFTER-creation (the platform injects the
+# link; `attribution.sessionUrl: false` is meant to suppress it at source but does not cover
+# the cloud PR-body path), so there is a brief window before this runs — acceptable, since
+# the repo side cannot block the platform injection. (CLAUDE.md: no claude.ai/code session
+# link or attribution in commits or PRs.)
+#
+# Works because this repo's PRs come from same-repo `praneetdhoolia/*` branches, so
+# `pull_request` grants a write-scoped token. (Fork PRs would need `pull_request_target` +
+# extra care; we don't take fork PRs.)
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  strip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Strip session reference from PR body
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # `gh pr edit` resolves the target repo from the local git remote. This job has
+          # no `actions/checkout`, so the runner dir is NOT a git repo and gh dies with
+          # "fatal: not a git repository". GH_REPO names the repo explicitly so gh works
+          # without a clone. (Cheaper than adding checkout just to run one gh call.)
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # Only act when a session reference is actually present — this keeps the workflow
+          # idempotent and loop-safe: the stripped body has no match, so the `edited` event
+          # this edit triggers re-runs and no-ops.
+          if printf '%s' "$PR_BODY" | grep -qiE 'https?://claude\.ai/code|^[[:space:]]*Claude-Session:[[:space:]]'; then
+            # Delete the session-link line(s) and any Claude-Session: trailer (case-insensitive).
+            # Command substitution drops the resulting trailing newlines, so no extra trim is needed.
+            cleaned="$(printf '%s' "$PR_BODY" \
+              | sed -E '/https?:\/\/claude\.ai\/code/Id; /^[[:space:]]*Claude-Session:[[:space:]]/Id')"
+            printf '%s\n' "$cleaned" | gh pr edit "$PR_NUMBER" --body-file -
+            echo "Stripped claude.ai/code session reference from PR #$PR_NUMBER body."
+          else
+            echo "No session reference in PR #$PR_NUMBER body; nothing to do."
+          fi
