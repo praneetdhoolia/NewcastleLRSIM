@@ -1,0 +1,137 @@
+[
+  {
+    "era": "era2_2016_rail_truncated",
+    "feed": "sydneytrains",
+    "s3_key": "historical_gtfs/sydneytrains/2016/2016-09/sydneytrains_schedule_data_20160920000000.zip",
+    "bytes": 7031489,
+    "sha256_16": "86d15542464fc553",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era2_2016_rail_truncated",
+    "feed": "nswtrains",
+    "s3_key": "historical_gtfs/nswtrains/2016/2016-09/nswtrains_schedule_data_20160923000000.zip",
+    "bytes": 10214611,
+    "sha256_16": "6c458baed9faf887",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era2_2016_rail_truncated",
+    "feed": "complete",
+    "s3_key": "historical_gtfs/complete_gtfs/2016/2016-08/full_greater_sydney_gtfs_static_20160829.zip",
+    "bytes": 101718167,
+    "sha256_16": "aed7ade7c0267504",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era3_2018_keolis_interchange",
+    "feed": "nisc001",
+    "s3_key": "historical_gtfs/NISC001/2018/2018-10/NISC001_scheduled_data_20181019.zip",
+    "bytes": 5011206,
+    "sha256_16": "c599185939f379b3",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era3_2018_keolis_interchange",
+    "feed": "sydneytrains",
+    "s3_key": "historical_gtfs/sydneytrains/2018/2018-10/SydneyTrains_scheduled_data_20181030.zip",
+    "bytes": 9854740,
+    "sha256_16": "df60a66ccdc1ba91",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era3_2018_keolis_interchange",
+    "feed": "nswtrains",
+    "s3_key": "historical_gtfs/nswtrains/2018/2018-10/nswtrains_scheduled_data_20181007011000.zip",
+    "bytes": 9328311,
+    "sha256_16": "f03cebc8f8c575aa",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era4_2019_lr_open",
+    "feed": "nisc001",
+    "s3_key": "historical_gtfs/NISC001/2019/2019-03/NISC001_scheduled_data_20190325210300.zip",
+    "bytes": 4717085,
+    "sha256_16": "723a86123958da00",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era4_2019_lr_open",
+    "feed": "sydneytrains",
+    "s3_key": "historical_gtfs/sydneytrains/2019/2019-03/sydneytrains_scheduled_data_20190331010300.zip",
+    "bytes": 9911544,
+    "sha256_16": "8ecb229d61e48fa1",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era4_2019_lr_open",
+    "feed": "nswtrains",
+    "s3_key": "historical_gtfs/nswtrains/2019/2019-03/nswtrains_scheduled_data_20190330010300.zip",
+    "bytes": 9823981,
+    "sha256_16": "5de7913d92aae747",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "era4_2019_lr_open",
+    "feed": "lightrail",
+    "s3_key": "historical_gtfs/lightrail-newcastle/2020/2020-02/lightrail-newcastle_scheduled_data_20200218010200.zip",
+    "bytes": 37275,
+    "sha256_16": "597a58a524208e50",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "base2026",
+    "feed": "nisc001",
+    "s3_key": "historical_gtfs/NISC001/2026/2026-08/NISC001_scheduled_data_20260805190800.zip",
+    "bytes": 3459002,
+    "sha256_16": "76f701acb32d0c54",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "base2026",
+    "feed": "lightrail",
+    "s3_key": "historical_gtfs/lightrail-newcastle/2026/2026-08/lightrail-newcastle_scheduled_data_20260804010800.zip",
+    "bytes": 53308,
+    "sha256_16": "987777bb6841cc83",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "base2026",
+    "feed": "regionbuses",
+    "s3_key": "historical_gtfs/regionbuses-newcastlehunter/2026/2026-08/regionbuses-newcastlehunter_scheduled_data_20260801200800.zip",
+    "bytes": 6884155,
+    "sha256_16": "0b5abc43851700ad",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "base2026",
+    "feed": "sydneytrains",
+    "s3_key": "historical_gtfs/sydneytrains/2026/2026-08/sydneytrains_scheduled_data_20260808010800.zip",
+    "bytes": 14499105,
+    "sha256_16": "dcbea41e838612c9",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  },
+  {
+    "era": "base2026",
+    "feed": "nswtrains",
+    "s3_key": "historical_gtfs/nswtrains/2026/2026-08/nswtrains_scheduled_data_20260801010800.zip",
+    "bytes": 39662943,
+    "sha256_16": "ec8627698f779043",
+    "source": "TfNSW Open Data Hub historical GTFS archive",
+    "licence": "CC-BY 4.0"
+  }
+]

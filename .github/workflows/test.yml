@@ -1,0 +1,64 @@
+name: test
+
+# Deterministic, offline checks safe to gate every change. Nothing here downloads a
+# source dataset or runs a scenario: acquisition depends on ABS/TfNSW/Overpass
+# availability, not on the diff, so it is run on demand from a workstation instead.
+#
+# Note what CI can and cannot see: the bulk data package is gitignored (~2.3 GiB, see
+# .gitignore), so a checkout holds the committed subset only. tests/check_manifest.py is
+# written for exactly that; tests/check_package.py needs the full local package and is a
+# workstation gate, not a CI one.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  syntax:
+    name: python sources compile (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      # Compile-only: catches syntax errors across the acquisition/build code without
+      # installing the heavy geo stack (geopandas, rasterio, …) those modules import.
+      - name: Byte-compile every source and test module
+        run: python -m compileall -q src tests
+
+  manifest:
+    name: manifest integrity (committed files)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Every committed data file matches its MANIFEST.csv hash and size
+        run: python tests/check_manifest.py
+
+  provenance:
+    name: provenance + decision-record presence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      # The credibility claim in DECISIONS.md rests on these files existing and parsing;
+      # a rename or a truncated write should fail loudly rather than at read time.
+      - name: Committed provenance records are valid JSON
+        run: |
+          shopt -s nullglob
+          for f in data/raw/provenance_*.json schedules/raw/provenance.json data/MANIFEST.json; do
+            python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8')); print('PASS  ' + sys.argv[1])" "$f"
+          done
+      - name: Scenario configs and parameter files are valid JSON
+        run: |
+          shopt -s nullglob
+          for f in scenarios/*.json params/*.json; do
+            python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8')); print('PASS  ' + sys.argv[1])" "$f"
+          done
+      - name: DECISIONS.md is present and non-trivial (proposal 8.1 requires it)
+        run: test -s DECISIONS.md && test "$(wc -l < DECISIONS.md)" -gt 50

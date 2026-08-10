@@ -1,0 +1,1093 @@
+MonthYear,Station,Station_Type,Entry_Exit,Trip
+2024-10-01 00:00:00.000,Adamstown  Station,Train,Entry,2618
+2024-10-01 00:00:00.000,Adamstown  Station,Train,Exit,2627
+2024-10-01 00:00:00.000,Awaba  Station,Train,Entry,524
+2024-10-01 00:00:00.000,Awaba  Station,Train,Exit,452
+2024-10-01 00:00:00.000,Booragul  Station,Train,Entry,797
+2024-10-01 00:00:00.000,Booragul  Station,Train,Exit,769
+2024-10-01 00:00:00.000,Broadmeadow  Station,Train,Entry,22379
+2024-10-01 00:00:00.000,Broadmeadow  Station,Train,Exit,20873
+2024-10-01 00:00:00.000,Cardiff  Station,Train,Entry,23283
+2024-10-01 00:00:00.000,Cardiff  Station,Train,Exit,21459
+2024-10-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1257
+2024-10-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1363
+2024-10-01 00:00:00.000,Dora Creek  Station,Train,Entry,972
+2024-10-01 00:00:00.000,Dora Creek  Station,Train,Exit,864
+2024-10-01 00:00:00.000,East Maitland  Station,Train,Entry,592
+2024-10-01 00:00:00.000,East Maitland  Station,Train,Exit,533
+2024-10-01 00:00:00.000,Fassifern  Station,Train,Entry,10378
+2024-10-01 00:00:00.000,Fassifern  Station,Train,Exit,9451
+2024-10-01 00:00:00.000,Hamilton  Station,Train,Entry,17003
+2024-10-01 00:00:00.000,Hamilton  Station,Train,Exit,17057
+2024-10-01 00:00:00.000,Hexham  Station,Train,Entry,233
+2024-10-01 00:00:00.000,Hexham  Station,Train,Exit,229
+2024-10-01 00:00:00.000,Kotara  Station,Train,Entry,1442
+2024-10-01 00:00:00.000,Kotara  Station,Train,Exit,1735
+2024-10-01 00:00:00.000,Maitland  Station,Train,Entry,10064
+2024-10-01 00:00:00.000,Maitland  Station,Train,Exit,9342
+2024-10-01 00:00:00.000,Metford  Station,Train,Entry,1915
+2024-10-01 00:00:00.000,Metford  Station,Train,Exit,1766
+2024-10-01 00:00:00.000,Morisset  Station,Train,Entry,17864
+2024-10-01 00:00:00.000,Morisset  Station,Train,Exit,16219
+2024-10-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,30755
+2024-10-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,25007
+2024-10-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,46849
+2024-10-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,47147
+2024-10-01 00:00:00.000,Sandgate  Station,Train,Entry,454
+2024-10-01 00:00:00.000,Sandgate  Station,Train,Exit,337
+2024-10-01 00:00:00.000,Tarro  Station,Train,Entry,157
+2024-10-01 00:00:00.000,Tarro  Station,Train,Exit,133
+2024-10-01 00:00:00.000,Teralba  Station,Train,Entry,1270
+2024-10-01 00:00:00.000,Teralba  Station,Train,Exit,1122
+2024-10-01 00:00:00.000,Thornton  Station,Train,Entry,6300
+2024-10-01 00:00:00.000,Thornton  Station,Train,Exit,5624
+2024-10-01 00:00:00.000,Victoria Street  Station,Train,Entry,7269
+2024-10-01 00:00:00.000,Victoria Street  Station,Train,Exit,6844
+2024-10-01 00:00:00.000,Warabrook  Station,Train,Entry,4831
+2024-10-01 00:00:00.000,Warabrook  Station,Train,Exit,4742
+2024-10-01 00:00:00.000,Waratah  Station,Train,Entry,4271
+2024-10-01 00:00:00.000,Waratah  Station,Train,Exit,3970
+2024-10-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5393
+2024-10-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4903
+2024-10-01 00:00:00.000,Wyee  Station,Train,Entry,6401
+2024-10-01 00:00:00.000,Wyee  Station,Train,Exit,5621
+2024-11-01 00:00:00.000,Adamstown  Station,Train,Entry,2401
+2024-11-01 00:00:00.000,Adamstown  Station,Train,Exit,2416
+2024-11-01 00:00:00.000,Awaba  Station,Train,Entry,411
+2024-11-01 00:00:00.000,Awaba  Station,Train,Exit,341
+2024-11-01 00:00:00.000,Booragul  Station,Train,Entry,659
+2024-11-01 00:00:00.000,Booragul  Station,Train,Exit,640
+2024-11-01 00:00:00.000,Broadmeadow  Station,Train,Entry,21874
+2024-11-01 00:00:00.000,Broadmeadow  Station,Train,Exit,19326
+2024-11-01 00:00:00.000,Cardiff  Station,Train,Entry,21128
+2024-11-01 00:00:00.000,Cardiff  Station,Train,Exit,19061
+2024-11-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1212
+2024-11-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1188
+2024-11-01 00:00:00.000,Dora Creek  Station,Train,Entry,852
+2024-11-01 00:00:00.000,Dora Creek  Station,Train,Exit,862
+2024-11-01 00:00:00.000,East Maitland  Station,Train,Entry,567
+2024-11-01 00:00:00.000,East Maitland  Station,Train,Exit,501
+2024-11-01 00:00:00.000,Fassifern  Station,Train,Entry,9106
+2024-11-01 00:00:00.000,Fassifern  Station,Train,Exit,8199
+2024-11-01 00:00:00.000,Hamilton  Station,Train,Entry,15444
+2024-11-01 00:00:00.000,Hamilton  Station,Train,Exit,15084
+2024-11-01 00:00:00.000,Hexham  Station,Train,Entry,288
+2024-11-01 00:00:00.000,Hexham  Station,Train,Exit,241
+2024-11-01 00:00:00.000,Kotara  Station,Train,Entry,1192
+2024-11-01 00:00:00.000,Kotara  Station,Train,Exit,1503
+2024-11-01 00:00:00.000,Maitland  Station,Train,Entry,8811
+2024-11-01 00:00:00.000,Maitland  Station,Train,Exit,8088
+2024-11-01 00:00:00.000,Metford  Station,Train,Entry,1562
+2024-11-01 00:00:00.000,Metford  Station,Train,Exit,1444
+2024-11-01 00:00:00.000,Morisset  Station,Train,Entry,16181
+2024-11-01 00:00:00.000,Morisset  Station,Train,Exit,14721
+2024-11-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,25967
+2024-11-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,21615
+2024-11-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,40969
+2024-11-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,41065
+2024-11-01 00:00:00.000,Sandgate  Station,Train,Entry,402
+2024-11-01 00:00:00.000,Sandgate  Station,Train,Exit,313
+2024-11-01 00:00:00.000,Tarro  Station,Train,Entry,117
+2024-11-01 00:00:00.000,Tarro  Station,Train,Exit,96
+2024-11-01 00:00:00.000,Teralba  Station,Train,Entry,1143
+2024-11-01 00:00:00.000,Teralba  Station,Train,Exit,991
+2024-11-01 00:00:00.000,Thornton  Station,Train,Entry,5403
+2024-11-01 00:00:00.000,Thornton  Station,Train,Exit,4839
+2024-11-01 00:00:00.000,Victoria Street  Station,Train,Entry,6362
+2024-11-01 00:00:00.000,Victoria Street  Station,Train,Exit,5832
+2024-11-01 00:00:00.000,Warabrook  Station,Train,Entry,3304
+2024-11-01 00:00:00.000,Warabrook  Station,Train,Exit,3249
+2024-11-01 00:00:00.000,Waratah  Station,Train,Entry,4002
+2024-11-01 00:00:00.000,Waratah  Station,Train,Exit,3906
+2024-11-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,4079
+2024-11-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,3612
+2024-11-01 00:00:00.000,Wyee  Station,Train,Entry,5992
+2024-11-01 00:00:00.000,Wyee  Station,Train,Exit,5045
+2024-12-01 00:00:00.000,Adamstown  Station,Train,Entry,2200
+2024-12-01 00:00:00.000,Adamstown  Station,Train,Exit,2128
+2024-12-01 00:00:00.000,Awaba  Station,Train,Entry,419
+2024-12-01 00:00:00.000,Awaba  Station,Train,Exit,339
+2024-12-01 00:00:00.000,Booragul  Station,Train,Entry,539
+2024-12-01 00:00:00.000,Booragul  Station,Train,Exit,490
+2024-12-01 00:00:00.000,Broadmeadow  Station,Train,Entry,19677
+2024-12-01 00:00:00.000,Broadmeadow  Station,Train,Exit,17931
+2024-12-01 00:00:00.000,Cardiff  Station,Train,Entry,20157
+2024-12-01 00:00:00.000,Cardiff  Station,Train,Exit,18893
+2024-12-01 00:00:00.000,Cockle Creek  Station,Train,Entry,966
+2024-12-01 00:00:00.000,Cockle Creek  Station,Train,Exit,941
+2024-12-01 00:00:00.000,Dora Creek  Station,Train,Entry,809
+2024-12-01 00:00:00.000,Dora Creek  Station,Train,Exit,747
+2024-12-01 00:00:00.000,East Maitland  Station,Train,Entry,633
+2024-12-01 00:00:00.000,East Maitland  Station,Train,Exit,592
+2024-12-01 00:00:00.000,Fassifern  Station,Train,Entry,8518
+2024-12-01 00:00:00.000,Fassifern  Station,Train,Exit,7468
+2024-12-01 00:00:00.000,Hamilton  Station,Train,Entry,14285
+2024-12-01 00:00:00.000,Hamilton  Station,Train,Exit,14342
+2024-12-01 00:00:00.000,Hexham  Station,Train,Entry,204
+2024-12-01 00:00:00.000,Hexham  Station,Train,Exit,221
+2024-12-01 00:00:00.000,Kotara  Station,Train,Entry,1135
+2024-12-01 00:00:00.000,Kotara  Station,Train,Exit,1319
+2024-12-01 00:00:00.000,Maitland  Station,Train,Entry,8375
+2024-12-01 00:00:00.000,Maitland  Station,Train,Exit,7315
+2024-12-01 00:00:00.000,Metford  Station,Train,Entry,1422
+2024-12-01 00:00:00.000,Metford  Station,Train,Exit,1349
+2024-12-01 00:00:00.000,Morisset  Station,Train,Entry,15165
+2024-12-01 00:00:00.000,Morisset  Station,Train,Exit,14039
+2024-12-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,28283
+2024-12-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,22146
+2024-12-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,41430
+2024-12-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,41859
+2024-12-01 00:00:00.000,Sandgate  Station,Train,Entry,421
+2024-12-01 00:00:00.000,Sandgate  Station,Train,Exit,331
+2024-12-01 00:00:00.000,Tarro  Station,Train,Entry,180
+2024-12-01 00:00:00.000,Tarro  Station,Train,Exit,124
+2024-12-01 00:00:00.000,Teralba  Station,Train,Entry,977
+2024-12-01 00:00:00.000,Teralba  Station,Train,Exit,854
+2024-12-01 00:00:00.000,Thornton  Station,Train,Entry,4979
+2024-12-01 00:00:00.000,Thornton  Station,Train,Exit,4459
+2024-12-01 00:00:00.000,Victoria Street  Station,Train,Entry,6256
+2024-12-01 00:00:00.000,Victoria Street  Station,Train,Exit,5487
+2024-12-01 00:00:00.000,Warabrook  Station,Train,Entry,1985
+2024-12-01 00:00:00.000,Warabrook  Station,Train,Exit,1931
+2024-12-01 00:00:00.000,Waratah  Station,Train,Entry,3543
+2024-12-01 00:00:00.000,Waratah  Station,Train,Exit,3310
+2024-12-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5124
+2024-12-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4627
+2024-12-01 00:00:00.000,Wyee  Station,Train,Entry,5708
+2024-12-01 00:00:00.000,Wyee  Station,Train,Exit,4870
+2025-01-01 00:00:00.000,Adamstown  Station,Train,Entry,1848
+2025-01-01 00:00:00.000,Adamstown  Station,Train,Exit,2081
+2025-01-01 00:00:00.000,Awaba  Station,Train,Entry,321
+2025-01-01 00:00:00.000,Awaba  Station,Train,Exit,267
+2025-01-01 00:00:00.000,Booragul  Station,Train,Entry,513
+2025-01-01 00:00:00.000,Booragul  Station,Train,Exit,431
+2025-01-01 00:00:00.000,Broadmeadow  Station,Train,Entry,18485
+2025-01-01 00:00:00.000,Broadmeadow  Station,Train,Exit,16538
+2025-01-01 00:00:00.000,Cardiff  Station,Train,Entry,18476
+2025-01-01 00:00:00.000,Cardiff  Station,Train,Exit,17233
+2025-01-01 00:00:00.000,Cockle Creek  Station,Train,Entry,837
+2025-01-01 00:00:00.000,Cockle Creek  Station,Train,Exit,835
+2025-01-01 00:00:00.000,Dora Creek  Station,Train,Entry,715
+2025-01-01 00:00:00.000,Dora Creek  Station,Train,Exit,673
+2025-01-01 00:00:00.000,East Maitland  Station,Train,Entry,446
+2025-01-01 00:00:00.000,East Maitland  Station,Train,Exit,488
+2025-01-01 00:00:00.000,Fassifern  Station,Train,Entry,7992
+2025-01-01 00:00:00.000,Fassifern  Station,Train,Exit,7364
+2025-01-01 00:00:00.000,Hamilton  Station,Train,Entry,13362
+2025-01-01 00:00:00.000,Hamilton  Station,Train,Exit,13531
+2025-01-01 00:00:00.000,Hexham  Station,Train,Entry,156
+2025-01-01 00:00:00.000,Hexham  Station,Train,Exit,169
+2025-01-01 00:00:00.000,Kotara  Station,Train,Entry,1049
+2025-01-01 00:00:00.000,Kotara  Station,Train,Exit,1242
+2025-01-01 00:00:00.000,Maitland  Station,Train,Entry,8274
+2025-01-01 00:00:00.000,Maitland  Station,Train,Exit,7519
+2025-01-01 00:00:00.000,Metford  Station,Train,Entry,1302
+2025-01-01 00:00:00.000,Metford  Station,Train,Exit,1185
+2025-01-01 00:00:00.000,Morisset  Station,Train,Entry,14004
+2025-01-01 00:00:00.000,Morisset  Station,Train,Exit,12924
+2025-01-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,26184
+2025-01-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,21908
+2025-01-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,40006
+2025-01-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,39541
+2025-01-01 00:00:00.000,Sandgate  Station,Train,Entry,307
+2025-01-01 00:00:00.000,Sandgate  Station,Train,Exit,292
+2025-01-01 00:00:00.000,Tarro  Station,Train,Entry,151
+2025-01-01 00:00:00.000,Tarro  Station,Train,Exit,105
+2025-01-01 00:00:00.000,Teralba  Station,Train,Entry,832
+2025-01-01 00:00:00.000,Teralba  Station,Train,Exit,708
+2025-01-01 00:00:00.000,Thornton  Station,Train,Entry,4669
+2025-01-01 00:00:00.000,Thornton  Station,Train,Exit,4369
+2025-01-01 00:00:00.000,Victoria Street  Station,Train,Entry,5584
+2025-01-01 00:00:00.000,Victoria Street  Station,Train,Exit,5199
+2025-01-01 00:00:00.000,Warabrook  Station,Train,Entry,1979
+2025-01-01 00:00:00.000,Warabrook  Station,Train,Exit,2039
+2025-01-01 00:00:00.000,Waratah  Station,Train,Entry,3344
+2025-01-01 00:00:00.000,Waratah  Station,Train,Exit,3217
+2025-01-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,4961
+2025-01-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4609
+2025-01-01 00:00:00.000,Wyee  Station,Train,Entry,4966
+2025-01-01 00:00:00.000,Wyee  Station,Train,Exit,4326
+2025-02-01 00:00:00.000,Adamstown  Station,Train,Entry,1955
+2025-02-01 00:00:00.000,Adamstown  Station,Train,Exit,2011
+2025-02-01 00:00:00.000,Awaba  Station,Train,Entry,472
+2025-02-01 00:00:00.000,Awaba  Station,Train,Exit,357
+2025-02-01 00:00:00.000,Booragul  Station,Train,Entry,613
+2025-02-01 00:00:00.000,Booragul  Station,Train,Exit,561
+2025-02-01 00:00:00.000,Broadmeadow  Station,Train,Entry,18008
+2025-02-01 00:00:00.000,Broadmeadow  Station,Train,Exit,16135
+2025-02-01 00:00:00.000,Cardiff  Station,Train,Entry,17448
+2025-02-01 00:00:00.000,Cardiff  Station,Train,Exit,16375
+2025-02-01 00:00:00.000,Cockle Creek  Station,Train,Entry,991
+2025-02-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1079
+2025-02-01 00:00:00.000,Dora Creek  Station,Train,Entry,878
+2025-02-01 00:00:00.000,Dora Creek  Station,Train,Exit,785
+2025-02-01 00:00:00.000,East Maitland  Station,Train,Entry,660
+2025-02-01 00:00:00.000,East Maitland  Station,Train,Exit,566
+2025-02-01 00:00:00.000,Fassifern  Station,Train,Entry,8072
+2025-02-01 00:00:00.000,Fassifern  Station,Train,Exit,7286
+2025-02-01 00:00:00.000,Hamilton  Station,Train,Entry,14628
+2025-02-01 00:00:00.000,Hamilton  Station,Train,Exit,14832
+2025-02-01 00:00:00.000,Hexham  Station,Train,Entry,210
+2025-02-01 00:00:00.000,Hexham  Station,Train,Exit,227
+2025-02-01 00:00:00.000,Kotara  Station,Train,Entry,1147
+2025-02-01 00:00:00.000,Kotara  Station,Train,Exit,1403
+2025-02-01 00:00:00.000,Maitland  Station,Train,Entry,9106
+2025-02-01 00:00:00.000,Maitland  Station,Train,Exit,8285
+2025-02-01 00:00:00.000,Metford  Station,Train,Entry,1483
+2025-02-01 00:00:00.000,Metford  Station,Train,Exit,1430
+2025-02-01 00:00:00.000,Morisset  Station,Train,Entry,14276
+2025-02-01 00:00:00.000,Morisset  Station,Train,Exit,12938
+2025-02-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,26989
+2025-02-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,21928
+2025-02-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,40502
+2025-02-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,40961
+2025-02-01 00:00:00.000,Sandgate  Station,Train,Entry,369
+2025-02-01 00:00:00.000,Sandgate  Station,Train,Exit,309
+2025-02-01 00:00:00.000,Tarro  Station,Train,Entry,145
+2025-02-01 00:00:00.000,Tarro  Station,Train,Exit,119
+2025-02-01 00:00:00.000,Teralba  Station,Train,Entry,997
+2025-02-01 00:00:00.000,Teralba  Station,Train,Exit,924
+2025-02-01 00:00:00.000,Thornton  Station,Train,Entry,5592
+2025-02-01 00:00:00.000,Thornton  Station,Train,Exit,5071
+2025-02-01 00:00:00.000,Victoria Street  Station,Train,Entry,6584
+2025-02-01 00:00:00.000,Victoria Street  Station,Train,Exit,6140
+2025-02-01 00:00:00.000,Warabrook  Station,Train,Entry,5287
+2025-02-01 00:00:00.000,Warabrook  Station,Train,Exit,5043
+2025-02-01 00:00:00.000,Waratah  Station,Train,Entry,3785
+2025-02-01 00:00:00.000,Waratah  Station,Train,Exit,3718
+2025-02-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5151
+2025-02-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4663
+2025-02-01 00:00:00.000,Wyee  Station,Train,Entry,4867
+2025-02-01 00:00:00.000,Wyee  Station,Train,Exit,4119
+2025-03-01 00:00:00.000,Adamstown  Station,Train,Entry,2598
+2025-03-01 00:00:00.000,Adamstown  Station,Train,Exit,2603
+2025-03-01 00:00:00.000,Awaba  Station,Train,Entry,588
+2025-03-01 00:00:00.000,Awaba  Station,Train,Exit,493
+2025-03-01 00:00:00.000,Booragul  Station,Train,Entry,710
+2025-03-01 00:00:00.000,Booragul  Station,Train,Exit,711
+2025-03-01 00:00:00.000,Broadmeadow  Station,Train,Entry,23334
+2025-03-01 00:00:00.000,Broadmeadow  Station,Train,Exit,21695
+2025-03-01 00:00:00.000,Cardiff  Station,Train,Entry,23306
+2025-03-01 00:00:00.000,Cardiff  Station,Train,Exit,21662
+2025-03-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1279
+2025-03-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1447
+2025-03-01 00:00:00.000,Dora Creek  Station,Train,Entry,1090
+2025-03-01 00:00:00.000,Dora Creek  Station,Train,Exit,970
+2025-03-01 00:00:00.000,East Maitland  Station,Train,Entry,774
+2025-03-01 00:00:00.000,East Maitland  Station,Train,Exit,691
+2025-03-01 00:00:00.000,Fassifern  Station,Train,Entry,10314
+2025-03-01 00:00:00.000,Fassifern  Station,Train,Exit,9360
+2025-03-01 00:00:00.000,Hamilton  Station,Train,Entry,18146
+2025-03-01 00:00:00.000,Hamilton  Station,Train,Exit,18170
+2025-03-01 00:00:00.000,Hexham  Station,Train,Entry,211
+2025-03-01 00:00:00.000,Hexham  Station,Train,Exit,219
+2025-03-01 00:00:00.000,Kotara  Station,Train,Entry,1545
+2025-03-01 00:00:00.000,Kotara  Station,Train,Exit,1775
+2025-03-01 00:00:00.000,Maitland  Station,Train,Entry,11211
+2025-03-01 00:00:00.000,Maitland  Station,Train,Exit,10269
+2025-03-01 00:00:00.000,Metford  Station,Train,Entry,1800
+2025-03-01 00:00:00.000,Metford  Station,Train,Exit,1754
+2025-03-01 00:00:00.000,Morisset  Station,Train,Entry,18146
+2025-03-01 00:00:00.000,Morisset  Station,Train,Exit,16360
+2025-03-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,31680
+2025-03-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,25651
+2025-03-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,50076
+2025-03-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,49388
+2025-03-01 00:00:00.000,Sandgate  Station,Train,Entry,388
+2025-03-01 00:00:00.000,Sandgate  Station,Train,Exit,390
+2025-03-01 00:00:00.000,Tarro  Station,Train,Entry,155
+2025-03-01 00:00:00.000,Tarro  Station,Train,Exit,131
+2025-03-01 00:00:00.000,Teralba  Station,Train,Entry,1281
+2025-03-01 00:00:00.000,Teralba  Station,Train,Exit,1216
+2025-03-01 00:00:00.000,Thornton  Station,Train,Entry,6981
+2025-03-01 00:00:00.000,Thornton  Station,Train,Exit,6313
+2025-03-01 00:00:00.000,Victoria Street  Station,Train,Entry,8207
+2025-03-01 00:00:00.000,Victoria Street  Station,Train,Exit,7697
+2025-03-01 00:00:00.000,Warabrook  Station,Train,Entry,8863
+2025-03-01 00:00:00.000,Warabrook  Station,Train,Exit,9183
+2025-03-01 00:00:00.000,Waratah  Station,Train,Entry,4478
+2025-03-01 00:00:00.000,Waratah  Station,Train,Exit,4205
+2025-03-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5533
+2025-03-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4861
+2025-03-01 00:00:00.000,Wyee  Station,Train,Entry,6445
+2025-03-01 00:00:00.000,Wyee  Station,Train,Exit,5611
+2025-04-01 00:00:00.000,Adamstown  Station,Train,Entry,2217
+2025-04-01 00:00:00.000,Adamstown  Station,Train,Exit,2147
+2025-04-01 00:00:00.000,Awaba  Station,Train,Entry,503
+2025-04-01 00:00:00.000,Awaba  Station,Train,Exit,445
+2025-04-01 00:00:00.000,Booragul  Station,Train,Entry,690
+2025-04-01 00:00:00.000,Booragul  Station,Train,Exit,602
+2025-04-01 00:00:00.000,Broadmeadow  Station,Train,Entry,21351
+2025-04-01 00:00:00.000,Broadmeadow  Station,Train,Exit,19674
+2025-04-01 00:00:00.000,Cardiff  Station,Train,Entry,21314
+2025-04-01 00:00:00.000,Cardiff  Station,Train,Exit,19536
+2025-04-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1062
+2025-04-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1112
+2025-04-01 00:00:00.000,Dora Creek  Station,Train,Entry,887
+2025-04-01 00:00:00.000,Dora Creek  Station,Train,Exit,821
+2025-04-01 00:00:00.000,East Maitland  Station,Train,Entry,865
+2025-04-01 00:00:00.000,East Maitland  Station,Train,Exit,675
+2025-04-01 00:00:00.000,Fassifern  Station,Train,Entry,10595
+2025-04-01 00:00:00.000,Fassifern  Station,Train,Exit,9768
+2025-04-01 00:00:00.000,Hamilton  Station,Train,Entry,15320
+2025-04-01 00:00:00.000,Hamilton  Station,Train,Exit,15370
+2025-04-01 00:00:00.000,Hexham  Station,Train,Entry,161
+2025-04-01 00:00:00.000,Hexham  Station,Train,Exit,172
+2025-04-01 00:00:00.000,Kotara  Station,Train,Entry,1323
+2025-04-01 00:00:00.000,Kotara  Station,Train,Exit,1453
+2025-04-01 00:00:00.000,Maitland  Station,Train,Entry,9469
+2025-04-01 00:00:00.000,Maitland  Station,Train,Exit,9138
+2025-04-01 00:00:00.000,Metford  Station,Train,Entry,1484
+2025-04-01 00:00:00.000,Metford  Station,Train,Exit,1349
+2025-04-01 00:00:00.000,Morisset  Station,Train,Entry,17584
+2025-04-01 00:00:00.000,Morisset  Station,Train,Exit,15604
+2025-04-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,30371
+2025-04-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,24953
+2025-04-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,43870
+2025-04-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,43568
+2025-04-01 00:00:00.000,Sandgate  Station,Train,Entry,319
+2025-04-01 00:00:00.000,Sandgate  Station,Train,Exit,316
+2025-04-01 00:00:00.000,Tarro  Station,Train,Entry,102
+2025-04-01 00:00:00.000,Tarro  Station,Train,Exit,93
+2025-04-01 00:00:00.000,Teralba  Station,Train,Entry,1097
+2025-04-01 00:00:00.000,Teralba  Station,Train,Exit,995
+2025-04-01 00:00:00.000,Thornton  Station,Train,Entry,5583
+2025-04-01 00:00:00.000,Thornton  Station,Train,Exit,4896
+2025-04-01 00:00:00.000,Victoria Street  Station,Train,Entry,6368
+2025-04-01 00:00:00.000,Victoria Street  Station,Train,Exit,5856
+2025-04-01 00:00:00.000,Warabrook  Station,Train,Entry,4845
+2025-04-01 00:00:00.000,Warabrook  Station,Train,Exit,4862
+2025-04-01 00:00:00.000,Waratah  Station,Train,Entry,3761
+2025-04-01 00:00:00.000,Waratah  Station,Train,Exit,3495
+2025-04-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5056
+2025-04-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4649
+2025-04-01 00:00:00.000,Wyee  Station,Train,Entry,5937
+2025-04-01 00:00:00.000,Wyee  Station,Train,Exit,5057
+2025-05-01 00:00:00.000,Adamstown  Station,Train,Entry,1850
+2025-05-01 00:00:00.000,Adamstown  Station,Train,Exit,1741
+2025-05-01 00:00:00.000,Awaba  Station,Train,Entry,435
+2025-05-01 00:00:00.000,Awaba  Station,Train,Exit,366
+2025-05-01 00:00:00.000,Booragul  Station,Train,Entry,568
+2025-05-01 00:00:00.000,Booragul  Station,Train,Exit,551
+2025-05-01 00:00:00.000,Broadmeadow  Station,Train,Entry,17888
+2025-05-01 00:00:00.000,Broadmeadow  Station,Train,Exit,16042
+2025-05-01 00:00:00.000,Cardiff  Station,Train,Entry,16995
+2025-05-01 00:00:00.000,Cardiff  Station,Train,Exit,15197
+2025-05-01 00:00:00.000,Cockle Creek  Station,Train,Entry,905
+2025-05-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1021
+2025-05-01 00:00:00.000,Dora Creek  Station,Train,Entry,827
+2025-05-01 00:00:00.000,Dora Creek  Station,Train,Exit,778
+2025-05-01 00:00:00.000,East Maitland  Station,Train,Entry,590
+2025-05-01 00:00:00.000,East Maitland  Station,Train,Exit,476
+2025-05-01 00:00:00.000,Fassifern  Station,Train,Entry,11095
+2025-05-01 00:00:00.000,Fassifern  Station,Train,Exit,9943
+2025-05-01 00:00:00.000,Hamilton  Station,Train,Entry,12336
+2025-05-01 00:00:00.000,Hamilton  Station,Train,Exit,12146
+2025-05-01 00:00:00.000,Hexham  Station,Train,Entry,90
+2025-05-01 00:00:00.000,Hexham  Station,Train,Exit,100
+2025-05-01 00:00:00.000,Kotara  Station,Train,Entry,1014
+2025-05-01 00:00:00.000,Kotara  Station,Train,Exit,1167
+2025-05-01 00:00:00.000,Maitland  Station,Train,Entry,6669
+2025-05-01 00:00:00.000,Maitland  Station,Train,Exit,6137
+2025-05-01 00:00:00.000,Metford  Station,Train,Entry,1122
+2025-05-01 00:00:00.000,Metford  Station,Train,Exit,1030
+2025-05-01 00:00:00.000,Morisset  Station,Train,Entry,16299
+2025-05-01 00:00:00.000,Morisset  Station,Train,Exit,14712
+2025-05-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,23784
+2025-05-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,19852
+2025-05-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,33189
+2025-05-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,32970
+2025-05-01 00:00:00.000,Sandgate  Station,Train,Entry,232
+2025-05-01 00:00:00.000,Sandgate  Station,Train,Exit,201
+2025-05-01 00:00:00.000,Tarro  Station,Train,Entry,72
+2025-05-01 00:00:00.000,Tarro  Station,Train,Exit,60
+2025-05-01 00:00:00.000,Teralba  Station,Train,Entry,911
+2025-05-01 00:00:00.000,Teralba  Station,Train,Exit,816
+2025-05-01 00:00:00.000,Thornton  Station,Train,Entry,4301
+2025-05-01 00:00:00.000,Thornton  Station,Train,Exit,3911
+2025-05-01 00:00:00.000,Victoria Street  Station,Train,Entry,5157
+2025-05-01 00:00:00.000,Victoria Street  Station,Train,Exit,4676
+2025-05-01 00:00:00.000,Warabrook  Station,Train,Entry,4234
+2025-05-01 00:00:00.000,Warabrook  Station,Train,Exit,4445
+2025-05-01 00:00:00.000,Waratah  Station,Train,Entry,2594
+2025-05-01 00:00:00.000,Waratah  Station,Train,Exit,2578
+2025-05-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5614
+2025-05-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5441
+2025-05-01 00:00:00.000,Wyee  Station,Train,Entry,5252
+2025-05-01 00:00:00.000,Wyee  Station,Train,Exit,4525
+2025-06-01 00:00:00.000,Adamstown  Station,Train,Entry,2336
+2025-06-01 00:00:00.000,Adamstown  Station,Train,Exit,2295
+2025-06-01 00:00:00.000,Awaba  Station,Train,Entry,549
+2025-06-01 00:00:00.000,Awaba  Station,Train,Exit,478
+2025-06-01 00:00:00.000,Booragul  Station,Train,Entry,758
+2025-06-01 00:00:00.000,Booragul  Station,Train,Exit,772
+2025-06-01 00:00:00.000,Broadmeadow  Station,Train,Entry,21251
+2025-06-01 00:00:00.000,Broadmeadow  Station,Train,Exit,19793
+2025-06-01 00:00:00.000,Cardiff  Station,Train,Entry,20881
+2025-06-01 00:00:00.000,Cardiff  Station,Train,Exit,19295
+2025-06-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1075
+2025-06-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1113
+2025-06-01 00:00:00.000,Dora Creek  Station,Train,Entry,890
+2025-06-01 00:00:00.000,Dora Creek  Station,Train,Exit,848
+2025-06-01 00:00:00.000,East Maitland  Station,Train,Entry,807
+2025-06-01 00:00:00.000,East Maitland  Station,Train,Exit,621
+2025-06-01 00:00:00.000,Fassifern  Station,Train,Entry,9673
+2025-06-01 00:00:00.000,Fassifern  Station,Train,Exit,8812
+2025-06-01 00:00:00.000,Hamilton  Station,Train,Entry,15017
+2025-06-01 00:00:00.000,Hamilton  Station,Train,Exit,15289
+2025-06-01 00:00:00.000,Hexham  Station,Train,Entry,148
+2025-06-01 00:00:00.000,Hexham  Station,Train,Exit,172
+2025-06-01 00:00:00.000,Kotara  Station,Train,Entry,1338
+2025-06-01 00:00:00.000,Kotara  Station,Train,Exit,1648
+2025-06-01 00:00:00.000,Maitland  Station,Train,Entry,8733
+2025-06-01 00:00:00.000,Maitland  Station,Train,Exit,8182
+2025-06-01 00:00:00.000,Metford  Station,Train,Entry,1333
+2025-06-01 00:00:00.000,Metford  Station,Train,Exit,1304
+2025-06-01 00:00:00.000,Morisset  Station,Train,Entry,16618
+2025-06-01 00:00:00.000,Morisset  Station,Train,Exit,15052
+2025-06-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,24481
+2025-06-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,20169
+2025-06-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,41928
+2025-06-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,41111
+2025-06-01 00:00:00.000,Sandgate  Station,Train,Entry,316
+2025-06-01 00:00:00.000,Sandgate  Station,Train,Exit,313
+2025-06-01 00:00:00.000,Tarro  Station,Train,Entry,111
+2025-06-01 00:00:00.000,Tarro  Station,Train,Exit,Less than 50
+2025-06-01 00:00:00.000,Teralba  Station,Train,Entry,1191
+2025-06-01 00:00:00.000,Teralba  Station,Train,Exit,1052
+2025-06-01 00:00:00.000,Thornton  Station,Train,Entry,5679
+2025-06-01 00:00:00.000,Thornton  Station,Train,Exit,5056
+2025-06-01 00:00:00.000,Victoria Street  Station,Train,Entry,6398
+2025-06-01 00:00:00.000,Victoria Street  Station,Train,Exit,6053
+2025-06-01 00:00:00.000,Warabrook  Station,Train,Entry,3895
+2025-06-01 00:00:00.000,Warabrook  Station,Train,Exit,3903
+2025-06-01 00:00:00.000,Waratah  Station,Train,Entry,3753
+2025-06-01 00:00:00.000,Waratah  Station,Train,Exit,3451
+2025-06-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,4972
+2025-06-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4571
+2025-06-01 00:00:00.000,Wyee  Station,Train,Entry,5889
+2025-06-01 00:00:00.000,Wyee  Station,Train,Exit,5152
+2025-07-01 00:00:00.000,Adamstown  Station,Train,Entry,2136
+2025-07-01 00:00:00.000,Adamstown  Station,Train,Exit,2095
+2025-07-01 00:00:00.000,Awaba  Station,Train,Entry,493
+2025-07-01 00:00:00.000,Awaba  Station,Train,Exit,383
+2025-07-01 00:00:00.000,Booragul  Station,Train,Entry,688
+2025-07-01 00:00:00.000,Booragul  Station,Train,Exit,639
+2025-07-01 00:00:00.000,Broadmeadow  Station,Train,Entry,20461
+2025-07-01 00:00:00.000,Broadmeadow  Station,Train,Exit,19176
+2025-07-01 00:00:00.000,Cardiff  Station,Train,Entry,19782
+2025-07-01 00:00:00.000,Cardiff  Station,Train,Exit,17906
+2025-07-01 00:00:00.000,Cockle Creek  Station,Train,Entry,949
+2025-07-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1004
+2025-07-01 00:00:00.000,Dora Creek  Station,Train,Entry,800
+2025-07-01 00:00:00.000,Dora Creek  Station,Train,Exit,788
+2025-07-01 00:00:00.000,East Maitland  Station,Train,Entry,643
+2025-07-01 00:00:00.000,East Maitland  Station,Train,Exit,505
+2025-07-01 00:00:00.000,Fassifern  Station,Train,Entry,9397
+2025-07-01 00:00:00.000,Fassifern  Station,Train,Exit,9004
+2025-07-01 00:00:00.000,Hamilton  Station,Train,Entry,14684
+2025-07-01 00:00:00.000,Hamilton  Station,Train,Exit,15141
+2025-07-01 00:00:00.000,Hexham  Station,Train,Entry,171
+2025-07-01 00:00:00.000,Hexham  Station,Train,Exit,209
+2025-07-01 00:00:00.000,Kotara  Station,Train,Entry,1133
+2025-07-01 00:00:00.000,Kotara  Station,Train,Exit,1386
+2025-07-01 00:00:00.000,Maitland  Station,Train,Entry,8911
+2025-07-01 00:00:00.000,Maitland  Station,Train,Exit,8146
+2025-07-01 00:00:00.000,Metford  Station,Train,Entry,1478
+2025-07-01 00:00:00.000,Metford  Station,Train,Exit,1300
+2025-07-01 00:00:00.000,Morisset  Station,Train,Entry,14832
+2025-07-01 00:00:00.000,Morisset  Station,Train,Exit,13366
+2025-07-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,28565
+2025-07-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,23897
+2025-07-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,41947
+2025-07-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,41632
+2025-07-01 00:00:00.000,Sandgate  Station,Train,Entry,386
+2025-07-01 00:00:00.000,Sandgate  Station,Train,Exit,344
+2025-07-01 00:00:00.000,Tarro  Station,Train,Entry,152
+2025-07-01 00:00:00.000,Tarro  Station,Train,Exit,85
+2025-07-01 00:00:00.000,Teralba  Station,Train,Entry,1011
+2025-07-01 00:00:00.000,Teralba  Station,Train,Exit,890
+2025-07-01 00:00:00.000,Thornton  Station,Train,Entry,5462
+2025-07-01 00:00:00.000,Thornton  Station,Train,Exit,4918
+2025-07-01 00:00:00.000,Victoria Street  Station,Train,Entry,6190
+2025-07-01 00:00:00.000,Victoria Street  Station,Train,Exit,5700
+2025-07-01 00:00:00.000,Warabrook  Station,Train,Entry,4357
+2025-07-01 00:00:00.000,Warabrook  Station,Train,Exit,4364
+2025-07-01 00:00:00.000,Waratah  Station,Train,Entry,3639
+2025-07-01 00:00:00.000,Waratah  Station,Train,Exit,3498
+2025-07-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5079
+2025-07-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4681
+2025-07-01 00:00:00.000,Wyee  Station,Train,Entry,5008
+2025-07-01 00:00:00.000,Wyee  Station,Train,Exit,4319
+2025-08-01 00:00:00.000,Adamstown  Station,Train,Entry,1928
+2025-08-01 00:00:00.000,Adamstown  Station,Train,Exit,1803
+2025-08-01 00:00:00.000,Awaba  Station,Train,Entry,490
+2025-08-01 00:00:00.000,Awaba  Station,Train,Exit,396
+2025-08-01 00:00:00.000,Booragul  Station,Train,Entry,755
+2025-08-01 00:00:00.000,Booragul  Station,Train,Exit,708
+2025-08-01 00:00:00.000,Broadmeadow  Station,Train,Entry,20249
+2025-08-01 00:00:00.000,Broadmeadow  Station,Train,Exit,18032
+2025-08-01 00:00:00.000,Cardiff  Station,Train,Entry,20456
+2025-08-01 00:00:00.000,Cardiff  Station,Train,Exit,18714
+2025-08-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1108
+2025-08-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1169
+2025-08-01 00:00:00.000,Dora Creek  Station,Train,Entry,824
+2025-08-01 00:00:00.000,Dora Creek  Station,Train,Exit,736
+2025-08-01 00:00:00.000,East Maitland  Station,Train,Entry,546
+2025-08-01 00:00:00.000,East Maitland  Station,Train,Exit,377
+2025-08-01 00:00:00.000,Fassifern  Station,Train,Entry,9117
+2025-08-01 00:00:00.000,Fassifern  Station,Train,Exit,8246
+2025-08-01 00:00:00.000,Hamilton  Station,Train,Entry,14177
+2025-08-01 00:00:00.000,Hamilton  Station,Train,Exit,14325
+2025-08-01 00:00:00.000,Hexham  Station,Train,Entry,113
+2025-08-01 00:00:00.000,Hexham  Station,Train,Exit,134
+2025-08-01 00:00:00.000,Kotara  Station,Train,Entry,1102
+2025-08-01 00:00:00.000,Kotara  Station,Train,Exit,1313
+2025-08-01 00:00:00.000,Maitland  Station,Train,Entry,7664
+2025-08-01 00:00:00.000,Maitland  Station,Train,Exit,6933
+2025-08-01 00:00:00.000,Metford  Station,Train,Entry,1225
+2025-08-01 00:00:00.000,Metford  Station,Train,Exit,1186
+2025-08-01 00:00:00.000,Morisset  Station,Train,Entry,15941
+2025-08-01 00:00:00.000,Morisset  Station,Train,Exit,14113
+2025-08-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,26942
+2025-08-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,22683
+2025-08-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,39762
+2025-08-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,39155
+2025-08-01 00:00:00.000,Sandgate  Station,Train,Entry,278
+2025-08-01 00:00:00.000,Sandgate  Station,Train,Exit,244
+2025-08-01 00:00:00.000,Tarro  Station,Train,Entry,126
+2025-08-01 00:00:00.000,Tarro  Station,Train,Exit,68
+2025-08-01 00:00:00.000,Teralba  Station,Train,Entry,1025
+2025-08-01 00:00:00.000,Teralba  Station,Train,Exit,899
+2025-08-01 00:00:00.000,Thornton  Station,Train,Entry,4686
+2025-08-01 00:00:00.000,Thornton  Station,Train,Exit,4276
+2025-08-01 00:00:00.000,Victoria Street  Station,Train,Entry,5345
+2025-08-01 00:00:00.000,Victoria Street  Station,Train,Exit,4998
+2025-08-01 00:00:00.000,Warabrook  Station,Train,Entry,4231
+2025-08-01 00:00:00.000,Warabrook  Station,Train,Exit,4376
+2025-08-01 00:00:00.000,Waratah  Station,Train,Entry,3105
+2025-08-01 00:00:00.000,Waratah  Station,Train,Exit,2917
+2025-08-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,4917
+2025-08-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4581
+2025-08-01 00:00:00.000,Wyee  Station,Train,Entry,5272
+2025-08-01 00:00:00.000,Wyee  Station,Train,Exit,4627
+2025-09-01 00:00:00.000,Adamstown  Station,Train,Entry,2443
+2025-09-01 00:00:00.000,Adamstown  Station,Train,Exit,2224
+2025-09-01 00:00:00.000,Awaba  Station,Train,Entry,581
+2025-09-01 00:00:00.000,Awaba  Station,Train,Exit,523
+2025-09-01 00:00:00.000,Booragul  Station,Train,Entry,878
+2025-09-01 00:00:00.000,Booragul  Station,Train,Exit,861
+2025-09-01 00:00:00.000,Broadmeadow  Station,Train,Entry,20920
+2025-09-01 00:00:00.000,Broadmeadow  Station,Train,Exit,19086
+2025-09-01 00:00:00.000,Cardiff  Station,Train,Entry,22074
+2025-09-01 00:00:00.000,Cardiff  Station,Train,Exit,20375
+2025-09-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1244
+2025-09-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1346
+2025-09-01 00:00:00.000,Dora Creek  Station,Train,Entry,936
+2025-09-01 00:00:00.000,Dora Creek  Station,Train,Exit,928
+2025-09-01 00:00:00.000,East Maitland  Station,Train,Entry,763
+2025-09-01 00:00:00.000,East Maitland  Station,Train,Exit,584
+2025-09-01 00:00:00.000,Fassifern  Station,Train,Entry,10257
+2025-09-01 00:00:00.000,Fassifern  Station,Train,Exit,9105
+2025-09-01 00:00:00.000,Hamilton  Station,Train,Entry,16094
+2025-09-01 00:00:00.000,Hamilton  Station,Train,Exit,16260
+2025-09-01 00:00:00.000,Hexham  Station,Train,Entry,198
+2025-09-01 00:00:00.000,Hexham  Station,Train,Exit,177
+2025-09-01 00:00:00.000,Kotara  Station,Train,Entry,1323
+2025-09-01 00:00:00.000,Kotara  Station,Train,Exit,1475
+2025-09-01 00:00:00.000,Maitland  Station,Train,Entry,9927
+2025-09-01 00:00:00.000,Maitland  Station,Train,Exit,9187
+2025-09-01 00:00:00.000,Metford  Station,Train,Entry,1533
+2025-09-01 00:00:00.000,Metford  Station,Train,Exit,1400
+2025-09-01 00:00:00.000,Morisset  Station,Train,Entry,16952
+2025-09-01 00:00:00.000,Morisset  Station,Train,Exit,15194
+2025-09-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,30276
+2025-09-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,24658
+2025-09-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,48371
+2025-09-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,47919
+2025-09-01 00:00:00.000,Sandgate  Station,Train,Entry,391
+2025-09-01 00:00:00.000,Sandgate  Station,Train,Exit,351
+2025-09-01 00:00:00.000,Tarro  Station,Train,Entry,174
+2025-09-01 00:00:00.000,Tarro  Station,Train,Exit,149
+2025-09-01 00:00:00.000,Teralba  Station,Train,Entry,1159
+2025-09-01 00:00:00.000,Teralba  Station,Train,Exit,1065
+2025-09-01 00:00:00.000,Thornton  Station,Train,Entry,6106
+2025-09-01 00:00:00.000,Thornton  Station,Train,Exit,5602
+2025-09-01 00:00:00.000,Victoria Street  Station,Train,Entry,7160
+2025-09-01 00:00:00.000,Victoria Street  Station,Train,Exit,6806
+2025-09-01 00:00:00.000,Warabrook  Station,Train,Entry,5421
+2025-09-01 00:00:00.000,Warabrook  Station,Train,Exit,5620
+2025-09-01 00:00:00.000,Waratah  Station,Train,Entry,4010
+2025-09-01 00:00:00.000,Waratah  Station,Train,Exit,3621
+2025-09-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,4824
+2025-09-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4515
+2025-09-01 00:00:00.000,Wyee  Station,Train,Entry,5671
+2025-09-01 00:00:00.000,Wyee  Station,Train,Exit,4984
+2025-10-01 00:00:00.000,Adamstown  Station,Train,Entry,2406
+2025-10-01 00:00:00.000,Adamstown  Station,Train,Exit,2363
+2025-10-01 00:00:00.000,Awaba  Station,Train,Entry,595
+2025-10-01 00:00:00.000,Awaba  Station,Train,Exit,512
+2025-10-01 00:00:00.000,Booragul  Station,Train,Entry,901
+2025-10-01 00:00:00.000,Booragul  Station,Train,Exit,893
+2025-10-01 00:00:00.000,Broadmeadow  Station,Train,Entry,21739
+2025-10-01 00:00:00.000,Broadmeadow  Station,Train,Exit,19866
+2025-10-01 00:00:00.000,Cardiff  Station,Train,Entry,22461
+2025-10-01 00:00:00.000,Cardiff  Station,Train,Exit,21095
+2025-10-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1287
+2025-10-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1340
+2025-10-01 00:00:00.000,Dora Creek  Station,Train,Entry,1031
+2025-10-01 00:00:00.000,Dora Creek  Station,Train,Exit,996
+2025-10-01 00:00:00.000,East Maitland  Station,Train,Entry,679
+2025-10-01 00:00:00.000,East Maitland  Station,Train,Exit,522
+2025-10-01 00:00:00.000,Fassifern  Station,Train,Entry,9956
+2025-10-01 00:00:00.000,Fassifern  Station,Train,Exit,9155
+2025-10-01 00:00:00.000,Hamilton  Station,Train,Entry,16290
+2025-10-01 00:00:00.000,Hamilton  Station,Train,Exit,16500
+2025-10-01 00:00:00.000,Hexham  Station,Train,Entry,203
+2025-10-01 00:00:00.000,Hexham  Station,Train,Exit,243
+2025-10-01 00:00:00.000,Kotara  Station,Train,Entry,1475
+2025-10-01 00:00:00.000,Kotara  Station,Train,Exit,1634
+2025-10-01 00:00:00.000,Maitland  Station,Train,Entry,10036
+2025-10-01 00:00:00.000,Maitland  Station,Train,Exit,9337
+2025-10-01 00:00:00.000,Metford  Station,Train,Entry,1638
+2025-10-01 00:00:00.000,Metford  Station,Train,Exit,1448
+2025-10-01 00:00:00.000,Morisset  Station,Train,Entry,17731
+2025-10-01 00:00:00.000,Morisset  Station,Train,Exit,16380
+2025-10-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,33708
+2025-10-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,27775
+2025-10-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,50006
+2025-10-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,50081
+2025-10-01 00:00:00.000,Sandgate  Station,Train,Entry,380
+2025-10-01 00:00:00.000,Sandgate  Station,Train,Exit,348
+2025-10-01 00:00:00.000,Tarro  Station,Train,Entry,139
+2025-10-01 00:00:00.000,Tarro  Station,Train,Exit,98
+2025-10-01 00:00:00.000,Teralba  Station,Train,Entry,1148
+2025-10-01 00:00:00.000,Teralba  Station,Train,Exit,1070
+2025-10-01 00:00:00.000,Thornton  Station,Train,Entry,6409
+2025-10-01 00:00:00.000,Thornton  Station,Train,Exit,5824
+2025-10-01 00:00:00.000,Victoria Street  Station,Train,Entry,6991
+2025-10-01 00:00:00.000,Victoria Street  Station,Train,Exit,6724
+2025-10-01 00:00:00.000,Warabrook  Station,Train,Entry,4356
+2025-10-01 00:00:00.000,Warabrook  Station,Train,Exit,4668
+2025-10-01 00:00:00.000,Waratah  Station,Train,Entry,4184
+2025-10-01 00:00:00.000,Waratah  Station,Train,Exit,3815
+2025-10-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5114
+2025-10-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4882
+2025-10-01 00:00:00.000,Wyee  Station,Train,Entry,5810
+2025-10-01 00:00:00.000,Wyee  Station,Train,Exit,5158
+2025-11-01 00:00:00.000,Adamstown  Station,Train,Entry,2598
+2025-11-01 00:00:00.000,Adamstown  Station,Train,Exit,2605
+2025-11-01 00:00:00.000,Awaba  Station,Train,Entry,527
+2025-11-01 00:00:00.000,Awaba  Station,Train,Exit,458
+2025-11-01 00:00:00.000,Booragul  Station,Train,Entry,919
+2025-11-01 00:00:00.000,Booragul  Station,Train,Exit,955
+2025-11-01 00:00:00.000,Broadmeadow  Station,Train,Entry,22818
+2025-11-01 00:00:00.000,Broadmeadow  Station,Train,Exit,20712
+2025-11-01 00:00:00.000,Cardiff  Station,Train,Entry,22310
+2025-11-01 00:00:00.000,Cardiff  Station,Train,Exit,20518
+2025-11-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1334
+2025-11-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1325
+2025-11-01 00:00:00.000,Dora Creek  Station,Train,Entry,1015
+2025-11-01 00:00:00.000,Dora Creek  Station,Train,Exit,984
+2025-11-01 00:00:00.000,East Maitland  Station,Train,Entry,715
+2025-11-01 00:00:00.000,East Maitland  Station,Train,Exit,662
+2025-11-01 00:00:00.000,Fassifern  Station,Train,Entry,10146
+2025-11-01 00:00:00.000,Fassifern  Station,Train,Exit,9057
+2025-11-01 00:00:00.000,Hamilton  Station,Train,Entry,16731
+2025-11-01 00:00:00.000,Hamilton  Station,Train,Exit,16677
+2025-11-01 00:00:00.000,Hexham  Station,Train,Entry,236
+2025-11-01 00:00:00.000,Hexham  Station,Train,Exit,233
+2025-11-01 00:00:00.000,Kotara  Station,Train,Entry,1400
+2025-11-01 00:00:00.000,Kotara  Station,Train,Exit,1562
+2025-11-01 00:00:00.000,Maitland  Station,Train,Entry,9101
+2025-11-01 00:00:00.000,Maitland  Station,Train,Exit,8136
+2025-11-01 00:00:00.000,Metford  Station,Train,Entry,1501
+2025-11-01 00:00:00.000,Metford  Station,Train,Exit,1441
+2025-11-01 00:00:00.000,Morisset  Station,Train,Entry,17524
+2025-11-01 00:00:00.000,Morisset  Station,Train,Exit,15530
+2025-11-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,30001
+2025-11-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,24507
+2025-11-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,47806
+2025-11-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,48279
+2025-11-01 00:00:00.000,Sandgate  Station,Train,Entry,344
+2025-11-01 00:00:00.000,Sandgate  Station,Train,Exit,307
+2025-11-01 00:00:00.000,Tarro  Station,Train,Entry,150
+2025-11-01 00:00:00.000,Tarro  Station,Train,Exit,123
+2025-11-01 00:00:00.000,Teralba  Station,Train,Entry,1175
+2025-11-01 00:00:00.000,Teralba  Station,Train,Exit,1059
+2025-11-01 00:00:00.000,Thornton  Station,Train,Entry,5651
+2025-11-01 00:00:00.000,Thornton  Station,Train,Exit,5049
+2025-11-01 00:00:00.000,Victoria Street  Station,Train,Entry,6470
+2025-11-01 00:00:00.000,Victoria Street  Station,Train,Exit,6161
+2025-11-01 00:00:00.000,Warabrook  Station,Train,Entry,3354
+2025-11-01 00:00:00.000,Warabrook  Station,Train,Exit,3318
+2025-11-01 00:00:00.000,Waratah  Station,Train,Entry,4139
+2025-11-01 00:00:00.000,Waratah  Station,Train,Exit,3680
+2025-11-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5073
+2025-11-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,4504
+2025-11-01 00:00:00.000,Wyee  Station,Train,Entry,6265
+2025-11-01 00:00:00.000,Wyee  Station,Train,Exit,5298
+2025-12-01 00:00:00.000,Adamstown  Station,Train,Entry,2549
+2025-12-01 00:00:00.000,Adamstown  Station,Train,Exit,2366
+2025-12-01 00:00:00.000,Awaba  Station,Train,Entry,573
+2025-12-01 00:00:00.000,Awaba  Station,Train,Exit,523
+2025-12-01 00:00:00.000,Booragul  Station,Train,Entry,822
+2025-12-01 00:00:00.000,Booragul  Station,Train,Exit,831
+2025-12-01 00:00:00.000,Broadmeadow  Station,Train,Entry,20610
+2025-12-01 00:00:00.000,Broadmeadow  Station,Train,Exit,19088
+2025-12-01 00:00:00.000,Cardiff  Station,Train,Entry,21487
+2025-12-01 00:00:00.000,Cardiff  Station,Train,Exit,19869
+2025-12-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1170
+2025-12-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1195
+2025-12-01 00:00:00.000,Dora Creek  Station,Train,Entry,1020
+2025-12-01 00:00:00.000,Dora Creek  Station,Train,Exit,989
+2025-12-01 00:00:00.000,East Maitland  Station,Train,Entry,756
+2025-12-01 00:00:00.000,East Maitland  Station,Train,Exit,588
+2025-12-01 00:00:00.000,Fassifern  Station,Train,Entry,9376
+2025-12-01 00:00:00.000,Fassifern  Station,Train,Exit,8699
+2025-12-01 00:00:00.000,Hamilton  Station,Train,Entry,15194
+2025-12-01 00:00:00.000,Hamilton  Station,Train,Exit,15670
+2025-12-01 00:00:00.000,Hexham  Station,Train,Entry,236
+2025-12-01 00:00:00.000,Hexham  Station,Train,Exit,249
+2025-12-01 00:00:00.000,Kotara  Station,Train,Entry,1376
+2025-12-01 00:00:00.000,Kotara  Station,Train,Exit,1541
+2025-12-01 00:00:00.000,Maitland  Station,Train,Entry,8375
+2025-12-01 00:00:00.000,Maitland  Station,Train,Exit,7441
+2025-12-01 00:00:00.000,Metford  Station,Train,Entry,1420
+2025-12-01 00:00:00.000,Metford  Station,Train,Exit,1250
+2025-12-01 00:00:00.000,Morisset  Station,Train,Entry,16357
+2025-12-01 00:00:00.000,Morisset  Station,Train,Exit,14653
+2025-12-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,28926
+2025-12-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,22990
+2025-12-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,44544
+2025-12-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,45073
+2025-12-01 00:00:00.000,Sandgate  Station,Train,Entry,328
+2025-12-01 00:00:00.000,Sandgate  Station,Train,Exit,331
+2025-12-01 00:00:00.000,Tarro  Station,Train,Entry,159
+2025-12-01 00:00:00.000,Tarro  Station,Train,Exit,119
+2025-12-01 00:00:00.000,Teralba  Station,Train,Entry,1015
+2025-12-01 00:00:00.000,Teralba  Station,Train,Exit,933
+2025-12-01 00:00:00.000,Thornton  Station,Train,Entry,5383
+2025-12-01 00:00:00.000,Thornton  Station,Train,Exit,4769
+2025-12-01 00:00:00.000,Victoria Street  Station,Train,Entry,5930
+2025-12-01 00:00:00.000,Victoria Street  Station,Train,Exit,5570
+2025-12-01 00:00:00.000,Warabrook  Station,Train,Entry,2062
+2025-12-01 00:00:00.000,Warabrook  Station,Train,Exit,2087
+2025-12-01 00:00:00.000,Waratah  Station,Train,Entry,3917
+2025-12-01 00:00:00.000,Waratah  Station,Train,Exit,3651
+2025-12-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5902
+2025-12-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5256
+2025-12-01 00:00:00.000,Wyee  Station,Train,Entry,5735
+2025-12-01 00:00:00.000,Wyee  Station,Train,Exit,4923
+2026-01-01 00:00:00.000,Adamstown  Station,Train,Entry,2045
+2026-01-01 00:00:00.000,Adamstown  Station,Train,Exit,2200
+2026-01-01 00:00:00.000,Awaba  Station,Train,Entry,480
+2026-01-01 00:00:00.000,Awaba  Station,Train,Exit,426
+2026-01-01 00:00:00.000,Booragul  Station,Train,Entry,588
+2026-01-01 00:00:00.000,Booragul  Station,Train,Exit,604
+2026-01-01 00:00:00.000,Broadmeadow  Station,Train,Entry,18523
+2026-01-01 00:00:00.000,Broadmeadow  Station,Train,Exit,16875
+2026-01-01 00:00:00.000,Cardiff  Station,Train,Entry,19335
+2026-01-01 00:00:00.000,Cardiff  Station,Train,Exit,18518
+2026-01-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1106
+2026-01-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1102
+2026-01-01 00:00:00.000,Dora Creek  Station,Train,Entry,889
+2026-01-01 00:00:00.000,Dora Creek  Station,Train,Exit,885
+2026-01-01 00:00:00.000,East Maitland  Station,Train,Entry,728
+2026-01-01 00:00:00.000,East Maitland  Station,Train,Exit,576
+2026-01-01 00:00:00.000,Fassifern  Station,Train,Entry,9047
+2026-01-01 00:00:00.000,Fassifern  Station,Train,Exit,9126
+2026-01-01 00:00:00.000,Hamilton  Station,Train,Entry,14039
+2026-01-01 00:00:00.000,Hamilton  Station,Train,Exit,14310
+2026-01-01 00:00:00.000,Hexham  Station,Train,Entry,206
+2026-01-01 00:00:00.000,Hexham  Station,Train,Exit,219
+2026-01-01 00:00:00.000,Kotara  Station,Train,Entry,1236
+2026-01-01 00:00:00.000,Kotara  Station,Train,Exit,1379
+2026-01-01 00:00:00.000,Maitland  Station,Train,Entry,8551
+2026-01-01 00:00:00.000,Maitland  Station,Train,Exit,7886
+2026-01-01 00:00:00.000,Metford  Station,Train,Entry,1369
+2026-01-01 00:00:00.000,Metford  Station,Train,Exit,1246
+2026-01-01 00:00:00.000,Morisset  Station,Train,Entry,14609
+2026-01-01 00:00:00.000,Morisset  Station,Train,Exit,13220
+2026-01-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,29357
+2026-01-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,24916
+2026-01-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,45082
+2026-01-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,44869
+2026-01-01 00:00:00.000,Sandgate  Station,Train,Entry,364
+2026-01-01 00:00:00.000,Sandgate  Station,Train,Exit,331
+2026-01-01 00:00:00.000,Tarro  Station,Train,Entry,156
+2026-01-01 00:00:00.000,Tarro  Station,Train,Exit,115
+2026-01-01 00:00:00.000,Teralba  Station,Train,Entry,907
+2026-01-01 00:00:00.000,Teralba  Station,Train,Exit,879
+2026-01-01 00:00:00.000,Thornton  Station,Train,Entry,5188
+2026-01-01 00:00:00.000,Thornton  Station,Train,Exit,4738
+2026-01-01 00:00:00.000,Victoria Street  Station,Train,Entry,5719
+2026-01-01 00:00:00.000,Victoria Street  Station,Train,Exit,5508
+2026-01-01 00:00:00.000,Warabrook  Station,Train,Entry,3956
+2026-01-01 00:00:00.000,Warabrook  Station,Train,Exit,3938
+2026-01-01 00:00:00.000,Waratah  Station,Train,Entry,3675
+2026-01-01 00:00:00.000,Waratah  Station,Train,Exit,3355
+2026-01-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5951
+2026-01-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5433
+2026-01-01 00:00:00.000,Wyee  Station,Train,Entry,5067
+2026-01-01 00:00:00.000,Wyee  Station,Train,Exit,4494
+2026-02-01 00:00:00.000,Adamstown  Station,Train,Entry,2578
+2026-02-01 00:00:00.000,Adamstown  Station,Train,Exit,2403
+2026-02-01 00:00:00.000,Awaba  Station,Train,Entry,585
+2026-02-01 00:00:00.000,Awaba  Station,Train,Exit,526
+2026-02-01 00:00:00.000,Booragul  Station,Train,Entry,824
+2026-02-01 00:00:00.000,Booragul  Station,Train,Exit,774
+2026-02-01 00:00:00.000,Broadmeadow  Station,Train,Entry,20358
+2026-02-01 00:00:00.000,Broadmeadow  Station,Train,Exit,18440
+2026-02-01 00:00:00.000,Cardiff  Station,Train,Entry,20973
+2026-02-01 00:00:00.000,Cardiff  Station,Train,Exit,19261
+2026-02-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1402
+2026-02-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1607
+2026-02-01 00:00:00.000,Dora Creek  Station,Train,Entry,982
+2026-02-01 00:00:00.000,Dora Creek  Station,Train,Exit,960
+2026-02-01 00:00:00.000,East Maitland  Station,Train,Entry,810
+2026-02-01 00:00:00.000,East Maitland  Station,Train,Exit,641
+2026-02-01 00:00:00.000,Fassifern  Station,Train,Entry,9606
+2026-02-01 00:00:00.000,Fassifern  Station,Train,Exit,8772
+2026-02-01 00:00:00.000,Hamilton  Station,Train,Entry,15884
+2026-02-01 00:00:00.000,Hamilton  Station,Train,Exit,16180
+2026-02-01 00:00:00.000,Hexham  Station,Train,Entry,236
+2026-02-01 00:00:00.000,Hexham  Station,Train,Exit,199
+2026-02-01 00:00:00.000,Kotara  Station,Train,Entry,1416
+2026-02-01 00:00:00.000,Kotara  Station,Train,Exit,1543
+2026-02-01 00:00:00.000,Maitland  Station,Train,Entry,10043
+2026-02-01 00:00:00.000,Maitland  Station,Train,Exit,9270
+2026-02-01 00:00:00.000,Metford  Station,Train,Entry,1616
+2026-02-01 00:00:00.000,Metford  Station,Train,Exit,1525
+2026-02-01 00:00:00.000,Morisset  Station,Train,Entry,16145
+2026-02-01 00:00:00.000,Morisset  Station,Train,Exit,14179
+2026-02-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,30623
+2026-02-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,25643
+2026-02-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,47872
+2026-02-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,47325
+2026-02-01 00:00:00.000,Sandgate  Station,Train,Entry,334
+2026-02-01 00:00:00.000,Sandgate  Station,Train,Exit,322
+2026-02-01 00:00:00.000,Tarro  Station,Train,Entry,125
+2026-02-01 00:00:00.000,Tarro  Station,Train,Exit,100
+2026-02-01 00:00:00.000,Teralba  Station,Train,Entry,1023
+2026-02-01 00:00:00.000,Teralba  Station,Train,Exit,870
+2026-02-01 00:00:00.000,Thornton  Station,Train,Entry,6032
+2026-02-01 00:00:00.000,Thornton  Station,Train,Exit,5420
+2026-02-01 00:00:00.000,Victoria Street  Station,Train,Entry,6559
+2026-02-01 00:00:00.000,Victoria Street  Station,Train,Exit,6439
+2026-02-01 00:00:00.000,Warabrook  Station,Train,Entry,6843
+2026-02-01 00:00:00.000,Warabrook  Station,Train,Exit,7295
+2026-02-01 00:00:00.000,Waratah  Station,Train,Entry,3918
+2026-02-01 00:00:00.000,Waratah  Station,Train,Exit,3578
+2026-02-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5945
+2026-02-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5165
+2026-02-01 00:00:00.000,Wyee  Station,Train,Entry,6200
+2026-02-01 00:00:00.000,Wyee  Station,Train,Exit,5334
+2026-03-01 00:00:00.000,Adamstown  Station,Train,Entry,3187
+2026-03-01 00:00:00.000,Adamstown  Station,Train,Exit,3237
+2026-03-01 00:00:00.000,Awaba  Station,Train,Entry,750
+2026-03-01 00:00:00.000,Awaba  Station,Train,Exit,677
+2026-03-01 00:00:00.000,Booragul  Station,Train,Entry,1176
+2026-03-01 00:00:00.000,Booragul  Station,Train,Exit,1135
+2026-03-01 00:00:00.000,Broadmeadow  Station,Train,Entry,26087
+2026-03-01 00:00:00.000,Broadmeadow  Station,Train,Exit,24616
+2026-03-01 00:00:00.000,Cardiff  Station,Train,Entry,26868
+2026-03-01 00:00:00.000,Cardiff  Station,Train,Exit,25295
+2026-03-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1797
+2026-03-01 00:00:00.000,Cockle Creek  Station,Train,Exit,2008
+2026-03-01 00:00:00.000,Dora Creek  Station,Train,Entry,1264
+2026-03-01 00:00:00.000,Dora Creek  Station,Train,Exit,1227
+2026-03-01 00:00:00.000,East Maitland  Station,Train,Entry,1013
+2026-03-01 00:00:00.000,East Maitland  Station,Train,Exit,846
+2026-03-01 00:00:00.000,Fassifern  Station,Train,Entry,12388
+2026-03-01 00:00:00.000,Fassifern  Station,Train,Exit,11462
+2026-03-01 00:00:00.000,Hamilton  Station,Train,Entry,19519
+2026-03-01 00:00:00.000,Hamilton  Station,Train,Exit,20134
+2026-03-01 00:00:00.000,Hexham  Station,Train,Entry,307
+2026-03-01 00:00:00.000,Hexham  Station,Train,Exit,275
+2026-03-01 00:00:00.000,Kotara  Station,Train,Entry,1757
+2026-03-01 00:00:00.000,Kotara  Station,Train,Exit,1843
+2026-03-01 00:00:00.000,Maitland  Station,Train,Entry,11564
+2026-03-01 00:00:00.000,Maitland  Station,Train,Exit,10578
+2026-03-01 00:00:00.000,Metford  Station,Train,Entry,2015
+2026-03-01 00:00:00.000,Metford  Station,Train,Exit,1976
+2026-03-01 00:00:00.000,Morisset  Station,Train,Entry,20980
+2026-03-01 00:00:00.000,Morisset  Station,Train,Exit,19177
+2026-03-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,34449
+2026-03-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,28648
+2026-03-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,56810
+2026-03-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,56508
+2026-03-01 00:00:00.000,Sandgate  Station,Train,Entry,399
+2026-03-01 00:00:00.000,Sandgate  Station,Train,Exit,407
+2026-03-01 00:00:00.000,Tarro  Station,Train,Entry,127
+2026-03-01 00:00:00.000,Tarro  Station,Train,Exit,105
+2026-03-01 00:00:00.000,Teralba  Station,Train,Entry,1503
+2026-03-01 00:00:00.000,Teralba  Station,Train,Exit,1340
+2026-03-01 00:00:00.000,Thornton  Station,Train,Entry,6861
+2026-03-01 00:00:00.000,Thornton  Station,Train,Exit,6401
+2026-03-01 00:00:00.000,Victoria Street  Station,Train,Entry,8225
+2026-03-01 00:00:00.000,Victoria Street  Station,Train,Exit,7950
+2026-03-01 00:00:00.000,Warabrook  Station,Train,Entry,6434
+2026-03-01 00:00:00.000,Warabrook  Station,Train,Exit,6834
+2026-03-01 00:00:00.000,Waratah  Station,Train,Entry,4868
+2026-03-01 00:00:00.000,Waratah  Station,Train,Exit,4492
+2026-03-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,6503
+2026-03-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5827
+2026-03-01 00:00:00.000,Wyee  Station,Train,Entry,7786
+2026-03-01 00:00:00.000,Wyee  Station,Train,Exit,7066
+2026-04-01 00:00:00.000,Adamstown  Station,Train,Entry,3237
+2026-04-01 00:00:00.000,Adamstown  Station,Train,Exit,3082
+2026-04-01 00:00:00.000,Awaba  Station,Train,Entry,713
+2026-04-01 00:00:00.000,Awaba  Station,Train,Exit,660
+2026-04-01 00:00:00.000,Booragul  Station,Train,Entry,1051
+2026-04-01 00:00:00.000,Booragul  Station,Train,Exit,1177
+2026-04-01 00:00:00.000,Broadmeadow  Station,Train,Entry,26918
+2026-04-01 00:00:00.000,Broadmeadow  Station,Train,Exit,24725
+2026-04-01 00:00:00.000,Cardiff  Station,Train,Entry,27165
+2026-04-01 00:00:00.000,Cardiff  Station,Train,Exit,25009
+2026-04-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1721
+2026-04-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1924
+2026-04-01 00:00:00.000,Dora Creek  Station,Train,Entry,1455
+2026-04-01 00:00:00.000,Dora Creek  Station,Train,Exit,1347
+2026-04-01 00:00:00.000,East Maitland  Station,Train,Entry,1071
+2026-04-01 00:00:00.000,East Maitland  Station,Train,Exit,915
+2026-04-01 00:00:00.000,Fassifern  Station,Train,Entry,12075
+2026-04-01 00:00:00.000,Fassifern  Station,Train,Exit,10791
+2026-04-01 00:00:00.000,Hamilton  Station,Train,Entry,19120
+2026-04-01 00:00:00.000,Hamilton  Station,Train,Exit,19496
+2026-04-01 00:00:00.000,Hexham  Station,Train,Entry,310
+2026-04-01 00:00:00.000,Hexham  Station,Train,Exit,303
+2026-04-01 00:00:00.000,Kotara  Station,Train,Entry,1753
+2026-04-01 00:00:00.000,Kotara  Station,Train,Exit,1886
+2026-04-01 00:00:00.000,Maitland  Station,Train,Entry,11997
+2026-04-01 00:00:00.000,Maitland  Station,Train,Exit,11331
+2026-04-01 00:00:00.000,Metford  Station,Train,Entry,1985
+2026-04-01 00:00:00.000,Metford  Station,Train,Exit,1849
+2026-04-01 00:00:00.000,Morisset  Station,Train,Entry,20776
+2026-04-01 00:00:00.000,Morisset  Station,Train,Exit,18595
+2026-04-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,36805
+2026-04-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,30652
+2026-04-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,60435
+2026-04-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,59925
+2026-04-01 00:00:00.000,Sandgate  Station,Train,Entry,456
+2026-04-01 00:00:00.000,Sandgate  Station,Train,Exit,481
+2026-04-01 00:00:00.000,Tarro  Station,Train,Entry,157
+2026-04-01 00:00:00.000,Tarro  Station,Train,Exit,114
+2026-04-01 00:00:00.000,Teralba  Station,Train,Entry,1400
+2026-04-01 00:00:00.000,Teralba  Station,Train,Exit,1251
+2026-04-01 00:00:00.000,Thornton  Station,Train,Entry,7050
+2026-04-01 00:00:00.000,Thornton  Station,Train,Exit,6414
+2026-04-01 00:00:00.000,Victoria Street  Station,Train,Entry,7826
+2026-04-01 00:00:00.000,Victoria Street  Station,Train,Exit,7689
+2026-04-01 00:00:00.000,Warabrook  Station,Train,Entry,5816
+2026-04-01 00:00:00.000,Warabrook  Station,Train,Exit,6214
+2026-04-01 00:00:00.000,Waratah  Station,Train,Entry,4624
+2026-04-01 00:00:00.000,Waratah  Station,Train,Exit,4325
+2026-04-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5815
+2026-04-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5302
+2026-04-01 00:00:00.000,Wyee  Station,Train,Entry,7993
+2026-04-01 00:00:00.000,Wyee  Station,Train,Exit,6897
+2026-05-01 00:00:00.000,Adamstown  Station,Train,Entry,2663
+2026-05-01 00:00:00.000,Adamstown  Station,Train,Exit,2676
+2026-05-01 00:00:00.000,Awaba  Station,Train,Entry,619
+2026-05-01 00:00:00.000,Awaba  Station,Train,Exit,602
+2026-05-01 00:00:00.000,Booragul  Station,Train,Entry,1020
+2026-05-01 00:00:00.000,Booragul  Station,Train,Exit,971
+2026-05-01 00:00:00.000,Broadmeadow  Station,Train,Entry,24041
+2026-05-01 00:00:00.000,Broadmeadow  Station,Train,Exit,22064
+2026-05-01 00:00:00.000,Cardiff  Station,Train,Entry,23403
+2026-05-01 00:00:00.000,Cardiff  Station,Train,Exit,21893
+2026-05-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1456
+2026-05-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1510
+2026-05-01 00:00:00.000,Dora Creek  Station,Train,Entry,1256
+2026-05-01 00:00:00.000,Dora Creek  Station,Train,Exit,1200
+2026-05-01 00:00:00.000,East Maitland  Station,Train,Entry,992
+2026-05-01 00:00:00.000,East Maitland  Station,Train,Exit,740
+2026-05-01 00:00:00.000,Fassifern  Station,Train,Entry,10733
+2026-05-01 00:00:00.000,Fassifern  Station,Train,Exit,9947
+2026-05-01 00:00:00.000,Hamilton  Station,Train,Entry,16886
+2026-05-01 00:00:00.000,Hamilton  Station,Train,Exit,16933
+2026-05-01 00:00:00.000,Hexham  Station,Train,Entry,248
+2026-05-01 00:00:00.000,Hexham  Station,Train,Exit,239
+2026-05-01 00:00:00.000,Kotara  Station,Train,Entry,1426
+2026-05-01 00:00:00.000,Kotara  Station,Train,Exit,1592
+2026-05-01 00:00:00.000,Maitland  Station,Train,Entry,8990
+2026-05-01 00:00:00.000,Maitland  Station,Train,Exit,8375
+2026-05-01 00:00:00.000,Metford  Station,Train,Entry,1647
+2026-05-01 00:00:00.000,Metford  Station,Train,Exit,1535
+2026-05-01 00:00:00.000,Morisset  Station,Train,Entry,19171
+2026-05-01 00:00:00.000,Morisset  Station,Train,Exit,17293
+2026-05-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,25925
+2026-05-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,21577
+2026-05-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,45547
+2026-05-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,44714
+2026-05-01 00:00:00.000,Sandgate  Station,Train,Entry,413
+2026-05-01 00:00:00.000,Sandgate  Station,Train,Exit,407
+2026-05-01 00:00:00.000,Tarro  Station,Train,Entry,112
+2026-05-01 00:00:00.000,Tarro  Station,Train,Exit,97
+2026-05-01 00:00:00.000,Teralba  Station,Train,Entry,1175
+2026-05-01 00:00:00.000,Teralba  Station,Train,Exit,1054
+2026-05-01 00:00:00.000,Thornton  Station,Train,Entry,5394
+2026-05-01 00:00:00.000,Thornton  Station,Train,Exit,4950
+2026-05-01 00:00:00.000,Victoria Street  Station,Train,Entry,6105
+2026-05-01 00:00:00.000,Victoria Street  Station,Train,Exit,6046
+2026-05-01 00:00:00.000,Warabrook  Station,Train,Entry,3150
+2026-05-01 00:00:00.000,Warabrook  Station,Train,Exit,3235
+2026-05-01 00:00:00.000,Waratah  Station,Train,Entry,3945
+2026-05-01 00:00:00.000,Waratah  Station,Train,Exit,3841
+2026-05-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,6167
+2026-05-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5384
+2026-05-01 00:00:00.000,Wyee  Station,Train,Entry,7241
+2026-05-01 00:00:00.000,Wyee  Station,Train,Exit,6254
+2026-06-01 00:00:00.000,Adamstown  Station,Train,Entry,2487
+2026-06-01 00:00:00.000,Adamstown  Station,Train,Exit,2600
+2026-06-01 00:00:00.000,Awaba  Station,Train,Entry,699
+2026-06-01 00:00:00.000,Awaba  Station,Train,Exit,602
+2026-06-01 00:00:00.000,Booragul  Station,Train,Entry,1208
+2026-06-01 00:00:00.000,Booragul  Station,Train,Exit,1058
+2026-06-01 00:00:00.000,Broadmeadow  Station,Train,Entry,23938
+2026-06-01 00:00:00.000,Broadmeadow  Station,Train,Exit,22776
+2026-06-01 00:00:00.000,Cardiff  Station,Train,Entry,23290
+2026-06-01 00:00:00.000,Cardiff  Station,Train,Exit,22179
+2026-06-01 00:00:00.000,Cockle Creek  Station,Train,Entry,1463
+2026-06-01 00:00:00.000,Cockle Creek  Station,Train,Exit,1536
+2026-06-01 00:00:00.000,Dora Creek  Station,Train,Entry,1274
+2026-06-01 00:00:00.000,Dora Creek  Station,Train,Exit,1200
+2026-06-01 00:00:00.000,East Maitland  Station,Train,Entry,975
+2026-06-01 00:00:00.000,East Maitland  Station,Train,Exit,724
+2026-06-01 00:00:00.000,Fassifern  Station,Train,Entry,10780
+2026-06-01 00:00:00.000,Fassifern  Station,Train,Exit,10250
+2026-06-01 00:00:00.000,Hamilton  Station,Train,Entry,16375
+2026-06-01 00:00:00.000,Hamilton  Station,Train,Exit,17231
+2026-06-01 00:00:00.000,Hexham  Station,Train,Entry,219
+2026-06-01 00:00:00.000,Hexham  Station,Train,Exit,254
+2026-06-01 00:00:00.000,Kotara  Station,Train,Entry,1600
+2026-06-01 00:00:00.000,Kotara  Station,Train,Exit,1720
+2026-06-01 00:00:00.000,Maitland  Station,Train,Entry,9060
+2026-06-01 00:00:00.000,Maitland  Station,Train,Exit,8398
+2026-06-01 00:00:00.000,Metford  Station,Train,Entry,1782
+2026-06-01 00:00:00.000,Metford  Station,Train,Exit,1587
+2026-06-01 00:00:00.000,Morisset  Station,Train,Entry,18561
+2026-06-01 00:00:00.000,Morisset  Station,Train,Exit,16815
+2026-06-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Entry,26212
+2026-06-01 00:00:00.000,Newcastle Interchange Light Rail,Light rail,Exit,21969
+2026-06-01 00:00:00.000,Newcastle Interchange Station,Train,Entry,44329
+2026-06-01 00:00:00.000,Newcastle Interchange Station,Train,Exit,44695
+2026-06-01 00:00:00.000,Sandgate  Station,Train,Entry,443
+2026-06-01 00:00:00.000,Sandgate  Station,Train,Exit,407
+2026-06-01 00:00:00.000,Tarro  Station,Train,Entry,110
+2026-06-01 00:00:00.000,Tarro  Station,Train,Exit,90
+2026-06-01 00:00:00.000,Teralba  Station,Train,Entry,1295
+2026-06-01 00:00:00.000,Teralba  Station,Train,Exit,1162
+2026-06-01 00:00:00.000,Thornton  Station,Train,Entry,5727
+2026-06-01 00:00:00.000,Thornton  Station,Train,Exit,5205
+2026-06-01 00:00:00.000,Victoria Street  Station,Train,Entry,6564
+2026-06-01 00:00:00.000,Victoria Street  Station,Train,Exit,6267
+2026-06-01 00:00:00.000,Warabrook  Station,Train,Entry,3146
+2026-06-01 00:00:00.000,Warabrook  Station,Train,Exit,3315
+2026-06-01 00:00:00.000,Waratah  Station,Train,Entry,4070
+2026-06-01 00:00:00.000,Waratah  Station,Train,Exit,3849
+2026-06-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Entry,5748
+2026-06-01 00:00:00.000,Waratah Mills Light Rail,Light rail,Exit,5151
+2026-06-01 00:00:00.000,Wyee  Station,Train,Entry,7084
+2026-06-01 00:00:00.000,Wyee  Station,Train,Exit,6237

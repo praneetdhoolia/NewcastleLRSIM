@@ -1,0 +1,34 @@
+# Line endings are part of this repo's contract, not a cosmetic detail.
+#
+# Every committed data artefact is hash-verified against data/MANIFEST.csv by
+# tests/check_manifest.py, which CI runs on Linux. If git normalised CRLF->LF on
+# commit, a Windows working copy and a Linux checkout would hold different bytes and
+# every recorded sha256 would fail. The build scripts run on Windows and emit CRLF in
+# places, so the fix is to pin LF everywhere — in the repo AND in the working copy on
+# every platform — and to compute the manifest digests over those same LF bytes.
+#
+# eol=lf (not just text=auto) is the load-bearing part: it forces LF on checkout even
+# where core.autocrlf=true.
+
+* text=auto eol=lf
+
+# Genuinely binary: never touch, never diff as text.
+*.zip   binary
+*.tif   binary
+*.tiff  binary
+*.pdf   binary
+*.xlsx  binary
+*.xls   binary
+*.gpkg  binary
+*.pbf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+
+# Large generated artefacts that are text but not worth diffing in review.
+*.jsonl  -diff
+data/MANIFEST.json -diff
+
+# Shell scripts and git hooks run in Linux CI and in containers: LF is mandatory.
+*.sh        text eol=lf
+.githooks/* text eol=lf

@@ -1,0 +1,53 @@
+Station,Entry_Exit,Trip_num
+Adamstown  Station,Entry,2394.285714285714
+Adamstown  Station,Exit,2366.809523809524
+Awaba  Station,Entry,539.3809523809524
+Awaba  Station,Exit,467.9047619047619
+Booragul  Station,Entry,794.1428571428571
+Booragul  Station,Exit,768.2380952380952
+Broadmeadow  Station,Entry,21471.85714285714
+Broadmeadow  Station,Exit,19688.714285714286
+Cardiff  Station,Entry,21552.0
+Cardiff  Station,Exit,19968.714285714286
+Cockle Creek  Station,Entry,1220.047619047619
+Cockle Creek  Station,Exit,1293.5714285714287
+Dora Creek  Station,Entry,984.0952380952381
+Dora Creek  Station,Exit,932.7619047619048
+East Maitland  Station,Entry,744.047619047619
+East Maitland  Station,Exit,610.6190476190476
+Fassifern  Station,Entry,9934.333333333334
+Fassifern  Station,Exit,9107.857142857143
+Hamilton  Station,Entry,15739.714285714286
+Hamilton  Station,Exit,15937.047619047618
+Hexham  Station,Entry,208.76190476190476
+Hexham  Station,Exit,213.52380952380952
+Kotara  Station,Entry,1342.0
+Kotara  Station,Exit,1529.4761904761904
+Maitland  Station,Entry,9282.42857142857
+Maitland  Station,Exit,8537.761904761905
+Metford  Station,Entry,1553.904761904762
+Metford  Station,Exit,1445.4285714285713
+Morisset  Station,Entry,16938.85714285714
+Morisset  Station,Exit,15289.714285714286
+Newcastle Interchange Light Rail,Entry,29061.095238095237
+Newcastle Interchange Light Rail,Exit,23959.238095238095
+Newcastle Interchange Station,Entry,45301.42857142857
+Newcastle Interchange Station,Exit,45132.619047619046
+Sandgate  Station,Entry,367.8095238095238
+Sandgate  Station,Exit,337.23809523809524
+Tarro  Station,Entry,137.0
+Tarro  Station,Exit,106.2
+Teralba  Station,Entry,1120.7142857142858
+Teralba  Station,Exit,1007.1428571428571
+Thornton  Station,Entry,5687.428571428572
+Thornton  Station,Exit,5147.809523809524
+Victoria Street  Station,Entry,6536.619047619048
+Victoria Street  Station,Exit,6173.428571428572
+Warabrook  Station,Entry,4397.571428571428
+Warabrook  Station,Exit,4507.666666666667
+Waratah  Station,Entry,3886.904761904762
+Waratah  Station,Exit,3641.5238095238096
+Waratah Mills Light Rail,Entry,5377.190476190476
+Waratah Mills Light Rail,Exit,4886.523809523809
+Wyee  Station,Entry,6028.047619047619
+Wyee  Station,Exit,5234.142857142857

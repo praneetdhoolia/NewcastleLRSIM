@@ -1,0 +1,39 @@
+# Bulk data is not committed. Everything below is byte-reproducible from
+# src/extract and src/build, and every file is hashed in data/MANIFEST.csv,
+# which IS committed. See README.md "Reproducing".
+
+# --- immutable third-party downloads (~1.8 GiB) ---
+data/raw/**
+!data/raw/provenance_*.json
+!data/raw/_s3_historical_gtfs_listing.txt
+
+# --- raw Overpass extracts (~156 MB) ---
+networks/osm/*.osm
+
+# --- source GTFS bundles (~230 MB) ---
+schedules/raw/**
+!schedules/raw/provenance.json
+
+# --- generated GTFS variants (regenerate with build_era_feeds / build_scenario_schedules) ---
+schedules/*.zip
+schedules/scenarios/*.zip
+
+# --- synthetic demand (~308 MB, seeded and deterministic) ---
+demand/population/*.csv
+demand/plans/*.csv
+
+# --- large derived geometry ---
+data/processed/network/*.jsonl
+data/processed/zones/*.gpkg
+
+# --- run outputs ---
+results/**
+!results/.gitkeep
+
+# --- python ---
+__pycache__/
+*.pyc
+.venv/
+
+# --- local-only harness overrides (never committed) ---
+.claude/settings.local.json

@@ -1,0 +1,7 @@
+stop_name,stop_seq,is_terminus,dwell_fixed_s,dwell_fixed_sweep_low,dwell_fixed_sweep_high,dwell_boarding_fn,dwell_charging_s,dwell_charging_sweep_low,dwell_charging_sweep_high,dwell_sd_s,distribution_type,layover_s,source,acquisition_route
+Newcastle Interchange,1,1,8.0,5.0,12.0,"max(pax_board/0.60, pax_alight/0.80)",20.0,10.0,35.0,6.0,lognormal,180,assumed,"field measurement, or GTFS-Realtime dwell inference"
+Honeysuckle,2,0,8.0,5.0,12.0,"max(pax_board/0.60, pax_alight/0.80)",20.0,10.0,35.0,6.0,lognormal,0,assumed,"field measurement, or GTFS-Realtime dwell inference"
+Civic,3,0,8.0,5.0,12.0,"max(pax_board/0.60, pax_alight/0.80)",20.0,10.0,35.0,6.0,lognormal,0,assumed,"field measurement, or GTFS-Realtime dwell inference"
+Crown Street,4,0,8.0,5.0,12.0,"max(pax_board/0.60, pax_alight/0.80)",20.0,10.0,35.0,6.0,lognormal,0,assumed,"field measurement, or GTFS-Realtime dwell inference"
+Queens Wharf,5,0,8.0,5.0,12.0,"max(pax_board/0.60, pax_alight/0.80)",20.0,10.0,35.0,6.0,lognormal,0,assumed,"field measurement, or GTFS-Realtime dwell inference"
+Newcastle Beach,6,1,8.0,5.0,12.0,"max(pax_board/0.60, pax_alight/0.80)",20.0,10.0,35.0,6.0,lognormal,180,assumed,"field measurement, or GTFS-Realtime dwell inference"

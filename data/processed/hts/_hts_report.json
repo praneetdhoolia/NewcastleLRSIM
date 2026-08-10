@@ -1,0 +1,202 @@
+{
+  "mode_rows": 752,
+  "mode_years": [
+    "2009/10",
+    "2010/11",
+    "2011/12",
+    "2012/13",
+    "2013/14",
+    "2014/15",
+    "2015/16",
+    "2016/17",
+    "2017/18",
+    "2018/19",
+    "2019/20",
+    "2022/23",
+    "2023/24",
+    "2024/25"
+  ],
+  "purpose_rows": 951,
+  "purpose_years": [
+    "2009/10",
+    "2010/11",
+    "2011/12",
+    "2012/13",
+    "2013/14",
+    "2014/15",
+    "2015/16",
+    "2016/17",
+    "2017/18",
+    "2018/19",
+    "2019/20",
+    "2022/23",
+    "2023/24",
+    "2024/25"
+  ],
+  "newcastle_lga_mode_split": {
+    "2018/19": {
+      "Bus": {
+        "trips": 30000,
+        "pct_of_trips": 2.51
+      },
+      "Other": {
+        "trips": 30000,
+        "pct_of_trips": 2.51
+      },
+      "Train": {
+        "trips": 11000,
+        "pct_of_trips": 0.92
+      },
+      "Vehicle Driver": {
+        "trips": 347000,
+        "pct_of_trips": 29.04
+      },
+      "Vehicle Passenger": {
+        "trips": 84000,
+        "pct_of_trips": 7.03
+      },
+      "Walk Linked": {
+        "trips": 42000,
+        "pct_of_trips": 3.51
+      },
+      "Walk Only": {
+        "trips": 61000,
+        "pct_of_trips": 5.1
+      }
+    },
+    "2024/25": {
+      "Other": {
+        "trips": 18000,
+        "pct_of_trips": 1.45
+      },
+      "Public transport": {
+        "trips": 23000,
+        "pct_of_trips": 1.85
+      },
+      "Vehicle driver": {
+        "trips": 362000,
+        "pct_of_trips": 29.12
+      },
+      "Vehicle passenger": {
+        "trips": 128000,
+        "pct_of_trips": 10.3
+      },
+      "Walk linked": {
+        "trips": 34000,
+        "pct_of_trips": 2.74
+      },
+      "Walk only": {
+        "trips": 79000,
+        "pct_of_trips": 6.36
+      }
+    }
+  },
+  "newcastle_lga_purpose_split": {
+    "2018/19": {
+      "Commute": {
+        "journeys": 108000,
+        "pct": 10.12,
+        "avg_distance_km": 15.3,
+        "avg_time_min": 30.1
+      },
+      "Education/childcare": {
+        "journeys": 41000,
+        "pct": 3.84,
+        "avg_distance_km": 6.1,
+        "avg_time_min": 20.2
+      },
+      "Other": {
+        "journeys": 9000,
+        "pct": 0.84,
+        "avg_distance_km": 4.6,
+        "avg_time_min": 13.9
+      },
+      "Personal business": {
+        "journeys": 50000,
+        "pct": 4.69,
+        "avg_distance_km": 5.0,
+        "avg_time_min": 12.9
+      },
+      "Serve passenger": {
+        "journeys": 82000,
+        "pct": 7.69,
+        "avg_distance_km": 4.5,
+        "avg_time_min": 13.4
+      },
+      "Shopping": {
+        "journeys": 114000,
+        "pct": 10.68,
+        "avg_distance_km": 6.9,
+        "avg_time_min": 15.8
+      },
+      "Social/recreation": {
+        "journeys": 117000,
+        "pct": 10.97,
+        "avg_distance_km": 6.4,
+        "avg_time_min": 14.9
+      },
+      "Work related business": {
+        "journeys": 18000,
+        "pct": 1.69,
+        "avg_distance_km": 27.0,
+        "avg_time_min": 39.2
+      }
+    },
+    "2024/25": {
+      "Commute": {
+        "journeys": 90000,
+        "pct": 7.78,
+        "avg_distance_km": 12.1,
+        "avg_time_min": 21.9
+      },
+      "Education/childcare": {
+        "journeys": 41000,
+        "pct": 3.54,
+        "avg_distance_km": 3.0,
+        "avg_time_min": 12.9
+      },
+      "Other": {
+        "journeys": 10000,
+        "pct": 0.86,
+        "avg_distance_km": 7.7,
+        "avg_time_min": 13.6
+      },
+      "Personal business": {
+        "journeys": 62000,
+        "pct": 5.36,
+        "avg_distance_km": 5.7,
+        "avg_time_min": 13.7
+      },
+      "Serve passenger": {
+        "journeys": 98000,
+        "pct": 8.47,
+        "avg_distance_km": 6.9,
+        "avg_time_min": 13.9
+      },
+      "Shopping": {
+        "journeys": 97000,
+        "pct": 8.38,
+        "avg_distance_km": 6.3,
+        "avg_time_min": 13.9
+      },
+      "Social/recreation": {
+        "journeys": 185000,
+        "pct": 15.99,
+        "avg_distance_km": 12.9,
+        "avg_time_min": 22.1
+      },
+      "Work related business*": {
+        "journeys": 15000,
+        "pct": 1.3,
+        "avg_distance_km": 11.2,
+        "avg_time_min": 22.9
+      },
+      "Education/childcare*": {
+        "journeys": 43000,
+        "pct": 3.72,
+        "avg_distance_km": 3.2,
+        "avg_time_min": 13.8
+      }
+    }
+  }
+}

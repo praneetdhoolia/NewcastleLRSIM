@@ -1,0 +1,118 @@
+{
+  "S2": {
+    "routes": 290,
+    "trips": 4374,
+    "stops": 3873,
+    "stop_times": 162881,
+    "trunk_runtime_min": {
+      "NLR": 12.0
+    },
+    "trunk_trips_weekday": {
+      "NLR": 252
+    }
+  },
+  "S0": {
+    "routes": 289,
+    "trips": 3824,
+    "stops": 3828,
+    "stop_times": 160089,
+    "trunk_runtime_min": {},
+    "trunk_trips_weekday": {},
+    "heavy_rail_trips_extended": 254
+  },
+  "S1": {
+    "routes": 290,
+    "trips": 4356,
+    "stops": 3834,
+    "stop_times": 163837,
+    "trunk_runtime_min": {
+      "S1SHUTTLE": 10.83
+    },
+    "trunk_trips_weekday": {
+      "S1SHUTTLE": 228
+    },
+    "shuttle_trips": 532
+  },
+  "S2a": {
+    "routes": 290,
+    "trips": 4374,
+    "stops": 3873,
+    "stop_times": 162881,
+    "trunk_runtime_min": {
+      "NLR": 10.33
+    },
+    "trunk_trips_weekday": {
+      "NLR": 252
+    }
+  },
+  "S2b": {
+    "routes": 290,
+    "trips": 4374,
+    "stops": 3873,
+    "stop_times": 162881,
+    "trunk_runtime_min": {
+      "NLR": 7.45
+    },
+    "trunk_trips_weekday": {
+      "NLR": 252
+    },
+    "signal_delay_removed_s_per_segment": 54.6
+  },
+  "S2c": {
+    "routes": 290,
+    "trips": 4374,
+    "stops": 3873,
+    "stop_times": 162881,
+    "trunk_runtime_min": {
+      "NLR": 9.7
+    },
+    "trunk_trips_weekday": {
+      "NLR": 252
+    }
+  },
+  "S3": {
+    "routes": 290,
+    "trips": 4536,
+    "stops": 3832,
+    "stop_times": 163853,
+    "trunk_runtime_min": {
+      "S3BRT": 7.08
+    },
+    "trunk_trips_weekday": {
+      "S3BRT": 304
+    },
+    "brt_trips": 712
+  },
+  "S4": {
+    "routes": 290,
+    "trips": 4374,
+    "stops": 3875,
+    "stop_times": 163981,
+    "trunk_runtime_min": {
+      "NLR": 18.08
+    },
+    "trunk_trips_weekday": {
+      "NLR": 252
+    }
+  },
+  "S5": {
+    "routes": 290,
+    "trips": 4374,
+    "stops": 3877,
+    "stop_times": 165081,
+    "trunk_runtime_min": {
+      "NLR": 26.35
+    },
+    "trunk_trips_weekday": {
+      "NLR": 252
+    }
+  },
+  "S6": {
+    "routes": 289,
+    "trips": 3824,
+    "stops": 3826,
+    "stop_times": 159581,
+    "trunk_runtime_min": {},
+    "trunk_trips_weekday": {}
+  }
+}
