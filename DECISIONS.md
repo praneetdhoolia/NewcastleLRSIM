@@ -1013,7 +1013,7 @@ information, and P4 has to say so before fitting anything to them.
 | `lr_cardtype_share` | 13 | **Nothing.** MATSim has no fare-product dimension, and 31.7% of the mix is `CTP` — contactless payment, an instrument rather than a person attribute, so it is not even decomposable into age bands. Three of the 13 are 0.0 or 0.01 |
 | `hts_mode_share` | 12 | Two mutually incompatible vintages: 2018/19 uses `Bus`/`Train`/`Vehicle Driver`, 2024/25 uses `Public transport`/`Vehicle driver`. The base year is 2026, so only the **2024/25 six** apply; `Walk linked` is structurally 0.0 and the remainder sum to 100, leaving **4 free degrees of freedom** |
 | `lr_boardings_*` | 3 | V001 and V002 are the **same datum** (3,417/day = 103,892 ÷ 30.4). Both are Mar 2019 – Feb 2020, the pre-pandemic market. Only **V003** (83,753/month, 2025-07 onward) belongs to a 2026 base |
-| `bus_boardings_monthly_mean` | 1 | 2019 only. There is **no contemporary bus target** in the pre-registered set, though the package holds the NISC 1 series to Jun 2026 (222,616/month). Adding one would amend the pre-registration and is not done here |
+| `bus_boardings_monthly_mean` | 1 | 2019 only. There is **no contemporary bus target** in the pre-registered set, though the package holds the NISC 1 series to Jun 2026 (222,616/month). **Deliberately not added** — see §12.4 |
 | `lr_share_of_local_pt_boardings` | 1 | **Nothing new** — it is algebraically V001 ÷ (V001 + V023). This is the 20.8% figure, and it is *not* hypothesis A1's metric (see the note above) |
 | `lr_scheduled_runtime` | 2 | Two identical duplicates of a **schedule input**. MATSim runs transit on the schedule, so it reproduces 12.00 min by construction. This is a SUMO corridor target, not a MATSim one |
 | `lr_alignment_length` | 1 | Geometry, already satisfied by the network build |
@@ -1051,12 +1051,41 @@ range 1.3–15.3%) — a measured handle on the freight the model does not
 represent, though only **3 of the 34 calibration stations** have it, so the rest
 would have to be modelled and swept.
 
-**Not repaired in this change**, deliberately: it rewrites 119 committed target
-values and the choice of period basis is a modelling decision, not a bug fix.
-Recorded here so it is not rediscovered, and so that no fit is reported against
-these values in the meantime. **The 67/143 split is unaffected either way** — the
-AADT split rule is structural (`permanent_station` → calibration, sample station
-→ holdout) and does not depend on the value.
+**Repaired.** `build_validation_targets.py` now filters on `period` and uses
+**`WEEKDAYS`**, two-way, all classes — published for every one of the 119
+stations, and the basis that matches the day type the model runs. `ALL DAYS` is
+carried alongside in `road_aadt_targets.csv` so the weekday choice stays visible
+rather than baked in, and the observed `LIGHT`/`HEAVY VEHICLES` counts are
+carried per station with a `heavy_share_source` of `observed` (23 stations) or
+`not_classified_at_this_station` (96), so the freight the model does not
+represent is never silently taken to be zero.
+
+Effect of the repair, measured against the old file: **119 values changed and
+nothing else did.** Same 210 targets, same ids, same geographies, same metrics,
+**same 67/143 split** — the AADT split rule is structural (`permanent_station` →
+calibration, sample station → holdout) and never depended on the value. New
+values run 1.43–1.87× the old ones (median 1.64); station 55710, 2021 is now
+**53,721 veh/weekday** where it was recorded as 33,114 (and its `ALL DAYS` figure
+is 50,133 — a weekday is busier than the all-day average, as it should be).
+
+`check_package.py` now asserts the split **exactly** at 67/143 rather than merely
+"both non-empty", asserts that every `road_aadt` target names the period it was
+measured over, and asserts the heavy-share provenance label. A target that does
+not say what it is a count *of* is not a target.
+
+### 12.2a The heavy-vehicle and unmodelled-vehicle corrections
+
+The model carries no freight and no separate escort trips, so a modelled link
+volume is not directly comparable to an observed all-classes count. Two
+corrections apply **at comparison time**, to the comparison and not to the model:
+
+| Correction | Value | Sweep | Basis |
+|---|---|---|---|
+| Heavy-vehicle share | per station where classified | — | **Observed** at 23 of 119 stations (weekday): median 6.5%, mean 7.8% |
+| Heavy-vehicle share where not classified | 0.065 | **0.013–0.153** | The observed range across those 23 stations. Only **3 of the 34 calibration stations** carry a classified count, so this is the usual case, and it is assumed |
+
+Both must be reported with the fit, never folded silently into a calibrated
+constant.
 
 ### 12.3 The AADT holdout is a 2008–2010 snapshot
 
@@ -1071,6 +1100,31 @@ Every holdout traffic count is at least fifteen years old, and they are 85 of th
 143 holdout targets. The holdout remains untouched and unpeeked, but it should be
 described for what it is: a 2008–2010 traffic snapshot plus stop-level Opal, not
 a contemporary test set.
+
+### 12.4 A contemporary bus target was considered and rejected
+
+The only bus patronage target in the pre-registered set is Mar 2019 – Feb 2020
+(395,539/month), i.e. pre-pandemic, while `bus_monthly_series.csv` runs to
+Jun 2026 (222,616/month). Adding the current figure was considered — the timing
+would have been legitimate, since nothing has been run and an amendment declared
+before the first result is not goalpost-moving.
+
+**It was not added, because it would identify nothing.** MATSim's scoring
+collapses every public transport service into a single mode `pt` with a single
+alternative-specific constant (§9.3 — bus, light rail and heavy rail have no
+separate `modeParams`). There is therefore no parameter in the model that a bus
+patronage level could pin down which the light rail level and the PT mode share
+do not already pin down; a fourth PT aggregate would add a row to the fit
+statistic and no information to the fit. Amending a pre-registration for that
+trade is a bad bargain.
+
+The contemporary figure will instead be reported as a **labelled post-hoc
+diagnostic** alongside the calibration, clearly outside the 210. The
+pre-registered set stays at 210 targets, 67/143.
+
+If a later change gives bus and light rail distinct scoring constants — which
+would require a MATSim mode-vehicle extension, not a config edit — this decision
+should be revisited, because at that point the bus level *would* be identifying.
 
 ---
 

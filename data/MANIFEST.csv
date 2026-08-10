@@ -108,9 +108,9 @@ data/processed/validation/_validation_report.json,processed,500,,src/build/build
 data/processed/validation/bus_monthly_series.csv,processed,2925,108,src/build/build_validation_targets.py,,,,,12349cf379347f26ada4b1b67e5b6c92bd495d2c9938c2e729f056f3c34127a5
 data/processed/validation/lr_monthly_series.csv,processed,2224,89,src/build/build_validation_targets.py,,,,,7111e637d43fc5cd236f50a0d8789a273016879d7cfb583ec119ad8a3069474d
 data/processed/validation/lr_taps_by_stop.csv,processed,205,6,src/build/build_validation_targets.py,,,,,0c62da63ae0a88963060add74a6f0a165f8d3ace10da354068ededeb12ae8024
-data/processed/validation/road_aadt_targets.csv,processed,12418,119,src/build/build_validation_targets.py,,,,,452e40d19f4c63ed4055cc44c953a88c42f11ad9fec6fc5e9c237b9c4595c521
+data/processed/validation/road_aadt_targets.csv,processed,18485,119,src/build/build_validation_targets.py,,,,,6e01c96dffd984de97923902046cd19e3c7fe111754bffb71322ce76d7ae5495
 data/processed/validation/station_entries_exits_mean.csv,processed,2236,52,src/build/build_validation_targets.py,,,,,bfe827118ee8988d39b9efb296d2bcc099927dab94704b5eb21b8de73281d25b
-data/processed/validation/validation_targets.csv,processed,35207,210,src/build/build_validation_targets.py,,,,,abe9e13c5da1ddeafcccc90da0b51dcdfce6131667cc0b1aac4f7091a5b96e08
+data/processed/validation/validation_targets.csv,processed,40585,210,src/build/build_validation_targets.py,,,,,a2bde12b77a1aa7e7f82d8fd878cd18c9382cce9895ecc603d9cc712b72f2b1d
 data/processed/zones/_zones_report.json,processed,967,,src/extract/extract_zones.py,,,,,d0613ea2bd9ea004b9a1057ba01c7661bf854165c6d44b3c558b1cc4fcfad90b
 data/processed/zones/zone_lookup_SA1.csv,processed,259724,1701,src/extract/extract_zones.py,,,,,c3328d21309f5e1bace18e8c14b0f370e0e9f51e154c96ceee4d24d19c54d3d7
 data/processed/zones/zones_DZN.csv,processed,62772,265,src/extract/extract_zones.py,,,,,c80b5e131851ab57961477237e3d5aca209a50d7f8114a4f66233cfa28417363

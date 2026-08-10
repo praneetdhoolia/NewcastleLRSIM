@@ -159,11 +159,45 @@ ch = sorted({float(r['dwell_charging_s']) for r in sw})
 check(0.0 in ch, 'charging dwell sweep includes 0 (the S2a case)')
 
 # ---- 7. validation split fixed ----
+# The split is pre-registered at 67/143 and fixed before any scenario is run
+# (DECISIONS.md 12, proposal s9). It is asserted exactly, not loosely: the point
+# of pre-registering it is that it cannot drift, and a target value being
+# corrected (as the road_aadt values were, DECISIONS.md 12.2) must not move a
+# single target between the two sets.
+CALIBRATION_N, HOLDOUT_N = 67, 143
 vt = rows('data/processed/validation/validation_targets.csv')
 sp = collections.Counter(r['split'] for r in vt)
-check(sp['holdout'] > 0 and sp['calibration'] > 0,
-      'validation targets split into calibration (%d) and holdout (%d)'
-      % (sp['calibration'], sp['holdout']))
+check(sp['calibration'] == CALIBRATION_N and sp['holdout'] == HOLDOUT_N,
+      'validation split is the pre-registered %d calibration / %d holdout '
+      '(found %d / %d)' % (CALIBRATION_N, HOLDOUT_N,
+                           sp['calibration'], sp['holdout']))
+check(len(vt) == CALIBRATION_N + HOLDOUT_N,
+      'validation target set is the pre-registered %d targets (found %d)'
+      % (CALIBRATION_N + HOLDOUT_N, len(vt)))
+check(len({r['target_id'] for r in vt}) == len(vt),
+      'every validation target has a unique id')
+
+# A traffic count is only a target if it says which period it is a count *of*.
+# The first cut averaged ALL DAYS with the peak-period rows and produced a
+# number with no physical meaning (DECISIONS.md 12.2), which no structural check
+# could see because the arithmetic was internally consistent.
+_aadt_t = [r for r in vt if r['metric'] == 'road_aadt']
+check(bool(_aadt_t) and all('period=' in r['note'] for r in _aadt_t),
+      'every road_aadt target names the period it was measured over (%d)'
+      % len(_aadt_t))
+check(all(r['unit'] == 'vehicles/weekday' for r in _aadt_t),
+      'road_aadt targets are on a stated weekday basis, matching the day type '
+      'the model runs')
+_aadt_rows = rows('data/processed/validation/road_aadt_targets.csv')
+check(all(r['heavy_share_source'] in ('observed', 'not_classified_at_this_station')
+          for r in _aadt_rows),
+      'every traffic-count station declares whether its heavy-vehicle share is '
+      'observed or absent, so the freight the model omits is never silently '
+      'assumed to be zero')
+_obs_heavy = [r for r in _aadt_rows if r['heavy_share_source'] == 'observed']
+check(all(0.0 < float(r['heavy_share']) < 0.5 for r in _obs_heavy),
+      'observed heavy-vehicle shares are plausible (%d stations)'
+      % len(_obs_heavy))
 
 # ---- 8. assumed values carry sweep ranges ----
 c1 = rows('params/C1_behavioural_parameters.csv')

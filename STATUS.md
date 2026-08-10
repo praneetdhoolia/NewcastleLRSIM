@@ -40,7 +40,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | Road network | 43,112 edges, 9,207 km, gradient-attached |
 | Active network | 35,653 edges, 6,325 km, directional walk-speed factors |
 | PT | 5 GTFS eras + 10 scenario variants |
-| Validation | 210 targets (67 calibration / 143 holdout) |
+| Validation | 210 targets (67 calibration / 143 holdout). The 119 traffic-count **values** were repaired at P4 ([`DECISIONS.md`](DECISIONS.md) §12.2); the split did not move. |
 | Base year | 2026 · CRS EPSG:28356 (GDA94 / MGA Zone 56 — label corrected, [`DECISIONS.md`](DECISIONS.md) §2.6) |
 
 ---
