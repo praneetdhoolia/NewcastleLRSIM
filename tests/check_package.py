@@ -630,13 +630,24 @@ else:
         days = v.get('days', {})
         check(set(days) == set(DAY_TYPES),
               '%s: run inputs for all three day types' % sid)
-        # the split must partition the mapped schedule, losing nothing
-        total = sum(d['routes_kept'] for d in days.values())
-        src_routes = mrep2['schedules'].get(sid, {}).get('transit_routes')
-        if src_routes:
-            check(total == src_routes,
-                  '%s: day-type split partitions the mapped schedule exactly '
-                  '(%d = %d routes)' % (sid, total, src_routes))
+        # The split must partition **departures**, not routes. Partitioning the
+        # route set was true and useless: pt2matsim groups trips into a route by
+        # stop sequence rather than by service, so a route is not day-type
+        # homogeneous, and a filter keyed on the route id put 29.5% of S2's
+        # departures in the wrong day type while still partitioning the routes
+        # exactly. It also removed the light rail from every weekday run,
+        # because both of its routes are named after a weekend trip - the
+        # with-tram scenario had no tram on a weekday. DECISIONS.md 9.9.
+        total_dep = sum(d['departures'] for d in days.values())
+        src_dep = mrep2['schedules'].get(sid, {}).get('departures')
+        if src_dep:
+            check(total_dep == src_dep,
+                  '%s: the day-type split partitions the mapped DEPARTURES '
+                  'exactly (%d = %d)' % (sid, total_dep, src_dep))
+        check(sum(d.get('departures_dropped', 0) for d in days.values())
+              == 2 * total_dep,
+              '%s: every departure is kept in exactly one day type and dropped '
+              'from the other two' % sid)
         for d, c in sorted(days.items()):
             check(c['routes_kept'] > 0 and c['departures'] > 0,
                   '%s/%s: schedule retains services (%d routes, %d departures)'
@@ -782,6 +793,43 @@ if os.path.exists(RUN_REPORT):
     check(total_dangling == 0,
           'no dangling transit stop in any of the 30 scenario x day-type run '
           'input sets')
+
+# ---- 15b. the intervention survives into every day type ----
+# The generic partition check above is necessary and not sufficient: it counts
+# departures without asking WHICH service they belong to. A scenario exists to
+# test one intervention, and a day type that lost it is a run that measures
+# nothing. This asserts the line is present with departures, per scenario per
+# day type, which is the check that would have caught the light rail vanishing
+# from every weekday run (DECISIONS.md 9.9).
+INTERVENTION = {
+    'S0': None,                       # counterfactual: no tram is correct
+    'S1': 'S1SHUTTLE', 'S2': 'lightrail', 'S2a': 'lightrail', 'S2b': 'lightrail',
+    'S2c': 'lightrail', 'S3': 'BRT', 'S4': 'lightrail', 'S5': 'lightrail',
+    'S6': None,
+}
+LINE_RE = re.compile(r'<transitLine id="([^"]+)"[^>]*>')
+if os.path.exists(RUN_REPORT):
+    for sid, token in sorted(INTERVENTION.items()):
+        if not token:
+            continue
+        for day in DAY_TYPES:
+            sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
+            if not os.path.exists(sch):
+                continue
+            hits, deps, inside = [], 0, False
+            with gzip.open(sch, 'rt', encoding='utf-8') as f:
+                for ln in f:
+                    m = LINE_RE.search(ln)
+                    if m:
+                        inside = token.lower() in m.group(1).lower()
+                        if inside:
+                            hits.append(m.group(1))
+                    elif inside and '<departure ' in ln:
+                        deps += 1
+            check(bool(hits) and deps > 0,
+                  '%s/%s: the intervention (%s) is present with departures '
+                  '(%d line(s), %d departures)'
+                  % (sid, day, token, len(hits), deps))
     check(total_orphan == 0 and total_dangling_rel == 0 and total_dup_attr == 0,
           'the 30 assembled run input sets are referentially closed and '
           'DTD-valid, i.e. loadable by MATSim')

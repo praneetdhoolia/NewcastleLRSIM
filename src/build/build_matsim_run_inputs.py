@@ -98,21 +98,39 @@ def split_schedule(src_dir, dst_dir, day):
     root = tree.getroot()
 
     kept_routes = dropped_routes = 0
-    kept_dep = 0
+    kept_dep = dropped_dep = 0
+    mixed_routes = 0
     vehicles_used = set()
     stops_served = set()
     for line in list(root.findall('transitLine')):
         for route in list(line.findall('transitRoute')):
-            rid = route.get('id', '')
-            if day_of_route(rid) != day:
+            # Filter DEPARTURES, not routes. pt2matsim groups trips into a
+            # transitRoute by stop sequence, not by service, so a route is not
+            # day-type homogeneous: 233 of S2's 1,714 routes carry departures
+            # from more than one service. Keying the filter on the route id put
+            # 1,261 of 4,269 departures (29.5%) in the wrong day type and
+            # removed the light rail from every weekday run outright, because
+            # both of its routes happen to be named after a weekend trip.
+            # See DECISIONS.md 9.9.
+            deps = route.find('departures')
+            keep_here = []
+            for dep in list(deps.findall('departure') if deps is not None else []):
+                if day_of_route(dep.get('id', '')) == day:
+                    keep_here.append(dep)
+                else:
+                    deps.remove(dep)
+                    dropped_dep += 1
+            if not keep_here:
                 line.remove(route)
                 dropped_routes += 1
                 continue
+            if day_of_route(route.get('id', '')) != day:
+                mixed_routes += 1
             kept_routes += 1
+            kept_dep += len(keep_here)
             for stop in route.findall('./routeProfile/stop'):
                 stops_served.add(stop.get('refId'))
-            for dep in route.findall('./departures/departure'):
-                kept_dep += 1
+            for dep in keep_here:
                 v = dep.get('vehicleRefId')
                 if v:
                     vehicles_used.add(v)
@@ -164,7 +182,9 @@ def split_schedule(src_dir, dst_dir, day):
         vtree.write(f, encoding='utf-8', xml_declaration=True)
 
     return dict(routes_kept=kept_routes, routes_dropped=dropped_routes,
-                departures=kept_dep, vehicles=kept_veh,
+                departures=kept_dep, departures_dropped=dropped_dep,
+                routes_kept_under_a_foreign_day_id=mixed_routes,
+                vehicles=kept_veh,
                 vehicle_refs=len(vehicles_used),
                 stop_facilities_kept=kept_fac, stop_facilities_dropped=dropped_fac,
                 transfer_relations_kept=kept_rel,

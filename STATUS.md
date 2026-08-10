@@ -5,13 +5,14 @@ this at session start. **Keep it current in the same commit/PR as the work it de
 — if a change makes a line here wrong, fix the line in that change, not later.
 
 **Last updated:** 11 August 2026
-**Stage:** **P4 stage 0 complete; P4 proper is blocked on one decision.** Six
-defects fixed — the 30 run-input sets could not be loaded by MATSim at all, and
-the mode choice was not choosing. Run cost, seed dependence and convergence are
-now measured rather than assumed. **The model does not converge and settles on a
-mode split far from the observed one for a structural reason, which collides with
-the pre-registered rule on mode constants (§8.5). No calibration has been
-performed and nothing in this repo is a result.**
+**Stage:** **P4 stages 0–1.** **Seven** defects fixed, every one of which would
+have produced a confident wrong answer rather than an obvious failure: the 30
+run-input sets could not be loaded by MATSim at all, the mode choice was not
+choosing, and the day-type filter left **the with-tram scenario with no tram on a
+weekday** (§9.9). Run cost, seed dependence and convergence are measured rather
+than assumed, and the ride constant is constrained to observed vehicle occupancy
+(§9.8). **No fit has been computed against any of the 67 calibration targets, no
+calibration loop exists, and nothing in this repo is a result.**
 
 ---
 
@@ -25,9 +26,9 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
 | P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 scenario×day-type input sets. They did not in fact load in MATSim — fixed at P4 stage 0 (§9.4). |
-| P4 Calibration | 🟡 stages 0–1 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed made uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed vehicle occupancy (§9.8), target identifiability written down (§12.1–12.4). `src/run/` and `src/calibrate/` exist; **`src/analyse/` is still empty and there is no fit statistic yet**. |
-| P5 Scenario runs | ⬜ not started | `src/run/` is empty. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction. |
-| P6 Analysis | ⬜ not started | `src/analyse/` is empty. |
+| P4 Calibration | 🟡 stages 0–1 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed occupancy (§9.8), **the day-type filter corrected — the with-tram scenario had no tram on a weekday (§9.9)**, target identifiability written down (§12.1–12.4). `src/run/`, `src/calibrate/` and `src/analyse/` exist; **there is still no fit statistic and no calibration loop**. |
+| P5 Scenario runs | ⬜ not started | The P4 harness in `src/run/` is what P5 will drive. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction — the specified load is ~765 days of wall clock and that cut has not been made. |
+| P6 Analysis | ⬜ not started | `src/analyse/` holds the P4 metric extraction only; nothing for the A/B hypotheses yet. |
 | P7 Write-up | ⬜ not started | |
 
 ---
@@ -344,6 +345,53 @@ and no justified value has been measured.
 
 ---
 
+## P4 stage 1 — the with-tram scenario had no tram on a weekday (11 August 2026)
+
+Found by building the metric extractor: it reported **zero** light rail boardings
+for S2 × WEEKDAY. Full detail in [`DECISIONS.md`](DECISIONS.md) §9.9.
+
+`S2.zip` carries 252 weekday light rail trips and the mapping keeps all of them.
+But **pt2matsim groups trips into a route by stop sequence, not by service**, so
+each of the two light rail routes holds 275 departures — 74 Saturday, 75 Sunday
+and **126 weekday** — and both are *named* after a weekend trip. The day-type
+filter keyed on the route name.
+
+| | |
+|---|---:|
+| Routes whose departures span more than one day type | **233 of 1,714 (13.6%)** |
+| Departures placed in the wrong day type | **1,261 of 4,269 (29.5%)** |
+| Weekday service delivered vs true | 1,747 vs 2,139 — **18% short** |
+| Saturday / Sunday delivered vs true | **18% / 19% over** |
+
+**A weekday S2-versus-S0 comparison would have measured the effect of nothing at
+all**, and reported it confidently.
+
+**Why the check passed.** It asserted the split partitions the *route set*
+exactly — 1,231 + 291 + 192 = 1,714. True, and the wrong invariant: partitioning
+routes is not partitioning service when a route is not day-type homogeneous.
+
+Fixed by filtering **departures** rather than routes, still on the already-mapped
+schedule, so §3.5 holds unchanged. Light rail is now 252 / 148 / 150, matching
+the GTFS calendar exactly. Two checks replace the old one: departures partition
+exactly, and **the intervention is present with departures in every day type** —
+light rail for S2/S2a/S2b/S2c/S4/S5, the shuttle for S1, the BRT for S3, and
+correctly nothing for the S0 and S6 counterfactuals. **860 checks.**
+
+The three `asc_car_passenger` candidate runs then in flight were **discarded, not
+reported**: a constant solved on a network with no weekday tram is a solve of a
+different model.
+
+## P4 stage 1 — analysis layer (11 August 2026)
+
+`src/analyse/` now exists, and holds the two correspondences a fit needs before
+any modelled quantity can be compared with a target:
+
+| Script | What it resolves |
+|---|---|
+| `map_sa1_to_lga.py` | The mode-share target is **Newcastle LGA** and the model covers five (§12.1), but nothing in the package carried SA1 → LGA — `zones_SA1.csv` has SA2/SA3/SA4 only, and SA3 "Newcastle" is not Newcastle LGA. Spatial join against the ABS LGA boundaries already in `data/raw/`: **1,701 SA1s, 0 unmatched**, 390 in Newcastle |
+| `map_count_stations.py` | A count target is a two-way total at a point, so it must resolve to links. **116 of 119** stations matched, 189 of 203 links by **name and proximity** rather than proximity alone, median distance 30.6 m. The 3 unmatched — one of them a calibration station — are outside the modelled network and are **reported, not dropped** |
+| `extract_metrics.py` | Mode share by LGA of residence, PT boardings by line, link volumes at mapped stations. Reads no validation target, so it cannot see the split |
+
 ## What P4 still has to build
 
 Proposal §7.1 makes P4 *"fit to observed counts, Opal boardings, run times;
@@ -353,8 +401,8 @@ with honest reporting of where fit is poor"*. None of it exists yet.
 
 | # | Deliverable | Where | Notes |
 |---|---|---|---|
-| 1 | **Run harness** — deterministic nested subsample, transit vehicle capacity scaled with the sample, launch, resume, record | `src/run/` | The scratchpad prototype behind §9.5 and §9.7 is not committed. Vehicle capacities are `seats` only with `standingRoomInPersons=0`, so below 100% they must be scaled or capacity never binds |
-| 2 | **Metric extraction** from events — boardings by line, link volumes, mode share **by LGA of residence** | `src/analyse/` | The mode-share target is Newcastle LGA and the model is five LGAs (§12.1) |
+| 1 | ~~**Run harness**~~ **done** | `src/run/` | Nested subsample, transit seat capacity scaled with the fraction, deterministic, resumable, records its own parameters |
+| 2 | ~~**Metric extraction**~~ **done** | `src/analyse/` | Mode share by LGA of residence, PT boardings by line, link volumes at the mapped count stations |
 | 3 | **Fit statistic** against the 67, per target, with the §12.2a corrections shown and never closed by a fitted constant | `src/calibrate/` | Must name the targets it was computed over — "fits 67 targets" overstates what §12.1 says the data supports |
 | 4 | **Calibration loop** — deterministic, resumable, and structurally unable to read a holdout row | `src/calibrate/` | |
 | 5 | **Calibrated base** + parameter provenance | `params/` | |

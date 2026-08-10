@@ -1118,6 +1118,72 @@ non-convergence — the two are plausibly the same problem, since a dominating m
 drives the co-evolution to a corner and corners relax slowly — is measured by the
 same runs.
 
+## 9.9 The with-tram scenario had no tram on a weekday (P4 stage 1)
+
+Found while building `src/analyse/extract_metrics.py`: the extractor reported
+**zero light rail boardings** for S2 × WEEKDAY. Not few — zero.
+
+`S2.zip` carries 550 light rail trips, of which **252 are weekday** on a
+`service_id=WEEKDAY` running Monday to Friday. The mapping keeps all 550. But
+the mapped schedule has exactly **two** light rail `transitRoute`s, named
+`lightrail:SAT.69659…` and `lightrail:SUN.72626…`, and **each carries 275
+departures: 74 Saturday, 75 Sunday and 126 weekday.**
+
+**pt2matsim groups trips into a `transitRoute` by stop sequence, not by
+service.** A route is therefore *not day-type homogeneous*, and the day-type
+filter keyed on the **route id**. So:
+
+* every weekday run dropped both light rail routes — the **with-tram scenario
+  had no tram** — and a weekday S2-versus-S0 comparison would have measured the
+  effect of nothing at all;
+* Saturday and Sunday each received all 275 departures, roughly **3.7×** the
+  real light rail service.
+
+It is not confined to the light rail. Across S2's 1,714 routes:
+
+| | |
+|---|---:|
+| Routes whose departures span more than one day type | **233 (13.6%)** |
+| Departures placed in the wrong day type | **1,261 of 4,269 (29.5%)** |
+| True weekday departures vs delivered | 2,139 vs **1,747** (18% short) |
+| True Saturday vs delivered | 1,128 vs **1,330** (18% over) |
+| True Sunday vs delivered | 1,002 vs **1,192** (19% over) |
+
+### Why the existing check passed
+
+§9.3 called the one-build constraint "discharged structurally" and
+`check_package.py` asserted that the split **partitions the route set exactly** —
+1,231 + 291 + 192 = 1,714. That was true, and it was the wrong invariant.
+Partitioning routes is not partitioning service when a route is not
+day-type homogeneous. The check confirmed an arithmetic identity while 29.5% of
+the service was in the wrong place.
+
+### The fix
+
+`split_schedule` now filters **departures** by their own day token and keeps a
+route if it retains any, so a route named after a Saturday trip still carries its
+126 weekday departures into the weekday run. This still operates on the
+already-mapped schedule — no feed is re-mapped, no link sequence is touched — so
+§3.5 holds exactly as before.
+
+Verified: light rail now has **252 weekday, 148 Saturday, 150 Sunday**
+departures, matching the GTFS calendar exactly, and every scenario's departures
+partition its source total precisely.
+
+Two checks replace the one that passed:
+
+1. the split partitions **departures** exactly, and every departure is kept in
+   exactly one day type and dropped from the other two;
+2. **the intervention is present with departures in every day type** — per
+   scenario, the light rail line for S2/S2a/S2b/S2c/S4/S5, the shuttle for S1,
+   the BRT for S3, and correctly nothing for the S0 and S6 counterfactuals. A
+   generic partition count cannot see a missing tram; this can.
+
+**Nothing that had been run on the old inputs was kept.** The three
+`asc_car_passenger` candidate runs in flight were discarded rather than reported,
+because a solve calibrated on a network with no weekday tram is a solve of a
+different model.
+
 ---
 
 ## 10. Scenario construction (E1)
