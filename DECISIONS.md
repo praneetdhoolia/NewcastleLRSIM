@@ -1343,6 +1343,38 @@ seven-year observed spread. §9.11's own prediction is confirmed: the ceiling is
 0.779 and the model settles far below it, so the constraint never binds where it
 would matter.
 
+### Confirmed at 25% — the 10% reading was real (added after the run landed)
+
+The 25% confirmation run the §8.5 decision was gated on. 131,291 persons, 16,365 s
+wall, 56.4 s median iteration, same 8 threads and same declared pipeline.
+
+| Newcastle LGA | 1% | 10% | **25%** | HTS |
+|---|---:|---:|---:|---:|
+| Vehicle driver | 16.01 | 30.85 | **32.48** | 59.0 |
+| **Vehicle passenger** | 61.06 | 50.94 | **49.87** | **20.6** |
+| mean absolute error | 23.19 pp | 17.43 pp | **16.80 pp** | |
+| passengers per driver | 3.814 | 1.651 | **1.535** | 0.3503 |
+
+**The fraction sensitivity has flattened.** 1% → 10% moved car **+14.8 pp**; 10% →
+25% moves it **+1.6 pp** and ride **−1.1 pp**. The divergence really was the 1%
+artefact, and 10% already behaves like 25% — so the answer stands where the
+artefact is absent: **ride settles near 50%, about 2.4× the observed 20.6%, at
+1.535 passengers per driver against an observed 0.3503.** §9.11's constraint was
+necessary and is not sufficient, and that is now measured rather than suspected.
+
+The §9.13 constraint says the same thing independently and more sharply, because
+it is geography-robust and is scored into nothing:
+
+| ride ÷ car trip length | 1% | 10% | **25%** | observed |
+|---|---:|---:|---:|---:|
+| | 1.075 | 1.346 | **1.372** | **0.961** |
+
+Observed passenger trips are slightly *shorter* than driver trips; the model makes
+them 43% longer, and **the gap widens with sample fraction rather than closing**.
+
+Counts, by contrast, do not move with fraction at all — −72.9% / −73.8% / −73.1%
+— which points at §9.14 rather than at sampling.
+
 ### Why the 1% column must not be read behaviourally
 
 **1% does not deliver the simulated day.** Counting `stuckAndAbort` in each run's

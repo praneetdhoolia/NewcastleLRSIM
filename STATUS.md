@@ -643,9 +643,12 @@ it is the first mechanism for the car/PT divergence to survive measurement after
 four died. It also explains why `modestats.csv` and `_metrics.json` disagree: one
 records the mode agents **chose**, the other trips that **completed**.
 
-**A 25% run is in flight** to confirm the 10% reading before a §8.5 departure is
-chosen — a departure cannot be un-logged, and the threshold between 10% and 25% is
-unmeasured.
+**Confirmed at 25%.** 1% → 10% moved car **+14.8 pp**; 10% → 25% moves it **+1.6 pp**
+and ride **−1.1 pp**, so the fraction sensitivity has flattened and the divergence
+really was the 1% artefact. The answer stands where the artefact is absent: **ride
+settles near 50% against an observed 20.6%**, at **1.535 passengers per driver**
+against 0.3503. §9.11's constraint was necessary and is **not sufficient** — measured,
+not suspected. The §8.5 departure is now unblocked and unchosen.
 
 **A defect that flattered the fit (#19).** `fit.py` dropped a count station when
 the model routed *zero* traffic over it, under a reason that said the station had
