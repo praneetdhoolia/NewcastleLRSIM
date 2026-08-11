@@ -1536,6 +1536,81 @@ anything.
 
 ---
 
+## 9.14 The external tier is 0.43% of trips and does not drive (P4 stage 3)
+
+§9.12's correction to `fit.py` stopped discarding count stations the model fails
+on, and the first thing it surfaced was a modelled **zero** on the M1 Pacific
+Motorway at Wyee against an observed 48,016 AADT. Investigating that turned out
+not to be about one station.
+
+### Every motorway station is short, and the error grows toward the boundary
+
+| target | station | modelled | observed (light-vehicle) | error |
+|---|---|---:|---:|---:|
+| V113 | Pacific Motorway (Wyee) | **0** | 44,885 | **−100.0%** |
+| V094 | Pacific Motorway (Freemans Waterhole) | 90 | 35,922 | −99.8% |
+| V093 | Pacific Motorway (Freemans Waterhole) | 90 | 3,483 | −97.4% |
+| V091 | Pacific Motorway (West Wallsend) | 200 | 3,076 | −93.5% |
+| V081 | Pacific Motorway (Black Hill) | 3,590 | 31,356 | −88.5% |
+
+**Motorway stations median −97.4%; every other calibration station −69.6%.**
+Black Hill, nearest the urban core, is least wrong; Wyee at the far southern
+boundary is exactly zero. The network is not at fault: **263 of 314 links named
+"Motorway" carry traffic**, so the M1 is connected and routable. It carries a
+median of 40 vehicles per link at a 10% sample — roughly 400/day scaled — where
+one station observes ~45,000.
+
+### The tier that should supply that traffic is 0.43% of trips
+
+962 external boundary trips against 223,144 core trips, median length 68 km.
+`B.external.interaction_rate` is **0.08, `assumed`**, swept 0.04–0.15, and its own
+registry entry already records that it is *localisable but not yet available*: the
+ABS journey-to-work SA2 × SA2 origin–destination table would settle it, and the
+package holds the place-of-work side without the pairing (§13). A tier this size
+cannot load a motorway whose observed flow at a single station exceeds the whole
+modelled external demand roughly 45-fold.
+
+### And the external agents that exist almost never drive
+
+| mode | trips | median km | median hours |
+|---|---:|---:|---:|
+| **bike** | **478** | **96.1** | **6.35** |
+| ride | 432 | 46.7 | 0.76 |
+| pt | 46 | 110.3 | 3.20 |
+| **car** | **6** | 50.0 | 0.74 |
+
+**478 external agents cycle a median 96 km over 6.35 hours**, and that survived
+250 iterations of a utility-maximising co-evolution. It is specific to the tier —
+core agents at 60 km and beyond take car 24.5% and bike 3.7%, which is sensible.
+
+**Ruled out by measurement:** not permission, since all 531 external agents carry
+`carAvail=always` and `hasLicense=yes`; not connectivity, since all **586**
+distinct start and end links they use exist in the run network and **every one
+permits car**; not the network, which routes traffic on 84% of motorway links.
+
+**The mechanism is not established and is recorded as open rather than guessed.**
+On the shipped scoring a 96 km bike trip costs roughly −140 utils against about
+−38 for the same trip by car, so mode choice moving agents *into* bike and *out
+of* car inverts what the utilities imply. Something structural is doing it. Five
+hypotheses have already died between this and §9.12; this one gets measured.
+
+### Why it is recorded rather than fixed
+
+Both halves — an undersized tier and a tier that does not drive — are B2 changes,
+and B2 regenerates the P3 demand artefacts and **breaks comparability with every
+run to date**. That is a planned break, not something to slip in beside a
+specification change while a fraction series is still being measured.
+
+**Consequence, and it is not small.** Until this is understood every
+boundary-adjacent count is biased low, and the −73.8% overall count error carries
+a large contribution from a demand tier that is both too small and not driving.
+Calibrating the core network against those counts would be tuning it to
+compensate for missing through traffic — the count analogue of the ASC absorption
+proposal §9 names as the primary threat to validity. **No count-based calibration
+should be attempted until §9.14 is resolved.**
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

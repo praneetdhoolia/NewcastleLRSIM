@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 11 August 2026 (P4 stage 3 - the ride constraint measured)
+**Last updated:** 11 August 2026 (P4 stage 3 - ride measured, trip length constrained, external tier found empty)
 **Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -31,7 +31,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
 | P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 scenario×day-type input sets. They did not in fact load in MATSim — fixed at P4 stage 0 (§9.4). |
-| P4 Calibration | 🟡 stages 0–3 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed occupancy (§9.8), **the day-type filter corrected — the with-tram scenario had no tram on a weekday (§9.9)**, sample fraction tested (§9.10) and **1% found unusable** (§9.12), `ride` given a driver requirement (§9.11) and measured **necessary but not sufficient** (§9.12), trip length by mode constrained (§9.13), target identifiability written down (§12.1–12.4). Deliverables **3 of 7**: run harness, metric extraction and fit statistic exist and are tested; **the calibration loop, the calibrated base and the report do not** (#14), and the phase is blocked on the §8.5 ride specification (#16). |
+| P4 Calibration | 🟡 stages 0–3 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed occupancy (§9.8), **the day-type filter corrected — the with-tram scenario had no tram on a weekday (§9.9)**, sample fraction tested (§9.10) and **1% found unusable** (§9.12), `ride` given a driver requirement (§9.11) and measured **necessary but not sufficient** (§9.12), trip length by mode constrained (§9.13), **the external demand tier found to be 0.43% of trips and not driving, so no count-based calibration is safe yet (§9.14, #20)**, target identifiability written down (§12.1–12.4). Deliverables **3 of 7**: run harness, metric extraction and fit statistic exist and are tested; **the calibration loop, the calibrated base and the report do not** (#14), and the phase is blocked on the §8.5 ride specification (#16). |
 | P5 Scenario runs | ⬜ not started | The P4 harness in `src/run/` is what P5 will drive. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction — the specified load is ~765 days of wall clock and that cut has not been made. |
 | P6 Analysis | ⬜ not started | `src/analyse/` holds the P4 metric extraction only; nothing for the A/B hypotheses yet. |
 | P7 Write-up | ⬜ not started | |
@@ -726,6 +726,45 @@ generates none (#11). That is a measured demand component, not the assumption th
 issue recorded, and it is the driver side of the same problem.
 
 **942 checks**, 1 standing warning.
+
+---
+
+## P4 stage 3 — the external tier is 0.43% of trips and does not drive (11 August 2026)
+
+Found by investigating the modelled **zero** on the M1 at Wyee that the §9.12
+`fit.py` correction stopped discarding. It is not one station. Full detail in
+[`DECISIONS.md`](DECISIONS.md) §9.14; tracked as **#20**.
+
+| | |
+|---|---:|
+| Motorway count stations, median error | **−97.4%** |
+| Every other calibration station, median | −69.6% |
+| External boundary trips | **962 (0.43% of all trips)** |
+| …of which by car | **6** |
+| …by bike, median 96.1 km over 6.35 h | **478** |
+
+**The network is not at fault** — 263 of 314 motorway links carry traffic, so the
+M1 is connected and routable. It simply carries ~400 vehicles/day scaled where one
+station observes ~45,000. `B.external.interaction_rate` is **0.08, assumed**, and
+its own registry entry already says it is *localisable but not yet available*: the
+ABS journey-to-work SA2 × SA2 table would settle it (§13).
+
+**Ruled out by measurement:** not permission (all 531 external agents carry
+`carAvail=always`, `hasLicense=yes`), not connectivity (all 586 links they start
+and end on exist and permit car), not the network. **The mechanism is not
+established and is recorded as open rather than guessed** — a 96 km bike trip
+costs roughly −140 utils against −38 by car, so the choice inverts the utilities,
+and five hypotheses have already died between this and §9.12.
+
+**Not fixed, deliberately.** Both halves are B2 changes, and B2 regenerates the P3
+demand artefacts and breaks comparability with every run to date — a planned break,
+not one to slip in beside a specification change while a fraction series is being
+measured.
+
+**Consequence: no count-based calibration should be attempted until this is
+resolved.** Tuning the core network against counts that are missing their through
+traffic is the count analogue of the ASC absorption proposal §9 names as the
+primary threat to validity.
 
 ---
 

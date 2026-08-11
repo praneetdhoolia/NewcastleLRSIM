@@ -319,7 +319,8 @@ before the titles.**
 | [#9](../../issues/9) | Re-solve `asc_car_passenger` once the iteration count is settled | Superseded by §9.11; may end in "drop it" |
 | [#8](../../issues/8) | The MATSim–SUMO outer-loop tolerance is undefined | A P4 obligation that was on no list. `value: null` |
 | [#13](../../issues/13) | ~4 mode-share d.o.f., 1 patronage level and 33 counts constrain the model | Reporting rule, the two §12 traps, and the count discrepancy now resolved |
-| [#19](../../issues/19) | `fit.py` drops a station because the model fails there | **Fixed and regression-tested**; open only for the M1-at-Wyee gap it exposed |
+| [#19](../../issues/19) | `fit.py` drops a station because the model fails there | **Fixed and regression-tested.** The gap it exposed moved to #20 |
+| [#20](../../issues/20) | The external demand tier is 0.43% of trips and does not drive, so the M1 is empty | **Blocks count-based calibration.** Motorway stations median -97.4%; 6 of 962 external trips are by car |
 | [#10](../../issues/10) | Three count stations lie outside the modelled network | Reported, not fixed; nothing blocked |
 | [#12](../../issues/12) | Transit capacity floors at 1 seat below ~1.5% sample | Largely moot since #17 — 1% is unusable anyway |
 | [#11](../../issues/11) | B2 generates no escort trips | A stated limitation that is now **material to the #16 decision** |
@@ -336,11 +337,11 @@ that is the bar for closing anything here).
 ```bash
 python tests/check_manifest.py                   # committed subset, fast
 python src/setup/bootstrap_toolchain.py --verify # JDK/pt2matsim/SUMO digests
-python tests/check_package.py                    # 937 checks, needs full package
+python tests/check_package.py                    # 943 checks, needs full package
 ```
 
 Then read, in order: [`STATUS.md`](../STATUS.md), [`DECISIONS.md`](../DECISIONS.md)
-§0, §8.5, §9.4–§9.12, §12.1–12.4 and §15, [`CLAUDE.md`](../CLAUDE.md), the generated
+§0, §8.5, §9.4–§9.14, §12.1–12.4 and §15, [`CLAUDE.md`](../CLAUDE.md), the generated
 [`docs/CONFIG_REFERENCE.md`](CONFIG_REFERENCE.md), and then this file for the
 long-form history. **Read the open issues and their comments — they are the live
 state of what this project does not yet know.**
