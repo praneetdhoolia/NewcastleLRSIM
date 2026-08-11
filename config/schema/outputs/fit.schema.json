@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/outputs/fit.schema.json",
+  "title": "_fit.json - fit against the CALIBRATION targets only",
+  "description": "Written by src/calibrate/fit.py. Structurally cannot contain a holdout value: load_targets() filters split == 'calibration' at read time and raises if anything else survives. EVERY FIT STATISTIC NAMES THE TARGET IDS IT WAS COMPUTED OVER - a statistic that does not name its targets is not reportable, because 'fits 67 targets' is a much stronger claim than this data supports (DECISIONS.md 12.1).",
+  "type": "object",
+  "required": [
+    "run",
+    "scenario",
+    "day",
+    "calibration_targets_available",
+    "scored",
+    "unscored",
+    "unscorable",
+    "headline"
+  ],
+  "properties": {
+    "run": {
+      "type": "string",
+      "description": "Run directory name; the run identity."
+    },
+    "scenario": {
+      "type": "string",
+      "enum": [
+        "S0",
+        "S1",
+        "S2",
+        "S2a",
+        "S2b",
+        "S2c",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ]
+    },
+    "day": {
+      "type": "string",
+      "enum": [
+        "WEEKDAY",
+        "SAT",
+        "SUN"
+      ]
+    },
+    "fraction": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1.0,
+      "description": "Sample fraction. Every extensive quantity below is scaled by it."
+    },
+    "iterations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "overrides": {
+      "type": "object"
+    },
+    "calibration_targets_available": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Rows with split == 'calibration'. The holdout is never read."
+    },
+    "scored": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "unscored": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "unscorable": {
+      "type": "array",
+      "description": "Every target that could not be scored, WITH A REASON. Reported as loudly as what could be scored. scored + len(unscorable) must equal calibration_targets_available, and fit.py exits if it does not - an earlier cut scored 35 and explained 16 of 67, leaving 16 neither scored nor explained.",
+      "items": {
+        "type": "object",
+        "required": [
+          "target_id",
+          "reason"
+        ],
+        "properties": {
+          "target_id": {
+            "type": "string"
+          },
+          "metric": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "mode_share": {
+      "$ref": "#/$defs/block"
+    },
+    "patronage": {
+      "$ref": "#/$defs/block"
+    },
+    "counts": {
+      "$ref": "#/$defs/block"
+    },
+    "occupancy_constraint": {
+      "type": "object",
+      "description": "Modelled ride:car ratio against the observed passenger:driver ratio. This is a CONSTRAINT being checked, not a target being fitted (DECISIONS.md 8.5, 9.8)."
+    },
+    "headline": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "block": {
+      "type": "object",
+      "required": [
+        "n",
+        "targets"
+      ],
+      "properties": {
+        "n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The target ids this statistic was computed over. Required."
+        },
+        "errors": {
+          "type": "array"
+        },
+        "mean_abs_pp": {
+          "type": "number"
+        },
+        "rmse": {
+          "type": "number"
+        },
+        "gap_pct": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

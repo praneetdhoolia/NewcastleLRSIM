@@ -1,0 +1,14 @@
+{
+  "overlay": "S5",
+  "description": "Light rail extended to Broadmeadow and John Hunter Hospital. The upper bound of the plausible network.",
+  "applies_to": {
+    "scenario": [
+      "S5"
+    ]
+  },
+  "set": {
+    "A.lightrail.dwell_charging_s": 20.0,
+    "A.lightrail.tsp_enabled": false,
+    "A.signals.scats_phasing": "proxy_no_priority"
+  }
+}

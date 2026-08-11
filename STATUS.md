@@ -4,15 +4,19 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 11 August 2026
+**Last updated:** 11 August 2026 (input registry)
 **Stage:** **P4 stages 0–1.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
 choosing, and the day-type filter left **the with-tram scenario with no tram on a
 weekday** (§9.9). Run cost, seed dependence and convergence are measured rather
 than assumed, and the ride constant is constrained to observed vehicle occupancy
-(§9.8). **No fit has been computed against any of the 67 calibration targets, no
-calibration loop exists, and nothing in this repo is a result.**
+(§9.8). Every controllable value is now **declared** rather than typed into a script:
+`config/registry/` holds 123 fields with units, provenance and a sweep or a
+held-fixed rule, and the resolver refuses to hand back a point value for
+anything unobtained (§15). **No fit has been computed against any of the 67
+calibration targets, no calibration loop exists, and nothing in this repo is a
+result.**
 
 ---
 
@@ -403,7 +407,7 @@ with honest reporting of where fit is poor"*. None of it exists yet.
 |---|---|---|---|
 | 1 | ~~**Run harness**~~ **done** | `src/run/` | Nested subsample, transit seat capacity scaled with the fraction, deterministic, resumable, records its own parameters |
 | 2 | ~~**Metric extraction**~~ **done** | `src/analyse/` | Mode share by LGA of residence, PT boardings by line, link volumes at the mapped count stations |
-| 3 | **Fit statistic** against the 67, per target, with the §12.2a corrections shown and never closed by a fitted constant | `src/calibrate/` | Must name the targets it was computed over — "fits 67 targets" overstates what §12.1 says the data supports |
+| 3 | ~~**Fit statistic**~~ **done** | [`src/calibrate/fit.py`](src/calibrate/fit.py) | Calibration rows only, and it raises if a holdout row survives the filter. 35 scored + 32 explained = 67, asserted rather than assumed. The output contract now **fails a fit block that does not name its target ids** |
 | 4 | **Calibration loop** — deterministic, resumable, and structurally unable to read a holdout row | `src/calibrate/` | |
 | 5 | **Calibrated base** + parameter provenance | `params/` | |
 | 6 | **Calibration report** | `docs/` | |
@@ -412,6 +416,92 @@ with honest reporting of where fit is poor"*. None of it exists yet.
 **Everything above is downstream of the §8.5 decision in §9.7.** Building a
 calibration loop before deciding which parameters it may move would be building
 the wrong loop.
+
+## P4 stage 2 — the input registry (11 August 2026)
+
+Every value the model consumes that is not read from an immutable raw download
+is declared in [`config/registry/`](config/registry/) with its units, its
+provenance and either a sweep range or an explicit rule holding it fixed. Full
+rationale in [`DECISIONS.md`](DECISIONS.md) §15; the generated reference is
+[`docs/CONFIG_REFERENCE.md`](docs/CONFIG_REFERENCE.md).
+
+**What it replaced:** 316 module-level constants across 45 scripts, a
+110-parameter MATSim config per run set, and a handful of CLI defaults. Exactly
+**one** of those 316 carried a machine-readable `source` label; 18 carried a
+sweep.
+
+| | |
+|---|---:|
+| Fields declared | **123** |
+| …assumed | 64 |
+| …literature | 17 |
+| …definition | 28 |
+| …measured / derived / observed | 5 / 7 / 2 |
+| Fields with **no value at all** | **6** |
+| Fields **held fixed** under §8.5 | 6 |
+| `check_package.py` | 860 → **908 checks**, 1 standing warning |
+
+**Proposal §8.1 is now a schema constraint, not a discipline.** A field whose
+source is `assumed`, `literature`, `measured` or `derived` must carry a sweep, a
+`held_fixed` rule, or a `derived_from` identity. There is no fourth option, and
+`assumed` with no sweep does not validate.
+
+**The six fields with no value are the project's honest edge.** SCATS phasing,
+charging dwell and journey-linked Opal carry `value: null` and the resolver
+**raises** rather than returning a point value — §0 and §13 enforced
+structurally. So do two decisions nobody has taken: the MATSim↔SUMO outer-loop
+tolerance (issue #8) and **the iteration count** (issue #5). `run_matsim.py` now
+refuses to start without an explicit iteration count, which is the refusal
+`--iterations` already implemented, moved into the registry where it binds
+everything rather than one argument parser.
+
+**Two factors that governed every P4 result were set in code with no rationale
+and no range.** Neither `flowCapacityFactor` nor `storageCapacityFactor`
+appeared anywhere in `DECISIONS.md`, `check_package.py` or the P4 checkpoint.
+The first is *derived* — it equals the sample fraction — and now says so. The
+second is *assumed*: `storageCapacityFactor = fraction ** exponent` with the
+exponent implicitly 1.0, now swept 0.75–1.0. **This is an open risk, not
+bookkeeping.** MATSim floors link storage at one vehicle, so at 1% most links
+hold one car regardless of length; if that inflates car travel times, agents flee
+to teleported `walk`, which is exactly what the discarded runs showed (walk
+0.38–0.55 against a 0.134 target). Untested hypothesis; the nested subsample
+makes the test cheap.
+
+**Outputs are declared to the same standard as inputs.** `_run.json`,
+`_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema in
+[`config/schema/outputs/`](config/schema/outputs/), validated at write time. Two
+rules are enforced beyond shape: a fit block must **name the target ids it was
+computed over**, and `scored + unscorable` must reconcile to the calibration
+targets available. Every run directory now carries `_config.json`, the resolved
+snapshot — a completed run without one fails its contract, because a result that
+cannot state its inputs is not reportable.
+
+**What is declared but not yet consumed.** The build layer has **not** been
+migrated: `src/build/*.py` still hold their own constants. Two copies of a number
+is the drift this package cannot absorb, so
+`src/registry/check_legacy_drift.py` pins them together by test — 54 compared,
+one deliberate divergence, one expression that is not a literal. Writing that
+check immediately found **four values transcribed wrongly into the registry**;
+the code was authoritative and the registry was corrected. The migration itself
+needs a full package rebuild to verify byte-identically and **has not been run**.
+The SUMO corridor layer is likewise declared but still built from its own
+constants.
+
+**Driving it:**
+
+```bash
+# a committed overlay - the reproducible way to vary a run
+cp config/runs/example.json config/runs/my_run.json
+python src/run/run_matsim.py --scenario S2 --day WEEKDAY --run-config my_run
+
+# a one-off, checked against the same sweep and held-fixed rules
+python src/run/run_matsim.py --scenario S2 --day WEEKDAY \
+    --set RUN.sample.fraction=0.10 --set RUN.controler.last_iteration=500
+
+WICKHAM_RUN_SAMPLE_FRACTION=0.10 python src/run/run_matsim.py --scenario S2 ...
+```
+
+---
 
 ## How to resume
 
@@ -427,6 +517,8 @@ to drive it, and the traps. This file stays the short live status.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **657 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **908 checks**. Run it before declaring any phase
    complete.
-5. Branch as `<git-handle>/<short-kebab-description>` (never `claude/*`).
+5. `python src/registry/render_docs.py` after any change to `config/registry/`, or
+   `check_package.py` will report the reference as stale.
+6. Branch as `<git-handle>/<short-kebab-description>` (never `claude/*`).

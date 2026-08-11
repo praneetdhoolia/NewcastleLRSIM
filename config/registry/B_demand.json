@@ -1,0 +1,443 @@
+{
+  "layer": "B",
+  "title": "Demand (B1-B5)",
+  "description": "Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.",
+  "decisions_ref": "9",
+  "fields": {
+    "B.seed.master": {
+      "value": 20260810,
+      "units": "integer_seed",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.1",
+      "legacy_symbol": "src/build/build_activity_chains.py:SEED",
+      "description": "The one seed everything synthetic derives from. CLAUDE.md forbids unseeded randomness, wall-clock dependence and dict/set-ordering dependence anywhere in a build script. Changing this changes every synthetic artefact."
+    },
+    "B.population.age_bands": {
+      "value": [
+        [
+          0,
+          4
+        ],
+        [
+          5,
+          11
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          18,
+          24
+        ],
+        [
+          25,
+          34
+        ],
+        [
+          35,
+          44
+        ],
+        [
+          45,
+          54
+        ],
+        [
+          55,
+          64
+        ],
+        [
+          65,
+          74
+        ],
+        [
+          75,
+          84
+        ],
+        [
+          85,
+          120
+        ]
+      ],
+      "units": "years",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.1",
+      "legacy_symbol": "src/build/build_population.py:AGE_BANDS",
+      "description": "Age banding for population synthesis. Follows the census table structure."
+    },
+    "B.population.licence_rate_by_age_band": {
+      "value": [
+        0,
+        0,
+        0,
+        0.62,
+        0.88,
+        0.93,
+        0.94,
+        0.93,
+        0.88,
+        0.72,
+        0.45
+      ],
+      "units": "probability",
+      "source": "literature",
+      "sweep": {
+        "proportional": 0.1
+      },
+      "status": "active",
+      "decisions_ref": "9.1",
+      "legacy_symbol": "src/build/build_population.py:LICENCE_RATE",
+      "description": "Driver licence holding by age band, aligned to B.population.age_bands."
+    },
+    "B.activity.hts_rate_per_person_day": {
+      "value": 3.473,
+      "units": "trips_per_person_per_day",
+      "source": "measured",
+      "sweep": [
+        3.3,
+        3.65
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:HTS_RATE_PER_PERSON_DAY",
+      "description": "Observed NSW HTS trip rate the synthesis is calibrated to reproduce. The realised rate is 3.397, 2.2% low."
+    },
+    "B.activity.act_duration_min": {
+      "value": {
+        "HW": 465,
+        "HE": 360,
+        "HS": 45,
+        "HO": 90,
+        "WB": 60,
+        "NHB": 20
+      },
+      "units": "minutes",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:ACT_DURATION",
+      "description": "Mean activity duration by purpose."
+    },
+    "B.activity.duration_cv": {
+      "value": 0.3,
+      "units": "coefficient_of_variation",
+      "source": "assumed",
+      "sweep": [
+        0.2,
+        0.45
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:DURATION_CV",
+      "description": "Spread of activity duration around its mean."
+    },
+    "B.activity.p_intermediate_stop": {
+      "value": {
+        "HW": 0.22,
+        "HE": 0.12,
+        "HS": 0.18,
+        "HO": 0.2,
+        "WB": 0.3
+      },
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        0.35
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:P_INTERMEDIATE_STOP",
+      "description": "Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values."
+    },
+    "B.activity.p_second_stop": {
+      "value": 0.25,
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.12,
+        0.4
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:P_SECOND_STOP",
+      "description": "Probability of a second intermediate stop, given a first."
+    },
+    "B.activity.child_tour_retention": {
+      "value": 0.4,
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.25,
+        0.6
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:CHILD_TOUR_RETENTION",
+      "description": "Share of child tours retained as independent tours."
+    },
+    "B.activity.p_mandatory": {
+      "value": {
+        "WEEKDAY": {
+          "work": 0.78,
+          "education": 0.85
+        },
+        "SAT": {
+          "work": 0.16,
+          "education": 0.03
+        },
+        "SUN": {
+          "work": 0.09,
+          "education": 0.01
+        }
+      },
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.6,
+        0.95
+      ],
+      "sweep_basis": "the work entry is bounded BELOW by the census G62 observed attendance of 0.651, which bounds the sweep and is not allowed to set the value, because census night was August 2021 with 19.2% working from home",
+      "status": "active",
+      "decisions_ref": "2.4, 9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:P_MANDATORY",
+      "description": "Probability an employed person or student attends on a given day type."
+    },
+    "B.activity.day_purpose_mix": {
+      "value": {
+        "WEEKDAY": {
+          "HW": 1.0,
+          "HE": 1.0,
+          "HS": 0.9,
+          "HO": 0.9,
+          "WB": 1.0,
+          "NHB": 1.0
+        },
+        "SAT": {
+          "HW": 0.25,
+          "HE": 0.05,
+          "HS": 1.6,
+          "HO": 1.5,
+          "WB": 0.15,
+          "NHB": 1.1
+        },
+        "SUN": {
+          "HW": 0.18,
+          "HE": 0.02,
+          "HS": 1.0,
+          "HO": 1.6,
+          "WB": 0.1,
+          "NHB": 1.0
+        }
+      },
+      "units": "multiplier_on_weekday",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.3
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:DAY_PURPOSE_MIX",
+      "description": "Weekend purpose mix relative to the weekday."
+    },
+    "B.activity.sat_to_sun_rate": {
+      "value": 1.1875,
+      "units": "ratio",
+      "source": "assumed",
+      "sweep": [
+        1.0,
+        1.45
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:SAT_TO_SUN_RATE",
+      "description": "Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12)."
+    },
+    "B.activity.weekend_to_weekday": {
+      "value": 0.7521,
+      "units": "ratio",
+      "source": "measured",
+      "sweep": [
+        0.709,
+        0.816
+      ],
+      "sweep_basis": "observed across 551 RMS station-years",
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Weekend vs weekday travel, measured from the RMS traffic counts own WEEKDAYS and WEEKENDS periods. Replaces an assumed value that implied 0.825. Vehicle volume, not person trips."
+    },
+    "B.activity.detour_factor": {
+      "value": 1.3376,
+      "units": "ratio",
+      "source": "measured",
+      "sweep": [
+        1.25,
+        1.423
+      ],
+      "sweep_basis": "the interquartile range of the per-pair ratios over 551 population-weighted zone pairs",
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:DETOUR_FACTOR",
+      "description": "Straight-line to network distance, routed over the observed A1 road graph. Replaces an assumed 1.30. The build script keeps a 1.30 fallback labelled 'assumed - C2 factors file not found'; that fallback is now this field."
+    },
+    "B.activity.days_per_week": {
+      "value": {
+        "WEEKDAY": 5.0,
+        "SAT": 1.0,
+        "SUN": 1.0
+      },
+      "units": "days",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:DAYS_PER_WEEK",
+      "description": "Days each day type represents when composing a week."
+    },
+    "B.activity.weekend_departure_shift_h": {
+      "value": {
+        "WEEKDAY": 0,
+        "SAT": 1,
+        "SUN": 1
+      },
+      "units": "hours",
+      "source": "assumed",
+      "sweep": [
+        0,
+        2
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:WEEKEND_DEPARTURE_SHIFT_H",
+      "description": "Shift applied to the weekday departure profile on weekend day types."
+    },
+    "B.external.interaction_rate": {
+      "value": 0.08,
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.04,
+        0.15
+      ],
+      "status": "active",
+      "decisions_ref": "9.2, 13",
+      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_INTERACTION_RATE",
+      "description": "Rate at which external-tier residents interact with the core. LOCALISABLE BUT NOT YET AVAILABLE: the ABS journey-to-work origin-destination table (SA2 usual residence x SA2 place of work) would settle it. The package holds the place-of-work side but not the pairing. A standard TableBuilder extract, not a formal request (DECISIONS.md 13 priority 11)."
+    },
+    "B.external.day_factor": {
+      "value": {
+        "WEEKDAY": 1.0,
+        "SAT": 0.4,
+        "SUN": 0.3
+      },
+      "units": "multiplier",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.3
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_DAY_FACTOR",
+      "description": "External boundary demand by day type, relative to the weekday."
+    },
+    "B.external.purpose_split": {
+      "value": {
+        "HW": 0.7,
+        "HO": 0.3
+      },
+      "units": "probability",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.2
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_PURPOSE_SPLIT",
+      "description": "Purpose split for external boundary demand."
+    },
+    "B.external.person_id_base": {
+      "value": 900000000,
+      "units": "integer_offset",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_PERSON_ID_BASE",
+      "description": "Id offset that keeps external agents distinguishable from core agents."
+    },
+    "B.opal.journey_linked": {
+      "value": null,
+      "units": "dataset",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "tap_sequence_matching_model"
+        ],
+        "basis": "proposal 7.2 fallback: estimate transfer rates from tap-on/tap-off timing at the Interchange using aggregate stop-level data plus a matching model, validated against the published interchange percentages"
+      },
+      "status": "unobtained",
+      "decisions_ref": "0, 13",
+      "proposal_ref": "6.1, 7.2",
+      "description": "Journey-linked Opal. NOT OBTAINED - a formal TfNSW request is outstanding. Proposal 6.1 calls it 'the difference between a good model and a guess'. It is what would let C.transfer.beta_transfer_penalty_min be ESTIMATED rather than swept. Until it lands the transfer penalty stays a curve across 3-15 min."
+    },
+    "B.counts.heavy_vehicle_share": {
+      "value": 0.0652,
+      "units": "share_of_vehicles",
+      "source": "measured",
+      "sweep": [
+        0.0129,
+        0.1529
+      ],
+      "sweep_basis": "the observed range across the 23 stations that carry a classified count",
+      "status": "active",
+      "decisions_ref": "12.2a",
+      "description": "Heavy vehicle share, applied AT COMPARISON TIME to the comparison and not to the model, because the model represents no freight. At the 23 stations with a classified count the station own observed share is used; at the remaining 96 this median is assumed. Only 3 of the 34 calibration stations are classified, so the assumed case is the usual one."
+    },
+    "B.counts.vehicles_per_car_leg": {
+      "value": 1.0,
+      "units": "vehicles_per_leg",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "12.2a",
+      "description": "A car leg contributes one vehicle to a count. Derived from occupancy 1.3503: observed vehicle trips ARE driver trips.",
+      "derived_from": {
+        "fields": [
+          "C.constraint.vehicle_occupancy"
+        ],
+        "identity": "observed vehicle trips ARE driver trips at occupancy 1.3503, so a car leg contributes exactly one vehicle"
+      }
+    },
+    "B.counts.vehicles_per_ride_leg": {
+      "value": 0.0,
+      "units": "vehicles_per_leg",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "12.2a",
+      "description": "A ride leg contributes NO vehicle: the passenger rides in a vehicle already counted. Holds only while the modelled ride:car ratio matches the observed passenger:driver ratio, which is what C.asc.car_passenger is constrained to reproduce. What stays genuinely unmodelled is the escort trip - B2 generates none, so a driver travelling solely to carry someone is absent from both the car legs and the counts explanation (issue 11).",
+      "derived_from": {
+        "fields": [
+          "C.constraint.vehicle_occupancy",
+          "C.asc.car_passenger"
+        ],
+        "identity": "a passenger rides in a vehicle already counted, so a ride leg contributes zero - valid only while the modelled ride:car ratio matches the observed passenger:driver ratio"
+      }
+    },
+    "B.activity.day_horizon_s": {
+      "value": 108000,
+      "units": "seconds",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.2",
+      "legacy_symbol": "src/build/build_activity_chains.py:DAY_HORIZON_S",
+      "description": "Simulation day horizon, 30 hours. Matches RUN.qsim.end_time_h. No leg may arrive after it; the P1 chains had 1.77% arriving late, latest 36.0 h. The build script writes it as the expression 30 * 3600, which is not a literal and so is not compared by value in the legacy-drift check."
+    }
+  }
+}

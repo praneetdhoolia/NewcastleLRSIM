@@ -37,6 +37,14 @@ more transparent about its assumptions than the business case it examines.
 
 ## Hard constraints (do not violate)
 
+- **Every controllable value is declared in `config/registry/`, not typed into a
+  script.** A value whose `source` is `assumed`, `literature`, `measured` or `derived`
+  must carry a sweep, a `held_fixed` rule or a `derived_from` identity — the schema
+  rejects anything else, and `check_package.py` tests it. Regenerate
+  [`docs/CONFIG_REFERENCE.md`](docs/CONFIG_REFERENCE.md)
+  (`python src/registry/render_docs.py`) in the same change. The build layer is not yet
+  migrated and is pinned to the registry by `src/registry/check_legacy_drift.py`: if you
+  change a constant there, change the registry field with it.
 - **No invented data.** Never fabricate an observation, a count, a patronage figure or a
   coefficient. If a value is not measured it is **assumed or modelled**, and it must be
   labelled as such in the `source` field of its artefact **and** recorded in
@@ -153,10 +161,12 @@ those depend on ABS/TfNSW/Overpass availability and on compute, not on the diff.
 | `networks/osm/` | Raw Overpass extracts (roads, footways, rail, parking, POI, buildings). |
 | `schedules/` | GTFS era feeds + `scenarios/S0..S6` variants. |
 | `demand/` | Synthetic `population/` (B1) and `plans/` (B2 tours per day type + `matsim/` plans). Seeded, deterministic. |
+| `config/` | **The input registry**: every controllable value with units, provenance and a sweep or held-fixed rule, plus the JSON Schemas for inputs and outputs and the scenario/day/run overlays. |
 | `params/` | C1 behavioural parameters + the 140-point sensitivity sweep grid. |
 | `scenarios/` | E1 scenario configs, one JSON per scenario, plus `matsim/` — the assembled run inputs, one directory per scenario x day type. |
 | `src/extract/` | Acquisition and clipping. |
 | `src/build/` | Layer construction (the reproduction pipeline, in README order). |
-| `src/run/`, `src/calibrate/`, `src/analyse/` | P3+ execution, calibration and analysis (empty at P1). |
+| `src/registry/` | The registry resolver, its validators, the legacy-drift check and the docs generator. |
+| `src/run/`, `src/calibrate/`, `src/analyse/` | P3+ execution, calibration and analysis. |
 | `results/` | Run outputs. Gitignored — nothing here is committed. |
 | `tests/` | `check_manifest.py` (CI, committed subset) and `check_package.py` (local, full package). |

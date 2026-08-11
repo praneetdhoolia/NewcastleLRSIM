@@ -1,0 +1,433 @@
+{
+  "layer": "C",
+  "title": "Behavioural parameters (C1)",
+  "description": "Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.",
+  "decisions_ref": "8",
+  "fields": {
+    "C.vot.by_purpose": {
+      "value": {
+        "HW": 18.6,
+        "HE": 9.3,
+        "HS": 15.2,
+        "HO": 15.2,
+        "NHB": 15.2,
+        "WB": 55.4
+      },
+      "units": "AUD_2026_per_hour",
+      "source": "literature",
+      "sweep": {
+        "proportional": 0.3,
+        "basis": "DECISIONS.md 8.3 sweeps VOT by plus or minus 30% on every purpose"
+      },
+      "status": "active",
+      "decisions_ref": "8.3",
+      "proposal_ref": "A/C1, 6.2",
+      "legacy_symbol": "src/build/build_params.py:VOT",
+      "description": "Value of travel time by trip purpose, ATAP PV2 / TfNSW Economic Parameter Values conventions. NOT a Newcastle measurement. MATSim scoring cannot carry per-purpose VOT, so the run inputs collapse this to a trip-weighted 16.96 AUD/h - see C.vot.trip_weighted and DECISIONS.md 9.3."
+    },
+    "C.vot.concession_factor": {
+      "value": 0.75,
+      "units": "ratio",
+      "source": "literature",
+      "sweep": [
+        0.6,
+        0.9
+      ],
+      "status": "active",
+      "decisions_ref": "8.3",
+      "description": "Multiplier on VOT for concession, student and car-unavailable segments."
+    },
+    "C.vot.trip_weighted": {
+      "value": 16.96,
+      "units": "AUD_2026_per_hour",
+      "source": "derived",
+      "sweep": {
+        "proportional": 0.3,
+        "basis": "inherits the C.vot.by_purpose sweep"
+      },
+      "status": "computed",
+      "decisions_ref": "9.3",
+      "description": "The single VOT MATSim actually scores with, trip-weighted across purposes. This is what C1 per-purpose structure degrades to in translation, and is one of the three things DECISIONS.md 9.3 records as lost."
+    },
+    "C.transfer.beta_transfer_penalty_min": {
+      "value": 8.0,
+      "units": "minutes_equivalent",
+      "source": "assumed",
+      "sweep": [
+        3.0,
+        15.0
+      ],
+      "sweep_basis": "proposal 6.2 forbids a literature default and requires every finding to be reported as a curve across this range; the grid crosses 3, 5, 6.5, 8, 10, 12, 15",
+      "status": "active",
+      "decisions_ref": "8.1",
+      "proposal_ref": "6.2, 3.4 S-d",
+      "baseline_ref": "params/C1_sensitivity_sweep_grid.csv:is_baseline",
+      "description": "Behavioural penalty for an interchange, ON TOP of the measured Newcastle Interchange walk time (mean 112 s, max 284 s over 51 stop pairs). The whole policy question is whether forcing a transfer at Wickham is worth the CBD distribution it buys: 5 min gives a broadly favourable result, 12 min a net disbenefit for external origins. NO HEADLINE MAY BE REPORTED AT A SINGLE VALUE. It is assumed rather than estimated only because journey-linked Opal is unobtained."
+    },
+    "C.walk.decay_beta_per_m": {
+      "value": 0.0018,
+      "units": "per_metre",
+      "source": "assumed",
+      "sweep": [
+        0.001,
+        0.003
+      ],
+      "status": "active",
+      "decisions_ref": "8.2",
+      "proposal_ref": "6.3",
+      "description": "Negative-exponential distance decay on walk access. Weight 0.49 at 400 m, 0.24 at 800 m, 0.12 at 1200 m, considered to 2500 m. NO 400 m THRESHOLD IS USED ANYWHERE: proposal 6.3 is explicit that a cut-off treats a person at 401 m as identical to one at 2 km and systematically flatters fixed-route modes."
+    },
+    "C.walk.decay_form": {
+      "value": "negative_exponential",
+      "units": "enum",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "negative_exponential",
+          "cumulative_gaussian"
+        ],
+        "basis": "DECISIONS.md 8.2 provides a cumulative-Gaussian alternative, mu 700 m, sigma 420 m"
+      },
+      "status": "active",
+      "decisions_ref": "8.2",
+      "description": "Functional form of the walk access decay."
+    },
+    "C.walk.gaussian_mu_m": {
+      "value": 700.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        500.0,
+        900.0
+      ],
+      "status": "active",
+      "decisions_ref": "8.2",
+      "description": "Alternative-form parameter, used only when decay_form is cumulative_gaussian."
+    },
+    "C.walk.gaussian_sigma_m": {
+      "value": 420.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        300.0,
+        550.0
+      ],
+      "status": "active",
+      "decisions_ref": "8.2",
+      "description": "Alternative-form parameter, used only when decay_form is cumulative_gaussian."
+    },
+    "C.time_weights.beta_walk_access": {
+      "value": 2.0,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.5,
+        2.5
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on walk access time relative to in-vehicle time."
+    },
+    "C.time_weights.beta_walk_egress": {
+      "value": 2.0,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.5,
+        2.5
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on walk egress time relative to in-vehicle time."
+    },
+    "C.time_weights.beta_wait": {
+      "value": 2.0,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.5,
+        2.5
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on wait time relative to in-vehicle time."
+    },
+    "C.time_weights.beta_headway": {
+      "value": 0.5,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        0.35,
+        0.65
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on service headway."
+    },
+    "C.time_weights.beta_reliability": {
+      "value": 1.3,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        0.8,
+        1.8
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on travel time variability."
+    },
+    "C.time_weights.beta_ivt": {
+      "value": 1.0,
+      "units": "ratio_to_ivt",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "In-vehicle time is the numeraire the other weights are expressed against."
+    },
+    "C.crowding.seated_multiplier": {
+      "value": 1.0,
+      "units": "ratio",
+      "source": "literature",
+      "sweep": [
+        1.0,
+        1.15
+      ],
+      "status": "active",
+      "decisions_ref": "8.4, 9.3",
+      "description": "Crowding multiplier, seated. NOT carried into MATSim scoring (DECISIONS.md 9.3)."
+    },
+    "C.crowding.standing_multiplier": {
+      "value": 1.45,
+      "units": "ratio",
+      "source": "literature",
+      "sweep": [
+        1.2,
+        1.8
+      ],
+      "status": "active",
+      "decisions_ref": "8.4, 9.3",
+      "description": "Crowding multiplier, standing. NOT carried into MATSim scoring (DECISIONS.md 9.3), and the transit fleet carries standingRoomInPersons=0, so standing does not occur in the current fleet at all."
+    },
+    "C.gradient.uphill_penalty_per_pct": {
+      "value": 0.09,
+      "units": "utils_per_percent_grade",
+      "source": "assumed",
+      "sweep": [
+        0.05,
+        0.14
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "proposal_ref": "6.3",
+      "description": "Asymmetric gradient cost on active-mode edges. Proposal 6.3 requires uphill and downhill to be different costs; material in Newcastle East and The Hill."
+    },
+    "C.gradient.downhill_penalty_per_pct": {
+      "value": 0.02,
+      "units": "utils_per_percent_grade",
+      "source": "assumed",
+      "sweep": [
+        0.0,
+        0.05
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Asymmetric gradient cost, downhill."
+    },
+    "C.asc.car_driver": {
+      "value": 0.0,
+      "units": "utils",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "The reference alternative. Fixed at zero by definition."
+    },
+    "C.asc.bus": {
+      "value": -1.05,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0."
+    },
+    "C.asc.light_rail": {
+      "value": -0.75,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0. This is the constant the effect under test runs through; it is never fitted."
+    },
+    "C.asc.rail": {
+      "value": -0.65,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0."
+    },
+    "C.asc.walk": {
+      "value": 0.35,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0."
+    },
+    "C.asc.cycle": {
+      "value": -1.35,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0."
+    },
+    "C.asc.car_passenger": {
+      "value": -0.85,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the second branch DECISIONS.md 8.5 permits - constrain and report the constraint - with the constraining quantity measured. It is not ASC absorption: the constrained constant is car passenger, the constraining quantity is how many people fit in a car, and asc_light_rail, asc_bus and asc_rail stay at their 8.5 priors.",
+        "decisions_ref": "8.5, 9.8",
+        "departure_requires": "re-solving once the iteration count is settled - the current solve ran at a fixed 250-iteration protocol which DECISIONS.md 9.7 shows is NOT equilibrium, so the value is PROVISIONAL (issue 9)"
+      },
+      "status": "placeholder",
+      "decisions_ref": "8.5, 9.8",
+      "targets": "C.constraint.passenger_per_driver",
+      "description": "Car-passenger constant. The shipped -0.85 is the 8.5 prior; the solved value is written by src/calibrate/solve_asc_ride.py. Status is placeholder because the solve is provisional until the iteration count is settled."
+    },
+    "C.constraint.vehicle_occupancy": {
+      "value": 1.3503,
+      "units": "persons_per_vehicle",
+      "source": "measured",
+      "sweep": [
+        1.2493,
+        1.394
+      ],
+      "sweep_basis": "the observed spread across all 7 survey years in the file, not a chosen interval",
+      "status": "active",
+      "decisions_ref": "9.8",
+      "description": "Newcastle LGA vehicle occupancy, HTS 2024/25 driver and passenger trip counts. Both quantities are ratios of two published counts; neither is a modelling choice. The unconstrained model produced 5.52 people per vehicle."
+    },
+    "C.constraint.passenger_per_driver": {
+      "value": 0.3503,
+      "units": "ratio",
+      "source": "derived",
+      "sweep": [
+        0.2493,
+        0.394
+      ],
+      "status": "active",
+      "decisions_ref": "9.8",
+      "description": "Occupancy minus one. The quantity C.asc.car_passenger is solved against."
+    },
+    "C.nesting.pt_coefficient": {
+      "value": 0.65,
+      "units": "dimensionless",
+      "source": "assumed",
+      "sweep": [
+        0.5,
+        0.95
+      ],
+      "status": "placeholder",
+      "decisions_ref": "8.6, 9.3",
+      "description": "Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING - MATSim scores plans, it does not evaluate a nested logit. DECISIONS.md 9.3 records this as lost in translation. Status is placeholder: the value is declared but nothing consumes it, and it must not be reported as if the model used it."
+    },
+    "C.nesting.private_coefficient": {
+      "value": 0.8,
+      "units": "dimensionless",
+      "source": "assumed",
+      "sweep": [
+        0.5,
+        0.95
+      ],
+      "status": "placeholder",
+      "decisions_ref": "8.6, 9.3",
+      "description": "Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING - MATSim scores plans, it does not evaluate a nested logit. DECISIONS.md 9.3 records this as lost in translation. Status is placeholder: the value is declared but nothing consumes it, and it must not be reported as if the model used it."
+    },
+    "C.nesting.active_coefficient": {
+      "value": 0.7,
+      "units": "dimensionless",
+      "source": "assumed",
+      "sweep": [
+        0.5,
+        0.95
+      ],
+      "status": "placeholder",
+      "decisions_ref": "8.6, 9.3",
+      "description": "Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING - MATSim scores plans, it does not evaluate a nested logit. DECISIONS.md 9.3 records this as lost in translation. Status is placeholder: the value is declared but nothing consumes it, and it must not be reported as if the model used it."
+    },
+    "C.scoring.performing_utils_per_h": {
+      "value": 6.0,
+      "units": "utils_per_hour",
+      "source": "literature",
+      "sweep": [
+        4.0,
+        8.0
+      ],
+      "status": "active",
+      "decisions_ref": "9.3",
+      "matsim_param": "scoring.performing",
+      "legacy_symbol": "src/build/build_matsim_run_inputs.py:PERFORMING_UTILS_PER_H",
+      "description": "Marginal utility of performing an activity. A property of the MATSim scoring formulation, not an observable quantity of Newcastle. The effective cost of travel time is performing plus the absolute marginalUtilityOfTraveling, which is how the 16.96 AUD/h VOT is reproduced: 6.0 + 10.9608."
+    },
+    "C.scoring.marginal_utility_of_money": {
+      "value": 1.0,
+      "units": "utils_per_AUD",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.3",
+      "matsim_param": "scoring.marginalUtilityOfMoney",
+      "legacy_symbol": "src/build/build_matsim_run_inputs.py:MARGINAL_UTILITY_OF_MONEY",
+      "description": "Sets the utility numeraire to AUD. Definitional, not empirical."
+    },
+    "C.scoring.monetary_distance_rate": {
+      "value": {
+        "car": -0.00018,
+        "ride": 0.0,
+        "pt": 0.0,
+        "walk": 0.0,
+        "bike": 0.0
+      },
+      "units": "AUD_per_metre",
+      "source": "derived",
+      "sweep": [
+        -0.00025,
+        -0.00012
+      ],
+      "sweep_basis": "applies to the car entry only; the others are derived and not free",
+      "status": "active",
+      "decisions_ref": "9.8",
+      "matsim_param": "scoring.modeParams[*].monetaryDistanceRate",
+      "legacy_symbol": "src/build/build_matsim_run_inputs.py:MONETARY_DISTANCE_RATE",
+      "description": "Vehicle operating cost per metre. RIDE IS ZERO AND THAT IS DERIVED, NOT ASSUMED: a vehicle cost is paid once, and at occupancy 1.35 charging both occupants would make aggregate vehicle operating cost 1.35x the real one (DECISIONS.md 9.8). The earlier half-of-car was typed in and double-charged. CAUTION: with ride at zero and no driver-availability constraint, ride is cheaper than car on any trip long enough for the distance term to exceed the 0.85 ASC gap - about 4.7 km. That asymmetry is real and is why the constant must be constrained rather than left to absorb it."
+    }
+  }
+}

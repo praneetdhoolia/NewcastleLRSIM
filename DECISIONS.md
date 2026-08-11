@@ -1458,10 +1458,105 @@ should be revisited, because at that point the bus level *would* be identifying.
 
 ---
 
+## 15. The input registry — every controllable value, declared (P4)
+
+Proposal §8.1 requires that *"every parameter chosen without direct empirical
+support must be recorded with its rationale and its sweep range."* Until now that
+was a discipline applied to `DECISIONS.md` prose and to `params/C1–C4`, while the
+values the model actually ran on lived in **316 module-level constants across 45
+scripts**, a 110-parameter MATSim config per run set, and a handful of CLI
+defaults. One of those 316 carried a machine-readable `source` label. Eighteen
+carried a sweep.
+
+`config/registry/` now declares **123 fields** — every value the model consumes
+that is not read from an immutable raw download — each with its units, its
+provenance, and either a sweep range or an explicit rule holding it fixed.
+`src/registry/` resolves them; `docs/CONFIG_REFERENCE.md` is generated from them
+and cannot drift; `check_package.py` tests the rules rather than trusting them.
+
+### What the declaration buys that prose did not
+
+| Rule | How it is now enforced |
+|---|---|
+| A value chosen without empirical support carries a sweep | Schema constraint: `source` of `assumed`/`literature`/`measured`/`derived` requires `sweep`, `held_fixed` or `derived_from`. There is no fourth option |
+| The three unobtained inputs are never pinned (§0, §13) | They carry `value: null` and `status: unobtained`. `get()` **raises**. A caller must select a sweep member explicitly |
+| The mode constants are not freely calibrated (§8.5) | `held_fixed` with the rule and what a departure requires. Any layer that tries to set one is rejected |
+| A run states the inputs that produced it | The resolved snapshot is written to `_config.json` in every run directory, and `_run.json` fails its contract without one |
+| Escaping a declared range is deliberate and recorded | Only a committed overlay may carry `allow_outside_sweep`, and only with a written `justification`. A shell flag cannot do it |
+
+The one legitimate use of that escape hatch is **S2a**, which is *defined* as the
+no-charging-dwell counterfactual: zero is outside the 10–35 s sweep because the
+sweep is the range for a system that charges, and S2a is the case where it does
+not. That is the scenario, not a parameter choice.
+
+### Two factors that were set in code, with no rationale and no range
+
+`run_matsim.py` set `flowCapacityFactor` and `storageCapacityFactor` to the
+sample fraction. Neither string appeared anywhere in `DECISIONS.md`,
+`check_package.py` or the P4 checkpoint. They are now registry fields:
+
+- **`RUN.sample.flow_capacity_factor` is derived**, not chosen: it equals the
+  sample fraction, which is the standard MATSim scaling rule. It carries a
+  `derived_from` identity rather than a fabricated sweep.
+- **`RUN.sample.storage_capacity_exponent` is assumed, and is an open risk.**
+  `storageCapacityFactor = fraction ** exponent`, and the exponent was
+  implicitly 1.0. MATSim floors link storage at one vehicle, so at a 1% sample
+  most links hold one car regardless of length and spillback becomes far more
+  aggressive than reality. The usual treatment below roughly a 10% sample is an
+  exponent under 1, which raises storage relative to flow. Swept 0.75–1.0.
+
+**This matters beyond bookkeeping.** Every P4 behavioural result — the seed test,
+the non-convergence finding, the `asc_car_passenger` solve — was measured at
+**1%**. If small-sample spillback is inflating car travel times, agents flee to
+the mode immune to the network, which is teleported `walk`; the discarded
+250-iteration runs showed walk at **0.38–0.55 against a 0.134 target**. That is
+an untested hypothesis, not a finding. The test is cheap and the design already
+supports it: the subsample nests, so 1% ⊂ 10% ⊂ 25% are three views of one
+population, and a mode share that moves with the fraction is a supply-side
+artefact rather than behaviour.
+
+### Note also the shipped configs
+
+`scenarios/matsim/<S>/<DAY>/config.xml` still carries `flowCapacityFactor 1.0`.
+Running one of those directly — as the §9.4 load test did — simulates a **sampled
+demand against full supply**. The harness must be used.
+
+### What is declared but not yet consumed
+
+The build layer has **not** been migrated: `src/build/*.py` still hold their own
+constants, and the registry declares the same values. Two copies of a number is
+exactly the drift this package cannot absorb, so
+`src/registry/check_legacy_drift.py` pins them together by test —
+**54 fields compared, one deliberate divergence, one expression that is not a
+literal**. Writing that check immediately found four values transcribed wrongly
+into the registry; the code was authoritative and the registry was corrected.
+The migration itself needs a full package rebuild to verify byte-identically and
+has not been run.
+
+### Fields whose value is null, and why that is the honest encoding
+
+| Field | Why |
+|---|---|
+| `A.signals.scats_phasing` | Unobtained; TfNSW request outstanding. 38% swing in corridor run time |
+| `A.lightrail.dwell_charging_s` | Unmeasured; a few hours of field observation resolves it. 11% of run time |
+| `B.opal.journey_linked` | Unobtained; it is what would let the transfer penalty be estimated rather than swept |
+| `D.retail.vacancy_rate` | No Newcastle frontage audit exists. Registered so hypothesis B2 cannot quietly acquire one |
+| `E.coupling.outer_loop_tolerance_s` | Proposal §5.2 defers it to calibration and **it has never been defined** (issue #8) |
+| `RUN.controler.last_iteration` | §9.7 shows 100 and 250 are both too low and no justified value has been measured (issue #5) |
+
+The last two are not missing data — they are **decisions nobody has taken**.
+Declaring them with a null value means the model cannot run past them silently:
+`run_matsim.py` now refuses to start without an explicit iteration count, which
+is the same refusal `--iterations` already implemented, moved from one script's
+argument parser into the registry where it binds everything.
+
+---
+
 ## 14. Change log
 
 | Date | Change |
 |---|---|
+| 2026-08-11 | **The input registry (§15).** Every value the model consumes that is not read from an immutable raw download is now declared in `config/registry/` with its units, its provenance and either a sweep range or an explicit rule holding it fixed — **123 fields**, against 316 module-level constants of which exactly one carried a machine-readable source label. Proposal §8.1 becomes a schema constraint rather than a discipline: `assumed` without a sweep does not validate. The three unobtained inputs carry `value: null` and the resolver **raises** rather than returning a point value, so §0 and §13 are enforced structurally; the §8.5 mode constants are `held_fixed` and no overlay, environment variable or flag can move them. Two factors that governed every P4 result were found set in code with no rationale and no range — `flowCapacityFactor` (derived, and now stated as such) and `storageCapacityFactor` (assumed, exponent swept 0.75–1.0, and an open risk at 1% because MATSim floors link storage at one vehicle). Outputs are declared to the same standard: `_run.json`, `_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema, and a fit block that does not name its target ids fails its contract. `docs/CONFIG_REFERENCE.md` is generated and checked for staleness. `check_package.py` 860 → **908 checks**, 1 standing warning. The build layer is declared but not yet migrated and is pinned to the registry by a drift test, which caught four transcription errors on its first run. No parameter value was changed, no target value was changed, the 67/143 split is untouched and no scenario was run. |
 | 2026-08-10 | **P4 stage 0 — the assembled run inputs did not load, and what a run actually costs (§9.4, §9.5, §12.1–12.3).** MATSim was pointed at `scenarios/matsim/S2/WEEKDAY/` and refused it. Three independent defects, none visible to a check that treats the artefacts as data: the day-type filter dropped the doctype MATSim selects its reader from (all 30 sets); it left stop facilities and `minimalTransferTimes` relations orphaned by the routes it removed, which makes SwissRailRaptor dereference a null array (all 30); and the kerbside patch appended a second `<attributes>` block to links that already had one, invalidating **6 of the 10** run networks — precisely the six carrying an E1 road change. Fixed, rebuilt byte-identically with the patch counts unchanged, and **all 30 sets now load and run**. `check_package.py` 556 → **657 checks**, with the three failure modes asserted per set. Run cost measured on this machine rather than estimated: **9.8 s/iteration at 1%, 29.9 s at 10%, ~64 s at 25%**, memory 9.8/18.4/31.5 GiB, extrapolating to ~4.5 min and ~97 GiB at 100% — so **a 100% weekday run does not fit in 63.5 GiB** and the specified 5,100 run-days is ~765 days of wall clock. Also recorded, without acting on either: 13 of the 67 calibration targets (`lr_cardtype_share`) can identify nothing in MATSim and several others are duplicates or schedule inputs, leaving ~4 mode-share degrees of freedom + 1 patronage level + 34 counts; and the 119 `road_aadt` values are the mean of `ALL DAYS` with the peak-period rows, 0.58–0.71× the true figure. **The 67/143 split is untouched, no holdout value was used, no target value was changed and no falsification condition altered. Still no scenario run.** |
 | 2026-08-10 | **P3 stage 3 — assumptions replaced by Newcastle measurements where the data allows, and the sweep-range rule made mechanical.** Three constants derived rather than typed: the **detour factor** is now routed over the observed A1 road graph (**1.3376**, 551 zone pairs, was assumed 1.30); the **weekday/weekend travel split** comes from the RMS counts' own `WEEKDAYS`/`WEEKENDS` periods (**0.752**, 551 station-years, was implied 0.825); and census G62 gives an observed **lower bound** on work attendance (0.651) without being allowed to set the value, since census night carries the 2021 lockdown (§2.4). Seven parameters that breached proposal §8.1 by carrying no sweep range now carry one, and `check_package.py` **enforces the rule as a test** rather than leaving it to discipline. What genuinely cannot be localised is labelled so: MATSim's `performing`, distance rates, typical durations and replanning weights are properties of the scoring formulation, not of Newcastle. `EXTERNAL_INTERACTION_RATE` stays swept and the missing ABS journey-to-work origin-destination table is added to §13. 497 → **556 checks**, all passing. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 2 — MATSim plans, day-type run inputs and the C1 scoring translation (§9.3).** 517,936 weekday agents wired to the single P2 build; the day-type filter works on the already-mapped schedule and is verified to preserve all 1,714 route link sequences and the whole stop→link map. What C1 loses in translation — the nest structure, per-purpose VOT, crowding — is recorded, not dropped. Two defects caught by the new checks: the day-type token is underscore-delimited for the S1 shuttle and S3 BRT, so both were being dropped from every day type and each scenario would have run without its intervention; and banned-turn removal was network-wide, deleting 1,235 observed restrictions instead of 8. `check_package.py` 322 → **497 checks**, all passing. Still no scenario run; no falsification condition altered. |

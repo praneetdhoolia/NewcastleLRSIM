@@ -1,0 +1,12 @@
+{
+  "overlay": "S1",
+  "description": "Bus shuttle from Wickham, no light rail. The December 2012 policy as originally announced.",
+  "applies_to": {
+    "scenario": [
+      "S1"
+    ]
+  },
+  "set": {
+    "A.lightrail.tsp_enabled": false
+  }
+}

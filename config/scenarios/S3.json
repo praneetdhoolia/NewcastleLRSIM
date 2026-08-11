@@ -1,0 +1,12 @@
+{
+  "overlay": "S3",
+  "description": "Bus rapid transit on the same alignment. The alternative the 2020 Strategic Business Case later favoured; the value-for-money test is S2 vs S3.",
+  "applies_to": {
+    "scenario": [
+      "S3"
+    ]
+  },
+  "set": {
+    "A.lightrail.tsp_enabled": false
+  }
+}

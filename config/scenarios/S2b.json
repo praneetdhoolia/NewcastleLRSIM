@@ -1,0 +1,14 @@
+{
+  "overlay": "S2b",
+  "description": "Light rail with full transit signal priority. Isolates signal priority (secondary question S-b). The S2-to-S2b swing in corridor run time is 38% - the largest single uncertainty in the model, and it exists only because SCATS phasing is unobtained.",
+  "applies_to": {
+    "scenario": [
+      "S2b"
+    ]
+  },
+  "set": {
+    "A.lightrail.dwell_charging_s": 20.0,
+    "A.lightrail.tsp_enabled": true,
+    "A.signals.scats_phasing": "proxy_full_priority"
+  }
+}

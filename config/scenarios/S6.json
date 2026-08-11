@@ -1,0 +1,12 @@
+{
+  "overlay": "S6",
+  "description": "No trunk mode; walk, cycle and local bus only. The lower bound.",
+  "applies_to": {
+    "scenario": [
+      "S6"
+    ]
+  },
+  "set": {
+    "A.lightrail.tsp_enabled": false
+  }
+}

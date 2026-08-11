@@ -916,6 +916,178 @@ else:
           'census G62 attendance is used only as a sweep lower bound, never as '
           'a value (DECISIONS.md 2.4 rules G62 out as a behavioural rate)')
 
+
+# ---- N. the input registry: every controllable value, declared ----
+# The registry is the single controllable surface for every value the model
+# consumes that is not read from an immutable raw download. These checks test
+# the rules rather than trusting them: proposal 8.1 requires a rationale and a
+# sweep range for every value chosen without direct empirical support, and the
+# three unobtained inputs (DECISIONS.md 0, 13) must stay unpinned.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src'))
+try:
+    import registry as _registry
+    from registry import outputs as _outputs
+except ImportError as _e:
+    check(False, 'the input registry imports (%s)' % _e)
+    _registry = None
+
+if _registry is not None:
+    _fields, _origin = _registry.load_registry()
+    _errors = _registry.validate(_fields)
+    check(not _errors,
+          'every registry field is well formed (%d fields checked)%s'
+          % (len(_fields), '' if not _errors else ': ' + '; '.join(_errors[:3])))
+
+    # proposal 8.1, tested rather than trusted
+    _floating = [k for k, f in _fields.items()
+                 if f['source'] in ('measured', 'derived', 'literature', 'assumed')
+                 and f.get('sweep') is None and 'held_fixed' not in f
+                 and 'derived_from' not in f]
+    check(not _floating,
+          'no assumed or literature value floats without a sweep, a held-fixed rule '
+          'or a derived identity (proposal 8.1)%s'
+          % ('' if not _floating else ': ' + ', '.join(sorted(_floating)[:4])))
+
+    _no_ref = [k for k, f in _fields.items()
+               if f['source'] in ('measured', 'derived', 'literature', 'assumed')
+               and not f.get('decisions_ref')]
+    check(not _no_ref,
+          'every non-observed value cites a DECISIONS.md section%s'
+          % ('' if not _no_ref else ': ' + ', '.join(sorted(_no_ref)[:4])))
+
+    # the three unobtained inputs stay unpinned (DECISIONS.md 0, 13; issue 15)
+    _unobtained = sorted(k for k, f in _fields.items() if f['status'] == 'unobtained')
+    for _key in ('A.signals.scats_phasing', 'A.lightrail.dwell_charging_s',
+                 'B.opal.journey_linked'):
+        check(_key in _unobtained,
+              'the unobtained input %s is declared unobtained, not pinned' % _key)
+    _pinned = [k for k in _unobtained if _fields[k].get('value') is not None]
+    check(not _pinned,
+          'no unobtained input carries a point value (%d unobtained fields)'
+          % len(_unobtained))
+
+    # the resolver actually refuses to hand one back
+    _cfg = _registry.load()
+    _leaked = []
+    for _key in _unobtained:
+        try:
+            _cfg.get(_key)
+            _leaked.append(_key)
+        except _registry.RegistryError:
+            pass
+    check(not _leaked,
+          'the resolver refuses to return a point value for an unobtained input%s'
+          % ('' if not _leaked else ': ' + ', '.join(_leaked)))
+
+    # DECISIONS.md 8.5: the mode constants are not tunable
+    for _key in ('C.asc.light_rail', 'C.asc.bus', 'C.asc.rail'):
+        check('held_fixed' in _fields.get(_key, {}),
+              '%s is held fixed, so ASC absorption cannot happen through an overlay '
+              '(DECISIONS.md 8.5, proposal 9)' % _key)
+
+    # no layer may invent an input, escape a sweep or move a held constant
+    for _label, _kw in (('an unknown field', dict(set={'C.asc.hovercraft': '1'})),
+                        ('a value outside its sweep',
+                         dict(set={'RUN.sample.fraction': '0.95'})),
+                        ('a held-fixed constant', dict(set={'C.asc.light_rail': '-2.0'}))):
+        try:
+            _registry.load(**_kw)
+            check(False, 'the resolver rejects %s' % _label)
+        except _registry.RegistryError:
+            check(True, 'the resolver rejects %s' % _label)
+
+    # every scenario in the matrix has an overlay, and it resolves
+    _scenarios = _fields['E.matrix.scenario_ids']['value']
+    for _sid in _scenarios:
+        _path = os.path.join('config', 'scenarios', '%s.json' % _sid)
+        if not check(os.path.exists(_path), 'scenario %s has a config overlay' % _sid):
+            continue
+        try:
+            _registry.load(scenario=_sid)
+            check(True, 'scenario overlay %s resolves against the registry' % _sid)
+        except _registry.RegistryError as _e:
+            check(False, 'scenario overlay %s resolves against the registry (%s)'
+                  % (_sid, str(_e).replace('\n', ' ')[:90]))
+    for _day in _fields['E.matrix.day_types']['value']:
+        check(os.path.exists(os.path.join('config', 'day', '%s.json' % _day)),
+              'day type %s has a config overlay' % _day)
+
+    # an out-of-sweep overlay value must carry a written justification
+    for _sid in _scenarios:
+        _doc = json.load(open(os.path.join('config', 'scenarios', '%s.json' % _sid),
+                              encoding='utf-8'))
+        for _k in _doc.get('allow_outside_sweep', []):
+            check(bool(_doc.get('justification', {}).get(_k)),
+                  'scenario %s justifies setting %s outside its sweep' % (_sid, _k))
+
+    # the generated reference cannot drift from the values it documents
+    _docs = os.path.join('docs', 'CONFIG_REFERENCE.md')
+    if check(os.path.exists(_docs), 'docs/CONFIG_REFERENCE.md exists'):
+        import subprocess as _sp
+        _rc = _sp.call([sys.executable, os.path.join('src', 'registry', 'render_docs.py'),
+                        '--check'], stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+        check(_rc == 0,
+              'docs/CONFIG_REFERENCE.md is current with the registry '
+              '(regenerate: python src/registry/render_docs.py)')
+
+    # the output contract exists for every artefact the pipeline writes
+    for _kind, _name in sorted(_outputs.KINDS.items()):
+        check(os.path.exists(os.path.join('config', 'schema', 'outputs', _name)),
+              'the %s output carries a declared schema' % _kind)
+
+    # any run already on disk must meet its contract
+    for _rec in sorted(glob.glob(os.path.join('results', '*', '_run.json'))):
+        _problems = _outputs.validate_file(_rec)
+        check(not _problems, 'run record %s meets the run contract%s'
+              % (os.path.basename(os.path.dirname(_rec)),
+                 '' if not _problems else ': ' + _problems[0][:80]))
+
+    # the two capacity factors that were previously set in code with no rationale
+    check(_fields['RUN.sample.storage_capacity_exponent'].get('sweep') is not None,
+          'the storage capacity exponent carries a sweep - it was previously set in '
+          'code with no rationale and no range (DECISIONS.md 15)')
+    check('derived_from' in _fields['RUN.sample.flow_capacity_factor'],
+          'the flow capacity factor states the identity it is derived from')
+
+    # no numeric model constant has escaped back into the run/analysis layer
+    try:
+        from registry import extract_legacy_constants as _elc
+        _escaped = []
+        for _sub in ('run', 'calibrate', 'analyse'):
+            _d = os.path.join('src', _sub)
+            if not os.path.isdir(_d):
+                continue
+            for _fn in sorted(os.listdir(_d)):
+                if not _fn.endswith('.py'):
+                    continue
+                for _n, _rec2 in _elc.scan_file(os.path.join(_d, _fn)).items():
+                    if _rec2['kind'] == 'parameter' and _n not in ('SEED',):
+                        _escaped.append('%s/%s:%s' % (_sub, _fn, _n))
+    except Exception:
+        _escaped = None
+    if _escaped is not None:
+        check(not _escaped,
+              'no model parameter is hard-coded in src/run, src/calibrate or '
+              'src/analyse - they read the registry%s'
+              % ('' if not _escaped else ': ' + ', '.join(_escaped[:4])), warn=True)
+
+
+
+    # the build layer has NOT been migrated: those scripts still hold their own
+    # constants and the registry declares the same values. Two copies of a number
+    # is exactly the drift this package cannot absorb, so they are pinned together
+    # by test until the migration lands.
+    try:
+        from registry import check_legacy_drift as _drift
+        _dp, _dn, _dd, _ds = _drift.compare(_fields)
+        check(not _dp,
+              'every registry field still agrees with the constant it replaced '
+              '(%d compared, %d deliberately diverge, %d not literals)%s'
+              % (_dn, _dd, _ds, '' if not _dp else ': ' + _dp[0][:110]))
+    except ImportError as _e:
+        check(False, 'the legacy-drift check imports (%s)' % _e)
+
+
 # ---- report ----
 print('PASS %d' % len(OK))
 for m in OK:

@@ -1,0 +1,10 @@
+{
+  "overlay": "SAT",
+  "description": "Saturday. 450,773 persons. Beach and event demand is arguably this system's strongest use case, which is why weekend day types are built rather than noted.",
+  "applies_to": {
+    "day_type": [
+      "SAT"
+    ]
+  },
+  "set": {}
+}
