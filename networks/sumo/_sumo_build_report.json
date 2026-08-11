@@ -25,7 +25,6 @@
       "junctions": 7090,
       "lane_km": 1058.8,
       "lanes": 17188,
-      "netconvert_seconds": 2.5,
       "patch_rows": 0,
       "plain_connections_dropped": 0,
       "signal_variants": {
@@ -311,7 +310,6 @@
       "junctions": 7090,
       "lane_km": 1054.6,
       "lanes": 17046,
-      "netconvert_seconds": 2.6,
       "patch_rows": 134,
       "plain_connections_dropped": 870,
       "signal_variants": {
@@ -420,7 +418,6 @@
       "junctions": 7090,
       "lane_km": 1061.6,
       "lanes": 17226,
-      "netconvert_seconds": 2.5,
       "patch_rows": 40,
       "plain_connections_dropped": 1735,
       "signal_variants": {
@@ -616,7 +613,6 @@
       "junctions": 7090,
       "lane_km": 1049.8,
       "lanes": 16948,
-      "netconvert_seconds": 2.6,
       "patch_rows": 240,
       "plain_connections_dropped": 1453,
       "signal_variants": {

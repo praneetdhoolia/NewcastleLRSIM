@@ -46,9 +46,18 @@ import collections
 import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'setup'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bootstrap_toolchain as tc      # noqa: E402
 from osm_parse import parse, haversine  # noqa: E402
+import registry                         # noqa: E402
+
+# Every value below comes from config/registry/, not from a literal in this
+# file. The netconvert options that are MODELLING CHOICES - left-hand traffic,
+# the signal controller type, junction joining, turnarounds, crossings - are
+# separate registry fields rather than entries in a flag list, so a choice
+# cannot hide inside one. See DECISIONS.md 15.
+CFG = registry.load()
 
 OUT = 'networks/sumo'
 WORK = os.path.join(OUT, '_work')
@@ -64,13 +73,13 @@ E1_ROAD_VARIANTS = 'scenarios/E1_road_variants.csv'
 E1_SCENARIOS = 'scenarios/E1_scenarios.csv'
 PARKING = 'data/processed/network/A5_parking_osm.csv'
 
-SEED = 20260810
-BBOX_MARGIN_M = 300.0
+SEED = CFG.get('RUN.sumo.seed')
+BBOX_MARGIN_M = CFG.get('RUN.sumo.bbox_margin_m')
 
 # EPSG:28356's projection. Stated as proj4 rather than an EPSG code because
 # netconvert takes a proj4 definition; the datum label is the repo's (see
 # DECISIONS.md 3.6 on the GDA94/GDA2020 naming).
-PROJ = '+proj=utm +zone=56 +south +ellps=GRS80 +units=m +no_defs'
+PROJ = CFG.get('RUN.sumo.projection')
 
 # Which signal variant belongs to which road variant, read off E1_scenarios.csv
 # at run time; this is only the fallback ordering for reporting.
@@ -81,11 +90,11 @@ SIGNAL_VARIANT_ORDER = ['S2_base', 'S2b_full_tsp', 'S0_no_tram', 'S2c_reserved_a
 # junction whose centroid can sit further from the A2 cluster centre than either
 # radius alone. 60 m is the corridor buffer used everywhere else in this build,
 # and every match is reported with its distance so the pairing stays auditable.
-JUNCTION_MATCH_M = 60.0
+JUNCTION_MATCH_M = CFG.get('A.signals.junction_match_m')
 
 # Shortest green a retimed phase may be given, so a junction with many phases
 # cannot be squeezed below a movable interval.
-MIN_GREEN_S = 6.0
+MIN_GREEN_S = CFG.get('A.signals.min_green_s')
 
 
 def log(msg):
@@ -213,25 +222,37 @@ def clip_osm(bbox, dest):
 # ---------------------------------------------------------------------------
 # 2. netconvert -> plain XML
 # ---------------------------------------------------------------------------
-PLAIN_OPTS = [
-    '--lefthand',                       # NSW drives on the left
-    '--osm.turn-lanes', 'true',
-    # --osm.crossings segfaults netconvert 1.27.1 on this extract (exit 139,
-    # reproducible on its own). Sidewalks are dropped with it: without crossings
-    # they build a disconnected footpath layer, and pedestrians are modelled in
-    # MATSim on the A6 active-transport network, not in the SUMO corridor. The
-    # crossing inventory itself is unaffected - it lives in A2_crossings_osm.csv.
-    '--osm.elevation', 'false',
-    '--geometry.remove', 'true',
-    '--roundabouts.guess', 'true',
-    '--ramps.guess', 'true',
-    '--junctions.join', 'true',
-    '--tls.guess-signals', 'true',
-    '--tls.join', 'true',
-    '--tls.default-type', 'actuated',   # SCATS is adaptive (DECISIONS 5)
-    '--no-turnarounds', 'true',
-    '--default.spreadtype', 'roadCenter',
-]
+def _plain_opts():
+    """netconvert options, assembled from the registry in netconvert's own order.
+
+    Every option that is a MODELLING CHOICE is a named registry field rather than
+    an entry in a flag list, so a choice cannot hide inside one. The order below
+    reproduces the list this function replaced exactly, so the refactor is inert
+    and the corridor nets rebuild byte-identically.
+
+    `--osm.crossings` is absent because it segfaults netconvert 1.27.1 on this
+    extract (DECISIONS.md 3.6) - a tool defect, not a judgement that pedestrians
+    do not matter, and the reason pedestrian delay must not be modelled in SUMO.
+    """
+    def flag(name, key):
+        return [name, 'true' if CFG.get(key) else 'false']
+
+    opts = []
+    if CFG.get('RUN.sumo.lefthand'):
+        opts += ['--lefthand']
+    opts += list(CFG.get('RUN.sumo.netconvert_options'))
+    opts += flag('--junctions.join', 'RUN.sumo.junctions_join')
+    opts += flag('--tls.guess-signals', 'RUN.sumo.tls_guess_signals')
+    opts += flag('--tls.join', 'RUN.sumo.tls_join')
+    opts += ['--tls.default-type', CFG.get('RUN.sumo.tls_default_type')]
+    opts += flag('--no-turnarounds', 'RUN.sumo.no_turnarounds')
+    opts += ['--default.spreadtype', CFG.get('RUN.sumo.spreadtype')]
+    if CFG.get('RUN.sumo.crossings_enabled'):
+        opts += ['--osm.crossings', 'true']
+    return opts
+
+
+PLAIN_OPTS = _plain_opts()
 
 
 def build_plain(osm, prefix):
@@ -529,11 +550,12 @@ def build():
 
     report = dict(bbox=dict(zip(('south', 'west', 'north', 'east'),
                                 [round(x, 6) for x in bbox])),
-                  proj=PROJ, lefthand=True, seed=SEED,
+                  proj=PROJ, lefthand=CFG.get('RUN.sumo.lefthand'), seed=SEED,
                   tl_junctions_in_net=len(junctions),
                   observed_corridor_restrictions=len(restrictions),
                   corridor_parking=corridor_parking_count(bbox),
                   road_variants={})
+    timings = {}
 
     for v in variants:
         ref = v['road_variant_ref']
@@ -595,8 +617,12 @@ def build():
             e1_banned_turn_movements=int(v['banned_turn_movements']),
             e1_lanes_per_direction=float(v['hunter_st_lanes_per_direction']),
             e1_kerbside_parking_removed=v['kerbside_parking_removed'] == '1',
-            signal_variants=tls_report,
-            netconvert_seconds=round(dt, 1), **stats)
+            signal_variants=tls_report, **stats)
+        # Wall-clock timing is a property of the machine, not of the model, and a
+        # committed artefact that carries one cannot be regenerated to the same
+        # bytes - which is the reproducibility gate, not an aspiration. Timings go
+        # to the gitignored work directory instead.
+        timings[ref] = round(dt, 1)
         log('   %-42s %4d patches -> %s | %d edges, %d junctions, %d tls'
             % (ref, len(pat), applied or 'no edge change',
                stats['edges'], stats['junctions'], stats['tls_programs']))
@@ -606,6 +632,13 @@ def build():
         json.dump(report, f, indent=2, sort_keys=True)
         f.write('\n')
     log('report -> %s' % path)
+
+    tpath = os.path.join(WORK, 'netconvert_timings.json')
+    with open(tpath, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(timings, f, indent=2, sort_keys=True)
+        f.write('\n')
+    log('timings -> %s (not committed: wall clock is a property of the machine, '
+        'not of the model)' % tpath)
 
 
 GENERATED_RE = re.compile(r'<!--.*?-->', re.S)

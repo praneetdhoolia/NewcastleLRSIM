@@ -27,25 +27,25 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 123 fields are made of
+## What the 140 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 2 | read directly from a raw download |
 | `measured` | 5 | computed from observed data in this package |
 | `derived` | 7 | follows from another registry field by identity |
-| `literature` | 17 | a published value, not specific to Newcastle |
-| `assumed` | 64 | chosen without direct empirical support |
-| `definition` | 28 | fixed by the formulation, not an empirical quantity |
+| `literature` | 18 | a published value, not specific to Newcastle |
+| `assumed` | 72 | chosen without direct empirical support |
+| `definition` | 36 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 111 | usable point value |
+| `active` | 127 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
-| `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
+| `unobtained` | 7 | the datum does not exist in the package; must be swept, never pinned |
 
-### The 6 fields with no value
+### The 7 fields with no value
 
 These carry `value: null` and the resolver refuses to return a point value for them. They are the project's honest edge: what it does not know, declared rather than guessed.
 
@@ -57,6 +57,7 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `D.retail.vacancy_rate` | 0 - 0.25 | NOT OBTAINED and not currently consumed by any metric |
 | `E.coupling.outer_loop_tolerance_s` | 5 - 60 | Proposal 5.2 defers this explicitly - run the loop 'until the corridor run time is stable within a tolerance TO BE DEFINED AT CALIBRATION' |
 | `RUN.controler.last_iteration` | 250 - 2000 | NO JUSTIFIED VALUE HAS BEEN MEASURED |
+| `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
 ### The 6 fields held fixed
 
@@ -224,13 +225,13 @@ Proxy signal delay per corridor intersection, used to decompose scheduled run ti
 
 Radius for matching an A2 intersection to a SUMO junction.
 
-***assumed** · status **active** · DECISIONS.md §5 · was `src/build/build_sumo_corridor.py:JUNCTION_MATCH_M`*
+***assumed** · status **active** · DECISIONS.md §5*
 
 #### `A.signals.min_green_s`
 
 Minimum green time in a generated SUMO signal program.
 
-***assumed** · status **active** · DECISIONS.md §5 · was `src/build/build_sumo_corridor.py:MIN_GREEN_S`*
+***assumed** · status **active** · DECISIONS.md §5*
 
 #### `A.signals.n_corridor_intersections`
 
@@ -1041,3 +1042,133 @@ Scale transit vehicle seats by the sample fraction. NOT OPTIONAL in practice: at
 ***derived** · status **active** · DECISIONS.md §15*
 
 > **Derived from** `RUN.sample.fraction`: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it would give every vehicle 1/fraction times its real capacity
+
+## SUMO corridor (build and microsimulation)
+
+*`config/registry/RUN_sumo.json` - 17 fields*
+
+The corridor half of proposal 5.1: SUMO answers what the system physically does given riders, and what it costs other road users. Two things are declared here that the package does not have. The netconvert options that are MODELLING CHOICES are separated from those that are geometry handling, so a choice cannot hide inside a flag list - `tls_default_type` in particular stands in for the unobtained SCATS phasing. And the fields a SUMO RUN would need are declared even though no SUMO run harness exists: the corridor nets are built and have never been simulated.
+
+| Field | Value | Units | Provenance | Sweep |
+|---|---|---|---|---|
+| `RUN.sumo.bbox_margin_m` | `300.0` | metres | `assumed` | 100 - 800 |
+| `RUN.sumo.begin_h` | `0` | hours | `definition` | - |
+| `RUN.sumo.crossings_enabled` | `false` | boolean | `definition` | - |
+| `RUN.sumo.end_h` | `30` | hours | `definition` | - |
+| `RUN.sumo.junctions_join` | `true` | boolean | `assumed` | `True`, `False` |
+| `RUN.sumo.lefthand` | `true` | boolean | `definition` | - |
+| `RUN.sumo.netconvert_options` | `["--osm.turn-lanes", "true", "--osm.elevation", "false", "--geometry.remove", "true", "--roundabouts.guess"...` | cli_flags | `definition` | - |
+| `RUN.sumo.no_turnarounds` | `true` | boolean | `assumed` | `True`, `False` |
+| `RUN.sumo.outer_loop_max_iterations` | `3` | iterations | `literature` | 2 - 5 |
+| `RUN.sumo.projection` | `+proj=utm +zone=56 +south +ellps=GRS80 +units=m +no_defs` | proj4 | `definition` | - |
+| `RUN.sumo.replications` | *(null - unobtained)* | count | `assumed` | 5 - 30 |
+| `RUN.sumo.seed` | `20260810` | integer_seed | `definition` | - |
+| `RUN.sumo.spreadtype` | `roadCenter` | enum | `definition` | - |
+| `RUN.sumo.step_length_s` | `1.0` | seconds | `assumed` | 0.1 - 1 |
+| `RUN.sumo.tls_default_type` | `actuated` | enum | `assumed` | `actuated`, `static` |
+| `RUN.sumo.tls_guess_signals` | `true` | boolean | `assumed` | `True`, `False` |
+| `RUN.sumo.tls_join` | `true` | boolean | `assumed` | `True`, `False` |
+
+#### `RUN.sumo.bbox_margin_m`
+
+Margin added around the corridor edge extent when clipping the OSM input for netconvert. Too small and turning traffic has nowhere to come from; too large and the corridor net stops being a corridor. Taken from the A1 edge endpoints rather than re-read from OSM, so the clip follows the built network.
+
+***assumed** · status **active** · DECISIONS.md §3.6, 15*
+
+#### `RUN.sumo.begin_h`
+
+Microsimulation start. Declared; no SUMO run harness exists yet.
+
+***definition** · status **active** · DECISIONS.md §15*
+
+#### `RUN.sumo.crossings_enabled`
+
+Pedestrian crossings and sidewalks in the SUMO corridor. FALSE BECAUSE THE OPTION SEGFAULTS netconvert 1.27.1 on this extract (exit 139), not because it was judged unnecessary - DECISIONS.md 3.6. CONSEQUENCE: there are no pedestrians in the SUMO corridor, so pedestrian delay MUST NOT be modelled there. Walk and frontage throughput are MATSim's job on A6. A toolchain change that fixes the segfault is a model change and belongs in DECISIONS.md 14.
+
+***definition** · status **active** · DECISIONS.md §3.6 · proposal §3.3 B1, A6*
+
+#### `RUN.sumo.end_h`
+
+Microsimulation end, matching B.activity.day_horizon_s and RUN.qsim.end_time_h so the two tools cover the same day. Declared; no SUMO run harness exists yet.
+
+***definition** · status **active** · DECISIONS.md §15*
+
+#### `RUN.sumo.junctions_join`
+
+Merge clustered approach nodes into one junction. Interacts with A.signals.junction_match_m: joining moves a junction centroid, which is why the A2 match radius is 60 m rather than A2's own 45 m clustering radius.
+
+***assumed** · status **active** · DECISIONS.md §5, 15*
+
+#### `RUN.sumo.lefthand`
+
+Left-hand traffic. NOT optional and not cosmetic: with it off, netconvert builds right-hand connections and every turning movement on the corridor is wrong.
+
+***definition** · status **active** · DECISIONS.md §3.6*
+
+#### `RUN.sumo.netconvert_options`
+
+The netconvert options that are geometry handling rather than modelling choices. Every option that IS a modelling choice is a separate registry field - lefthand, junctions_join, tls_guess_signals, tls_join, tls_default_type, no_turnarounds, spreadtype, crossings_enabled - so that a choice cannot hide inside a flag list.
+
+***definition** · status **active** · DECISIONS.md §3.6*
+
+#### `RUN.sumo.no_turnarounds`
+
+Suppress U-turns at junctions. Left on because uncontrolled U-turns on a trunk corridor are an artefact of the network build rather than observed behaviour.
+
+***assumed** · status **active** · DECISIONS.md §5, 15*
+
+#### `RUN.sumo.outer_loop_max_iterations`
+
+Maximum MATSim-SUMO outer iterations. Proposal 5.2 says 2-3 outer iterations to convergence. The loop stops when corridor run time is stable within E.coupling.outer_loop_tolerance_s - WHICH HAS NEVER BEEN DEFINED (issue 8), so this cap is currently the only thing that would terminate it.
+
+***literature** · status **active** · DECISIONS.md §15 · proposal §5.2*
+
+#### `RUN.sumo.projection`
+
+The projection of EPSG:28356, stated as proj4 because netconvert takes a proj4 definition rather than an EPSG code. The datum label follows the repo's correction in DECISIONS.md 2.6 (GDA94, not GDA2020).
+
+***definition** · status **active** · DECISIONS.md §2.6, 3.6*
+
+#### `RUN.sumo.replications`
+
+Seeded SUMO replications per scenario. NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cut (issue 6). Declaring it null means a SUMO harness cannot be built on an unexamined default.
+
+***assumed** · status **unobtained** · DECISIONS.md §9.5, 15 · proposal §5.2*
+
+#### `RUN.sumo.seed`
+
+netconvert seed. Held at the master seed; netconvert output is byte-identical on rebuild, and check_package.py asserts it.
+
+***definition** · status **active** · DECISIONS.md §3.6*
+
+#### `RUN.sumo.spreadtype`
+
+How lanes are spread about the reference geometry. roadCenter keeps the centreline as the road centre, which is what the A1 geometry represents.
+
+***definition** · status **active** · DECISIONS.md §3.6*
+
+#### `RUN.sumo.step_length_s`
+
+Microsimulation time step. DECLARED BUT NOT YET CONSUMED: no SUMO run harness exists. Proposal 5.1 gives SUMO the supply and operations layer - run time, dwell, reliability variance, car delay, frontage throughput - and none of it has been executed.
+
+***assumed** · status **active** · DECISIONS.md §15*
+
+> **Sweep basis.** 1.0 s is the SUMO default; sub-second steps resolve car-following and signal response more finely at proportionally higher cost
+
+#### `RUN.sumo.tls_default_type`
+
+Signal controller type netconvert assigns. A real modelling choice standing in for information the project does not have: the corridor run time swings 38% between no priority and full priority, and this field is part of that uncertainty rather than a build detail.
+
+***assumed** · status **active** · DECISIONS.md §5, 15*
+
+#### `RUN.sumo.tls_guess_signals`
+
+Infer signalised junctions from OSM traffic-signal nodes.
+
+***assumed** · status **active** · DECISIONS.md §5, 15*
+
+#### `RUN.sumo.tls_join`
+
+Join adjacent traffic lights into one controller. Affects how many independent signal programs the corridor carries, and therefore what the A2 timings are applied to.
+
+***assumed** · status **active** · DECISIONS.md §5, 15*

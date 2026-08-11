@@ -226,8 +226,10 @@
       ],
       "status": "active",
       "decisions_ref": "5",
-      "legacy_symbol": "src/build/build_sumo_corridor.py:MIN_GREEN_S",
-      "description": "Minimum green time in a generated SUMO signal program."
+      "description": "Minimum green time in a generated SUMO signal program.",
+      "consumers": [
+        "src/build/build_sumo_corridor.py"
+      ]
     },
     "A.signals.junction_match_m": {
       "value": 60.0,
@@ -239,8 +241,10 @@
       ],
       "status": "active",
       "decisions_ref": "5",
-      "legacy_symbol": "src/build/build_sumo_corridor.py:JUNCTION_MATCH_M",
-      "description": "Radius for matching an A2 intersection to a SUMO junction."
+      "description": "Radius for matching an A2 intersection to a SUMO junction.",
+      "consumers": [
+        "src/build/build_sumo_corridor.py"
+      ]
     },
     "A.lightrail.dwell_charging_s": {
       "value": null,

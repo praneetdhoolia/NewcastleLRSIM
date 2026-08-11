@@ -1,10 +1,10 @@
 {
   "project": "Newcastle Light Rail counterfactual microsimulation (Project Wickham)",
-  "generated": "2026-08-11T02:14:58",
+  "generated": "2026-08-11T13:49:14",
   "base_year": 2026,
   "crs": "EPSG:28356 (GDA2020 / MGA Zone 56)",
   "n_files": 362,
-  "total_bytes": 3460357985,
+  "total_bytes": 3460357853,
   "total_gib": 3.22,
   "by_stage": {
     "raw": 61,
@@ -12,7 +12,7 @@
   },
   "bytes_by_stage": {
     "raw": 1956136023,
-    "processed": 1504221962
+    "processed": 1504221830
   },
   "files": [
     {
@@ -4217,9 +4217,9 @@
     },
     {
       "path": "networks/sumo/_sumo_build_report.json",
-      "bytes": 23717,
+      "bytes": 23585,
       "rows": null,
-      "sha256": "547a18a18db78cd0bd9d688c8637e51a925b929e5cff37c93e90dc09f6608a9b",
+      "sha256": "09a77d0cf6f60f6fe881497759a0e187213d5f1862d76383fd01dbc529d45eb7",
       "stage": "processed",
       "produced_by": "src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1)",
       "source": "",

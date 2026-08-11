@@ -1073,6 +1073,61 @@ if _registry is not None:
 
 
 
+    # ---- the SUMO corridor layer reads the registry ----
+    # build_sumo_corridor.py no longer holds its own constants. The options that
+    # are MODELLING CHOICES are named fields rather than entries in a flag list,
+    # so a choice cannot hide inside one (DECISIONS.md 15).
+    for _key in ('RUN.sumo.lefthand', 'RUN.sumo.tls_default_type',
+                 'RUN.sumo.junctions_join', 'RUN.sumo.tls_guess_signals',
+                 'RUN.sumo.tls_join', 'RUN.sumo.no_turnarounds',
+                 'RUN.sumo.crossings_enabled', 'RUN.sumo.spreadtype'):
+        check(_key in _fields,
+              'the netconvert modelling choice %s is a named registry field, not a '
+              'flag buried in a list' % _key)
+
+    # left-hand traffic is not cosmetic: with it off every turning movement is wrong
+    check(_fields.get('RUN.sumo.lefthand', {}).get('value') is True,
+          'SUMO builds left-hand traffic')
+
+    # the crossings segfault is a recorded TOOL DEFECT, not a modelling judgement
+    _cross = _fields.get('RUN.sumo.crossings_enabled', {})
+    check(_cross.get('value') is False and 'segfault' in _cross.get('description', '').lower(),
+          'pedestrian crossings are off because --osm.crossings segfaults netconvert '
+          '1.27.1, and the field says so - so pedestrian delay is not modelled in SUMO '
+          '(DECISIONS.md 3.6)')
+
+    # the assembled option list must reproduce what the literal list used to be:
+    # the registry refactor is inert, and the corridor nets rebuild byte-identically
+    _expected_opts = ['--lefthand', '--osm.turn-lanes', 'true', '--osm.elevation', 'false',
+                      '--geometry.remove', 'true', '--roundabouts.guess', 'true',
+                      '--ramps.guess', 'true', '--junctions.join', 'true',
+                      '--tls.guess-signals', 'true', '--tls.join', 'true',
+                      '--tls.default-type', 'actuated', '--no-turnarounds', 'true',
+                      '--default.spreadtype', 'roadCenter']
+    try:
+        sys.path.insert(0, os.path.join('src', 'build'))
+        sys.path.insert(0, os.path.join('src', 'setup'))
+        import build_sumo_corridor as _bsc
+        check(_bsc.PLAIN_OPTS == _expected_opts,
+              'the registry assembles netconvert options identical to the literal list '
+              'they replaced, in the same order - so the corridor nets rebuild unchanged')
+        check(_bsc.SEED == _fields['RUN.sumo.seed']['value']
+              and _bsc.BBOX_MARGIN_M == _fields['RUN.sumo.bbox_margin_m']['value']
+              and _bsc.MIN_GREEN_S == _fields['A.signals.min_green_s']['value'],
+              'the SUMO build reads its seed, corridor margin and minimum green from '
+              'the registry')
+    except Exception as _e:
+        check(False, 'the SUMO build imports and reads the registry (%s)' % _e)
+
+    # a SUMO RUN is declared but does not exist: the nets have never been simulated
+    check(_fields.get('RUN.sumo.replications', {}).get('status') == 'unobtained',
+          'SUMO replications carry no value - proposal 5.2 asks for at least 30, the '
+          'measured run budget does not fit, and the cut has not been made (issue 6)')
+    check(_fields.get('E.coupling.outer_loop_tolerance_s', {}).get('value') is None,
+          'the MATSim-SUMO outer-loop tolerance is still undefined and is declared as '
+          'such, so a loop cannot be built on an unexamined default (issue 8)')
+
+
     # the build layer has NOT been migrated: those scripts still hold their own
     # constants and the registry declares the same values. Two copies of a number
     # is exactly the drift this package cannot absorb, so they are pinned together

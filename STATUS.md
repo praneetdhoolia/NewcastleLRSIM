@@ -432,14 +432,14 @@ sweep.
 
 | | |
 |---|---:|
-| Fields declared | **123** |
-| …assumed | 64 |
-| …literature | 17 |
-| …definition | 28 |
+| Fields declared | **140** |
+| …assumed | 72 |
+| …literature | 18 |
+| …definition | 36 |
 | …measured / derived / observed | 5 / 7 / 2 |
-| Fields with **no value at all** | **6** |
+| Fields with **no value at all** | **7** |
 | Fields **held fixed** under §8.5 | 6 |
-| `check_package.py` | 860 → **908 checks**, 1 standing warning |
+| `check_package.py` | 860 → **922 checks**, 1 standing warning |
 
 **Proposal §8.1 is now a schema constraint, not a discipline.** A field whose
 source is `assumed`, `literature`, `measured` or `derived` must carry a sweep, a
@@ -476,16 +476,38 @@ targets available. Every run directory now carries `_config.json`, the resolved
 snapshot — a completed run without one fails its contract, because a result that
 cannot state its inputs is not reportable.
 
-**What is declared but not yet consumed.** The build layer has **not** been
-migrated: `src/build/*.py` still hold their own constants. Two copies of a number
-is the drift this package cannot absorb, so
-`src/registry/check_legacy_drift.py` pins them together by test — 54 compared,
-one deliberate divergence, one expression that is not a literal. Writing that
-check immediately found **four values transcribed wrongly into the registry**;
-the code was authoritative and the registry was corrected. The migration itself
-needs a full package rebuild to verify byte-identically and **has not been run**.
-The SUMO corridor layer is likewise declared but still built from its own
-constants.
+**The SUMO corridor layer is migrated and verified.**
+[`build_sumo_corridor.py`](src/build/build_sumo_corridor.py) reads the registry;
+the netconvert options that are *modelling choices* — left-hand traffic, the
+signal controller type, junction joining, turnarounds, crossings — are named
+fields rather than entries in a flag list. The corridor was rebuilt and **all
+four nets and all seven TLS programs are byte-identical** to the pre-migration
+build. Nine intermediates differed, and two further rebuilds **with no code
+change** reproduced exactly the same nine, so they are timestamped by netconvert
+rather than affected by the change. That refines the P2 claim: byte-identical
+rebuild holds for the **nets**, not for `networks/sumo/_work/`.
+
+**The demand and network build layer is not migrated.** The rest of
+`src/build/*.py` still hold their own constants. Two copies of a number is the
+drift this package cannot absorb, so
+[`src/registry/check_legacy_drift.py`](src/registry/check_legacy_drift.py) pins
+them together by test — 52 compared, one deliberate divergence, one expression
+that is not a literal. Writing that check immediately found **four values
+transcribed wrongly into the registry**; the code was authoritative and the
+registry was corrected. That migration needs a full package rebuild to verify
+byte-identically and **has not been run**.
+
+**One determinism defect fell out of the gate.** The committed
+`_sumo_build_report.json` recorded `netconvert_seconds`, so its manifest hash
+changed on every rebuild even when the nets did not — a committed artefact that
+could not be regenerated to the same bytes. Timings moved to the gitignored work
+directory; the report is now byte-identical across consecutive builds and the
+manifest was regenerated. The defect predates this change.
+
+**The corridor has been built four times and simulated zero times.** No SUMO run
+harness exists. The fields one would need are declared, and two carry no value on
+purpose: `RUN.sumo.replications` (issue #6) and
+`E.coupling.outer_loop_tolerance_s` (issue #8).
 
 **Driving it:**
 
@@ -517,7 +539,7 @@ to drive it, and the traps. This file stays the short live status.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **908 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **922 checks**. Run it before declaring any phase
    complete.
 5. `python src/registry/render_docs.py` after any change to `config/registry/`, or
    `check_package.py` will report the reference as stale.

@@ -349,7 +349,7 @@ networks/matsim/variants/net_base2026/network.xml.gz,processed,5812486,,src/buil
 networks/matsim/variants/net_base2026_broadmeadow_extension/network.xml.gz,processed,5814933,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,ca5ac92e6576b08b8e8b5d1349d20f3c3e3909d39d89ac0f6a1a909859618625
 networks/matsim/variants/net_base2026_hunter_st_full_capacity/network.xml.gz,processed,5812464,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,da53d43907d3f6eeef2a9c85818ef7c02e2dd478ce22a698ba2526e4551a7e4a
 networks/matsim/variants/net_base2026_jhh_extension/network.xml.gz,processed,5816340,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,dea3d2fdcf36bf357313b26b45290b25e668ea863f141b8f99f4dba39490796c
-networks/sumo/_sumo_build_report.json,processed,23717,,src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,547a18a18db78cd0bd9d688c8637e51a925b929e5cff37c93e90dc09f6608a9b
+networks/sumo/_sumo_build_report.json,processed,23585,,src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,09a77d0cf6f60f6fe881497759a0e187213d5f1862d76383fd01dbc529d45eb7
 networks/sumo/net_base2026/corridor.net.xml,processed,30304965,,src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,05c69dbd434f9c45bfe5bd3796356d725714645d3762811ff740a9fba2214245
 networks/sumo/net_base2026/tls_S2_base.add.xml,processed,13118,,src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,cb838bac94568c763e09996d549402eac19b74928ee9296fa80e24c02f2dd6c4
 networks/sumo/net_base2026/tls_S2b_full_tsp.add.xml,processed,13202,,src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,850aaae68503a919aa5399408c377825f2d5b7801aee0088fd82d32ab7e3e370

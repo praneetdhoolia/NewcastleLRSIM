@@ -1521,10 +1521,63 @@ artefact rather than behaviour.
 Running one of those directly — as the §9.4 load test did — simulates a **sampled
 demand against full supply**. The harness must be used.
 
+### The SUMO corridor layer, migrated and verified
+
+`build_sumo_corridor.py` now reads the registry rather than holding its own
+constants — 17 fields in `config/registry/RUN_sumo.json`. The netconvert options
+that are **modelling choices** are named fields rather than entries in a flag
+list, so a choice cannot hide inside one:
+
+| Field | Why it is a choice, not a flag |
+|---|---|
+| `RUN.sumo.lefthand` | With it off netconvert builds right-hand connections and **every turning movement on the corridor is wrong** |
+| `RUN.sumo.tls_default_type` | `actuated` vs `static` stands in for the unobtained SCATS phasing — part of the 38% run-time uncertainty, not a build detail |
+| `RUN.sumo.junctions_join` | Moves junction centroids, which is why the A2 match radius is 60 m rather than A2's own 45 m |
+| `RUN.sumo.no_turnarounds` | Uncontrolled U-turns on a trunk corridor are a build artefact, not observed behaviour |
+| `RUN.sumo.crossings_enabled` | **False because `--osm.crossings` segfaults netconvert 1.27.1** (§3.6) — a tool defect, not a judgement that pedestrians do not matter |
+
+**The refactor is inert, and that was verified rather than asserted.** The
+assembled option list is identical to the literal list it replaced, in the same
+order, and `check_package.py` asserts it. The corridor was then rebuilt: all four
+`corridor.net.xml` and all seven `tls_*.add.xml` are **byte-identical** to the
+pre-migration build.
+
+**Nine files did differ, and they are not the model.** The plain XML
+(`corridor.{nod,edg,con,tll,typ}.xml`), the `netccfg`, two netconvert logs and
+the build report. Running the build **twice more with no code change between
+them** produced the same nine differences, so they are inherently
+non-deterministic — netconvert stamps a wall-clock timestamp into each. This
+refines a claim made at P2: *"netconvert output is byte-identical on rebuild"* is
+true of **the nets and the signal programs**, and false of the intermediates.
+Anything that hashes `networks/sumo/_work/` will see spurious churn.
+
+**A determinism defect found by the gate, and fixed.** `_sumo_build_report.json`
+is a **committed** artefact carrying a manifest hash, and it recorded
+`netconvert_seconds` — wall-clock timing. Its digest therefore changed on every
+rebuild even when the four nets were byte-identical, so a committed file could
+not be regenerated to the same bytes. That is the reproducibility gate failing,
+and CLAUDE.md forbids wall-clock dependence in a build script outright. Timings
+now go to `networks/sumo/_work/netconvert_timings.json`, which is gitignored;
+the committed report is byte-identical across consecutive rebuilds, verified by
+building twice and comparing. The manifest was regenerated. The defect predates
+this change and was only exposed because the migration forced a rebuild.
+
+**A SUMO run still does not exist.** The corridor nets have been built four times
+and simulated zero times. Proposal §5.1 gives SUMO the entire supply-and-operations
+layer — run time, dwell, reliability variance, car delay, frontage throughput —
+and §5.2 the outer loop. The fields such a run would need are declared
+(`step_length_s`, `begin_h`, `end_h`, `outer_loop_max_iterations`), and two carry
+no value on purpose: `RUN.sumo.replications`, because proposal §5.2 asks for at
+least 30 and §9.5 shows the budget does not fit and nobody has decided what to cut
+(issue #6); and `E.coupling.outer_loop_tolerance_s`, which has never been defined
+(issue #8). Declaring them null means a SUMO harness cannot be built on an
+unexamined default.
+
 ### What is declared but not yet consumed
 
-The build layer has **not** been migrated: `src/build/*.py` still hold their own
-constants, and the registry declares the same values. Two copies of a number is
+The **demand and network build layer** has not been migrated: `src/build/*.py`
+other than `build_sumo_corridor.py` still hold their own constants, and the
+registry declares the same values. Two copies of a number is
 exactly the drift this package cannot absorb, so
 `src/registry/check_legacy_drift.py` pins them together by test —
 **54 fields compared, one deliberate divergence, one expression that is not a
