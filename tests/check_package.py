@@ -1156,6 +1156,98 @@ if _registry is not None:
         check(False, 'the legacy-drift check imports (%s)' % _e)
 
 
+# ---- O. the fit statistic itself (src/calibrate/fit.py) ----
+#
+# Deliverable 3 had NO test coverage, and that is how issue 19 survived: a defect
+# that silently IMPROVED the reported fit, in code the whole suite never touched.
+# These checks drive fit.py's scoring functions on SYNTHETIC metrics, so they need
+# no completed run - `results/` is gitignored and a check may not depend on one.
+if True:
+    sys.path.insert(0, os.path.join('src', 'calibrate'))
+    try:
+        import fit as _fit
+    except ImportError as _e:
+        check(False, 'src/calibrate/fit.py imports (%s)' % _e)
+        _fit = None
+
+    if _fit is not None:
+        _tg = _fit.load_targets()
+        check(all(t['split'] == 'calibration' for t in _tg),
+              'fit.py load_targets() returns calibration rows ONLY - the holdout '
+              'is never read into the process, so it cannot reach an intermediate '
+              'or an output (%d rows)' % len(_tg))
+
+        _all_splits = {r['split'] for r in rows(
+            'data/processed/validation/validation_targets.csv')}
+        check(_all_splits == {'calibration', 'holdout'} and len(_tg) == 67,
+              'the 67/143 pre-registered split is intact and fit.py sees exactly '
+              'the 67 (%d of %d rows)' % (len(_tg), 210))
+
+        _road = [t for t in _tg if t['metric'] == 'road_aadt']
+        _key = lambda t: t['note'].split('station_key=')[1].split(';')[0]
+        _corr = json.load(open('params/C3_count_comparison.json', encoding='utf-8'))
+
+        def _fit_counts(station_overrides):
+            """Run score_counts against a synthetic metrics block."""
+            stations = [dict(station_key=_key(t), split='calibration',
+                             road_name='x', links='1', matched_by='name_and_proximity',
+                             max_distance_m=10.0,
+                             modelled_vehicles=station_overrides.get(_key(t), 5000))
+                        for t in _road if _key(t) in station_overrides
+                        or station_overrides.get('_all')]
+            out = dict(unscorable=[])
+            block = _fit.score_counts(_road, dict(counts=dict(stations=stations)),
+                                      _corr, out)
+            return block, out
+
+        # issue 19, regression: a modelled ZERO is a RESULT and must be scored.
+        _zero_key = _key(_road[0])
+        _blk, _out = _fit_counts({'_all': True, _zero_key: 0})
+        _scored_zero = [e for e in _blk['errors'] if e['target_id'] == _road[0]['target_id']]
+        check(bool(_scored_zero) and _scored_zero[0]['pct_error'] == -100.0,
+              'issue 19: a station the model routes ZERO traffic over is SCORED at '
+              '-100%, not dropped - dropping it flattered every aggregate by '
+              'removing the stations where the model fails hardest')
+        check(_road[0]['target_id'] in _blk['modelled_zero_stations'],
+              'issue 19: a modelled zero is NAMED in counts.modelled_zero_stations '
+              'rather than buried inside the aggregate')
+        check(not any(u['target_id'] == _road[0]['target_id']
+                      for u in _out['unscorable']),
+              'issue 19: a modelled zero is no longer reported as unscorable')
+
+        # the other branch, which is genuinely unscorable, and its reason must not
+        # claim the zero-volume cause.
+        _blk2, _out2 = _fit_counts({_key(_road[1]): 5000})
+        _missing = [u for u in _out2['unscorable']
+                    if u['target_id'] == _road[0]['target_id']]
+        check(bool(_missing) and 'did not resolve to any link' in _missing[0]['reason'],
+              'issue 19: a station that resolves to NO link is unscorable, and says '
+              'so in its own words - the two causes no longer share one reason string')
+
+        check(_blk['n'] == len(_blk['targets']) and _blk['targets'],
+              'every fit block names the target ids it was computed over; a '
+              'statistic that does not name its targets is not reportable '
+              '(DECISIONS.md 12.1)')
+
+        # the reconciliation fit.py asserts at run time, asserted here too
+        _sc = len(_blk['targets'])
+        check(_sc + len([u for u in _out['unscorable']
+                         if u['metric'] == 'road_aadt']) == len(_road),
+              'scored + unscorable reconciles over the road_aadt block (%d + %d '
+              '= %d), so no target is silently neither' %
+              (_sc, len(_road) - _sc, len(_road)))
+
+        check(_fit.scale_error(0, 100.0) is not None
+              and _fit.scale_error(5.0, 0) is None,
+              'scale_error scores a modelled zero and refuses an OBSERVED zero - '
+              'the asymmetry is deliberate, a zero denominator has no percentage')
+
+        _radius = _fields.get('B.counts.station_match_radius_m')
+        check(_radius is not None and _radius.get('sweep'),
+              'the count-station match radius is a DECLARED registry field with a '
+              'sweep, not a CLI default - it decides which road_aadt targets are '
+              'scorable at all, so it is a lever on the reported fit')
+
 # ---- report ----
 print('PASS %d' % len(OK))
 for m in OK:

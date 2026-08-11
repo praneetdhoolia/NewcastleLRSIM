@@ -655,6 +655,14 @@ zero is a **result**, and the worst one in the set. Now scored at −100% and fl
 honestly worsens (mean −72.1% → **−73.8%**). It exposes a real gap — the model puts
 **no cars on the M1 at Wyee** — most likely in the external boundary tier.
 
+**The fit statistic had no tests at all.** [`tests/check_package.py`](tests/check_package.py)
+contained zero checks against [`src/calibrate/fit.py`](src/calibrate/fit.py) — which
+is how #19 survived: a defect that silently *improved* the reported fit, in code the
+whole suite never touched. Ten checks now drive the scoring functions on synthetic
+metrics, so they need no completed run (`results/` is gitignored and a check may not
+depend on one). Verified by reintroducing the defect — **3 checks fail**, and pass
+again on restore. **937 checks**, 1 standing warning.
+
 **Three values were governing the model from outside the registry**, found by audit:
 `B.counts.station_match_radius_m` (**new field**, 120 m, swept 60–120 on measurement
 — it decides which count targets are scorable at all); `sample_population.SEED`,
