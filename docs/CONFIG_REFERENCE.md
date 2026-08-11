@@ -33,9 +33,9 @@ Three things are refused at every layer:
 |---|---:|---|
 | `observed` | 2 | read directly from a raw download |
 | `measured` | 5 | computed from observed data in this package |
-| `derived` | 7 | follows from another registry field by identity |
+| `derived` | 8 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
-| `assumed` | 72 | chosen without direct empirical support |
+| `assumed` | 71 | chosen without direct empirical support |
 | `definition` | 36 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
@@ -875,7 +875,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.routing.teleported_walk_speed_ms` | `1.05` | metres_per_second | `literature` | 0.9 - 1.35 |
 | `RUN.sample.flow_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: flowCapacityFactor = RUN.sample.fraction, the standard MATSim scaling  |
 | `RUN.sample.fraction` | `0.01` | share_of_population | `assumed` | 0.01 - 0.4 |
-| `RUN.sample.storage_capacity_exponent` | `1.0` | exponent | `assumed` | 0.75 - 1 |
+| `RUN.sample.storage_capacity_exponent` | `1.0` | exponent | `derived` | derived: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim e |
 | `RUN.sample.transit_capacity_floor` | `1` | seats | `assumed` | 1 - 4 |
 | `RUN.sample.transit_capacity_scaling` | `true` | boolean | `derived` | derived: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it |
 
@@ -1023,11 +1023,11 @@ Share of the synthetic population simulated. The subsample is NESTED - a person 
 
 #### `RUN.sample.storage_capacity_exponent`
 
-storageCapacityFactor = fraction ** this exponent. AT 1.0 THIS IS AN UNEXAMINED RISK: MATSim floors link storage at one vehicle, so at a 1% sample most links hold one car regardless of length and spillback becomes far more aggressive than reality. If that is happening, car travel times are inflated and agents flee to the one mode immune to the network - teleported walk. The discarded 250-iteration runs showed walk at 0.38-0.55 against a 0.134 target. UNTESTED HYPOTHESIS, recorded here because the factor was previously set silently in code with no rationale and no sweep.
+The exponent relating storage capacity to the sample fraction. IT IS 1.0 AND IT IS NOT FREE. An earlier revision of this registry declared it assumed with a 0.75-1.0 sweep, on the reasoning that MATSim floors link storage at one vehicle so a 1% sample would produce spurious spillback, and that raising storage relative to flow is the usual treatment. That reasoning is superseded. MATSim rejects any value below 1.0 outright and states the reason: 'the old approach of setting the stor cap fact larger than the flow cap fact is no longer needed since the qsim became a lot more deterministic'. The sweep was therefore a range whose members the tool will not accept, which is exactly the undisciplined declaration this registry exists to prevent. Corrected after the diagnostic run that tried to use it failed in one second. The remaining question - whether behaviour moves with the SAMPLE FRACTION itself - is unaffected and is what the 1% versus 10% arms test.
 
-***assumed** · status **active** · DECISIONS.md §15 · MATSim `qsim.storageCapacityFactor`*
+***derived** · status **active** · DECISIONS.md §15 · MATSim `qsim.storageCapacityFactor`*
 
-> **Sweep basis.** 1.0 is the linear rule the harness currently applies. Values below 1 raise storage capacity relative to flow at small samples, which is the usual treatment for the quantisation described below. The interval brackets the two and is a declaration that the choice is open, not a measurement
+> **Derived from** `RUN.sample.fraction`: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim enforces the equality: GlobalConfigGroup.checkConsistency throws when the two differ by more than global.relativeTolerance, which defaults to 0.0
 
 #### `RUN.sample.transit_capacity_floor`
 

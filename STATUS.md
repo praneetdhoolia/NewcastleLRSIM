@@ -458,14 +458,18 @@ everything rather than one argument parser.
 **Two factors that governed every P4 result were set in code with no rationale
 and no range.** Neither `flowCapacityFactor` nor `storageCapacityFactor`
 appeared anywhere in `DECISIONS.md`, `check_package.py` or the P4 checkpoint.
-The first is *derived* — it equals the sample fraction — and now says so. The
-second is *assumed*: `storageCapacityFactor = fraction ** exponent` with the
-exponent implicitly 1.0, now swept 0.75–1.0. **This is an open risk, not
-bookkeeping.** MATSim floors link storage at one vehicle, so at 1% most links
-hold one car regardless of length; if that inflates car travel times, agents flee
-to teleported `walk`, which is exactly what the discarded runs showed (walk
-0.38–0.55 against a 0.134 target). Untested hypothesis; the nested subsample
-makes the test cheap.
+Both are *derived*, and neither is a choice: flow equals the sample fraction,
+and storage equals flow. **A correction is recorded in §15.** The registry first
+declared the storage exponent *assumed* and swept 0.75–1.0, on the reasoning that
+MATSim's one-vehicle storage floor would cause spurious spillback at 1%. The
+diagnostic run built to test that died in one second — MATSim rejects any storage
+factor different from the flow factor and states the practice is superseded
+"since the qsim became a lot more deterministic". The sweep declared values the
+tool will not accept, which is the very failure the registry exists to prevent.
+Corrected: the field is derived, the harness fails fast, and the check asserts
+the equality. **The question the exponent stood proxy for — whether behaviour
+moves with the sample fraction — is unaffected**, and is what the 1% versus 10%
+diagnostic tests.
 
 **Outputs are declared to the same standard as inputs.** `_run.json`,
 `_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema in

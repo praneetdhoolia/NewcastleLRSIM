@@ -35,16 +35,17 @@
     "RUN.sample.storage_capacity_exponent": {
       "value": 1.0,
       "units": "exponent",
-      "source": "assumed",
-      "sweep": [
-        0.75,
-        1.0
-      ],
-      "sweep_basis": "1.0 is the linear rule the harness currently applies. Values below 1 raise storage capacity relative to flow at small samples, which is the usual treatment for the quantisation described below. The interval brackets the two and is a declaration that the choice is open, not a measurement",
+      "source": "derived",
       "status": "active",
       "decisions_ref": "15",
       "matsim_param": "qsim.storageCapacityFactor",
-      "description": "storageCapacityFactor = fraction ** this exponent. AT 1.0 THIS IS AN UNEXAMINED RISK: MATSim floors link storage at one vehicle, so at a 1% sample most links hold one car regardless of length and spillback becomes far more aggressive than reality. If that is happening, car travel times are inflated and agents flee to the one mode immune to the network - teleported walk. The discarded 250-iteration runs showed walk at 0.38-0.55 against a 0.134 target. UNTESTED HYPOTHESIS, recorded here because the factor was previously set silently in code with no rationale and no sweep."
+      "derived_from": {
+        "fields": [
+          "RUN.sample.fraction"
+        ],
+        "identity": "storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim enforces the equality: GlobalConfigGroup.checkConsistency throws when the two differ by more than global.relativeTolerance, which defaults to 0.0"
+      },
+      "description": "The exponent relating storage capacity to the sample fraction. IT IS 1.0 AND IT IS NOT FREE. An earlier revision of this registry declared it assumed with a 0.75-1.0 sweep, on the reasoning that MATSim floors link storage at one vehicle so a 1% sample would produce spurious spillback, and that raising storage relative to flow is the usual treatment. That reasoning is superseded. MATSim rejects any value below 1.0 outright and states the reason: 'the old approach of setting the stor cap fact larger than the flow cap fact is no longer needed since the qsim became a lot more deterministic'. The sweep was therefore a range whose members the tool will not accept, which is exactly the undisciplined declaration this registry exists to prevent. Corrected after the diagnostic run that tried to use it failed in one second. The remaining question - whether behaviour moves with the SAMPLE FRACTION itself - is unaffected and is what the 1% versus 10% arms test."
     },
     "RUN.sample.transit_capacity_scaling": {
       "value": true,

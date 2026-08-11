@@ -1498,22 +1498,37 @@ sample fraction. Neither string appeared anywhere in `DECISIONS.md`,
 - **`RUN.sample.flow_capacity_factor` is derived**, not chosen: it equals the
   sample fraction, which is the standard MATSim scaling rule. It carries a
   `derived_from` identity rather than a fabricated sweep.
-- **`RUN.sample.storage_capacity_exponent` is assumed, and is an open risk.**
-  `storageCapacityFactor = fraction ** exponent`, and the exponent was
-  implicitly 1.0. MATSim floors link storage at one vehicle, so at a 1% sample
-  most links hold one car regardless of length and spillback becomes far more
-  aggressive than reality. The usual treatment below roughly a 10% sample is an
-  exponent under 1, which raises storage relative to flow. Swept 0.75–1.0.
+- **`RUN.sample.storage_capacity_exponent` is 1.0, and it is derived, not
+  chosen.** `storageCapacityFactor = fraction ** exponent`, and MATSim
+  **enforces** storage == flow: `GlobalConfigGroup.checkConsistency` throws when
+  the two differ by more than `global.relativeTolerance`, which defaults to 0.0.
 
-**This matters beyond bookkeeping.** Every P4 behavioural result — the seed test,
-the non-convergence finding, the `asc_car_passenger` solve — was measured at
-**1%**. If small-sample spillback is inflating car travel times, agents flee to
-the mode immune to the network, which is teleported `walk`; the discarded
-250-iteration runs showed walk at **0.38–0.55 against a 0.134 target**. That is
-an untested hypothesis, not a finding. The test is cheap and the design already
-supports it: the subsample nests, so 1% ⊂ 10% ⊂ 25% are three views of one
-population, and a mode share that moves with the fraction is a supply-side
-artefact rather than behaviour.
+**A correction, recorded because it was committed before it was tested.** An
+earlier revision of this section declared the exponent *assumed*, swept 0.75–1.0,
+and called it an open risk — the reasoning being that MATSim floors link storage
+at one vehicle, so a 1% sample would produce spurious spillback, inflate car
+travel times and drive agents to teleported `walk` (the discarded 250-iteration
+runs showed walk at 0.38–0.55 against a 0.134 target). **That reasoning is
+superseded.** The diagnostic run built to test it died in one second:
+
+> your storageCapFactor=0.0316228 is more than the relativeTolerance=0.0
+> different from the flowCapFactor=0.01. (The old approach of setting the stor
+> cap fact larger than the flow cap fact is no longer needed since the qsim
+> became a lot more deterministic.)
+
+Raising storage above flow is *older MATSim practice that this version rejects*.
+The declared sweep was therefore a range whose members the tool will not accept —
+exactly the undisciplined declaration the registry exists to prevent, introduced
+by the same change that introduced the registry. The field is now `derived` with
+the identity stated, `run_matsim.py` fails in 0.1 s rather than handing MATSim an
+inconsistent pair, and `check_package.py` asserts the equality instead of the
+sweep.
+
+**What survives the correction.** The question the exponent was a proxy for —
+whether behaviour moves with the **sample fraction**, given that every P4
+behavioural result was measured at 1% — is untouched, and is what the 1% versus
+10% arms of the diagnostic test. The mechanism is no longer a candidate
+explanation; the phenomenon, if there is one, still needs a cause.
 
 ### Note also the shipped configs
 

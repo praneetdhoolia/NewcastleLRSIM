@@ -1043,9 +1043,11 @@ if _registry is not None:
                  '' if not _problems else ': ' + _problems[0][:80]))
 
     # the two capacity factors that were previously set in code with no rationale
-    check(_fields['RUN.sample.storage_capacity_exponent'].get('sweep') is not None,
-          'the storage capacity exponent carries a sweep - it was previously set in '
-          'code with no rationale and no range (DECISIONS.md 15)')
+    _sce = _fields['RUN.sample.storage_capacity_exponent']
+    check(_sce.get('value') == 1.0 and 'derived_from' in _sce and _sce.get('sweep') is None,
+          'the storage capacity exponent is derived and pinned at 1.0, not swept: MATSim '
+          'rejects a storage factor different from the flow factor, so a sweep here would '
+          'declare values the tool will not accept (DECISIONS.md 15)')
     check('derived_from' in _fields['RUN.sample.flow_capacity_factor'],
           'the flow capacity factor states the identity it is derived from')
 

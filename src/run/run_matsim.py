@@ -87,14 +87,26 @@ def build_config(src_dir, run_dir, scenario, day, fraction, iterations, threads,
                 fwd(os.path.join(src_dir, 'transitSchedule.xml.gz')))
     text = setp(text, 'vehiclesFile', fwd(veh_dst))
     text = setp(text, 'inputPlansFile', fwd(plans_dst))
-    # Both factors are registry fields now. flowCapacityFactor is DERIVED - it
-    # equals the fraction, which is the standard MATSim rule and not a choice.
-    # storageCapacityFactor carries an exponent that IS a choice: at 1.0 it
-    # scales linearly, and MATSim floors link storage at one vehicle, so at a 1%
-    # sample most links hold one car regardless of length. See DECISIONS.md 15.
+    # Both factors are registry fields, and NEITHER is a choice. flowCapacityFactor
+    # equals the sample fraction, the standard MATSim scaling rule; storage equals
+    # flow, which MATSim enforces - it throws when the two differ by more than
+    # global.relativeTolerance (default 0.0), and states that raising storage above
+    # flow "is no longer needed since the qsim became a lot more deterministic".
+    # See DECISIONS.md 15.
     storage_exponent = cfg.get('RUN.sample.storage_capacity_exponent')
+    storage = fraction ** storage_exponent
+    if abs(storage - fraction) > 1e-12:
+        # Fail here, in 0.1 s, rather than in the JVM a second later: MATSim's
+        # GlobalConfigGroup.checkConsistency throws when the two factors differ
+        # by more than global.relativeTolerance, which defaults to 0.0.
+        raise SystemExit(
+            'storageCapacityFactor (%g) must equal flowCapacityFactor (%g). MATSim '
+            'enforces this and states that raising storage above flow "is no longer '
+            'needed since the qsim became a lot more deterministic". '
+            'RUN.sample.storage_capacity_exponent is 1.0 by derivation, not by '
+            'assumption - see DECISIONS.md 15.' % (storage, fraction))
     text = setp(text, 'flowCapacityFactor', '%.6g' % fraction)
-    text = setp(text, 'storageCapacityFactor', '%.6g' % (fraction ** storage_exponent))
+    text = setp(text, 'storageCapacityFactor', '%.6g' % storage)
     text = setp(text, 'lastIteration', iterations)
     text = setp(text, 'outputDirectory', fwd(os.path.join(run_dir, 'output')))
     text = setp(text, 'randomSeed', seed)
