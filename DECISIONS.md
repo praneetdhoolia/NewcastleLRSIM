@@ -1940,16 +1940,39 @@ unexamined default.
 
 ### What is declared but not yet consumed
 
-The **demand and network build layer** has not been migrated: `src/build/*.py`
-other than `build_sumo_corridor.py` still hold their own constants, and the
-registry declares the same values. Two copies of a number is
-exactly the drift this package cannot absorb, so
-`src/registry/check_legacy_drift.py` pins them together by test —
-**54 fields compared, one deliberate divergence, one expression that is not a
-literal**. Writing that check immediately found four values transcribed wrongly
-into the registry; the code was authoritative and the registry was corrected.
-The migration itself needs a full package rebuild to verify byte-identically and
-has not been run.
+**Superseded in part — see "The build layer, migrated" below.** The migration
+landed, so the drift check that pinned duplicate constants is now nearly empty by
+design: a migrated script reads the registry, and its duplicate constant was
+deleted along with the `legacy_symbol` that pinned it. **One field remains
+pinned**, one deliberately diverges. Writing that check originally found four
+values transcribed wrongly into the registry; the code was authoritative and the
+registry was corrected.
+
+**Of the 152 declared fields, 66 are referenced by no code in `src/` or
+`tests/`.** That is not drift and not a defect: a registry field is a
+*declaration* first — units, provenance and a sweep for a value the model relies
+on — and only a runtime lookup second. The 66 divide into three kinds, and the
+distinction matters:
+
+- **constraints**, which mirror a measured artefact rather than feed a script.
+  `C.constraint.*` declares occupancy (§9.8) and trip length and time (§9.13);
+  the values live in `params/C4_mode_constraints.json`, which is what `fit.py`
+  reads, and `check_package.py` pins declaration to artefact so they cannot
+  drift.
+- **values consumed through an intermediate artefact** rather than by key —
+  `B.counts.*` reaches `fit.py` through `params/C3_count_comparison.json`, for
+  instance.
+- **values genuinely not yet wired**, including the seven that carry no value at
+  all and must never be pinned (§0, §13).
+
+**A `consumers` entry is a machine-readable claim and is verified.** It asserts
+that a named file reads that field, and `check_package.py` now checks the file
+exists *and* references the key. An untrue claim is worse than an absent one: it
+makes a value look wired into the model when nothing reads it, which is the very
+drift the registry exists to prevent, asserted in the registry's own hand. Ten
+fields added at §9.13 named two readers that in fact read the C4 artefact; the
+check caught it, and every one of the sixty pre-existing claims was already
+true.
 
 ### The build layer, migrated (P6 cleared)
 
