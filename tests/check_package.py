@@ -1141,6 +1141,25 @@ if _registry is not None:
           'such, so a loop cannot be built on an unexamined default (issue 8)')
 
 
+    # A `consumers` entry is a MACHINE-READABLE CLAIM that a named file reads the
+    # field. An untrue one is worse than none: it makes a value look wired up when
+    # nothing reads it, which is precisely the drift the registry exists to stop.
+    # Ten fields declared in 9.13 claimed two readers that read the C4 artefact
+    # instead; caught by this check, which is why it exists.
+    _lies = []
+    for _k, _v in sorted(_fields.items()):
+        for _c in _v.get('consumers') or []:
+            if not os.path.exists(_c):
+                _lies.append('%s -> %s (no such file)' % (_k, _c))
+            elif _k not in open(_c, encoding='utf-8', errors='replace').read():
+                _lies.append('%s -> %s (does not reference the key)' % (_k, _c))
+    check(not _lies,
+          'every registry `consumers` entry is TRUE - the named file exists and '
+          'actually references the field key (%d claims across %d fields)%s'
+          % (sum(len(v.get('consumers') or []) for v in _fields.values()),
+             sum(1 for v in _fields.values() if v.get('consumers')),
+             '' if not _lies else ': ' + _lies[0]))
+
     # the build layer has NOT been migrated: those scripts still hold their own
     # constants and the registry declares the same values. Two copies of a number
     # is exactly the drift this package cannot absorb, so they are pinned together
