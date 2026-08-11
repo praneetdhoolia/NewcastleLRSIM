@@ -1,0 +1,21 @@
+{
+  "heavy_vehicle_share": {
+    "value": 0.0652,
+    "sweep": [
+      0.0129,
+      0.1529
+    ],
+    "source": "measured - NSW Roads traffic volume counts, LIGHT vs HEAVY VEHICLES classification, WEEKDAYS period, two-way",
+    "stations_observed": 23,
+    "stations_total": 119,
+    "calibration_stations_observed": 3,
+    "mean": 0.0776,
+    "note": "The model represents no freight. At the 23 stations with a classified count the station's own observed share is used; at the remaining 96 it is assumed, and the sweep is the observed range across the classified stations. Only 3 of the 34 calibration stations carry a classified count, so the assumed case is the usual one."
+  },
+  "vehicles_per_leg": {
+    "car": 1.0,
+    "ride": 0.0,
+    "source": "derived - HTS vehicle occupancy 1.3503 persons per vehicle (params/C4_mode_constraints.json) means observed vehicle trips ARE driver trips",
+    "note": "A passenger rides in a vehicle that is already counted, so the modelled vehicle count is the car legs alone and a ride leg correctly contributes none. This holds only while the modelled ride:car ratio matches the observed passenger:driver ratio, which is what DECISIONS.md 9.8 constrains asc_car_passenger to reproduce. What stays genuinely unmodelled is the escort trip: B2 generates none, so a driver travelling solely to carry someone else is absent. That is a stated limitation, not a fitted parameter."
+  }
+}

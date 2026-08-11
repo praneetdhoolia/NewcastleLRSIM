@@ -731,7 +731,7 @@ would pre-empt the question the model exists to answer.
 
 `build_matsim_plans.py` turns B2 into `population_v6` plans, one file per day
 type; `build_matsim_run_inputs.py` assembles a runnable scenario per
-(scenario × day type). 517,936 weekday persons, 2,188,436 legs, 2,706,372
+(scenario × day type). 521,502 weekday persons, 2,237,373 legs, 2,758,875
 activities.
 
 **Mode is seeded here, and only here.** B2 still carries no mode (§9.2), but a
@@ -829,6 +829,360 @@ area, so there is nothing local to derive them from. All are swept.
 | `monetaryDistanceRate` car | −0.00018 AUD/m | −0.00025 to −0.00012 | Fuel and tyres only, not standing costs: a mode choice within the day does not re-decide car ownership. Varies with national fuel prices, not with Newcastle. |
 | Typical activity durations | home 12 h, work 8 h, education 6 h, shopping 1 h, other 2 h, business 1 h | ±25% | MATSim scoring needs a typical duration per activity type. |
 | `SubtourModeChoice` weight | 0.10 | 0.05–0.20 | The replanning weight that governs how far the co-evolution can move mode share. Innovation is switched off for the last 20% of iterations. |
+
+## 9.4 The assembled run inputs did not load (P4 stage 0)
+
+P3 delivered 30 scenario × day-type input sets and verified them thoroughly *as
+data*: the day-type split partitions the mapped schedule exactly, all 1,714 route
+link sequences are byte-identical to source, the stop→link map is unchanged, no
+stop dangles, and the E1 patch reproduces the base build's counts. Every one of
+those statements is true. **None of the 30 sets could be loaded by MATSim**, and
+no check noticed, because every check treated the artefacts as tables to be
+audited rather than as files a simulator has to read.
+
+Found by launching one, not by re-reading the code. Three independent defects:
+
+| # | Defect | Reach | Symptom |
+|---|---|---|---|
+| 1 | The day-type filter round-trips the schedule through `ElementTree`, which **drops the doctype** | **all 30** schedules | MATSim selects its reader *from* the doctype; without it the parse fails at line 2 with a null-delegate `SAXParseException` |
+| 2 | Dropping two thirds of the routes **orphans the stop facilities and `minimalTransferTimes` relations only they used** — 113 facilities and 42 relations on S2/WEEKDAY, 2,193 and 1,034 on S0/SAT | **all 30** schedules | `SwissRailRaptorData.calculateRouteStopTransfers` dereferences a null array. The schedule stayed *smaller* but stopped being *referentially closed* |
+| 3 | The kerbside patch appends a **second `<attributes>` block** to links that already have one — and every mapped link has one, since `osm:way:id` is how the patch finds it | **6 of 10** run networks: S0, S1, S2c 59 links each, S4 302, S5 498, S6 59 | `More than one instance of element <attributes>`; the network DTD rejects it. S2/S2a/S2b/S3 escaped only because `net_base2026` is the observed network and carries no patch rows |
+
+Defect 3 is the one that would have been hardest to catch late: it strikes
+exactly the six scenarios that carry an E1 road change, i.e. every counterfactual
+that the corridor comparison depends on, and leaves the four that don't alone.
+
+**Fixed** in `build_matsim_run_inputs.py`: the doctype is written back
+explicitly, the filter prunes facilities and transfer relations down to what the
+surviving routes serve, and `set_link_attribute()` writes into a link's existing
+`<attributes>` block instead of adding another. The 30 sets rebuild
+byte-identically, the patch counts are unchanged (54 lanes / 59 kerbside /
+8 banned turns on the full-capacity variant), and all 30 now load and run in
+MATSim. `check_package.py` 556 → **657 checks**: doctype, orphaned facilities,
+dangling transfer relations and duplicate `<attributes>` are now asserted for
+every one of the 30 sets.
+
+**The lesson worth keeping:** "the artefact is internally consistent" and "the
+tool can read the artefact" are different claims, and P3 only tested the first.
+Nothing here changes a modelled value, a target or a falsification condition.
+
+## 9.5 What a run costs on one workstation — measured
+
+Measured, not estimated: S2 × WEEKDAY, nested deterministic subsamples (1% ⊂ 10%
+⊂ 25%, blake2b on person id, seed 20260810), 16 threads, `ride` teleported,
+peak working set sampled every 2 s. **24 cores, 63.5 GiB, no useful GPU** —
+MATSim will not touch one. The probe was driven by a throwaway script; the
+committed harness that reproduces these numbers lands with `src/run/`, which is
+still empty.
+
+| Sample | Persons | Iteration 0 | Steady per-iteration | Peak resident |
+|---|---:|---:|---:|---:|
+| 1% | 5,209 | 13.2 s | **9.8 s** | 9.8 GiB |
+| 10% | 52,758 | 43.4 s | **29.9 s** | 18.4 GiB |
+| 25% | 131,291 | 112.2 s | **~64 s** | 31.5 GiB |
+
+Both curves are close to linear in the sample fraction with a large fixed cost —
+the run network (**151,592 links / 70,146 nodes** for S2, of which 143,891 carry
+car and ride) and the raptor transfer table (**970,047 entries** for S2/WEEKDAY)
+are paid once regardless of how many agents exist:
+
+- time ≈ **3.1 s + 268 s × fraction** per iteration → **~4.5 min/iteration at 100%**
+- memory ≈ **9.6 GiB + 87 GiB × fraction** → **~97 GiB at 100%**
+
+**A 100% weekday run does not fit in 63.5 GiB.** The practical ceiling on this
+machine is about **40%** (≈45 GiB), and 25% is the largest fraction that leaves
+room to do anything else. Demand is built at 100% so this stays a run-time
+choice (§9.2), and this is that choice being made on measurement.
+
+Consequence for the load recorded in `STATUS.md`: 1,400 sweep runs + 300
+headline runs, each of which is really three day types, is 5,100 run-days. At
+25% that is ~3.6 h each — **about 765 days of wall clock**. The shortfall is
+roughly three orders of magnitude, so it is not closeable by tuning; it is
+closeable only by cutting sweep breadth, replications and day types. Sample
+fraction is the *weakest* of the available levers, because cost is sublinear in
+it and precision is not.
+
+## 9.6 Mode choice was not choosing, and the seed is now uninformed (P4 stage 0)
+
+Three things about the shipped configuration only became visible by running it.
+
+**Defect 4: `ride` was declared a network mode that no link permitted.** The
+config set `qsim.mainMode=car,ride` and `routing.networkModes=car,ride`, but the
+mapped network permits `car`, never `ride`. MATSim reports
+`checking 0 nodes and 0 links for dead-ends` for mode `ride` and then throws in
+`PrepareForSim`. **The shipped config could not run even after §9.4's three
+schedule and network defects were fixed** — this is the fourth, and it lived in
+the config rather than in the data, which is why the load test in §9.4 did not
+see it: that test overrode the mode handling in order to exercise the artefacts.
+
+**Defect 5: `ride` was not in MATSim's choice set, so its share was an output
+equal to its seed.** `subtourModeChoice` was never configured, so MATSim's
+default applied: `modes=car,pt,bike,walk` with
+`behavior=fromSpecifiedModesToSpecifiedModes`. A subtour whose mode is `ride` is
+not in the specified set, so it is never offered an alternative — an absorbing
+state. Measured over 30 iterations at 1%, `ride` sat at **0.18311 in every single
+iteration**, to five decimal places. **18.6% of legs were an input wearing the
+costume of a result**, and the HTS vehicle-passenger target (20.6%) could only
+ever have been "met" by whatever the seed happened to be.
+
+**Defect 6: car availability was ignored.** `considerCarAvailability` defaults to
+`false`, so an agent B1 records as having no car could be assigned one by mode
+choice. B1 synthesises car availability and the seed was drawn conditional on it;
+the choice model then discarded the structure.
+
+### What changed
+
+| | Was | Now |
+|---|---|---|
+| `qsim.mainMode` | `car,ride` | **`car`** — a car passenger is not a second vehicle |
+| Link `modes` | `car` | **`car,ride`** on 143,891 links, so `ride` is *routed* on the road network and gets a congested travel time rather than a beeline guess |
+| `travelTimeCalculator` | default (per-mode) | **`separateModes=false`, `analyzedModes=car`** — no ride vehicle is ever observed, so ride reads the car travel times instead of falling back to free speed |
+| `subtourModeChoice.modes` | default `car,pt,bike,walk` | **`car,ride,pt,bike,walk`** |
+| `subtourModeChoice.considerCarAvailability` | default `false` | **`true`** |
+| Seed mode split | positioned near the HTS aggregate | **uninformed**, uniform over the modes each person can use |
+
+Verified: the shipped config now runs unmodified, the ride subnetwork has 143,891
+links, and `ride` moves — 0.1941 → 0.1975 → 0.1983 → 0.2048 over the first four
+iterations, where before it did not move at all.
+
+**Ride occupies no road capacity.** It is routed but teleported, so a car
+passenger adds no vehicle. That is right when the driver is separately modelled
+and wrong when they are not, and B2 does not generate escort trips, so modelled
+link volumes are biased *low* against an observed all-vehicle count. Together
+with the freight the model omits, this is why the traffic-count comparison
+carries explicit corrections (§12.2a) rather than a fitted constant.
+
+### The seed is now uninformed
+
+The P3 seed was positioned so the blended share landed near the HTS aggregate
+(car 55.7 against 57.5, pt 4.0 against 3.4), on the reasonable ground that
+starting far from the observed point wastes iterations. That is a fine
+convergence aid and a poor initial condition for a calibration whose target *is*
+the HTS mode share.
+
+The seed is now **uniform over the modes each person can use**, conditioned only
+on B1 car availability — a population attribute, not a behavioural prior.
+Realised: car **14.3%**, and about 21.4% each for bike, pt, ride and walk,
+against an HTS car share of 59%. It is deliberately a bad guess.
+
+| | Uninformed (default) | Informed (P3, retained) |
+|---|---:|---:|
+| car | 14.3% | 55.7% |
+| ride | 21.4% | 18.5% |
+| walk | 21.4% | 19.3% |
+| pt | 21.5% | 4.0% |
+| bike | 21.4% | 2.5% |
+
+The informed seed is **kept**, selectable with
+`build_matsim_plans.py --seed-mode informed`, so that "the answer does not depend
+on the initial condition" is a claim that can be **tested by running both** rather
+than asserted. §9.7 reports that test.
+
+## 9.7 The seed test, and a model that does not converge (P4 stage 0)
+
+Two 1% runs of 250 iterations, S2 × WEEKDAY, identical in every respect except
+the initial mode draw. 2,205 s and 2,419 s wall, run concurrently.
+
+| Iteration | Uninformed car / ride | Informed car / ride |
+|---:|---|---|
+| 0 | 0.143 / 0.223 | 0.564 / 0.183 |
+| 50 | 0.182 / 0.401 | 0.374 / 0.375 |
+| 100 | 0.178 / 0.508 | 0.291 / 0.491 |
+| 150 | 0.166 / 0.573 | 0.241 / 0.561 |
+| 200 | 0.153 / 0.619 | 0.202 / 0.609 |
+| **250** | **0.147 / 0.664** | **0.201 / 0.649** |
+
+**Finding 1 — the seed's influence decays but has not vanished.** The two starts
+differ by **42.1 pp** on car share; at iteration 250 they differ by **5.4 pp**
+(ride 1.5 pp, pt 1.0 pp, walk 1.1 pp, bike 1.8 pp). So 87% of the initial gap
+closes, and the remaining 5.4 pp cannot be attributed to the seed rather than to
+finding 2. The defensible statement is **"the seed's influence decays strongly and
+is not yet eliminated at 250 iterations"** — not "the seed does not matter".
+
+**Finding 2 — the model has not converged, and is not close.** MATSim switched
+innovation off at iteration 200 (`fractionOfIterationsToDisableInnovation=0.8`),
+after which no new plans are created and agents only re-select among the five
+they already hold. Ride share still moved **0.619 → 0.664** over those last 50
+iterations. A system that keeps drifting after its search is switched off has not
+relaxed. **`lastIteration=100` is not merely unvalidated; it is far too low, and
+250 is also too low.** The default is left at 100 rather than replaced with
+another number that cannot be justified, and `check_package.py` now emits a
+standing warning to that effect on every run of the suite.
+
+**Finding 3 — the attractor is wrong, and it is a specification problem.** Both
+runs converge toward **ride ≈ 65%, car ≈ 15–20%**, against an HTS calibration
+target of ride 20.6% and car 59.0%. In MATSim, `ride`:
+
+* has **no driver-availability constraint** — nothing requires a driver to exist,
+  so every agent can be a passenger simultaneously;
+* is charged **half** the distance cost of car (−9e-05 against −0.00018 AUD/m),
+  on a cost-sharing assumption nothing else in the model represents;
+* consumes no road capacity, so it never congests itself.
+
+Against all that, the only thing restraining it is `asc_car_passenger = −0.85`.
+Findings 2 and 3 are probably the same fact: a mode that strictly dominates
+drives the co-evolution toward a corner, and corner solutions relax slowly.
+
+**This runs directly into §8.5.** Pulling ride from 65% to 20.6% by fitting
+`asc_car_passenger` is exactly the ASC absorption proposal §9 names as the
+primary threat to validity, and §8.5 forbids it without a departure logged
+**before results are seen** — which is now. The candidates, and none is chosen
+here:
+
+1. **Charge `ride` the same distance cost as car.** A passenger's trip burns the
+   same fuel; halving it models an intra-household transfer the rest of the model
+   does not have. A specification fix that leaves the ASCs alone and keeps §8.5
+   intact.
+2. **Estimate the ASCs on era 3 (2018) and hold them fixed**, which is what §8.5
+   actually prescribes and what has never been attempted. Note that era 3
+   predates the light rail, so it cannot identify `asc_lr` at all.
+3. **Calibrate `asc_car_passenger` freely**, logging the departure from §8.5 here
+   first.
+
+Nothing downstream of this should be built until it is settled, because the
+choice determines what the calibration loop is allowed to move.
+
+## 9.8 The ride constant is constrained to observed vehicle occupancy
+
+§9.7 left three options open and none chosen. This is the resolution, and it is
+the second branch §8.5 already permits — *"or constrain them and report the
+constraint"* — with the constraining quantity measured rather than picked.
+
+### The model produced a physically impossible car
+
+At `asc_car_passenger = −0.85` the model settled at **4.52 ride legs per car
+leg**: an implied **5.52 people per vehicle**. A car has about five seats. The
+observed Newcastle figure, from the HTS vehicle driver and vehicle passenger trip
+counts, is **1.3503** — and it is stable:
+
+| Financial year | Driver trips | Passenger trips | Occupancy |
+|---|---:|---:|---:|
+| 2016/17 | 334,000 | 106,000 | 1.3174 |
+| 2017/18 | 303,000 | 86,000 | 1.2838 |
+| 2018/19 | 337,000 | 84,000 | 1.2493 |
+| 2019/20 | 348,000 | 99,000 | 1.2845 |
+| 2022/23 | 335,000 | 132,000 | 1.3940 |
+| 2023/24 | 317,000 | 109,000 | 1.3438 |
+| **2024/25** | 334,000 | 117,000 | **1.3503** |
+
+Both quantities are ratios of two published counts. `src/calibrate/measure_mode_constraints.py`
+derives them into [`params/C4_mode_constraints.json`](params/C4_mode_constraints.json);
+the sweep is **1.2493–1.3940**, the observed spread across all seven survey years
+in the file, not an interval anyone chose.
+
+### First, a double charge removed
+
+`ride` was charged **half** the car distance rate — −9e-05 against −0.00018. That
+half was typed in, not derived, and it double-counts: a vehicle's operating cost
+is paid once, and at an occupancy of 1.35 charging both driver and passenger
+makes the model's aggregate vehicle operating cost about 1.35× the real one. The
+only value derivable from the data is **zero** — the driver, who is separately
+modelled, already carries it.
+
+This makes `ride` free at the margin, and that is the point: it moves the whole
+burden of pinning ride's share onto one constant, in the open, instead of
+splitting it between a constant and a cost share that was invented.
+
+### Then the constant, solved against the observed ratio
+
+`src/calibrate/solve_asc_ride.py` runs candidate values of `asc_car_passenger`
+and interpolates on log(ride ÷ car legs) — the scale on which a logit constant
+acts linearly — to the observed passenger:driver ratio of **0.3503**. It reads
+`C4` and its own runs' `modestats.csv`; **it never opens the validation targets
+at all**, so it cannot touch a holdout row even by accident.
+
+### Why this is not ASC absorption
+
+Proposal §9 names ASC absorption as the primary threat: *calibrating mode
+constants to observed patronage fits away the effect under test*. The distinction
+that makes this admissible:
+
+* the constrained constant is **car passenger**. `asc_lr`, `asc_bus` and
+  `asc_rail` stay at their §8.5 priors and are not touched;
+* the constraining quantity is **vehicle occupancy** — how many people fit in a
+  car — not light rail patronage, not PT mode share, not any quantity the
+  hypotheses in proposal §3 turn on;
+* it is a **physical** constraint. The unconstrained model was not merely fitting
+  badly, it was putting 5.5 people in a car.
+
+The solved value is reported as a constraint, never presented as an estimate of
+Newcastle's taste for being a passenger, and both the value and the observed
+range it was solved against travel with every result that uses it.
+
+### What this does not fix
+
+The solve is run at a fixed 250-iteration protocol, which §9.7 shows is **not
+equilibrium**. It must be re-solved once the iteration count is settled, and the
+value below is provisional until then. Whether constraining ride also cures the
+non-convergence — the two are plausibly the same problem, since a dominating mode
+drives the co-evolution to a corner and corners relax slowly — is measured by the
+same runs.
+
+## 9.9 The with-tram scenario had no tram on a weekday (P4 stage 1)
+
+Found while building `src/analyse/extract_metrics.py`: the extractor reported
+**zero light rail boardings** for S2 × WEEKDAY. Not few — zero.
+
+`S2.zip` carries 550 light rail trips, of which **252 are weekday** on a
+`service_id=WEEKDAY` running Monday to Friday. The mapping keeps all 550. But
+the mapped schedule has exactly **two** light rail `transitRoute`s, named
+`lightrail:SAT.69659…` and `lightrail:SUN.72626…`, and **each carries 275
+departures: 74 Saturday, 75 Sunday and 126 weekday.**
+
+**pt2matsim groups trips into a `transitRoute` by stop sequence, not by
+service.** A route is therefore *not day-type homogeneous*, and the day-type
+filter keyed on the **route id**. So:
+
+* every weekday run dropped both light rail routes — the **with-tram scenario
+  had no tram** — and a weekday S2-versus-S0 comparison would have measured the
+  effect of nothing at all;
+* Saturday and Sunday each received all 275 departures, roughly **3.7×** the
+  real light rail service.
+
+It is not confined to the light rail. Across S2's 1,714 routes:
+
+| | |
+|---|---:|
+| Routes whose departures span more than one day type | **233 (13.6%)** |
+| Departures placed in the wrong day type | **1,261 of 4,269 (29.5%)** |
+| True weekday departures vs delivered | 2,139 vs **1,747** (18% short) |
+| True Saturday vs delivered | 1,128 vs **1,330** (18% over) |
+| True Sunday vs delivered | 1,002 vs **1,192** (19% over) |
+
+### Why the existing check passed
+
+§9.3 called the one-build constraint "discharged structurally" and
+`check_package.py` asserted that the split **partitions the route set exactly** —
+1,231 + 291 + 192 = 1,714. That was true, and it was the wrong invariant.
+Partitioning routes is not partitioning service when a route is not
+day-type homogeneous. The check confirmed an arithmetic identity while 29.5% of
+the service was in the wrong place.
+
+### The fix
+
+`split_schedule` now filters **departures** by their own day token and keeps a
+route if it retains any, so a route named after a Saturday trip still carries its
+126 weekday departures into the weekday run. This still operates on the
+already-mapped schedule — no feed is re-mapped, no link sequence is touched — so
+§3.5 holds exactly as before.
+
+Verified: light rail now has **252 weekday, 148 Saturday, 150 Sunday**
+departures, matching the GTFS calendar exactly, and every scenario's departures
+partition its source total precisely.
+
+Two checks replace the one that passed:
+
+1. the split partitions **departures** exactly, and every departure is kept in
+   exactly one day type and dropped from the other two;
+2. **the intervention is present with departures in every day type** — per
+   scenario, the light rail line for S2/S2a/S2b/S2c/S4/S5, the shuttle for S1,
+   the BRT for S3, and correctly nothing for the S0 and S6 counterfactuals. A
+   generic partition count cannot see a missing tram; this can.
+
+**Nothing that had been run on the old inputs was kept.** The three
+`asc_car_passenger` candidate runs in flight were discarded rather than reported,
+because a solve calibrated on a network with no weekday tram is a solve of a
+different model.
 
 ---
 
@@ -931,6 +1285,145 @@ pandemic-suppressed PT market. Because all scenarios share that demand, the
 *comparison* between scenarios remains valid; the *absolute* patronage levels do
 not transfer to a pre-2020 world. Every headline should state which it is.
 
+### 12.1 What the 67 calibration targets can actually constrain (P4 stage 0)
+
+The split is 67/143 and stays 67/143. But 67 targets is not 67 pieces of
+information, and P4 has to say so before fitting anything to them.
+
+| Block | n | What it can identify |
+|---|---:|---|
+| `road_aadt` | 34 | Car demand and assignment — **once the values are repaired, see below** |
+| `lr_cardtype_share` | 13 | **Nothing.** MATSim has no fare-product dimension, and 31.7% of the mix is `CTP` — contactless payment, an instrument rather than a person attribute, so it is not even decomposable into age bands. Three of the 13 are 0.0 or 0.01 |
+| `hts_mode_share` | 12 | Two mutually incompatible vintages: 2018/19 uses `Bus`/`Train`/`Vehicle Driver`, 2024/25 uses `Public transport`/`Vehicle driver`. The base year is 2026, so only the **2024/25 six** apply; `Walk linked` is structurally 0.0 and the remainder sum to 100, leaving **4 free degrees of freedom** |
+| `lr_boardings_*` | 3 | V001 and V002 are the **same datum** (3,417/day = 103,892 ÷ 30.4). Both are Mar 2019 – Feb 2020, the pre-pandemic market. Only **V003** (83,753/month, 2025-07 onward) belongs to a 2026 base |
+| `bus_boardings_monthly_mean` | 1 | 2019 only. There is **no contemporary bus target** in the pre-registered set, though the package holds the NISC 1 series to Jun 2026 (222,616/month). **Deliberately not added** — see §12.4 |
+| `lr_share_of_local_pt_boardings` | 1 | **Nothing new** — it is algebraically V001 ÷ (V001 + V023). This is the 20.8% figure, and it is *not* hypothesis A1's metric (see the note above) |
+| `lr_scheduled_runtime` | 2 | Two identical duplicates of a **schedule input**. MATSim runs transit on the schedule, so it reproduces 12.00 min by construction. This is a SUMO corridor target, not a MATSim one |
+| `lr_alignment_length` | 1 | Geometry, already satisfied by the network build |
+
+**Effective independent information: about 4 mode-share degrees of freedom, one
+contemporary light rail patronage level, and 34 traffic counts.** Any fit
+statistic P4 reports must name the targets it was computed over, because "fits
+67 targets" would be a much stronger claim than the data supports.
+
+**The mode-share targets are Newcastle LGA; the model is five LGAs.** The fit
+has to be computed over trips made by Newcastle-LGA residents, not over the whole
+synthetic population. `build_matsim_plans.py` positioned its seed against a
+*five-LGA* HTS aggregate (car 57.46 / ride 21.46 / walk 16.14 / pt 3.39), which
+is a different quantity from the target (59.0 / 20.6 / 13.4 / 3.8).
+
+### 12.2 The `road_aadt` target values are the mean of incompatible periods
+
+`build_validation_targets.py` filters the RMS counts on classification and
+direction but **never on `period`**, then takes the station mean. Each target is
+therefore the average of `ALL DAYS`, `AM PEAK`, `OFF PEAK`, `PM PEAK`,
+`WEEKDAYS`, `WEEKENDS` and — where present — `PUBLIC HOLIDAYS`: daily totals
+averaged together with peak-period counts. It is not a quantity with a physical
+meaning.
+
+Station 55710, 2021: true `ALL DAYS` = **50,133** veh/day; recorded target
+**33,114**. Across all 119 stations the recorded value is **0.58–0.71×** the true
+`ALL DAYS` figure (calibration mean 0.660, holdout 0.656). Because the number of
+period rows varies by station it is not even a constant rescaling, so it cannot
+be absorbed by a calibration constant.
+
+The raw layer already carries the fix: the `WEEKDAYS` period is present for **all
+119** stations, which is the right basis for a weekday run, and `LIGHT`/`HEAVY
+VEHICLES` classification exists for 23 of them (weekday heavy share median 6.5%,
+range 1.3–15.3%) — a measured handle on the freight the model does not
+represent, though only **3 of the 34 calibration stations** have it, so the rest
+would have to be modelled and swept.
+
+**Repaired.** `build_validation_targets.py` now filters on `period` and uses
+**`WEEKDAYS`**, two-way, all classes — published for every one of the 119
+stations, and the basis that matches the day type the model runs. `ALL DAYS` is
+carried alongside in `road_aadt_targets.csv` so the weekday choice stays visible
+rather than baked in, and the observed `LIGHT`/`HEAVY VEHICLES` counts are
+carried per station with a `heavy_share_source` of `observed` (23 stations) or
+`not_classified_at_this_station` (96), so the freight the model does not
+represent is never silently taken to be zero.
+
+Effect of the repair, measured against the old file: **119 values changed and
+nothing else did.** Same 210 targets, same ids, same geographies, same metrics,
+**same 67/143 split** — the AADT split rule is structural (`permanent_station` →
+calibration, sample station → holdout) and never depended on the value. New
+values run 1.43–1.87× the old ones (median 1.64); station 55710, 2021 is now
+**53,721 veh/weekday** where it was recorded as 33,114 (and its `ALL DAYS` figure
+is 50,133 — a weekday is busier than the all-day average, as it should be).
+
+`check_package.py` now asserts the split **exactly** at 67/143 rather than merely
+"both non-empty", asserts that every `road_aadt` target names the period it was
+measured over, and asserts the heavy-share provenance label. A target that does
+not say what it is a count *of* is not a target.
+
+### 12.2a The heavy-vehicle and unmodelled-vehicle corrections
+
+The model carries no freight and generates no escort trips, so a modelled link
+volume is not directly comparable to an observed all-classes count. The
+corrections apply **at comparison time**, to the comparison and not to the model,
+and are written to [`params/C3_count_comparison.json`](params/C3_count_comparison.json)
+by `build_validation_targets.py` rather than left in prose, so the sweep-range
+rule can be tested rather than trusted.
+
+| Correction | Value | Range | Basis |
+|---|---|---|---|
+| Heavy-vehicle share, where the station carries a classified count | the station's **own observed** share | — | 23 of 119 stations (weekday, two-way): median **0.0652**, mean 0.0776 |
+| Heavy-vehicle share, where it does not | **0.0652** (median) | **0.0129–0.1529** | The observed range across those 23. Only **3 of the 34 calibration stations** are classified, so this assumed case is the usual one |
+| Vehicles per person-trip by car | **1 vehicle per `car` leg, 0 per `ride` leg** | occupancy **1.2493–1.3940** | Derived, not assumed. HTS observes 1.3503 persons per vehicle (§9.8), i.e. **vehicle trips = driver trips**: passengers ride in vehicles that are already counted. So the modelled vehicle count is the `car` legs alone, and a `ride` leg correctly adds none — *provided* the modelled ride:car ratio matches the observed passenger:driver ratio, which is what §9.8 constrains it to |
+
+The third replaces what an earlier draft of this section left as a bare 0–1
+interval for "the share of ride legs whose driver is not otherwise modelled".
+That framing was wrong: the HTS occupancy figure settles it. Because observed
+vehicle trips *are* driver trips, teleporting `ride` is the correct treatment for
+a count comparison, and the residual error is not an unknown share but the gap
+between the modelled and observed passenger:driver ratio — which is measurable,
+and is the thing §9.8 pins. What remains genuinely unmodelled is the **escort
+trip**: B2 generates none, so a driver making a trip solely to carry someone else
+is absent from both the `car` legs and the counts' explanation. That is a stated
+limitation, not a fitted parameter.
+
+Both corrections must be reported with the fit, never folded silently into a
+calibrated constant.
+
+### 12.3 The AADT holdout is a 2008–2010 snapshot
+
+Survey years behind the traffic-count targets:
+
+| Split | n | Years |
+|---|---:|---|
+| Calibration (permanent stations) | 34 | 2014×2, 2015×2, 2016×4, 2017×2, **2018×18**, 2020×3, 2021, 2024, 2025 |
+| Holdout (sample stations) | 85 | **2007×2, 2008×21, 2010×62** |
+
+Every holdout traffic count is at least fifteen years old, and they are 85 of the
+143 holdout targets. The holdout remains untouched and unpeeked, but it should be
+described for what it is: a 2008–2010 traffic snapshot plus stop-level Opal, not
+a contemporary test set.
+
+### 12.4 A contemporary bus target was considered and rejected
+
+The only bus patronage target in the pre-registered set is Mar 2019 – Feb 2020
+(395,539/month), i.e. pre-pandemic, while `bus_monthly_series.csv` runs to
+Jun 2026 (222,616/month). Adding the current figure was considered — the timing
+would have been legitimate, since nothing has been run and an amendment declared
+before the first result is not goalpost-moving.
+
+**It was not added, because it would identify nothing.** MATSim's scoring
+collapses every public transport service into a single mode `pt` with a single
+alternative-specific constant (§9.3 — bus, light rail and heavy rail have no
+separate `modeParams`). There is therefore no parameter in the model that a bus
+patronage level could pin down which the light rail level and the PT mode share
+do not already pin down; a fourth PT aggregate would add a row to the fit
+statistic and no information to the fit. Amending a pre-registration for that
+trade is a bad bargain.
+
+The contemporary figure will instead be reported as a **labelled post-hoc
+diagnostic** alongside the calibration, clearly outside the 210. The
+pre-registered set stays at 210 targets, 67/143.
+
+If a later change gives bus and light rail distinct scoring constants — which
+would require a MATSim mode-vehicle extension, not a config edit — this decision
+should be revisited, because at that point the bus level *would* be identifying.
+
 ---
 
 ## 13. Outstanding data tasks, in priority order
@@ -969,6 +1462,7 @@ not transfer to a pre-2020 world. Every headline should state which it is.
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | **P4 stage 0 — the assembled run inputs did not load, and what a run actually costs (§9.4, §9.5, §12.1–12.3).** MATSim was pointed at `scenarios/matsim/S2/WEEKDAY/` and refused it. Three independent defects, none visible to a check that treats the artefacts as data: the day-type filter dropped the doctype MATSim selects its reader from (all 30 sets); it left stop facilities and `minimalTransferTimes` relations orphaned by the routes it removed, which makes SwissRailRaptor dereference a null array (all 30); and the kerbside patch appended a second `<attributes>` block to links that already had one, invalidating **6 of the 10** run networks — precisely the six carrying an E1 road change. Fixed, rebuilt byte-identically with the patch counts unchanged, and **all 30 sets now load and run**. `check_package.py` 556 → **657 checks**, with the three failure modes asserted per set. Run cost measured on this machine rather than estimated: **9.8 s/iteration at 1%, 29.9 s at 10%, ~64 s at 25%**, memory 9.8/18.4/31.5 GiB, extrapolating to ~4.5 min and ~97 GiB at 100% — so **a 100% weekday run does not fit in 63.5 GiB** and the specified 5,100 run-days is ~765 days of wall clock. Also recorded, without acting on either: 13 of the 67 calibration targets (`lr_cardtype_share`) can identify nothing in MATSim and several others are duplicates or schedule inputs, leaving ~4 mode-share degrees of freedom + 1 patronage level + 34 counts; and the 119 `road_aadt` values are the mean of `ALL DAYS` with the peak-period rows, 0.58–0.71× the true figure. **The 67/143 split is untouched, no holdout value was used, no target value was changed and no falsification condition altered. Still no scenario run.** |
 | 2026-08-10 | **P3 stage 3 — assumptions replaced by Newcastle measurements where the data allows, and the sweep-range rule made mechanical.** Three constants derived rather than typed: the **detour factor** is now routed over the observed A1 road graph (**1.3376**, 551 zone pairs, was assumed 1.30); the **weekday/weekend travel split** comes from the RMS counts' own `WEEKDAYS`/`WEEKENDS` periods (**0.752**, 551 station-years, was implied 0.825); and census G62 gives an observed **lower bound** on work attendance (0.651) without being allowed to set the value, since census night carries the 2021 lockdown (§2.4). Seven parameters that breached proposal §8.1 by carrying no sweep range now carry one, and `check_package.py` **enforces the rule as a test** rather than leaving it to discipline. What genuinely cannot be localised is labelled so: MATSim's `performing`, distance rates, typical durations and replanning weights are properties of the scoring formulation, not of Newcastle. `EXTERNAL_INTERACTION_RATE` stays swept and the missing ABS journey-to-work origin-destination table is added to §13. 497 → **556 checks**, all passing. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 2 — MATSim plans, day-type run inputs and the C1 scoring translation (§9.3).** 517,936 weekday agents wired to the single P2 build; the day-type filter works on the already-mapped schedule and is verified to preserve all 1,714 route link sequences and the whole stop→link map. What C1 loses in translation — the nest structure, per-purpose VOT, crowding — is recorded, not dropped. Two defects caught by the new checks: the day-type token is underscore-delimited for the S1 shuttle and S3 BRT, so both were being dropped from every day type and each scenario would have run without its intervention; and banned-turn removal was network-wide, deleting 1,235 observed restrictions instead of 8. `check_package.py` 322 → **497 checks**, all passing. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 1 — B2 activity chains rebuilt as tours (§9.2).** The P1 chains put 1,452,065 activity legs on 1,481 zone centroids, labelled every return-home leg NHB, and gave each agent a single subtour; they are replaced, not patched. Destinations are now placed on observed POIs and building footprints, the gravity decay is solved against the HTS journey distance per purpose, three day types are produced, and the 201 external SA1s finally generate boundary demand. `build_population.py` keeps B1 and no longer writes B2; because it no longer draws for chains, the B1 sample shifted 612,680 → 612,668 persons with every fit statistic unchanged. Still no scenario run; no falsification condition altered. |

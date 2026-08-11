@@ -159,11 +159,93 @@ ch = sorted({float(r['dwell_charging_s']) for r in sw})
 check(0.0 in ch, 'charging dwell sweep includes 0 (the S2a case)')
 
 # ---- 7. validation split fixed ----
+# The split is pre-registered at 67/143 and fixed before any scenario is run
+# (DECISIONS.md 12, proposal s9). It is asserted exactly, not loosely: the point
+# of pre-registering it is that it cannot drift, and a target value being
+# corrected (as the road_aadt values were, DECISIONS.md 12.2) must not move a
+# single target between the two sets.
+CALIBRATION_N, HOLDOUT_N = 67, 143
 vt = rows('data/processed/validation/validation_targets.csv')
 sp = collections.Counter(r['split'] for r in vt)
-check(sp['holdout'] > 0 and sp['calibration'] > 0,
-      'validation targets split into calibration (%d) and holdout (%d)'
-      % (sp['calibration'], sp['holdout']))
+check(sp['calibration'] == CALIBRATION_N and sp['holdout'] == HOLDOUT_N,
+      'validation split is the pre-registered %d calibration / %d holdout '
+      '(found %d / %d)' % (CALIBRATION_N, HOLDOUT_N,
+                           sp['calibration'], sp['holdout']))
+check(len(vt) == CALIBRATION_N + HOLDOUT_N,
+      'validation target set is the pre-registered %d targets (found %d)'
+      % (CALIBRATION_N + HOLDOUT_N, len(vt)))
+check(len({r['target_id'] for r in vt}) == len(vt),
+      'every validation target has a unique id')
+
+# A traffic count is only a target if it says which period it is a count *of*.
+# The first cut averaged ALL DAYS with the peak-period rows and produced a
+# number with no physical meaning (DECISIONS.md 12.2), which no structural check
+# could see because the arithmetic was internally consistent.
+_aadt_t = [r for r in vt if r['metric'] == 'road_aadt']
+check(bool(_aadt_t) and all('period=' in r['note'] for r in _aadt_t),
+      'every road_aadt target names the period it was measured over (%d)'
+      % len(_aadt_t))
+check(all(r['unit'] == 'vehicles/weekday' for r in _aadt_t),
+      'road_aadt targets are on a stated weekday basis, matching the day type '
+      'the model runs')
+_aadt_rows = rows('data/processed/validation/road_aadt_targets.csv')
+check(all(r['heavy_share_source'] in ('observed', 'not_classified_at_this_station')
+          for r in _aadt_rows),
+      'every traffic-count station declares whether its heavy-vehicle share is '
+      'observed or absent, so the freight the model omits is never silently '
+      'assumed to be zero')
+_obs_heavy = [r for r in _aadt_rows if r['heavy_share_source'] == 'observed']
+check(all(0.0 < float(r['heavy_share']) < 0.5 for r in _obs_heavy),
+      'observed heavy-vehicle shares are plausible (%d stations)'
+      % len(_obs_heavy))
+
+# The corrections applied when comparing a modelled link volume to an observed
+# count are a parameter artefact, not prose, so the sweep-range rule applies to
+# them like any other assumed value (DECISIONS.md 12.2a).
+C3 = 'params/C3_count_comparison.json'
+if check(os.path.exists(C3), 'count-comparison corrections present (%s)' % C3):
+    c3 = json.load(open(C3, encoding='utf-8'))
+    hv = c3.get('heavy_vehicle_share', {})
+    check(hv.get('source', '').startswith('measured'),
+          'heavy-vehicle share is measured from the classified counts, not '
+          'assumed (%s)' % hv.get('source', '')[:60])
+    lo, hi = (hv.get('sweep') or [None, None])
+    check(lo is not None and hi is not None and lo < hv.get('value', -1) < hi,
+          'heavy-vehicle share carries a sweep range that brackets its value '
+          '(%s in %s)' % (hv.get('value'), hv.get('sweep')))
+    obs_n = {float(r['heavy_share']) for r in _obs_heavy}
+    check(bool(obs_n) and abs(min(obs_n) - lo) < 1e-6 and abs(max(obs_n) - hi) < 1e-6,
+          'the heavy-vehicle sweep is the observed range across the classified '
+          'stations, not a chosen interval')
+    vp = c3.get('vehicles_per_leg', {})
+    check(vp.get('car') == 1.0 and vp.get('ride') == 0.0
+          and vp.get('source', '').startswith('derived'),
+          'the modelled vehicle count is derived from observed occupancy - a '
+          'car leg is one vehicle, a ride leg none, because observed vehicle '
+          'trips are driver trips')
+
+# The constraint on asc_car_passenger is a measured ratio of two published HTS
+# counts, and the value it may take is bounded by what the survey observed -
+# not by what would make the fit look good (DECISIONS.md 9.8).
+C4 = 'params/C4_mode_constraints.json'
+if check(os.path.exists(C4), 'observed mode constraints present (%s)' % C4):
+    c4 = json.load(open(C4, encoding='utf-8'))
+    check(c4.get('source', '').startswith('measured'),
+          'vehicle occupancy is measured from HTS trip counts, not assumed')
+    occ = c4.get('vehicle_occupancy', {})
+    lo, hi = (occ.get('sweep') or [None, None])
+    years = c4.get('by_year_newcastle', {})
+    obs = sorted(v['occupancy'] for v in years.values())
+    check(bool(obs) and abs(obs[0] - lo) < 1e-6 and abs(obs[-1] - hi) < 1e-6,
+          'the occupancy sweep is the observed spread across all %d survey '
+          'years, not a chosen interval' % len(obs))
+    check(1.0 < occ.get('value', 0) < 5.0,
+          'the occupancy constraint is physically possible (%.4f persons per '
+          'car)' % occ.get('value', -1))
+    check(c4.get('constrains') == 'asc_car_passenger'
+          and 'asc_lr' in c4.get('constraint_rule', ''),
+          'the constraint names the constant it binds and records that the PT '
+          'constants are NOT touched, so the effect under test is untouched')
 
 # ---- 8. assumed values carry sweep ranges ----
 c1 = rows('params/C1_behavioural_parameters.csv')
@@ -478,6 +560,12 @@ if not os.path.exists(PLANS_REPORT):
 else:
     prep = json.load(open(PLANS_REPORT, encoding='utf-8'))
     hts_share = prep.get('hts_mode_share_pct', {})
+    tgt_share = prep.get('hts_calibration_target_pct', {})
+    check(bool(tgt_share) and 'linked' in prep.get('hts_calibration_target_source', ''),
+          'the HTS calibration target is recorded as the linked Newcastle-LGA '
+          'aggregate, derived from the HTS file rather than typed in')
+    check(bool(prep.get('hts_mode_share_pct_source')),
+          'the five-LGA unlinked HTS aggregate records which aggregation it is')
     for day, v in prep.get('by_day', {}).items():
         pth = 'demand/plans/matsim/population_%s.xml.gz' % day
         if not check(os.path.exists(pth), 'MATSim population present for %s' % day):
@@ -489,17 +577,37 @@ else:
         seed = v.get('seed_mode_share', {})
         check(abs(sum(seed.values()) - 1.0) < 1e-3,
               '%s: seed mode shares sum to 1' % day)
-        # a seed is not a prediction, but starting far from the observed
-        # aggregate wastes iterations, so hold it loosely to HTS
-        if hts_share:
+        # The seed must NOT sit on the calibration target. P3 positioned it
+        # within 2 pp of the HTS aggregate as a convergence aid, which makes a
+        # model that reproduces HTS indistinguishable from one that was handed
+        # it. This check is the inversion of the one it replaces: the initial
+        # condition has to be far enough from the target that arriving there is
+        # evidence (DECISIONS.md 9.6).
+        # anchored to the LINKED Newcastle-LGA aggregate, which is what
+        # validation targets V202-V207 are and what a MATSim main-mode share is
+        # comparable to - not to the unlinked five-LGA figure the P3 seed was
+        # positioned against (DECISIONS.md 12.1)
+        if tgt_share:
             car = 100 * seed.get('car', 0)
-            pt = 100 * seed.get('pt', 0)
-            check(abs(car - hts_share['car']) < 8.0,
-                  '%s: seed car share %.1f%% within 8 pp of the HTS %.1f%%'
-                  % (day, car, hts_share['car']))
-            check(abs(pt - hts_share['pt']) < 3.0,
-                  '%s: seed PT share %.1f%% within 3 pp of the HTS %.1f%%'
-                  % (day, pt, hts_share['pt']))
+            check(abs(car - tgt_share['car']) > 20.0,
+                  '%s: seed car share %.1f%% is far from the HTS calibration '
+                  'target %.1f%%, so the mode-share calibration is not handed '
+                  'its answer' % (day, car, tgt_share['car']))
+        others = [v_ for k, v_ in seed.items() if k != 'car']
+        check(bool(others) and (max(others) - min(others)) < 0.02,
+              '%s: the seed is uninformed - uniform over the non-car modes '
+              '(spread %.4f)' % (day, (max(others) - min(others)) if others else -1))
+    check(False,
+          'lastIteration is NOT validated: two 250-iteration runs at 1% were '
+          'still drifting after innovation was switched off (DECISIONS.md 9.7). '
+          'The shipped default of 100 is known to be too low and is left in '
+          'place only because no justified replacement has been measured',
+          warn=True)
+    check(prep.get('seed_mode') == 'uninformed',
+          'plans were built from the uninformed seed (found %r); the informed '
+          'P3 seed stays available via --seed-mode informed so the seed '
+          'dependence can be tested rather than asserted'
+          % prep.get('seed_mode'))
     # the first line of the file has to be parseable as MATSim v6 population
     head = gzip.open('demand/plans/matsim/population_WEEKDAY.xml.gz',
                      'rt', encoding='utf-8').read(400)
@@ -522,13 +630,24 @@ else:
         days = v.get('days', {})
         check(set(days) == set(DAY_TYPES),
               '%s: run inputs for all three day types' % sid)
-        # the split must partition the mapped schedule, losing nothing
-        total = sum(d['routes_kept'] for d in days.values())
-        src_routes = mrep2['schedules'].get(sid, {}).get('transit_routes')
-        if src_routes:
-            check(total == src_routes,
-                  '%s: day-type split partitions the mapped schedule exactly '
-                  '(%d = %d routes)' % (sid, total, src_routes))
+        # The split must partition **departures**, not routes. Partitioning the
+        # route set was true and useless: pt2matsim groups trips into a route by
+        # stop sequence rather than by service, so a route is not day-type
+        # homogeneous, and a filter keyed on the route id put 29.5% of S2's
+        # departures in the wrong day type while still partitioning the routes
+        # exactly. It also removed the light rail from every weekday run,
+        # because both of its routes are named after a weekend trip - the
+        # with-tram scenario had no tram on a weekday. DECISIONS.md 9.9.
+        total_dep = sum(d['departures'] for d in days.values())
+        src_dep = mrep2['schedules'].get(sid, {}).get('departures')
+        if src_dep:
+            check(total_dep == src_dep,
+                  '%s: the day-type split partitions the mapped DEPARTURES '
+                  'exactly (%d = %d)' % (sid, total_dep, src_dep))
+        check(sum(d.get('departures_dropped', 0) for d in days.values())
+              == 2 * total_dep,
+              '%s: every departure is kept in exactly one day type and dropped '
+              'from the other two' % sid)
         for d, c in sorted(days.items()):
             check(c['routes_kept'] > 0 and c['departures'] > 0,
                   '%s/%s: schedule retains services (%d routes, %d departures)'
@@ -537,7 +656,36 @@ else:
                   '%s/%s: every referenced transit vehicle is present (%d)'
                   % (sid, d, c['vehicles']))
             cfg = 'scenarios/matsim/%s/%s/config.xml' % (sid, d)
-            check(os.path.exists(cfg), '%s/%s: config.xml written' % (sid, d))
+            if not check(os.path.exists(cfg),
+                         '%s/%s: config.xml written' % (sid, d)):
+                continue
+            # Mode choice has to be able to choose. Until P4, `ride` was outside
+            # subtourModeChoice's mode set, so a ride subtour was an absorbing
+            # state and 18.6% of legs came out exactly equal to their seed - an
+            # input wearing the costume of a result (DECISIONS.md 9.6).
+            ctext = open(cfg, encoding='utf-8').read()
+
+            def param(name, t=ctext):
+                m = re.search(r'<param name="%s" value="([^"]*)"' % name, t)
+                return m.group(1) if m else None
+
+            smc = re.search(r'<module name="subtourModeChoice".*?</module>',
+                            ctext, re.S)
+            smc = smc.group(0) if smc else ''
+            check(bool(smc) and 'ride' in (param('modes', smc) or ''),
+                  '%s/%s: ride is inside the mode-choice set, so its share is an '
+                  'output rather than its seed' % (sid, d))
+            check(param('considerCarAvailability', smc) == 'true',
+                  "%s/%s: mode choice respects B1's car availability" % (sid, d))
+            check('ride' not in (param('mainMode') or ''),
+                  '%s/%s: ride is not simulated in the mobsim - a car passenger '
+                  'is not a second vehicle' % (sid, d))
+            check('ride' in (param('networkModes') or ''),
+                  '%s/%s: ride is routed on the road network, so it carries a '
+                  'congested travel time rather than a beeline guess' % (sid, d))
+            check(param('separateModes') == 'false',
+                  '%s/%s: ride reads the car travel times, since no ride vehicle '
+                  'is ever observed to generate its own' % (sid, d))
     # the E1 road variant means the same on the run network as on the base
     base_touch = mrep2.get('road_variants', {})
     for sid, v in sorted(sc.items()):
@@ -565,38 +713,126 @@ else:
 # attach to a link that exists on that scenario's run network. Checked for all
 # 30 combinations, not a sample: a dangling stop is exactly the kind of thing
 # that appears in one scenario and not another.
+#
+# The same pass also asserts what P4 discovered the hard way: none of the 30
+# sets could be loaded by MATSim at all (DECISIONS.md 9.4). Three separate
+# defects, none of which any structural check was asking about, because every
+# check treated the assembled files as data rather than as something a
+# simulator has to read:
+#
+#   * the day-type filter round-tripped the schedule through ElementTree, which
+#     drops the doctype - and MATSim selects its reader *from* the doctype;
+#   * dropping two thirds of the routes orphaned the stop facilities and
+#     minimal-transfer relations only they used, and SwissRailRaptor
+#     dereferences a null array on the first one it meets;
+#   * the kerbside patch appended a second <attributes> block to links that
+#     already had one, which the network DTD rejects.
+LINK_BLOCK = re.compile(r'<link\b.*?(?:/>|</link>)', re.S)
 if os.path.exists(RUN_REPORT):
-    total_dangling = 0
+    total_dangling = total_orphan = total_dangling_rel = total_dup_attr = 0
     for sid in sorted(json.load(open(RUN_REPORT, encoding='utf-8'))
                       .get('scenarios', {})):
         net = 'scenarios/matsim/%s/network.xml.gz' % sid
         if not os.path.exists(net):
             continue
-        links = set()
         with gzip.open(net, 'rt', encoding='utf-8') as f:
-            for ln in f:
-                m = re.search(r'<link id="([^"]+)"', ln)
-                if m:
-                    links.add(m.group(1))
+            net_xml = f.read()
+        links = set(re.findall(r'<link id="([^"]+)"', net_xml))
+        dup = sum(1 for m in LINK_BLOCK.finditer(net_xml)
+                  if m.group(0).count('<attributes>') > 1)
+        total_dup_attr += dup
+        check(dup == 0,
+              '%s: no link carries two <attributes> blocks on the run network '
+              '(%d)' % (sid, dup))
         for day in DAY_TYPES:
             sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
             if not os.path.exists(sch):
                 continue
             refs, missing = 0, 0
+            declared, served, relations = set(), set(), []
             with gzip.open(sch, 'rt', encoding='utf-8') as f:
-                for ln in f:
-                    m = re.search(r'<stopFacility [^>]*linkRefId="([^"]+)"', ln)
+                head = f.readline() + f.readline()
+                check('transitSchedule_v2.dtd' in head,
+                      '%s/%s: schedule declares the transitSchedule_v2 DTD, '
+                      'without which MATSim cannot choose a reader'
+                      % (sid, day))
+                for ln in [head] + list(f):
+                    m = re.search(r'<stopFacility id="([^"]+)"[^>]*'
+                                  r'linkRefId="([^"]+)"', ln)
                     if m:
                         refs += 1
-                        if m.group(1) not in links:
+                        declared.add(m.group(1))
+                        if m.group(2) not in links:
                             missing += 1
+                        continue
+                    m = re.search(r'<stop refId="([^"]+)"', ln)
+                    if m:
+                        served.add(m.group(1))
+                        continue
+                    m = re.search(r'<relation fromStop="([^"]+)" '
+                                  r'toStop="([^"]+)"', ln)
+                    if m:
+                        relations.append((m.group(1), m.group(2)))
             total_dangling += missing
             check(refs > 0 and missing == 0,
                   '%s/%s: every transit stop attaches to a link on the run '
                   'network (%d stops, %d dangling)' % (sid, day, refs, missing))
+            orphan = declared - served
+            total_orphan += len(orphan)
+            check(not orphan,
+                  '%s/%s: every declared stop facility is served by a route '
+                  'that survived the day-type filter (%d orphaned)'
+                  % (sid, day, len(orphan)))
+            bad_rel = [r for r in relations
+                       if r[0] not in served or r[1] not in served]
+            total_dangling_rel += len(bad_rel)
+            check(not bad_rel,
+                  '%s/%s: every minimal-transfer relation references a served '
+                  'stop (%d dangling of %d)'
+                  % (sid, day, len(bad_rel), len(relations)))
     check(total_dangling == 0,
           'no dangling transit stop in any of the 30 scenario x day-type run '
           'input sets')
+
+# ---- 15b. the intervention survives into every day type ----
+# The generic partition check above is necessary and not sufficient: it counts
+# departures without asking WHICH service they belong to. A scenario exists to
+# test one intervention, and a day type that lost it is a run that measures
+# nothing. This asserts the line is present with departures, per scenario per
+# day type, which is the check that would have caught the light rail vanishing
+# from every weekday run (DECISIONS.md 9.9).
+INTERVENTION = {
+    'S0': None,                       # counterfactual: no tram is correct
+    'S1': 'S1SHUTTLE', 'S2': 'lightrail', 'S2a': 'lightrail', 'S2b': 'lightrail',
+    'S2c': 'lightrail', 'S3': 'BRT', 'S4': 'lightrail', 'S5': 'lightrail',
+    'S6': None,
+}
+LINE_RE = re.compile(r'<transitLine id="([^"]+)"[^>]*>')
+if os.path.exists(RUN_REPORT):
+    for sid, token in sorted(INTERVENTION.items()):
+        if not token:
+            continue
+        for day in DAY_TYPES:
+            sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
+            if not os.path.exists(sch):
+                continue
+            hits, deps, inside = [], 0, False
+            with gzip.open(sch, 'rt', encoding='utf-8') as f:
+                for ln in f:
+                    m = LINE_RE.search(ln)
+                    if m:
+                        inside = token.lower() in m.group(1).lower()
+                        if inside:
+                            hits.append(m.group(1))
+                    elif inside and '<departure ' in ln:
+                        deps += 1
+            check(bool(hits) and deps > 0,
+                  '%s/%s: the intervention (%s) is present with departures '
+                  '(%d line(s), %d departures)'
+                  % (sid, day, token, len(hits), deps))
+    check(total_orphan == 0 and total_dangling_rel == 0 and total_dup_attr == 0,
+          'the 30 assembled run input sets are referentially closed and '
+          'DTD-valid, i.e. loadable by MATSim')
 
 
 # ---- 16. P3: every assumed value carries a sweep range ----

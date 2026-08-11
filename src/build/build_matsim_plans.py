@@ -49,25 +49,79 @@ OUT = os.path.join(PLANS, 'matsim')
 SEED = 20260810
 DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 
-# Seed mode split, by car availability. Assumed; recorded in DECISIONS.md with a
-# sweep range. These are *initial conditions*, deliberately not calibrated here -
-# the HTS mode share is a P4 calibration target, not a P3 input (DECISIONS.md 2.4
-# rules out census journey-to-work for that purpose).
-# Chosen so the *blended* seed share lands near the HTS aggregate - 71.5% of
-# legs are made by car-available persons - because starting iteration 0 far from
-# the observed point wastes iterations without changing where the model
-# converges. Seeding near HTS is not the same as matching it: the mode share is
-# a P4 calibration target (DECISIONS.md 2.4), and this is the initial condition
-# the calibration starts from.
+# Seed mode split: UNINFORMED, uniform over the modes a person can use.
+#
+# The P3 seed was positioned so the blended share landed near the HTS aggregate
+# (car 55.7 against 57.5, pt 4.0 against 3.4). That is defensible as a
+# convergence aid and indefensible as an initial condition for a calibration
+# whose target *is* the HTS mode share: a model that starts at the answer cannot
+# be said to have found it. Worse, until P4 fixed the mode-choice configuration
+# `ride` was not in MATSim's choice set at all, so the seeded 18.6% car-passenger
+# share was not an initial condition but the model's output (DECISIONS.md 9.6).
+#
+# The only thing conditioned on here is **car availability**, which is a
+# population attribute from B1, not a behavioural prior. Within the modes a
+# person can actually use, the draw is uniform. This is deliberately a bad guess:
+# it starts the co-evolution far from the observed point so that arriving there
+# is evidence about the model rather than about the seed.
 SEED_MODE_SPLIT = {
+    True:  [('car', 0.20), ('ride', 0.20), ('walk', 0.20), ('pt', 0.20), ('bike', 0.20)],
+    False: [('ride', 0.25), ('walk', 0.25), ('pt', 0.25), ('bike', 0.25)],
+}
+# The uniform seed has no free share to sweep - "uniform over the usable modes"
+# is fully determined by B1 car availability. What is swept instead is the
+# *choice of seed itself*, which is the quantity that could bias the result:
+# the two entries are the two seeds this script can produce, and DECISIONS.md
+# 9.7 reports the measured difference between them.
+SEED_MODE_SWEEP = {'seed_mode': ('uninformed', 'informed')}
+# The informed seed the uniform one replaces. Retained so that "the result does
+# not depend on the seed" is a claim that can be tested by running both, not an
+# assertion (DECISIONS.md 9.6); selected with --seed-mode informed.
+SEED_MODE_SPLIT_INFORMED = {
     True:  [('car', 0.78), ('ride', 0.10), ('walk', 0.09), ('pt', 0.02), ('bike', 0.01)],
     False: [('ride', 0.40), ('walk', 0.45), ('pt', 0.09), ('bike', 0.06)],
 }
-SEED_MODE_SWEEP = {'car_share_car_available': (0.68, 0.86),
-                   'pt_share_no_car': (0.05, 0.20)}
-# HTS 2024/25 for the five study-area LGAs, reliability-flag variants collapsed.
-HTS_MODE_SHARE_PCT = {'car': 57.46, 'ride': 21.46, 'walk': 16.14, 'pt': 3.39,
-                      'bike_other': 1.55}
+HTS_FILE = 'data/processed/hts/hts_mode_newcastle.csv'
+HTS_YEAR = '2024/25'
+HTS_TARGET_LGA = 'Newcastle'
+
+
+def hts_mode_share():
+    """Both HTS 2024/25 aggregations, derived from the file rather than typed.
+
+    They are different quantities and the difference matters:
+
+    * **unlinked, five LGAs** - trips-weighted over the whole study area, with
+      the walk stage of a public transport trip counted as its own walk trip.
+      This is the aggregate the P3 seed was positioned against.
+    * **linked, Newcastle LGA** - the published `MODE_SHARE` column, where a
+      walk-plus-bus trip counts once, as public transport, so `walk linked` is
+      0.0 by construction.
+
+    MATSim's `modestats` reports the **main mode of a trip**, which is the
+    linked concept, and the pre-registered calibration targets V202-V207 are the
+    linked Newcastle-LGA figures (DECISIONS.md 12.1). So the linked aggregate is
+    the one a fit is computed against; the unlinked one is kept only because it
+    is what the P3 seed was compared to, and dropping it would make that
+    comparison unreproducible.
+    """
+    h = pd.read_csv(HTS_FILE)
+    h = h[(h['FINANCIAL_YEAR'] == HTS_YEAR) & (h['geography'] == 'lga')].copy()
+    h['mode'] = (h['TRAVEL_MODE'].str.replace('*', '', regex=False)
+                 .str.strip().str.lower())
+    t = h.groupby('mode')['TRIPS_BY_MODE'].sum()
+    tot = t.sum()
+    unlinked = {'car': 100 * t['vehicle driver'] / tot,
+                'ride': 100 * t['vehicle passenger'] / tot,
+                'walk': 100 * (t['walk only'] + t['walk linked']) / tot,
+                'pt': 100 * t['public transport'] / tot,
+                'bike_other': 100 * t['other'] / tot}
+    n = h[h['area_name'] == HTS_TARGET_LGA].set_index('mode')['MODE_SHARE']
+    linked = {'car': float(n['vehicle driver']), 'ride': float(n['vehicle passenger']),
+              'walk': float(n['walk only']), 'pt': float(n['public transport']),
+              'bike_other': float(n['other'])}
+    return ({k: round(v, 2) for k, v in unlinked.items()},
+            {k: round(v, 2) for k, v in linked.items()})
 
 # Activity types carried through to the scoring configuration.
 ACT_TYPES = ('home', 'work', 'education', 'shopping', 'other', 'business')
@@ -102,8 +156,8 @@ def load_person_attributes():
     }
 
 
-def pick_mode(car_available, u):
-    table = SEED_MODE_SPLIT[bool(car_available)]
+def pick_mode(car_available, u, table_by_avail=None):
+    table = (table_by_avail or SEED_MODE_SPLIT)[bool(car_available)]
     x = u()
     c = 0.0
     for mode, p in table:
@@ -128,7 +182,7 @@ def stream_persons(path):
             yield cur, rows
 
 
-def write_day(day, attrs, rng, report):
+def write_day(day, attrs, rng, report, seed_table=None):
     src = os.path.join(PLANS, 'B2_activity_trips_%s.csv' % day)
     dst = os.path.join(OUT, 'population_%s.xml.gz' % day)
     u_buf = {'buf': rng.random(1 << 20), 'i': 0}
@@ -167,7 +221,7 @@ def write_day(day, attrs, rng, report):
             for r in rows:
                 tid = int(r['tour_id'])
                 if tid not in tour_mode:
-                    tour_mode[tid] = pick_mode(car_av, u)
+                    tour_mode[tid] = pick_mode(car_av, u, seed_table)
             tours += len(tour_mode)
 
             w.write('\t<person id="%d">\n' % pid)
@@ -227,24 +281,41 @@ def write_day(day, attrs, rng, report):
           flush=True)
 
 
-def main(seed=SEED, day_types=None):
+def main(seed=SEED, day_types=None, seed_mode='uninformed'):
     day_types = day_types or DAY_TYPES
+    seed_table = (SEED_MODE_SPLIT_INFORMED if seed_mode == 'informed'
+                  else SEED_MODE_SPLIT)
+    hts_unlinked, hts_linked = hts_mode_share()
     os.makedirs(OUT, exist_ok=True)
     rng = np.random.default_rng(seed)
     print('loading person attributes ...', flush=True)
     attrs = load_person_attributes()
     report = {}
     for d in day_types:
-        write_day(d, attrs, rng, report)
-    meta = dict(seed=seed, seed_mode_split={str(k): v for k, v in SEED_MODE_SPLIT.items()},
+        write_day(d, attrs, rng, report, seed_table)
+    meta = dict(seed=seed, seed_mode=seed_mode,
+                seed_mode_split={str(k): v for k, v in seed_table.items()},
                 seed_mode_sweep=SEED_MODE_SWEEP,
-                hts_mode_share_pct=HTS_MODE_SHARE_PCT,
+                hts_mode_share_pct=hts_unlinked,
+                hts_mode_share_pct_source=(
+                    'derived from %s, %s, LGA rows: trips-weighted over the five '
+                    'study-area LGAs, unlinked, walk includes the walk stage of a '
+                    'PT trip' % (HTS_FILE, HTS_YEAR)),
+                hts_calibration_target_pct=hts_linked,
+                hts_calibration_target_source=(
+                    'derived from %s, %s, %s LGA, published MODE_SHARE column '
+                    '(linked trips). This is the basis of validation targets '
+                    'V202-V207 and the one a MATSim mode share is comparable to '
+                    '(DECISIONS.md 12.1)' % (HTS_FILE, HTS_YEAR, HTS_TARGET_LGA)),
                 typical_duration_s=TYPICAL_DURATION_S,
                 typical_duration_sweep=TYPICAL_DURATION_SWEEP,
                 note='Seed modes are initial conditions for MATSim co-evolution, '
-                     'drawn per tour so chain-based modes stay conserved. They are '
-                     'not a mode-share prediction and not calibrated here; the '
-                     'calibration target is HTS (DECISIONS.md 2.4).',
+                     'drawn per tour so chain-based modes stay conserved. The '
+                     'default seed is UNINFORMED - uniform over the modes each '
+                     'person can use, conditioned only on B1 car availability - '
+                     'so that the HTS mode share is a target the model has to '
+                     'reach rather than one it is handed (DECISIONS.md 9.6). '
+                     'Run with --seed-mode informed to reproduce the P3 seed.',
                 by_day=report)
     json.dump(meta, open(os.path.join(OUT, '_plans_report.json'), 'w'), indent=2)
 
@@ -253,5 +324,15 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--seed', type=int, default=SEED)
     ap.add_argument('--day-types', default=','.join(DAY_TYPES))
+    ap.add_argument('--seed-mode', choices=['uninformed', 'informed'],
+                    default='uninformed',
+                    help='uninformed (default): uniform over usable modes. '
+                         'informed: the P3 seed positioned near the HTS '
+                         'aggregate, retained so the seed dependence can be '
+                         'tested rather than asserted.')
+    ap.add_argument('--out', default=None,
+                    help='override the output directory (for seed experiments)')
     a = ap.parse_args()
-    main(a.seed, [d for d in a.day_types.split(',') if d])
+    if a.out:
+        OUT = a.out
+    main(a.seed, [d for d in a.day_types.split(',') if d], a.seed_mode)

@@ -131,12 +131,32 @@ def main():
     # Most study-area sites are sample stations counted once every few years, so
     # take each station's most recent survey year rather than a fixed window, and
     # carry the year through so the calibration report can weight by recency.
-    cls = aadt['classification_type'].astype(str).str.upper()
-    both = aadt['traffic_direction_name'].astype(str).str.upper()
-    sel = aadt[cls.isin(['ALL VEHICLES', 'UNCLASSIFIED']) &
-               both.eq('PRESCRIBED AND COUNTER') & aadt['traffic_count'].notna()]
-    if sel.empty:
-        sel = aadt[aadt['traffic_count'].notna()]
+    #
+    # `period` MUST be filtered. The RMS extract publishes seven periods per
+    # station-year - ALL DAYS, WEEKDAYS, WEEKENDS, AM PEAK, PM PEAK, OFF PEAK
+    # and PUBLIC HOLIDAYS - and the first cut of this file filtered on
+    # classification and direction but not on period, then took the station
+    # mean. Every target was therefore a daily total averaged together with
+    # peak-period counts: station 55710 in 2021 has ALL DAYS = 50,133 and was
+    # recorded as 33,114. Across all 119 stations the recorded value came out
+    # 0.58-0.71x the true figure, and because the number of period rows varies
+    # by station it was not even a constant rescaling that a calibration
+    # constant could absorb. DECISIONS.md 12.2.
+    #
+    # The basis is WEEKDAYS, not ALL DAYS: the model runs a weekday day type,
+    # and WEEKDAYS is published for every one of the 119 stations. ALL DAYS is
+    # carried alongside so the weekday choice stays visible rather than baked in.
+    PERIOD = 'WEEKDAYS'
+    aadt['cls'] = aadt['classification_type'].astype(str).str.upper()
+    aadt['dirn'] = aadt['traffic_direction_name'].astype(str).str.upper()
+    aadt['per'] = aadt['period'].astype(str).str.upper()
+    two_way = aadt[aadt['dirn'].eq('PRESCRIBED AND COUNTER')
+                   & aadt['traffic_count'].notna()]
+    allveh = two_way[two_way['cls'].isin(['ALL VEHICLES', 'UNCLASSIFIED'])]
+    sel = allveh[allveh['per'].eq(PERIOD)]
+    # Most study-area sites are sample stations counted once every few years, so
+    # take each station's most recent survey year rather than a fixed window, and
+    # carry the year through so the calibration report can weight by recency.
     latest_year = sel.groupby('station_key')['year'].max()
     sel = sel.merge(latest_year.rename('yr_max'), on='station_key')
     sel = sel[sel['year'] == sel['yr_max']]
@@ -144,6 +164,12 @@ def main():
                        'station_key'].astype(str))
     key = sel.groupby('station_key')['traffic_count'].mean()
     kyear = sel.groupby('station_key')['year'].max()
+
+    def period_value(station, year, period, cls_filter):
+        s = two_way[(two_way['station_key'] == station) & (two_way['year'] == year)
+                    & two_way['per'].eq(period) & two_way['cls'].isin(cls_filter)]
+        return float(s['traffic_count'].mean()) if len(s) else float('nan')
+
     meta = stn.set_index('station_key')[['name', 'road_name', 'suburb', 'lga',
                                          'wgs84_latitude', 'wgs84_longitude']]
     out = []
@@ -157,15 +183,84 @@ def main():
             mrow = mrow.iloc[0]
         split = 'calibration' if str(k) in perm else 'holdout'
         yr = int(kyear.get(k, 0))
+        all_days = period_value(k, yr, 'ALL DAYS', ['ALL VEHICLES', 'UNCLASSIFIED'])
+        light = period_value(k, yr, PERIOD, ['LIGHT VEHICLES'])
+        heavy = period_value(k, yr, PERIOD, ['HEAVY VEHICLES'])
+        # Heavy-vehicle share is observed at the minority of stations that carry
+        # a classified count. It is the handle on the freight the model does not
+        # represent; where it is absent the comparison has to sweep it instead
+        # (DECISIONS.md 12.2), so it is recorded per station rather than filled.
+        heavy_share = (heavy / (light + heavy)
+                       if light == light and heavy == heavy and (light + heavy) > 0
+                       else float('nan'))
         add('road_aadt', '%s (%s, %s)' % (mrow['name'], mrow['suburb'], mrow['lga']),
-            str(yr), round(float(v), 0), 'vehicles/day',
+            str(yr), round(float(v), 0), 'vehicles/weekday',
             'NSW Roads traffic volume counts', split,
-            'station_key=%s; latest survey year' % k)
+            'station_key=%s; latest survey year; period=%s, two-way, all classes'
+            % (k, PERIOD))
         out.append(dict(station_key=k, name=mrow['name'], road_name=mrow['road_name'],
                         suburb=mrow['suburb'], lga=mrow['lga'],
                         lat=mrow['wgs84_latitude'], lon=mrow['wgs84_longitude'],
-                        aadt=round(float(v), 0), survey_year=yr, split=split))
-    pd.DataFrame(out).to_csv(os.path.join(OUT, 'road_aadt_targets.csv'), index=False)
+                        weekday_count=round(float(v), 0), period=PERIOD,
+                        all_days_count=(round(all_days, 0) if all_days == all_days
+                                        else ''),
+                        light_vehicles=(round(light, 0) if light == light else ''),
+                        heavy_vehicles=(round(heavy, 0) if heavy == heavy else ''),
+                        heavy_share=(round(heavy_share, 4)
+                                     if heavy_share == heavy_share else ''),
+                        heavy_share_source=('observed' if heavy_share == heavy_share
+                                            else 'not_classified_at_this_station'),
+                        survey_year=yr, split=split))
+    aadt_out = pd.DataFrame(out)
+    aadt_out.to_csv(os.path.join(OUT, 'road_aadt_targets.csv'), index=False)
+
+    # ---------------- comparison corrections for the count targets -----------
+    # A modelled link volume is not directly comparable to an observed
+    # all-classes count, and the difference must be stated rather than absorbed
+    # by a calibrated constant (DECISIONS.md 12.2a). Written as a parameter
+    # artefact rather than left in prose so the sweep-range rule can be tested.
+    obs = aadt_out[aadt_out['heavy_share_source'] == 'observed']
+    hs = pd.to_numeric(obs['heavy_share'], errors='coerce').dropna()
+    corr = {
+        'heavy_vehicle_share': {
+            'value': round(float(hs.median()), 4),
+            'sweep': [round(float(hs.min()), 4), round(float(hs.max()), 4)],
+            'source': 'measured - NSW Roads traffic volume counts, LIGHT vs '
+                      'HEAVY VEHICLES classification, %s period, two-way' % PERIOD,
+            'stations_observed': int(len(hs)),
+            'stations_total': int(len(aadt_out)),
+            'calibration_stations_observed':
+                int((obs['split'] == 'calibration').sum()),
+            'mean': round(float(hs.mean()), 4),
+            'note': 'The model represents no freight. At the %d stations with a '
+                    'classified count the station\'s own observed share is used; '
+                    'at the remaining %d it is assumed, and the sweep is the '
+                    'observed range across the classified stations. Only %d of '
+                    'the 34 calibration stations carry a classified count, so '
+                    'the assumed case is the usual one.'
+                    % (len(hs), len(aadt_out) - len(hs),
+                       int((obs['split'] == 'calibration').sum())),
+        },
+        'vehicles_per_leg': {
+            'car': 1.0,
+            'ride': 0.0,
+            'source': 'derived - HTS vehicle occupancy 1.3503 persons per '
+                      'vehicle (params/C4_mode_constraints.json) means observed '
+                      'vehicle trips ARE driver trips',
+            'note': 'A passenger rides in a vehicle that is already counted, so '
+                    'the modelled vehicle count is the car legs alone and a ride '
+                    'leg correctly contributes none. This holds only while the '
+                    'modelled ride:car ratio matches the observed '
+                    'passenger:driver ratio, which is what DECISIONS.md 9.8 '
+                    'constrains asc_car_passenger to reproduce. What stays '
+                    'genuinely unmodelled is the escort trip: B2 generates none, '
+                    'so a driver travelling solely to carry someone else is '
+                    'absent. That is a stated limitation, not a fitted '
+                    'parameter.',
+        },
+    }
+    json.dump(corr, open(os.path.join('params', 'C3_count_comparison.json'), 'w'),
+              indent=2)
 
     # ---------------- mode share ----------------
     hm = pd.read_csv(os.path.join(HTS, 'hts_mode_newcastle.csv'))

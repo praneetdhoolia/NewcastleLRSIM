@@ -72,6 +72,14 @@ ATTR_RE = re.compile(r'(\w[\w:]*)="([^"]*)"')
 # scenario without the intervention it exists to test.
 DAY_TOKEN_RE = re.compile(r'(?:^|[.:_])(WEEKDAY|SAT|SUN)(?:[._]|$)')
 
+# MATSim picks its reader from the doctype, so a schedule written without one
+# cannot be loaded at all - the parser fails at line 2 with a null delegate.
+# ElementTree drops the doctype on a parse/write round trip, so it is written
+# back explicitly. See DECISIONS.md 9.4.
+XML_DECL = b"<?xml version='1.0' encoding='utf-8'?>\n"
+SCHEDULE_DOCTYPE = (b'<!DOCTYPE transitSchedule SYSTEM '
+                    b'"http://www.matsim.org/files/dtd/transitSchedule_v2.dtd">\n')
+
 
 def day_of_route(route_id):
     m = DAY_TOKEN_RE.search(route_id)
@@ -90,27 +98,72 @@ def split_schedule(src_dir, dst_dir, day):
     root = tree.getroot()
 
     kept_routes = dropped_routes = 0
-    kept_dep = 0
+    kept_dep = dropped_dep = 0
+    mixed_routes = 0
     vehicles_used = set()
+    stops_served = set()
     for line in list(root.findall('transitLine')):
         for route in list(line.findall('transitRoute')):
-            rid = route.get('id', '')
-            if day_of_route(rid) != day:
+            # Filter DEPARTURES, not routes. pt2matsim groups trips into a
+            # transitRoute by stop sequence, not by service, so a route is not
+            # day-type homogeneous: 233 of S2's 1,714 routes carry departures
+            # from more than one service. Keying the filter on the route id put
+            # 1,261 of 4,269 departures (29.5%) in the wrong day type and
+            # removed the light rail from every weekday run outright, because
+            # both of its routes happen to be named after a weekend trip.
+            # See DECISIONS.md 9.9.
+            deps = route.find('departures')
+            keep_here = []
+            for dep in list(deps.findall('departure') if deps is not None else []):
+                if day_of_route(dep.get('id', '')) == day:
+                    keep_here.append(dep)
+                else:
+                    deps.remove(dep)
+                    dropped_dep += 1
+            if not keep_here:
                 line.remove(route)
                 dropped_routes += 1
                 continue
+            if day_of_route(route.get('id', '')) != day:
+                mixed_routes += 1
             kept_routes += 1
-            for dep in route.findall('./departures/departure'):
-                kept_dep += 1
+            kept_dep += len(keep_here)
+            for stop in route.findall('./routeProfile/stop'):
+                stops_served.add(stop.get('refId'))
+            for dep in keep_here:
                 v = dep.get('vehicleRefId')
                 if v:
                     vehicles_used.add(v)
         if not line.findall('transitRoute'):
             root.remove(line)
 
+    # Dropping two thirds of the routes orphans the stops and the transfer
+    # relations that only they used, and SwissRailRaptor dereferences a null
+    # array on the first of those it meets - so the schedule has to be left
+    # referentially closed, not merely smaller. See DECISIONS.md 9.4.
+    facilities = root.find('transitStops')
+    dropped_fac = 0
+    for fac in list(facilities.findall('stopFacility')):
+        if fac.get('id') not in stops_served:
+            facilities.remove(fac)
+            dropped_fac += 1
+    kept_fac = len(facilities.findall('stopFacility'))
+
+    mtt = root.find('minimalTransferTimes')
+    kept_rel = dropped_rel = 0
+    if mtt is not None:
+        for rel in list(mtt.findall('relation')):
+            if (rel.get('fromStop') not in stops_served
+                    or rel.get('toStop') not in stops_served):
+                mtt.remove(rel)
+                dropped_rel += 1
+        kept_rel = len(mtt.findall('relation'))
+
     out_sched = os.path.join(dst_dir, 'transitSchedule.xml.gz')
     with gzip_writer(out_sched, text=False) as f:
-        tree.write(f, encoding='utf-8', xml_declaration=True)
+        f.write(XML_DECL)
+        f.write(SCHEDULE_DOCTYPE)
+        tree.write(f, encoding='utf-8', xml_declaration=False)
 
     with gzip.open(os.path.join(src_dir, 'transitVehicles.xml.gz'), 'rb') as f:
         vtree = ET.parse(f)
@@ -129,8 +182,67 @@ def split_schedule(src_dir, dst_dir, day):
         vtree.write(f, encoding='utf-8', xml_declaration=True)
 
     return dict(routes_kept=kept_routes, routes_dropped=dropped_routes,
-                departures=kept_dep, vehicles=kept_veh,
-                vehicle_refs=len(vehicles_used))
+                departures=kept_dep, departures_dropped=dropped_dep,
+                routes_kept_under_a_foreign_day_id=mixed_routes,
+                vehicles=kept_veh,
+                vehicle_refs=len(vehicles_used),
+                stop_facilities_kept=kept_fac, stop_facilities_dropped=dropped_fac,
+                transfer_relations_kept=kept_rel,
+                transfer_relations_dropped=dropped_rel)
+
+
+ATTRIBUTE_EL = ('<attribute name="%s" class="java.lang.String">%s</attribute>')
+NAMED_ATTR_RE = r'<attribute name="%s"[^>]*>.*?</attribute>'
+
+
+def set_link_attribute(tail, name, value):
+    """Set one `<attribute>` inside a link's existing `<attributes>` block.
+
+    Every mapped link already carries an `<attributes>` block (`osm:way:id` is
+    how the E1 patch finds it at all), so appending a second one before
+    `</link>` produces `More than one instance of element <attributes>` and
+    MATSim refuses to read the network. Six of the ten run networks were built
+    that way. See DECISIONS.md 9.4.
+    """
+    el = ATTRIBUTE_EL % (name, value)
+    existing = re.search(NAMED_ATTR_RE % re.escape(name), tail, re.S)
+    if existing:
+        return tail[:existing.start()] + el + tail[existing.end():]
+    if '</attributes>' in tail:
+        return tail.replace('</attributes>', el + '</attributes>', 1)
+    if '</link>' in tail:
+        return tail.replace('</link>', '<attributes>' + el + '</attributes></link>', 1)
+    return tail
+
+
+MODES_ATTR_RE = re.compile(r'modes="([^"]*)"')
+
+
+def allow_ride(xml):
+    """Let `ride` use the roads `car` uses.
+
+    The mapped network permits `car`, never `ride`, so a config that declared
+    `ride` a network mode produced `checking 0 nodes and 0 links for dead-ends`
+    and then threw during `PrepareForSim` - the run inputs could not be used
+    even once the schedules were fixed (DECISIONS.md 9.4, defect 4).
+
+    A car passenger is not a second vehicle, so `ride` is *routed* on the road
+    network - which is what gives it a congested travel time rather than a
+    beeline guess - but is not simulated in the mobsim, so it occupies no
+    capacity. `travelTimeCalculator.separateModes=false` makes it read the car
+    travel times, since no ride vehicle is ever observed to generate its own.
+    """
+    n = 0
+
+    def add_ride(m):
+        nonlocal n
+        modes = [x for x in m.group(1).split(',') if x]
+        if 'car' not in modes or 'ride' in modes:
+            return m.group(0)
+        n += 1
+        return 'modes="%s"' % ','.join(sorted(modes + ['ride']))
+
+    return MODES_ATTR_RE.sub(add_ride, xml), n
 
 
 def patch_network(src_net, dst_net, patches, drop_turns):
@@ -162,13 +274,11 @@ def patch_network(src_net, dst_net, patches, drop_turns):
             except (ValueError, ZeroDivisionError):
                 pass
         if 'kerbside_use' in changed and p.get('field_kerbside_use_to'):
-            applied['kerbside_use'] += 1
-            if 'osm:way:kerbside' not in tail:
-                tail = tail.replace(
-                    '</link>',
-                    '<attributes><attribute name="osm:way:kerbside" '
-                    'class="java.lang.String">%s</attribute></attributes></link>'
-                    % p['field_kerbside_use_to']) if '</link>' in tail else tail
+            new_tail = set_link_attribute(tail, 'osm:way:kerbside',
+                                          p['field_kerbside_use_to'])
+            if new_tail != tail:
+                applied['kerbside_use'] += 1
+                tail = new_tail
         if drop_turns and 'disallowedNextLinks' in tail:
             # E1's "no banned turns" applies to the corridor without the tram,
             # not to the whole study area. Stripping the attribute network-wide
@@ -182,6 +292,8 @@ def patch_network(src_net, dst_net, patches, drop_turns):
         return head + tail
 
     body = LINK_BLOCK_RE.sub(patch_link, xml)
+    body, ride_links = allow_ride(body)
+    applied['ride_links'] = ride_links
     os.makedirs(os.path.dirname(dst_net), exist_ok=True)
     with gzip_writer(dst_net) as f:
         f.write(body)
@@ -261,6 +373,11 @@ def scoring_from_c1(c1, purpose_share):
         ])
 
 
+# MATSim defaults its output compression to zst. gzip is set instead so the
+# analysis reads run outputs with the standard library alone - the repo pins a
+# JVM, pt2matsim and SUMO by digest and declares no Python dependency beyond
+# pandas/numpy, and an undeclared `zstandard` would be a reproducibility hole
+# that only shows up on a machine that happens not to have it.
 CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
 <config>
@@ -288,6 +405,7 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<param name="writeEventsInterval" value="{write_interval}" />
 \t\t<param name="writePlansInterval" value="{write_interval}" />
 \t\t<param name="overwriteFiles" value="failIfDirectoryExists" />
+\t\t<param name="compressionType" value="gzip" />
 \t</module>
 \t<module name="qsim">
 \t\t<param name="startTime" value="00:00:00" />
@@ -295,7 +413,7 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<param name="flowCapacityFactor" value="{capacity_factor}" />
 \t\t<param name="storageCapacityFactor" value="{capacity_factor}" />
 \t\t<param name="numberOfThreads" value="{threads}" />
-\t\t<param name="mainMode" value="car,ride" />
+\t\t<param name="mainMode" value="car" />
 \t\t<param name="snapshotperiod" value="00:00:00" />
 \t\t<param name="vehiclesSource" value="defaultVehicle" />
 \t</module>
@@ -316,6 +434,16 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<param name="maxAgentPlanMemorySize" value="{plan_memory}" />
 \t\t<param name="fractionOfIterationsToDisableInnovation" value="0.8" />
 {strategies}
+\t</module>
+\t<module name="subtourModeChoice">
+\t\t<param name="modes" value="car,ride,pt,bike,walk" />
+\t\t<param name="chainBasedModes" value="car,bike" />
+\t\t<param name="considerCarAvailability" value="true" />
+\t\t<param name="behavior" value="fromSpecifiedModesToSpecifiedModes" />
+\t</module>
+\t<module name="travelTimeCalculator">
+\t\t<param name="separateModes" value="false" />
+\t\t<param name="analyzedModes" value="car" />
 \t</module>
 \t<module name="routing">
 \t\t<param name="networkModes" value="car,ride" />
@@ -355,11 +483,23 @@ STRATEGY_BLOCK = """\t\t<parameterset type="strategysettings">
 # Per-km running cost seen by the traveller, AUD. Assumed: fuel and tyres only,
 # not standing costs, because a mode-choice decision does not re-decide car
 # ownership within the day.
-MONETARY_DISTANCE_RATE = {'car': -0.00018, 'ride': -0.00009,
+MONETARY_DISTANCE_RATE = {'car': -0.00018, 'ride': 0.0,
                           'pt': 0.0, 'walk': 0.0, 'bike': 0.0}
 # AUD/m for car. Fuel and tyres vary with national prices, not with Newcastle,
 # so this is swept rather than localised.
 MONETARY_DISTANCE_RATE_SWEEP = (-0.00025, -0.00012)
+# `ride` was charged half the car rate. That half was typed in, not derived, and
+# it double-charges: a vehicle's operating cost is paid once, and the observed
+# Newcastle occupancy is 1.3503 persons per vehicle (params/C4_mode_constraints
+# .json, HTS, seven survey years). Charging the driver 0.00018 and the passenger
+# 0.00009 makes the model's aggregate vehicle operating cost about 1.35x the
+# real one. The only value derivable from the data is zero: the driver, who is
+# separately modelled, already carries it.
+#
+# This makes `ride` free at the margin and therefore moves the whole burden of
+# pinning its share onto asc_car_passenger, which is then constrained to
+# reproduce the observed occupancy. That is deliberate and is stated rather than
+# hidden: see DECISIONS.md 9.8.
 
 STRATEGIES = [('ChangeExpBeta', 0.70), ('ReRoute', 0.15),
               ('SubtourModeChoice', 0.10), ('TimeAllocationMutator', 0.05)]
