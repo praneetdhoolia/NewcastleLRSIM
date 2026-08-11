@@ -1308,6 +1308,136 @@ Transportation 2015), which is **absent from the pinned jar** and out of scope.
 
 ---
 
+## 9.12 The ride constraint is necessary and not sufficient, and 1% is unusable (P4 stage 3)
+
+§9.11 predicted the constraint would not bind at the corner and asked for a
+converged run to settle it. Two runs of S2 × WEEKDAY, 250 iterations, uninformed
+seed, **8 threads** (matching the §9.10 baselines exactly — thread count is part
+of the run identity), driven by committed overlays and the declared pipeline
+`run_matsim.py` → `extract_metrics.py` → `fit.py`. **Neither is a result**: §9.7
+shows 250 iterations is measurably short of relaxation.
+
+| | 1% (5,209 persons) | 10% (52,758 persons) |
+|---|---:|---:|
+| wall / median iteration | 2,636 s / 9.94 s | 8,176 s / 27.76 s |
+
+**Mode share, Newcastle LGA — the reportable quantity** (§12.1), not the
+five-LGA aggregate the seed was positioned against:
+
+| | 1% | **10%** | HTS target |
+|---|---:|---:|---:|
+| Vehicle driver | 16.01 | **30.85** | 59.0 |
+| **Vehicle passenger** | 61.06 | **50.94** | **20.6** |
+| Public transport | 0.62 | 0.99 | 3.8 |
+| Walk only | 1.59 | 0.80 | 13.4 |
+| Other | 20.73 | 16.43 | 3.2 |
+| mean absolute error | 23.19 pp | **17.43 pp** | |
+| passengers per driver | 3.8140 | **1.6512** | 0.3503, range [0.2493, 0.394] |
+
+**The constraint did the largest single piece of work any P4 change has done, and
+it is still not enough.** On the five-LGA quantity §9.10 measured, ride fell from
+0.7213 / 0.7190 to 0.6105 / 0.5592 and car rose from 0.1223 / 0.1913 to
+0.2057 / 0.2743. At 10%, ride still lands at **2.5× the observed 20.6%** and
+vehicle occupancy at **4.7×** the observed passenger:driver ratio, outside the
+seven-year observed spread. §9.11's own prediction is confirmed: the ceiling is
+0.779 and the model settles far below it, so the constraint never binds where it
+would matter.
+
+### Why the 1% column must not be read behaviourally
+
+**1% does not deliver the simulated day.** Counting `stuckAndAbort` in each run's
+own events:
+
+| | 1% | 10% |
+|---|---:|---:|
+| car legs aborted at the 30 h horizon | **1,032** | **4** |
+| walk / pt / bike / ride aborted | 19 / 41 / 1 / 0 | 253 / 183 / 9 / 2 |
+| PT passengers who boarded and never alighted | **380** | **0** |
+
+Every abort at 1% occurs at exactly 108,000 s — `qsim.endTime` — so these are
+agents still travelling when the day ends. A tenfold population increase makes
+car non-completion fall **258-fold**, which is not proportional to demand.
+
+The mechanism is **flow**-capacity granularity, a different quantity from the
+storage argument §9.10 correctly ruled out. `RUN.sample.flow_capacity_factor` is
+derived to equal the sample fraction, so at 1% an 1,800 veh/h link discharges
+**18 veh/h — one vehicle every 200 s**, and two sampled cars arriving inside that
+window queue behind pure arithmetic with no congestion present. At 10% the same
+link releases one every 20 s. Storage and flow are pinned equal (§15), so this
+cannot be separated by configuration, only by fraction — which is what these two
+runs do. It is the first mechanism offered for the §9.10 car/PT divergence that
+survives measurement, after four died, and it explains the direction too: a fifth
+of car legs missing from the completed-trip denominator inflates every other mode.
+
+It also explains a gap that would otherwise look like a defect in the metric
+extractor. `modestats.csv` records the mode agents **chose** (pt 4.69% at 1%);
+`output_trips` records trips that **completed** (pt 0.357%). Both are correct.
+Only the second is a mode share, and at 1% the simulation is not producing one.
+
+**Consequence.** Every P4 behavioural measurement taken at 1% carries this
+artefact, including the §9.7 seed test and the §9.10 fraction diagnostic. The
+§9.10 conclusion nevertheless **stands**. It was nearly overturned on the apparent
+fraction-sensitivity of ride (61.06 → 50.94), and most of that swing is the
+artefact rather than sampling. Because a §8.5 departure cannot be un-logged, the
+10% reading is being **confirmed at 25% before any specification change is
+chosen**; the threshold between 10% and 25% is unmeasured.
+
+### A defect found by computing the first fits, and it flattered the answer
+
+`fit.py` collapsed two different situations into one branch — a station that
+resolved to no link, and a station whose links carry a modelled volume of zero —
+and emitted the *did not resolve to a link on the run network* reason for both.
+Only one of the three affected targets fits that description.
+
+| target | station | observed AADT | modelled | actual situation |
+|---|---|---:|---:|---|
+| V079 | 55717 Tarean Road (Karuah) | 1,270 | absent | genuinely outside the network (issue 10) |
+| V096 | 55839 Raymond Terrace Rd | 11,810 | **0** | links resolve; the model routes nothing over them |
+| V113 | 55888 **M1 Pacific Motorway (Wyee)** | **48,016** | **0** | links resolve; the model routes nothing over them |
+
+**A modelled zero is a result, not an unscorable target**, and dropping it removed
+the two stations where the model fails hardest from every aggregate — the
+inversion of proposal §8 deliverable 3. Corrected: the two conditions carry
+separate reasons, a zero is scored at −100% and flagged in
+`counts.modelled_zero_stations`. The fit moves from 36 scored / 31 unscorable to
+**38 / 29**, counts from 31 stations to 33, and the count error honestly worsens
+(10%: mean −72.1% → **−73.8%**, RMSE 20,849 → **21,750**).
+
+**This exposes a modelling gap, not a reporting question.** The model puts **zero
+cars on the M1 at Wyee** — a 4,000-capacity, 110 km/h link with an observed 48,016
+AADT on the southern study-area boundary. The likely cause is the external tier:
+B2 synthesises 5,384 weekday boundary agents and evidently routes none onto the
+motorway there. Until that is understood, every boundary-adjacent count is biased
+low. Recorded rather than fixed.
+
+### Three values that were governing the model from outside the registry
+
+Found by auditing for literals rather than by a failure, and all three now resolve
+through `config/registry/`:
+
+- **`B.counts.station_match_radius_m` (new field, 120 m).** A CLI default in
+  `map_count_stations.py` with no provenance and no range, and it decides which
+  `road_aadt` targets are scorable **at all** — a lever on the reported fit, not a
+  plotting tolerance. Swept 60–120 m on measurement: the largest accepted match is
+  119.7 m, so 120 m is exactly binding; at 100 m six of the 116 matched stations
+  lose their link and at 60 m twenty-three do. Gated as the build-layer migration
+  was — `count_station_links.csv` rebuilds **byte-identical**.
+- **`sample_population.SEED`** held its own copy of 20260810 and now resolves from
+  `RUN.machine.seed`.
+- **`solve_asc_ride.py`** carried five run parameters and the −0.85 prior as
+  literals and — found while removing them — **called `run_matsim.run()` with the
+  pre-registry positional signature, so it could not execute at all.** It is the
+  tool #9 needs, so it was repaired rather than deleted: every run parameter now
+  resolves through the registry, the candidate bracket is a required argument on
+  the same principle as `--iterations`, and it reads the schema-validated
+  `_metrics.json` rather than raw `modestats.csv`. `fit.py` is deliberately still
+  not invoked, so it remains structurally unable to reach a validation target.
+
+Two P1 exploratory probes (`src/extract/ckan_probe.py`, `src/extract/s3_list.py`)
+were deleted: no docstring, no artefact in the manifest, referenced by nothing.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -1590,7 +1720,7 @@ scripts**, a 110-parameter MATSim config per run set, and a handful of CLI
 defaults. One of those 316 carried a machine-readable `source` label. Eighteen
 carried a sweep.
 
-`config/registry/` now declares **123 fields** — every value the model consumes
+`config/registry/` now declares **142 fields** — every value the model consumes
 that is not read from an immutable raw download — each with its units, its
 provenance, and either a sweep range or an explicit rule holding it fixed.
 `src/registry/` resolves them; `docs/CONFIG_REFERENCE.md` is generated from them

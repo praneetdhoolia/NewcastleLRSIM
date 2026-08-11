@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 141 fields are made of
+## What the 142 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -35,12 +35,12 @@ Three things are refused at every layer:
 | `measured` | 5 | computed from observed data in this package |
 | `derived` | 9 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
-| `assumed` | 71 | chosen without direct empirical support |
+| `assumed` | 72 | chosen without direct empirical support |
 | `definition` | 36 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 128 | usable point value |
+| `active` | 129 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 7 | the datum does not exist in the package; must be swept, never pinned |
@@ -283,7 +283,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`config/registry/B_demand.json` - 26 fields*
+*`config/registry/B_demand.json` - 27 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -304,6 +304,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.weekend_departure_shift_h` | `{"WEEKDAY": 0, "SAT": 1, "SUN": 1}` | hours | `assumed` | 0 - 2 |
 | `B.activity.weekend_to_weekday` | `0.7521` | ratio | `measured` | 0.709 - 0.816 |
 | `B.counts.heavy_vehicle_share` | `0.0652` | share_of_vehicles | `measured` | 0.0129 - 0.1529 |
+| `B.counts.station_match_radius_m` | `120.0` | metres | `assumed` | 60 - 120 |
 | `B.counts.vehicles_per_car_leg` | `1.0` | vehicles_per_leg | `derived` | derived: observed vehicle trips ARE driver trips at occupancy 1.3503, so a car  |
 | `B.counts.vehicles_per_ride_leg` | `0.0` | vehicles_per_leg | `derived` | derived: a passenger rides in a vehicle already counted, so a ride leg contribu |
 | `B.external.day_factor` | `{"WEEKDAY": 1.0, "SAT": 0.4, "SUN": 0.3}` | multiplier | `assumed` | plus/minus 30% |
@@ -413,6 +414,14 @@ Heavy vehicle share, applied AT COMPARISON TIME to the comparison and not to the
 ***measured** · status **active** · DECISIONS.md §12.2a*
 
 > **Sweep basis.** the observed range across the 23 stations that carry a classified count
+
+#### `B.counts.station_match_radius_m`
+
+Radius within which a permanent traffic count station may be attached to a network link it is taken to count. It decides which road_aadt targets are scorable at all, so it is a lever on the reported fit, not a plotting tolerance: 189 of 203 link matches are by name AND proximity, 14 by proximity alone. Was a CLI default typed into map_count_stations.py with no provenance and no range (issue 19).
+
+***assumed** · status **active** · DECISIONS.md §12.1*
+
+> **Sweep basis.** measured on data/processed/validation/count_station_links.csv: the largest ACCEPTED match is 119.7 m, so 120 m is exactly binding. Tightening costs targets at a measured rate - at 100 m six of the 116 matched stations lose their link and at 60 m twenty-three do - which is the lower bound. The upper bound is the current value because loosening cannot gain anything already in the file; whether a larger radius would resolve the three stations that match nothing (issue 10) has NOT been tested, and testing it means re-running the mapper and regenerating a committed artefact.
 
 #### `B.counts.vehicles_per_car_leg`
 

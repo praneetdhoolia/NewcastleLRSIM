@@ -465,6 +465,22 @@
         "identity": "a passenger rides in a vehicle already counted, so a ride leg contributes zero - valid only while the modelled ride:car ratio matches the observed passenger:driver ratio"
       }
     },
+    "B.counts.station_match_radius_m": {
+      "value": 120.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        60.0,
+        120.0
+      ],
+      "sweep_basis": "measured on data/processed/validation/count_station_links.csv: the largest ACCEPTED match is 119.7 m, so 120 m is exactly binding. Tightening costs targets at a measured rate - at 100 m six of the 116 matched stations lose their link and at 60 m twenty-three do - which is the lower bound. The upper bound is the current value because loosening cannot gain anything already in the file; whether a larger radius would resolve the three stations that match nothing (issue 10) has NOT been tested, and testing it means re-running the mapper and regenerating a committed artefact.",
+      "status": "active",
+      "decisions_ref": "12.1",
+      "description": "Radius within which a permanent traffic count station may be attached to a network link it is taken to count. It decides which road_aadt targets are scorable at all, so it is a lever on the reported fit, not a plotting tolerance: 189 of 203 link matches are by name AND proximity, 14 by proximity alone. Was a CLI default typed into map_count_stations.py with no provenance and no range (issue 19).",
+      "consumers": [
+        "src/analyse/map_count_stations.py"
+      ]
+    },
     "B.activity.day_horizon_s": {
       "value": 108000,
       "units": "seconds",

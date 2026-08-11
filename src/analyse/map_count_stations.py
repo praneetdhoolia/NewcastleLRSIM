@@ -33,11 +33,18 @@ import gzip
 import math
 import os
 import re
+import sys
 
 import pyproj
 
 CRS_M = 'EPSG:28356'
 TO_M = pyproj.Transformer.from_crs('EPSG:4326', CRS_M, always_xy=True).transform
+
+# The match radius is a registry field, not a literal typed here: it decides
+# which road_aadt targets are scorable at all, so it is a lever on the
+# reported fit (issue 19). See B.counts.station_match_radius_m.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry                            # noqa: E402
 
 STATIONS = 'data/processed/validation/road_aadt_targets.csv'
 OUT = 'data/processed/validation/count_station_links.csv'
@@ -142,13 +149,19 @@ def match(stations, links, radius_m):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--network', default=DEFAULT_NETWORK)
-    ap.add_argument('--radius', type=float, default=120.0)
+    ap.add_argument('--radius', type=float, default=None,
+                    help='override B.counts.station_match_radius_m; checked '
+                         'against its declared sweep')
     a = ap.parse_args()
+
+    cfg = registry.load(set={'B.counts.station_match_radius_m': a.radius}
+                        if a.radius is not None else None)
+    radius = cfg.get('B.counts.station_match_radius_m')
 
     with open(STATIONS, encoding='utf-8') as f:
         stations = list(csv.DictReader(f))
     links = load_network(a.network)
-    rows, unmatched = match(stations, links, a.radius)
+    rows, unmatched = match(stations, links, radius)
 
     with open(OUT, 'w', encoding='utf-8', newline='') as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
@@ -160,6 +173,7 @@ def main():
     for r in rows:
         by_how[r['matched_by']] = by_how.get(r['matched_by'], 0) + 1
     print('%d car links loaded from %s' % (len(links), a.network))
+    print('match radius %.1f m (B.counts.station_match_radius_m)' % radius)
     print('%d of %d stations matched (%d links); %d unmatched'
           % (len(matched), len(stations), len(rows), len(unmatched)))
     print('  by match quality: %s' % by_how)

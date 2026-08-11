@@ -23,11 +23,17 @@ import os
 import re
 
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                '..', 'build'))
+_HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(_HERE, '..', 'build'))
+sys.path.insert(0, os.path.join(_HERE, '..'))
 from det_io import gzip_writer  # noqa: E402
+import registry                 # noqa: E402
 
-SEED = 20260810
+# The seed is NOT a literal here. It resolved from the registry, so there is one
+# copy of it and changing it is a declared change - two copies of a number is the
+# drift this package cannot absorb (DECISIONS.md 15). run_matsim.py passes
+# RUN.machine.seed explicitly; this default only serves a standalone invocation.
+SEED = registry.load().get('RUN.machine.seed')
 PERSON_RE = re.compile(r'<person id="([^"]+)"')
 # <ns0:capacity seats="70" standingRoomInPersons="0"> - both numbers are scaled,
 # so a fleet that had standing room would scale too, though this one has none.

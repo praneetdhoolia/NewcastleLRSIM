@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 """Assert that a registry field and the constant it replaced still agree.
 
-The build layer has not been migrated to read the registry yet: those scripts
-still hold their own module-level constants, and the registry declares the same
-values with their provenance and sweep. Two copies of a number is exactly the
-drift this package cannot absorb, so until the migration lands the two are
-pinned together by test.
+The build layer HAS been migrated and this check is now nearly empty, which is
+the point: every migrated script reads the registry, so its duplicate constant
+was deleted with the `legacy_symbol` that pinned it. What remains is whatever
+still holds its own copy of a declared value. Two copies of a number is exactly
+the drift this package cannot absorb, so any that survive are pinned by test
+until they are migrated too.
 
 Every field carrying `legacy_symbol: "path/to/file.py:SYMBOL"` is compared with
 the literal actually assigned in that file. A mismatch is a failure, not a
@@ -27,7 +28,7 @@ from registry import extract_legacy_constants as legacy   # noqa: E402
 
 # Fields whose registry value is deliberately NOT the legacy literal, with the
 # reason. Each one is a value the project decided to change; the constant is
-# still in the source only because the build layer has not been migrated.
+# still in the source only because that script has not been migrated.
 EXPECTED_DIVERGENCE = {
     'B.activity.detour_factor': (
         'the build script keeps 1.30 as a fallback labelled "assumed - C2 factors file '

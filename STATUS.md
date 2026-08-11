@@ -4,15 +4,15 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 11 August 2026 (input registry)
-**Stage:** **P4 stages 0–1.** **Seven** defects fixed, every one of which would
+**Last updated:** 11 August 2026 (P4 stage 3 - the ride constraint measured)
+**Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
 choosing, and the day-type filter left **the with-tram scenario with no tram on a
 weekday** (§9.9). Run cost, seed dependence and convergence are measured rather
 than assumed, and the ride constant is constrained to observed vehicle occupancy
 (§9.8). Every controllable value is now **declared** rather than typed into a script:
-`config/registry/` holds 123 fields with units, provenance and a sweep or a
+`config/registry/` holds 142 fields with units, provenance and a sweep or a
 held-fixed rule, and the resolver refuses to hand back a point value for
 anything unobtained (§15). **No fit has been computed against any of the 67
 calibration targets, no calibration loop exists, and nothing in this repo is a
@@ -407,7 +407,7 @@ with honest reporting of where fit is poor"*. None of it exists yet.
 |---|---|---|---|
 | 1 | ~~**Run harness**~~ **done** | `src/run/` | Nested subsample, transit seat capacity scaled with the fraction, deterministic, resumable, records its own parameters |
 | 2 | ~~**Metric extraction**~~ **done** | `src/analyse/` | Mode share by LGA of residence, PT boardings by line, link volumes at the mapped count stations |
-| 3 | ~~**Fit statistic**~~ **done** | [`src/calibrate/fit.py`](src/calibrate/fit.py) | Calibration rows only, and it raises if a holdout row survives the filter. 35 scored + 32 explained = 67, asserted rather than assumed. The output contract now **fails a fit block that does not name its target ids** |
+| 3 | ~~**Fit statistic**~~ **done** | [`src/calibrate/fit.py`](src/calibrate/fit.py) | Calibration rows only, and it raises if a holdout row survives the filter. **38 scored + 29 explained = 67**, asserted rather than assumed. A modelled zero is scored at −100%, not dropped — dropping it flattered the count fit by removing the stations where the model fails hardest (issue 19). The output contract now **fails a fit block that does not name its target ids** |
 | 4 | **Calibration loop** — deterministic, resumable, and structurally unable to read a holdout row | `src/calibrate/` | |
 | 5 | **Calibrated base** + parameter provenance | `params/` | |
 | 6 | **Calibration report** | `docs/` | |
@@ -432,7 +432,7 @@ sweep.
 
 | | |
 |---|---:|
-| Fields declared | **140** |
+| Fields declared | **142** |
 | …assumed | 72 |
 | …literature | 18 |
 | …definition | 36 |
@@ -507,7 +507,7 @@ it. See [`DECISIONS.md`](DECISIONS.md) §15.
 `src/build/*.py` still hold their own constants. Two copies of a number is the
 drift this package cannot absorb, so
 [`src/registry/check_legacy_drift.py`](src/registry/check_legacy_drift.py) pins
-them together by test — 52 compared, one deliberate divergence, one expression
+them together by test — **1 remaining**, one deliberate divergence (the migration removed the other 51 constants outright), one expression
 that is not a literal. Writing that check immediately found **four values
 transcribed wrongly into the registry**; the code was authoritative and the
 registry was corrected. That migration needs a full package rebuild to verify
@@ -607,6 +607,62 @@ The constraint lowers the ceiling to the 77.9% who may ride, and the
 unconstrained attractor was 0.72, so it does not bind hard at the corner. Ride was
 still climbing at iteration 30 (0.2787). **Whether it now settles near the
 observed 0.206 is unmeasured** and needs a converged run at 1% *and* 10%.
+
+---
+
+## P4 stage 3 — the ride constraint measured, and 1% found unusable (11 August 2026)
+
+The §9.11 question answered. Two runs of S2 × WEEKDAY at 250 iterations, 8 threads,
+committed overlays, declared pipeline. Full detail in [`DECISIONS.md`](DECISIONS.md) §9.12.
+**Neither is a result** — §9.7 shows 250 iterations is short of relaxation.
+
+**Mode share, Newcastle LGA** — the reportable quantity, not the five-LGA aggregate:
+
+| | 1% | **10%** | HTS |
+|---|---:|---:|---:|
+| Vehicle driver | 16.01 | **30.85** | 59.0 |
+| **Vehicle passenger** | 61.06 | **50.94** | **20.6** |
+| mean absolute error | 23.19 pp | **17.43 pp** | |
+| passengers per driver | 3.8140 | **1.6512** | 0.3503 |
+
+**Necessary, not sufficient.** Ride fell from 0.72 to 0.56 on the five-LGA quantity
+— the largest single move any P4 change has produced — and still lands at **2.5×**
+the observed share, with occupancy **4.7×** observed. §9.11 predicted exactly this:
+the ceiling is 0.779 and the model settles far below it, so the constraint never
+binds where it would matter. **Issue #16 stays open**; the three candidates are live
+and the §8.5 departure has not been chosen.
+
+**1% is unusable, not merely unrepresentative (#17).** 1,032 car legs abort at the
+30 h horizon against **4** at 10%, and 380 PT passengers board and never alight
+against **0**. A tenfold population increase cuts car non-completion **258-fold**,
+so it is not proportional to demand: at `flowCapacityFactor = 0.01` an 1,800 veh/h
+link discharges **one vehicle every 200 s** and cars queue on arithmetic alone.
+This is *flow*, distinct from the *storage* argument §9.10 already ruled out, and
+it is the first mechanism for the car/PT divergence to survive measurement after
+four died. It also explains why `modestats.csv` and `_metrics.json` disagree: one
+records the mode agents **chose**, the other trips that **completed**.
+
+**A 25% run is in flight** to confirm the 10% reading before a §8.5 departure is
+chosen — a departure cannot be un-logged, and the threshold between 10% and 25% is
+unmeasured.
+
+**A defect that flattered the fit (#19).** `fit.py` dropped a count station when
+the model routed *zero* traffic over it, under a reason that said the station had
+not resolved to a link. The M1 Pacific Motorway at Wyee — observed **48,016** AADT,
+modelled **0** — was silently excluded, along with Raymond Terrace Road. A modelled
+zero is a **result**, and the worst one in the set. Now scored at −100% and flagged:
+**38 scored + 29 explained = 67**, counts 31 → **33 stations**, and the count error
+honestly worsens (mean −72.1% → **−73.8%**). It exposes a real gap — the model puts
+**no cars on the M1 at Wyee** — most likely in the external boundary tier.
+
+**Three values were governing the model from outside the registry**, found by audit:
+`B.counts.station_match_radius_m` (**new field**, 120 m, swept 60–120 on measurement
+— it decides which count targets are scorable at all); `sample_population.SEED`,
+which held its own copy of 20260810; and `solve_asc_ride.py`, which carried five run
+parameters and the −0.85 prior as literals **and called `run_matsim.run()` with the
+pre-registry signature, so it could not execute at all**. All now resolve through
+the registry. `count_station_links.csv` rebuilds **byte-identical**, which is the
+gate. Two orphaned P1 probes were deleted.
 
 ---
 

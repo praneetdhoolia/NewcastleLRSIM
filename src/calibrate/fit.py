@@ -8,6 +8,14 @@ here: `load_targets()` filters `split == 'calibration'` at read time and raises
 if anything else survives, so a holdout value is never in memory, never in an
 intermediate, and never in the output.
 
+**A modelled zero is scored, not dropped.** Where the model routes no traffic
+over a link that carries observed volume, that is a *result* and the worst one
+in the set - the M1 Pacific Motorway at Wyee is observed 48,016 and modelled 0.
+Dropping it would flatter every aggregate below by removing the stations where
+the model fails hardest, which is the inversion of proposal §8 deliverable 3.
+Only a station that resolves to no link at all is unscorable, and the two cases
+carry different reasons (issue 19).
+
 **It reports what it could not score, as loudly as what it could.** A target with
 no modelled counterpart is listed as `unscorable` with the reason, because
 "fits 67 targets" is a much stronger claim than this data supports and
@@ -135,11 +143,17 @@ def score_counts(targets, metrics, corrections, out):
             continue
         key = t['note'].split('station_key=')[1].split(';')[0]
         s = by_station.get(key)
-        if s is None or not s['modelled_vehicles']:
+        # Two different situations, and only one of them is unscorable. An
+        # earlier cut collapsed them into a single branch and emitted the
+        # "did not resolve to a link" reason for both, which was false for the
+        # zero-volume stations AND dropped the worst misses out of the fit -
+        # the M1 at Wyee is observed 48,016 and modelled 0 (issue 19).
+        if s is None:
             out['unscorable'].append(dict(
                 target_id=t['target_id'], metric=t['metric'], note=key,
-                reason='station has no modelled volume: it did not resolve to a '
-                       'link on the run network (outside the modelled area)'))
+                reason='station did not resolve to any link on the run network, '
+                       'so the model carries no counterpart to compare '
+                       '(outside the modelled area - issue 10)'))
             continue
         # the model has no freight, so the observed all-classes count is put on
         # a light-vehicle basis using the station's own share where classified
@@ -152,6 +166,11 @@ def score_counts(targets, metrics, corrections, out):
                  heavy_share_source='observed' if key in obs_heavy else 'assumed',
                  matched_by=s['matched_by'],
                  max_link_distance_m=s['max_distance_m'])
+        # A modelled zero is a RESULT - the model routes no traffic over a link
+        # that carries observed volume - not a target that cannot be scored. It
+        # is flagged so it is visible rather than buried in an aggregate.
+        if not s['modelled_vehicles']:
+            e['modelled_zero'] = True
         errs.append(e)
         used.append(t['target_id'])
     if not errs:
@@ -166,7 +185,9 @@ def score_counts(targets, metrics, corrections, out):
                 rmse_pct_of_mean_observed=round(
                     100.0 * math.sqrt(sum(sq) / len(sq)) / (sum(obs) / len(obs)), 2),
                 heavy_share_assumed_at=sum(1 for e in errs
-                                           if e['heavy_share_source'] == 'assumed'))
+                                           if e['heavy_share_source'] == 'assumed'),
+                modelled_zero_stations=[e['target_id'] for e in errs
+                                        if e.get('modelled_zero')])
 
 
 def account_for_the_rest(targets, out):
@@ -282,6 +303,12 @@ def main():
                  c['rmse_pct_of_mean_observed']))
         print('  heavy-vehicle share assumed at %d of %d stations'
               % (c['heavy_share_assumed_at'], c['n']))
+        if c['modelled_zero_stations']:
+            print('  MODELLED ZERO at %d station(s): %s - the model routes no '
+                  'traffic over a link that carries observed volume. Scored at '
+                  '-100%%, not dropped (issue 19)'
+                  % (len(c['modelled_zero_stations']),
+                     ', '.join(c['modelled_zero_stations'])))
     o = out['occupancy_constraint']
     if o:
         print('\noccupancy constraint (not a target): modelled %.4f passengers '
