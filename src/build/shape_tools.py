@@ -37,6 +37,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from osm_parse import parse, haversine
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 ROAD_EDGES = 'data/processed/network/A1_road_edges.csv'
 ROAD_GEOM = 'data/processed/network/A1_road_geometry.jsonl'
 FOOTWAYS_OSM = 'networks/osm/newcastle_footways.osm'
@@ -46,7 +54,7 @@ RAILWAYS_OSM = 'networks/osm/newcastle_railways.osm'
 # is a cost multiplier on off-corridor edges: high enough that a parallel back
 # street is never preferred to the named street, low enough that a genuine gap
 # (a roundabout, an unnamed slip, a bridge deck) is still bridgeable.
-OFF_CORRIDOR_PENALTY = 12.0
+OFF_CORRIDOR_PENALTY = CFG.get('A.corridor.off_corridor_penalty')
 
 # Classes a tram or a bus can plausibly run in. Service ways and tracks are
 # excluded so a route cannot cut through a car park or a fire trail.

@@ -24,6 +24,14 @@ import argparse
 import numpy as np
 import pandas as pd
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 CEN = 'data/processed/census'
 ZON = 'data/processed/zones'
 LU = 'data/processed/landuse'
@@ -32,12 +40,11 @@ OUT = 'demand'
 os.makedirs(os.path.join(OUT, 'population'), exist_ok=True)
 os.makedirs(os.path.join(OUT, 'plans'), exist_ok=True)
 
-AGE_BANDS = [(0, 4), (5, 11), (12, 17), (18, 24), (25, 34), (35, 44),
-             (45, 54), (55, 64), (65, 74), (75, 84), (85, 120)]
+AGE_BANDS = CFG.get('B.population.age_bands')
 BAND_LABEL = ['0-4', '5-11', '12-17', '18-24', '25-34', '35-44',
               '45-54', '55-64', '65-74', '75-84', '85+']
 # NSW driver-licence holding rate by age band (assumed; ABS/TfNSW-typical)
-LICENCE_RATE = [0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]
+LICENCE_RATE = CFG.get('B.population.licence_rate_by_age_band')
 OCCUPATIONS = ['Managers', 'Professionals', 'TechnicTrades_Wrs', 'CommunPersnlSvc_W',
                'ClericalAdminis_W', 'Sales_W', 'Mach_oper_drivers', 'Labourers']
 INCOME_BANDS = ['Neg_Nil', '1_149', '150_299', '300_399', '400_499', '500_649',

@@ -20,6 +20,14 @@ import csv
 import json
 import itertools
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 OUT = 'params'
 os.makedirs(OUT, exist_ok=True)
 
@@ -32,7 +40,7 @@ os.makedirs(OUT, exist_ok=True)
 PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'NHB']
 
 # value of travel time savings, AUD per hour, 2026 prices
-VOT = {'HW': 18.60, 'HE': 9.30, 'HS': 15.20, 'HO': 15.20, 'WB': 55.40, 'NHB': 15.20}
+VOT = CFG.get('C.vot.by_purpose')
 VOT_SWEEP = {k: (round(v * 0.7, 2), round(v * 1.3, 2)) for k, v in VOT.items()}
 
 # multipliers on in-vehicle time (beta_ivt is the numeraire = 1.0)

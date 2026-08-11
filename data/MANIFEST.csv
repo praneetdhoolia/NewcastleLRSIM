@@ -78,7 +78,7 @@ data/processed/landuse/D1_frontage_segments.csv,processed,116235,498,src/build/b
 data/processed/landuse/D1_poi.csv,processed,2117780,23697,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,0484f9159cb07e0825c43c778c7f79eabdec778051410688627833d7fd698b09
 data/processed/landuse/D1_zone_attractions_SA1.csv,processed,355873,1701,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,63a6dbd284e3765df328d598812f779d0f82397eef8ee9fb4cd48486fad0e436
 data/processed/landuse/_attractions_report.json,processed,1352,,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,cd7f994e8c07a1e39a460bf9a9e5f45ffc590a6541c0d9f8cfbf22f2d116d663
-data/processed/landuse/_landuse_report.json,processed,1106,,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,17fbb0a91e173bc6f5f97ea994e9b575ae7bde711dc2fd631552ac00c3eeb303
+data/processed/landuse/_landuse_report.json,processed,1106,,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,763d966c0219b0ddad63da9400523e494c369f4db13777aaa796f1a25be82e85
 data/processed/network/A1_corridor_road_edges.csv,processed,144212,714,src/build/build_network_layers.py + attach_gradient.py,,,,,bb628c13b54e6082914422c2bcb547e246165f0a6204992d4cecb9793d3cab38
 data/processed/network/A1_road_edges.csv,processed,8604222,43112,src/build/build_network_layers.py + attach_gradient.py,,,,,eda24d6f4d4b68371268e28fd2fc0c11b94990b2255b63069d06d97b40383fab
 data/processed/network/A1_road_geometry.jsonl,processed,10419138,43112,src/build/build_network_layers.py + attach_gradient.py,,,,,27f9412ba71c33568f6e5090229a02942402428bc5f682400325ebade96abcf3
@@ -126,11 +126,11 @@ data/processed/zones/zones_SA2.gpkg,processed,2605056,,src/extract/extract_zones
 data/processed/zones/zones_SA3.csv,processed,1894,7,src/extract/extract_zones.py,,,,,e51b347ea86975c7e4157bf3748dde875029d069a800ca7b14e8f0c71b6aa422
 data/processed/zones/zones_SA3.gpkg,processed,1466368,,src/extract/extract_zones.py,,,,,85797518c5985b64401e296595f591af8d8c2f6f15ff146724d3977820df950b
 schedules/_era1_reconstruction_report.json,processed,915,,src/build/build_era_feeds.py,,,,,6ed5cee6b77723cdf27b4d04f8179b7697c1b4580886fd8f4d035b365a55f89c
-schedules/base2026.zip,processed,9454546,8,src/build/build_era_feeds.py,,,,,003354ec0a8aa9c52f94258b0f3746385ba0748d7fee1620707df31c9f3e3d14
-schedules/era1_pre2014_reconstructed.zip,processed,11150838,7,src/build/build_era_feeds.py,,,,,acea472b7d3f2881f1185d797ef67a4d504cbb0958213fa2f83ec6fc5e1c5e49
-schedules/era2_2016_rail_truncated.zip,processed,11145832,7,src/build/build_era_feeds.py,,,,,3f8174ff53ce9652a59283f94d4339617f4c07df6d9ae76a18f18155d8adc93a
-schedules/era3_2018_keolis_interchange.zip,processed,6161429,8,src/build/build_era_feeds.py,,,,,629c8c8caa84483ab336b2034f2cf12c9c1705d0153f928738e3a24d461a24bb
-schedules/era4_2019_lr_open.zip,processed,5846088,8,src/build/build_era_feeds.py,,,,,502faf181203f55448990b9d93b6ed586e8190e4c8152090635b866c017e78b1
+schedules/base2026.zip,processed,9454546,8,src/build/build_era_feeds.py,,,,,b70098811ee26f45bfd3b0ebff6e725d8a6121984b1956869f9e9ad245e639cb
+schedules/era1_pre2014_reconstructed.zip,processed,11150838,7,src/build/build_era_feeds.py,,,,,066396bc3557056586b3c7a77ceb0b8859a7bd723f7378610aa1098e06ab9cf3
+schedules/era2_2016_rail_truncated.zip,processed,11145832,7,src/build/build_era_feeds.py,,,,,d0cb7c0f96bf4b319a960865631c502e443b49b71f84a51a13d061c01d2f9931
+schedules/era3_2018_keolis_interchange.zip,processed,6161429,8,src/build/build_era_feeds.py,,,,,ba7b7dd38d0a55077231cf3d8f8ab2f435363c03049e623f506318e4486f8168
+schedules/era4_2019_lr_open.zip,processed,5846088,8,src/build/build_era_feeds.py,,,,,e9d33c610fcb20239e31429a7a970432f70e0037c6ef27b7e33185fe3221ebb4
 schedules/era_build_summary.json,processed,6789,,src/build/build_era_feeds.py,,,,,cddf6054d45264c548837952ba292c7611f8d71765514548c6d22024e5e04c8b
 schedules/raw/provenance.json,raw,4793,,src/extract/fetch_gtfs.py,,,,,b2015579ed89a0865b9e0803f96a424f702869efa90f19e26fd758005e9d115a
 schedules/raw/base2026/lightrail.zip,raw,53308,10,src/extract/fetch_gtfs.py,,,,,987777bb6841cc8390f9ee20bece40cc107b99083fa1c5009819e9a4aee5aa6d
@@ -148,16 +148,16 @@ schedules/raw/era4_2019_lr_open/lightrail.zip,raw,37275,10,src/extract/fetch_gtf
 schedules/raw/era4_2019_lr_open/nisc001.zip,raw,4717085,9,src/extract/fetch_gtfs.py,,,,,723a86123958da00e41c72ac88e15786b46c864886cee1b761374776101c6402
 schedules/raw/era4_2019_lr_open/nswtrains.zip,raw,9823981,10,src/extract/fetch_gtfs.py,,,,,5de7913d92aae747c33da3c3e43808172cb144a5cd37e60b33adcacbd25c9c41
 schedules/raw/era4_2019_lr_open/sydneytrains.zip,raw,9911544,7,src/extract/fetch_gtfs.py,,,,,8ecb229d61e48fa1e483e5741f257710f9ab173ebd1ed4d2d0a702824090f0b6
-schedules/scenarios/S0.zip,processed,9479066,8,src/build/build_scenario_schedules.py,,,,,c5f96848eb34b34df8886326e49bad55b21cf859e42670eab0fe0509e85b84f1
-schedules/scenarios/S1.zip,processed,9440435,8,src/build/build_scenario_schedules.py,,,,,7a94ed085212e4202961b8f5d8f2e8a5a48c4cdb881e8f771c29161d27634ded
-schedules/scenarios/S2.zip,processed,9444269,8,src/build/build_scenario_schedules.py,,,,,8ea54bd797a4e4e1d36131d5861468905407847c4b29e211484e02764d2e0f74
-schedules/scenarios/S2a.zip,processed,9444492,8,src/build/build_scenario_schedules.py,,,,,898a0f3d2deea748b352c05d3bf0d9e743851c928b6ae3dbfa1ed55964b11a2d
-schedules/scenarios/S2b.zip,processed,9444204,8,src/build/build_scenario_schedules.py,,,,,96044f13e3082d5ad8b6c837c5a62f4bcc5ada77607eb85bd3815dcca44d431c
-schedules/scenarios/S2c.zip,processed,9442536,8,src/build/build_scenario_schedules.py,,,,,4d612bbc8fc9eba99e1b0b9f2eb6f217801b8ceca483e8a9f34a9c27e4c91752
-schedules/scenarios/S3.zip,processed,9441425,8,src/build/build_scenario_schedules.py,,,,,1805aab048089ebc3421eeec9b6e75c46819f396ceb2b9936bbcd11e61e14779
-schedules/scenarios/S4.zip,processed,9456689,8,src/build/build_scenario_schedules.py,,,,,ed35c91f66bdaeed2beba938a9e4b18850c1f1d1c634b78afcd6e3d45fbee575
-schedules/scenarios/S5.zip,processed,9470864,8,src/build/build_scenario_schedules.py,,,,,0324b741e985ceb272e979b93fa5da009493813d8a4deacf80ad0629327097b5
-schedules/scenarios/S6.zip,processed,9411374,8,src/build/build_scenario_schedules.py,,,,,5d67a165d3d10d679f47e4114b6801838d5f6122aaeebafe4eaff1ab6768713a
+schedules/scenarios/S0.zip,processed,9479066,8,src/build/build_scenario_schedules.py,,,,,1fdd0fdc5300ecd7cc5900ccf27aa455b97e570520cf0b3b2805c891a0c25f56
+schedules/scenarios/S1.zip,processed,9440435,8,src/build/build_scenario_schedules.py,,,,,22da673988ae8f8884b3a082d035664bb6069da3751246edacd8cee51c24d0f5
+schedules/scenarios/S2.zip,processed,9444269,8,src/build/build_scenario_schedules.py,,,,,43e3ef4ef742ecbb432695da978c7285cd5827f51b05f0289196ec8bc851ac94
+schedules/scenarios/S2a.zip,processed,9444492,8,src/build/build_scenario_schedules.py,,,,,0f6d2c9098b83188b9647fd8783902b40674463418ad88d6bc4b4bf195d0dd56
+schedules/scenarios/S2b.zip,processed,9444204,8,src/build/build_scenario_schedules.py,,,,,1e06f2376ac51b0aef3dae7b29d8c3d6a8b7ac4f62baa13da9c000205e581801
+schedules/scenarios/S2c.zip,processed,9442536,8,src/build/build_scenario_schedules.py,,,,,2b6eca265f028367c385c6c41508e2ec529a09ba44615571146efb6d8aca36ee
+schedules/scenarios/S3.zip,processed,9441425,8,src/build/build_scenario_schedules.py,,,,,dd00d10e1ca52770712834ad08800151465cfc8eaa19779d5a98b1783b63901d
+schedules/scenarios/S4.zip,processed,9456689,8,src/build/build_scenario_schedules.py,,,,,9e56f21e6cd1c9a5139768f31b67b3c4814fa94ab34baebd744d3235e2bba906
+schedules/scenarios/S5.zip,processed,9470864,8,src/build/build_scenario_schedules.py,,,,,b9eb892561dad2693998982714934f68511c9860b58097fbb9409e1fa2b2df9c
+schedules/scenarios/S6.zip,processed,9411374,8,src/build/build_scenario_schedules.py,,,,,8fa2d6af8fa1a5228985c1b799337e6b5f3702005751103a9ce01d5704f7b1b6
 schedules/scenarios/_scenario_schedule_report.json,processed,3399,,src/build/build_scenario_schedules.py,,,,,eebfe1b532aa6a5b4d272abab1d5091611116362a96d9c0e67c3c69cfcd8b81d
 demand/plans/B2_activity_trips_SAT.csv,processed,247632170,1861017,src/build/build_activity_chains.py,,,,,c2d0ee875705f51cfa4bf8c9c87589affc335b24ccdfa4cc6deb277c570af10b
 demand/plans/B2_activity_trips_SUN.csv,processed,209624596,1575989,src/build/build_activity_chains.py,,,,,c07c2b4b88b07ebe592d519f5e109bf9aa34134dbd9e76998ea98e1c6c490775

@@ -43,6 +43,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from det_io import gzip_writer
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 MATSIM = 'networks/matsim'
 PATCHES = 'data/processed/network/A1_road_variant_patches.csv'
 E1 = 'scenarios/E1_scenarios.csv'
@@ -55,9 +63,9 @@ DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 # whole scoring scale is relative to it. Assumed, and **not Newcastle-specific**:
 # it is a property of the scoring formulation, not of this study area, so there
 # is nothing local to derive it from. Swept.
-PERFORMING_UTILS_PER_H = 6.0
+PERFORMING_UTILS_PER_H = CFG.get('C.scoring.performing_utils_per_h')
 PERFORMING_SWEEP = (4.0, 8.0)
-MARGINAL_UTILITY_OF_MONEY = 1.0        # utils per AUD, definitional anchor
+MARGINAL_UTILITY_OF_MONEY = CFG.get('C.scoring.marginal_utility_of_money')
 
 LINK_BLOCK_RE = re.compile(r'<link\b.*?(?:/>|</link>)', re.S)
 WAY_ID_RE = re.compile(r'name="osm:way:id"[^>]*>(\d+)<')
@@ -483,8 +491,7 @@ STRATEGY_BLOCK = """\t\t<parameterset type="strategysettings">
 # Per-km running cost seen by the traveller, AUD. Assumed: fuel and tyres only,
 # not standing costs, because a mode-choice decision does not re-decide car
 # ownership within the day.
-MONETARY_DISTANCE_RATE = {'car': -0.00018, 'ride': 0.0,
-                          'pt': 0.0, 'walk': 0.0, 'bike': 0.0}
+MONETARY_DISTANCE_RATE = CFG.get('C.scoring.monetary_distance_rate')
 # AUD/m for car. Fuel and tyres vary with national prices, not with Newcastle,
 # so this is swept rather than localised.
 MONETARY_DISTANCE_RATE_SWEEP = (-0.00025, -0.00012)

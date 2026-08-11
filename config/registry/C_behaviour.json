@@ -10,8 +10,8 @@
         "HE": 9.3,
         "HS": 15.2,
         "HO": 15.2,
-        "NHB": 15.2,
-        "WB": 55.4
+        "WB": 55.4,
+        "NHB": 15.2
       },
       "units": "AUD_2026_per_hour",
       "source": "literature",
@@ -22,8 +22,10 @@
       "status": "active",
       "decisions_ref": "8.3",
       "proposal_ref": "A/C1, 6.2",
-      "legacy_symbol": "src/build/build_params.py:VOT",
-      "description": "Value of travel time by trip purpose, ATAP PV2 / TfNSW Economic Parameter Values conventions. NOT a Newcastle measurement. MATSim scoring cannot carry per-purpose VOT, so the run inputs collapse this to a trip-weighted 16.96 AUD/h - see C.vot.trip_weighted and DECISIONS.md 9.3."
+      "description": "Value of travel time by trip purpose, ATAP PV2 / TfNSW Economic Parameter Values conventions. NOT a Newcastle measurement. MATSim scoring cannot carry per-purpose VOT, so the run inputs collapse this to a trip-weighted 16.96 AUD/h - see C.vot.trip_weighted and DECISIONS.md 9.3.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
     },
     "C.vot.concession_factor": {
       "value": 0.75,
@@ -394,8 +396,10 @@
       "status": "active",
       "decisions_ref": "9.3",
       "matsim_param": "scoring.performing",
-      "legacy_symbol": "src/build/build_matsim_run_inputs.py:PERFORMING_UTILS_PER_H",
-      "description": "Marginal utility of performing an activity. A property of the MATSim scoring formulation, not an observable quantity of Newcastle. The effective cost of travel time is performing plus the absolute marginalUtilityOfTraveling, which is how the 16.96 AUD/h VOT is reproduced: 6.0 + 10.9608."
+      "description": "Marginal utility of performing an activity. A property of the MATSim scoring formulation, not an observable quantity of Newcastle. The effective cost of travel time is performing plus the absolute marginalUtilityOfTraveling, which is how the 16.96 AUD/h VOT is reproduced: 6.0 + 10.9608.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     },
     "C.scoring.marginal_utility_of_money": {
       "value": 1.0,
@@ -405,8 +409,10 @@
       "status": "active",
       "decisions_ref": "9.3",
       "matsim_param": "scoring.marginalUtilityOfMoney",
-      "legacy_symbol": "src/build/build_matsim_run_inputs.py:MARGINAL_UTILITY_OF_MONEY",
-      "description": "Sets the utility numeraire to AUD. Definitional, not empirical."
+      "description": "Sets the utility numeraire to AUD. Definitional, not empirical.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     },
     "C.scoring.monetary_distance_rate": {
       "value": {
@@ -426,8 +432,10 @@
       "status": "active",
       "decisions_ref": "9.8",
       "matsim_param": "scoring.modeParams[*].monetaryDistanceRate",
-      "legacy_symbol": "src/build/build_matsim_run_inputs.py:MONETARY_DISTANCE_RATE",
-      "description": "Vehicle operating cost per metre. RIDE IS ZERO AND THAT IS DERIVED, NOT ASSUMED: a vehicle cost is paid once, and at occupancy 1.35 charging both occupants would make aggregate vehicle operating cost 1.35x the real one (DECISIONS.md 9.8). The earlier half-of-car was typed in and double-charged. CAUTION: with ride at zero and no driver-availability constraint, ride is cheaper than car on any trip long enough for the distance term to exceed the 0.85 ASC gap - about 4.7 km. That asymmetry is real and is why the constant must be constrained rather than left to absorb it."
+      "description": "Vehicle operating cost per metre. RIDE IS ZERO AND THAT IS DERIVED, NOT ASSUMED: a vehicle cost is paid once, and at occupancy 1.35 charging both occupants would make aggregate vehicle operating cost 1.35x the real one (DECISIONS.md 9.8). The earlier half-of-car was typed in and double-charged. CAUTION: with ride at zero and no driver-availability constraint, ride is cheaper than car on any trip long enough for the distance term to exceed the 0.85 ASC gap - about 4.7 km. That asymmetry is real and is why the constant must be constrained rather than left to absorb it.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     }
   }
 }

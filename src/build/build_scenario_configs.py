@@ -11,10 +11,18 @@ import os
 import csv
 import json
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 OUT = 'scenarios'
 os.makedirs(OUT, exist_ok=True)
 
-N_REPLICATIONS = 30          # proposal Appendix B: minimum 30 seeded replications
+N_REPLICATIONS = CFG.get('E.replication.n_replications')
 BASE_SEED = 20260810
 
 COMMON = dict(

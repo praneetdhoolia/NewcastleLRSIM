@@ -491,7 +491,19 @@ change** reproduced exactly the same nine, so they are timestamped by netconvert
 rather than affected by the change. That refines the P2 claim: byte-identical
 rebuild holds for the **nets**, not for `networks/sumo/_work/`.
 
-**The demand and network build layer is not migrated.** The rest of
+**The build layer is migrated (P6 cleared).** 52 fields across 13 scripts now
+resolve from the registry; runtime consumption went **16 → 68 of 140**. Gated by a
+full rebuild in README order with byte-identical output, without re-running the
+pt2matsim mapper (§3.5) — the stop→link fingerprints confirm the feeds it was
+mapped from are unchanged. **The gate caught three pre-existing defects**: a
+hash-seed-dependent set iteration in `build_landuse_parking.py`, wall-clock
+timestamps embedded in all 11 GTFS zips making them unreproducible by
+construction, and dict-order leaking into two reports. All three were invisible
+because the package had not been rebuilt end to end since the manifest was
+written — a manifest digest only proves reproducibility if something re-derives
+it. See [`DECISIONS.md`](DECISIONS.md) §15.
+
+**Superseded note.** The rest of
 `src/build/*.py` still hold their own constants. Two copies of a number is the
 drift this package cannot absorb, so
 [`src/registry/check_legacy_drift.py`](src/registry/check_legacy_drift.py) pins

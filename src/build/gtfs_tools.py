@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """GTFS utilities: read, clip to study area, merge feeds, pick a service date."""
 import zipfile,csv,io,os,collections,datetime,shutil
+import det_io
 
 STUDY=dict(s=-33.20,w=151.10,n=-32.55,e=151.95)
 FILES=['agency','stops','routes','trips','stop_times','calendar','calendar_dates',
@@ -24,7 +25,7 @@ def write_feed(feed,path):
             cols=list(dict.fromkeys(k for r in rows for k in r))
             buf=io.StringIO(); w=csv.DictWriter(buf,fieldnames=cols,extrasaction='ignore',lineterminator='\n')
             w.writeheader(); w.writerows(rows)
-            z.writestr(name+'.txt',buf.getvalue())
+            z.writestr(det_io.zip_entry(name+'.txt'),buf.getvalue())
 
 def in_study(s,box=STUDY):
     try: lat=float(s['stop_lat']); lon=float(s['stop_lon'])

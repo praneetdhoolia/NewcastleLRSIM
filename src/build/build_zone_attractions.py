@@ -15,6 +15,14 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 warnings.filterwarnings('ignore')
 
 ZON = 'data/processed/zones'
@@ -23,20 +31,9 @@ CEN = 'data/processed/census'
 OUT = 'data/processed/landuse'
 
 # relative workplace intensity per POI group (jobs per establishment, indicative)
-JOB_WEIGHT = {'office': 12.0, 'retail': 4.0, 'food': 6.0, 'civic': 15.0,
-              'health': 8.0, 'leisure': 2.0, 'tourism': 3.0, 'amenity': 1.0,
-              'landuse': 0.2}
+JOB_WEIGHT = CFG.get('D.attraction.job_weight_by_category')
 # relative pull for each trip purpose
-PURPOSE_WEIGHT = {
-    'HW': {'office': 12.0, 'retail': 4.0, 'food': 6.0, 'civic': 15.0, 'health': 8.0,
-           'leisure': 2.0, 'tourism': 3.0, 'amenity': 1.0, 'landuse': 0.2},
-    'HE': {'civic': 30.0, 'amenity': 0.5},
-    'HS': {'retail': 10.0, 'food': 4.0, 'amenity': 0.5},
-    'HO': {'food': 5.0, 'leisure': 5.0, 'civic': 3.0, 'health': 4.0, 'tourism': 3.0,
-           'retail': 2.0, 'amenity': 1.0},
-    'WB': {'office': 10.0, 'civic': 5.0, 'health': 3.0, 'amenity': 1.0},
-    'NHB': {'retail': 5.0, 'food': 5.0, 'office': 3.0, 'civic': 3.0, 'amenity': 1.0},
-}
+PURPOSE_WEIGHT = CFG.get('D.attraction.purpose_weight')
 
 
 def main():

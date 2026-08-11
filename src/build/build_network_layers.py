@@ -21,27 +21,25 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from osm_parse import parse, way_len, centroid, fnum
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 OUT = 'data/processed/network'
 os.makedirs(OUT, exist_ok=True)
 
 # ---- defaults applied where OSM is silent (all recorded in DECISIONS.md) ----
 # speed_limit_kmh by road class: NSW default urban 50, and class-typical above that
-SPEED = {'motorway': 100, 'trunk': 80, 'primary': 60, 'secondary': 60, 'tertiary': 50,
-         'unclassified': 50, 'residential': 50, 'living_street': 10, 'service': 20,
-         'motorway_link': 60, 'trunk_link': 60, 'primary_link': 50, 'secondary_link': 50,
-         'tertiary_link': 40, 'road': 50, 'busway': 50}
+SPEED = CFG.get('A.road.speed_default')
 # lanes per direction
-LANES = {'motorway': 2, 'trunk': 2, 'primary': 2, 'secondary': 1, 'tertiary': 1,
-         'unclassified': 1, 'residential': 1, 'living_street': 1, 'service': 1,
-         'motorway_link': 1, 'trunk_link': 1, 'primary_link': 1, 'secondary_link': 1,
-         'tertiary_link': 1, 'road': 1, 'busway': 1}
+LANES = CFG.get('A.road.lanes_default')
 # mid-block capacity veh/hr/lane, Austroads-style
-CAP = {'motorway': 2000, 'trunk': 1800, 'primary': 1600, 'secondary': 1400,
-       'tertiary': 1200, 'unclassified': 1000, 'residential': 800, 'living_street': 300,
-       'service': 400, 'motorway_link': 1500, 'trunk_link': 1400, 'primary_link': 1200,
-       'secondary_link': 1100, 'tertiary_link': 1000, 'road': 1000, 'busway': 1200}
-FOOT_WIDTH = {'steps': 1.5, 'pedestrian': 6.0, 'footway': 1.8, 'path': 1.5,
-              'cycleway': 2.5, 'track': 2.5, 'corridor': 2.0, 'bridleway': 2.0}
+CAP = CFG.get('A.road.capacity_default')
+FOOT_WIDTH = CFG.get('A.active.footway_width_default')
 
 
 def _write(name, rows):

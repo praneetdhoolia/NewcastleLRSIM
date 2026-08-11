@@ -111,37 +111,37 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 
 Fallback footway width. Footway widths were not obtained for Newcastle.
 
-***assumed** · status **active** · DECISIONS.md §3.1 · was `src/build/build_network_layers.py:FOOT_WIDTH`*
+***assumed** · status **active** · DECISIONS.md §3.1*
 
 #### `A.corridor.cross_buffer_m`
 
 Distance within which a turn restriction or cross street is treated as on the corridor. At 40 m, 10 of the 1,385 resolved restrictions fall on the alignment, against the 14 E1 assumed.
 
-***assumed** · status **active** · DECISIONS.md §3.4 · was `src/build/build_corridor_road_attributes.py:CORRIDOR_CROSS_M`*
+***assumed** · status **active** · DECISIONS.md §3.4*
 
 #### `A.corridor.extension_lane_take`
 
 Lanes removed per direction where an S4/S5 extension runs in the carriageway.
 
-***assumed** · status **active** · DECISIONS.md §3.4 · was `src/build/build_corridor_road_attributes.py:EXTENSION_LANE_TAKE`*
+***assumed** · status **active** · DECISIONS.md §3.4*
 
 #### `A.corridor.off_corridor_penalty`
 
 Routing penalty that keeps a reconstructed alignment on observed geometry.
 
-***assumed** · status **active** · DECISIONS.md §3.4 · was `src/build/shape_tools.py:OFF_CORRIDOR_PENALTY`*
+***assumed** · status **active** · DECISIONS.md §3.4*
 
 #### `A.corridor.parallel_buffer_m`
 
 Distance within which a road is treated as a parallel route that may absorb diverted traffic.
 
-***assumed** · status **active** · DECISIONS.md §3.4 · was `src/build/build_corridor_road_attributes.py:PARALLEL_M`*
+***assumed** · status **active** · DECISIONS.md §3.4*
 
 #### `A.corridor.pre_lr_lanes_per_dir`
 
 Hunter/Scott cross-section BEFORE the light rail. THIS IS THE COUNTERFACTUAL HYPOTHESIS B3 RESTS ON and it is assumed, not observed. It must be reported as swept and never as a point estimate.
 
-***assumed** · status **active** · DECISIONS.md §3.4 · proposal §3.3 B3 · was `src/build/build_corridor_road_attributes.py:PRE_LR_LANES_PER_DIR`*
+***assumed** · status **active** · DECISIONS.md §3.4 · proposal §3.3 B3*
 
 > **Sweep basis.** both values are plausible from the historical record; neither is observed
 
@@ -149,13 +149,13 @@ Hunter/Scott cross-section BEFORE the light rail. THIS IS THE COUNTERFACTUAL HYP
 
 Distance from the alignment within which a road edge is classified corridor trunk.
 
-***assumed** · status **active** · DECISIONS.md §3.4 · was `src/build/build_corridor_road_attributes.py:CORRIDOR_TRUNK_M`*
+***assumed** · status **active** · DECISIONS.md §3.4*
 
 #### `A.lightrail.corridor_speed_kmh`
 
 Design speed on the reserved corridor sections.
 
-***assumed** · status **active** · DECISIONS.md §4.2 · was `src/build/build_scenario_schedules.py:CORRIDOR_SPEED`*
+***assumed** · status **active** · DECISIONS.md §4.2*
 
 #### `A.lightrail.dwell_charging_s`
 
@@ -169,13 +169,13 @@ Supercapacitor charging dwell added at each intermediate stop. NOT MEASURED - a 
 
 Boarding and alighting dwell, separate from charging dwell.
 
-***assumed** · status **active** · DECISIONS.md §4.4 · was `src/build/build_scenario_schedules.py:DWELL_FIXED`*
+***assumed** · status **active** · DECISIONS.md §4.4*
 
 #### `A.lightrail.line_speed_kmh`
 
 Light rail running speed between stops, used in the run-time decomposition.
 
-***assumed** · status **active** · DECISIONS.md §4.2 · was `src/build/build_scenario_schedules.py:LINE_SPEED`*
+***assumed** · status **active** · DECISIONS.md §4.2*
 
 #### `A.lightrail.tsp_enabled`
 
@@ -187,25 +187,25 @@ Transit signal priority on the corridor. Downstream of A.signals.scats_phasing.
 
 Fallback capacity where a parking facility carries none. 4,861 of 7,710 facilities carry an observed capacity.
 
-***assumed** · status **active** · DECISIONS.md §6 · was `src/build/build_landuse_parking.py:CAP_DEFAULT`*
+***assumed** · status **active** · DECISIONS.md §6*
 
 #### `A.parking.free_occupancy_profile`
 
 Hourly occupancy profile for free parking. Assumed: parking meter transactions were not obtained (DECISIONS.md 13 priority 6-adjacent).
 
-***assumed** · status **active** · DECISIONS.md §6 · was `src/build/build_landuse_parking.py:FREE_OCC`*
+***assumed** · status **active** · DECISIONS.md §6*
 
 #### `A.road.capacity_default`
 
 Saturation flow by road class. Never observed; a class-level convention.
 
-***assumed** · status **active** · DECISIONS.md §3.2 · was `src/build/build_network_layers.py:CAP`*
+***assumed** · status **active** · DECISIONS.md §3.2*
 
 #### `A.road.lanes_default`
 
 Fallback lane count where OSM carries no lanes tag. Applied only to edges with no observation - DECISIONS.md 2.5 corrected the proposal premise that the corridor is 75-98% imputed: as-built trunk lane counts are observed in OSM for 87.5% of corridor trunk edges. Full class table is in the build script; the registry overrides per class.
 
-***assumed** · status **active** · DECISIONS.md §3.1 · was `src/build/build_network_layers.py:LANES`*
+***assumed** · status **active** · DECISIONS.md §3.1*
 
 > **Sweep basis.** the plausible range for an unlabelled edge of each class
 
@@ -213,13 +213,13 @@ Fallback lane count where OSM carries no lanes tag. Applied only to edges with n
 
 Fallback free-flow speed where OSM carries no maxspeed tag.
 
-***assumed** · status **active** · DECISIONS.md §3.1 · was `src/build/build_network_layers.py:SPEED`*
+***assumed** · status **active** · DECISIONS.md §3.1*
 
 #### `A.signals.delay_per_intersection_s`
 
 Proxy signal delay per corridor intersection, used to decompose scheduled run time in the absence of SCATS phasing. Downstream of A.signals.scats_phasing.
 
-***assumed** · status **active** · DECISIONS.md §5 · was `src/build/build_scenario_schedules.py:SIGNAL_DELAY_PER_INT`*
+***assumed** · status **active** · DECISIONS.md §5*
 
 #### `A.signals.junction_match_m`
 
@@ -237,7 +237,7 @@ Minimum green time in a generated SUMO signal program.
 
 Signalised intersections on the corridor. All 14 match a signalised junction in every SUMO road variant and every realised cycle lands within 1 s of its A2 value.
 
-***observed** · status **active** · DECISIONS.md §5 · was `src/build/build_scenario_schedules.py:N_CORRIDOR_INTERSECTIONS`*
+***observed** · status **active** · DECISIONS.md §5*
 
 #### `A.signals.scats_phasing`
 
@@ -249,37 +249,37 @@ SCATS phase data for the Hunter/Scott corridor. NOT OBTAINED - a formal TfNSW re
 
 Heavy rail line speed in the reconstructed pre-2014 era. No 2014 public timetable has been obtained to validate this (DECISIONS.md 13 priority 8).
 
-***assumed** · status **active** · DECISIONS.md §11 · was `src/build/build_era1_reconstruction.py:LINE_SPEED_KMH`*
+***assumed** · status **active** · DECISIONS.md §11*
 
 #### `A.transit.era1_station_dwell_s`
 
 Heavy rail station dwell in the reconstructed pre-2014 era.
 
-***assumed** · status **active** · DECISIONS.md §11 · was `src/build/build_era1_reconstruction.py:STATION_DWELL_S`*
+***assumed** · status **active** · DECISIONS.md §11*
 
 #### `A.transit.interchange_radius_m`
 
 Radius within which two stops are treated as one interchange for transfer generation.
 
-***assumed** · status **active** · DECISIONS.md §11 · was `src/build/build_gtfs_extras.py:INTERCHANGE_RADIUS_M`*
+***assumed** · status **active** · DECISIONS.md §11*
 
 #### `A.transit.s0_join_tolerance_m`
 
 Tolerance for joining the retained heavy rail alignment to the observed network in S0.
 
-***assumed** · status **active** · DECISIONS.md §3.4 · was `src/build/build_scenario_schedules.py:S0_JOIN_TOLERANCE_M`*
+***assumed** · status **active** · DECISIONS.md §3.4*
 
 #### `A.transit.sbc_extension_km`
 
 Broadmeadow extension length as STATED in the Strategic Business Case. The alignment routed over observed OSM centreline is 7.00 km, 5.3% longer. The model uses the routed geometry; this field records the published figure.
 
-***observed** · status **active** · DECISIONS.md §3.4 · was `src/build/build_scenario_schedules.py:SBC_EXTENSION_KM`*
+***observed** · status **active** · DECISIONS.md §3.4*
 
 #### `A.transit.walk_speed_ms`
 
 Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05.
 
-***literature** · status **active** · DECISIONS.md §11 · was `src/build/build_gtfs_extras.py:WALK_SPEED_MS`*
+***literature** · status **active** · DECISIONS.md §11*
 
 ## Demand (B1-B5)
 
@@ -319,31 +319,31 @@ Synthetic population, activity and tour generation, external boundary demand, an
 
 Mean activity duration by purpose.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:ACT_DURATION`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.child_tour_retention`
 
 Share of child tours retained as independent tours.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:CHILD_TOUR_RETENTION`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.day_horizon_s`
 
 Simulation day horizon, 30 hours. Matches RUN.qsim.end_time_h. No leg may arrive after it; the P1 chains had 1.77% arriving late, latest 36.0 h. The build script writes it as the expression 30 * 3600, which is not a literal and so is not compared by value in the legacy-drift check.
 
-***definition** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:DAY_HORIZON_S`*
+***definition** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.day_purpose_mix`
 
 Weekend purpose mix relative to the weekday.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:DAY_PURPOSE_MIX`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.days_per_week`
 
 Days each day type represents when composing a week.
 
-***definition** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:DAYS_PER_WEEK`*
+***definition** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.detour_factor`
 
@@ -357,25 +357,25 @@ Straight-line to network distance, routed over the observed A1 road graph. Repla
 
 Spread of activity duration around its mean.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:DURATION_CV`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.hts_rate_per_person_day`
 
 Observed NSW HTS trip rate the synthesis is calibrated to reproduce. The realised rate is 3.397, 2.2% low.
 
-***measured** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:HTS_RATE_PER_PERSON_DAY`*
+***measured** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.p_intermediate_stop`
 
 Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:P_INTERMEDIATE_STOP`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.p_mandatory`
 
 Probability an employed person or student attends on a given day type.
 
-***assumed** · status **active** · DECISIONS.md §2.4, 9.2 · was `src/build/build_activity_chains.py:P_MANDATORY`*
+***assumed** · status **active** · DECISIONS.md §2.4, 9.2*
 
 > **Sweep basis.** the work entry is bounded BELOW by the census G62 observed attendance of 0.651, which bounds the sweep and is not allowed to set the value, because census night was August 2021 with 19.2% working from home
 
@@ -383,19 +383,19 @@ Probability an employed person or student attends on a given day type.
 
 Probability of a second intermediate stop, given a first.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:P_SECOND_STOP`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.sat_to_sun_rate`
 
 Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12).
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:SAT_TO_SUN_RATE`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.weekend_departure_shift_h`
 
 Shift applied to the weekday departure profile on weekend day types.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:WEEKEND_DEPARTURE_SHIFT_H`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.activity.weekend_to_weekday`
 
@@ -433,25 +433,25 @@ A ride leg contributes NO vehicle: the passenger rides in a vehicle already coun
 
 External boundary demand by day type, relative to the weekday.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:EXTERNAL_DAY_FACTOR`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.external.interaction_rate`
 
 Rate at which external-tier residents interact with the core. LOCALISABLE BUT NOT YET AVAILABLE: the ABS journey-to-work origin-destination table (SA2 usual residence x SA2 place of work) would settle it. The package holds the place-of-work side but not the pairing. A standard TableBuilder extract, not a formal request (DECISIONS.md 13 priority 11).
 
-***assumed** · status **active** · DECISIONS.md §9.2, 13 · was `src/build/build_activity_chains.py:EXTERNAL_INTERACTION_RATE`*
+***assumed** · status **active** · DECISIONS.md §9.2, 13*
 
 #### `B.external.person_id_base`
 
 Id offset that keeps external agents distinguishable from core agents.
 
-***definition** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:EXTERNAL_PERSON_ID_BASE`*
+***definition** · status **active** · DECISIONS.md §9.2*
 
 #### `B.external.purpose_split`
 
 Purpose split for external boundary demand.
 
-***assumed** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:EXTERNAL_PURPOSE_SPLIT`*
+***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.opal.journey_linked`
 
@@ -463,19 +463,19 @@ Journey-linked Opal. NOT OBTAINED - a formal TfNSW request is outstanding. Propo
 
 Age banding for population synthesis. Follows the census table structure.
 
-***definition** · status **active** · DECISIONS.md §9.1 · was `src/build/build_population.py:AGE_BANDS`*
+***definition** · status **active** · DECISIONS.md §9.1*
 
 #### `B.population.licence_rate_by_age_band`
 
 Driver licence holding by age band, aligned to B.population.age_bands.
 
-***literature** · status **active** · DECISIONS.md §9.1 · was `src/build/build_population.py:LICENCE_RATE`*
+***literature** · status **active** · DECISIONS.md §9.1*
 
 #### `B.seed.master`
 
 The one seed everything synthetic derives from. CLAUDE.md forbids unseeded randomness, wall-clock dependence and dict/set-ordering dependence anywhere in a build script. Changing this changes every synthetic artefact.
 
-***definition** · status **active** · DECISIONS.md §9.1 · was `src/build/build_activity_chains.py:SEED`*
+***definition** · status **active** · DECISIONS.md §9.1*
 
 ## Behavioural parameters (C1)
 
@@ -511,7 +511,7 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.time_weights.beta_walk_access` | `2.0` | ratio_to_ivt | `literature` | 1.5 - 2.5 |
 | `C.time_weights.beta_walk_egress` | `2.0` | ratio_to_ivt | `literature` | 1.5 - 2.5 |
 | `C.transfer.beta_transfer_penalty_min` | `8.0` | minutes_equivalent | `assumed` | 3 - 15 |
-| `C.vot.by_purpose` | `{"HW": 18.6, "HE": 9.3, "HS": 15.2, "HO": 15.2, "NHB": 15.2, "WB": 55.4}` | AUD_2026_per_hour | `literature` | plus/minus 30% |
+| `C.vot.by_purpose` | `{"HW": 18.6, "HE": 9.3, "HS": 15.2, "HO": 15.2, "WB": 55.4, "NHB": 15.2}` | AUD_2026_per_hour | `literature` | plus/minus 30% |
 | `C.vot.concession_factor` | `0.75` | ratio | `literature` | 0.6 - 0.9 |
 | `C.vot.trip_weighted` | `16.96` | AUD_2026_per_hour | `derived` | plus/minus 30% |
 | `C.walk.decay_beta_per_m` | `0.0018` | per_metre | `assumed` | 0.001 - 0.003 |
@@ -645,13 +645,13 @@ Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING
 
 Sets the utility numeraire to AUD. Definitional, not empirical.
 
-***definition** · status **active** · DECISIONS.md §9.3 · was `src/build/build_matsim_run_inputs.py:MARGINAL_UTILITY_OF_MONEY` · MATSim `scoring.marginalUtilityOfMoney`*
+***definition** · status **active** · DECISIONS.md §9.3 · MATSim `scoring.marginalUtilityOfMoney`*
 
 #### `C.scoring.monetary_distance_rate`
 
 Vehicle operating cost per metre. RIDE IS ZERO AND THAT IS DERIVED, NOT ASSUMED: a vehicle cost is paid once, and at occupancy 1.35 charging both occupants would make aggregate vehicle operating cost 1.35x the real one (DECISIONS.md 9.8). The earlier half-of-car was typed in and double-charged. CAUTION: with ride at zero and no driver-availability constraint, ride is cheaper than car on any trip long enough for the distance term to exceed the 0.85 ASC gap - about 4.7 km. That asymmetry is real and is why the constant must be constrained rather than left to absorb it.
 
-***derived** · status **active** · DECISIONS.md §9.8 · was `src/build/build_matsim_run_inputs.py:MONETARY_DISTANCE_RATE` · MATSim `scoring.modeParams[*].monetaryDistanceRate`*
+***derived** · status **active** · DECISIONS.md §9.8 · MATSim `scoring.modeParams[*].monetaryDistanceRate`*
 
 > **Sweep basis.** applies to the car entry only; the others are derived and not free
 
@@ -659,7 +659,7 @@ Vehicle operating cost per metre. RIDE IS ZERO AND THAT IS DERIVED, NOT ASSUMED:
 
 Marginal utility of performing an activity. A property of the MATSim scoring formulation, not an observable quantity of Newcastle. The effective cost of travel time is performing plus the absolute marginalUtilityOfTraveling, which is how the 16.96 AUD/h VOT is reproduced: 6.0 + 10.9608.
 
-***literature** · status **active** · DECISIONS.md §9.3 · was `src/build/build_matsim_run_inputs.py:PERFORMING_UTILS_PER_H` · MATSim `scoring.performing`*
+***literature** · status **active** · DECISIONS.md §9.3 · MATSim `scoring.performing`*
 
 #### `C.time_weights.beta_headway`
 
@@ -709,7 +709,7 @@ Behavioural penalty for an interchange, ON TOP of the measured Newcastle Interch
 
 Value of travel time by trip purpose, ATAP PV2 / TfNSW Economic Parameter Values conventions. NOT a Newcastle measurement. MATSim scoring cannot carry per-purpose VOT, so the run inputs collapse this to a trip-weighted 16.96 AUD/h - see C.vot.trip_weighted and DECISIONS.md 9.3.
 
-***literature** · status **active** · DECISIONS.md §8.3 · proposal §A/C1, 6.2 · was `src/build/build_params.py:VOT`*
+***literature** · status **active** · DECISIONS.md §8.3 · proposal §A/C1, 6.2*
 
 #### `C.vot.concession_factor`
 
@@ -765,25 +765,25 @@ Frontage geometry, attraction weights and the unobtained retail vacancy. Land us
 
 Relative employment weight by POI category, used to distribute SA2 job counts to zones. Retail floorspace and vacancy were not obtained, so this stands in for them (DECISIONS.md 13 priority 7).
 
-***assumed** · status **active** · DECISIONS.md §7 · was `src/build/build_zone_attractions.py:JOB_WEIGHT`*
+***assumed** · status **active** · DECISIONS.md §7*
 
 #### `D.attraction.purpose_weight`
 
 Destination attraction weight by trip purpose and POI category.
 
-***assumed** · status **active** · DECISIONS.md §7 · was `src/build/build_zone_attractions.py:PURPOSE_WEIGHT`*
+***assumed** · status **active** · DECISIONS.md §7*
 
 #### `D.frontage.buffer_m`
 
 Distance from a frontage segment within which a building is attributed to it.
 
-***assumed** · status **active** · DECISIONS.md §7 · was `src/build/build_landuse_parking.py:FRONTAGE_BUFFER_M`*
+***assumed** · status **active** · DECISIONS.md §7*
 
 #### `D.frontage.segment_length_m`
 
 Length of a Hunter St frontage segment. Hypothesis B1 is defined per 50 m segment, so this is fixed by the pre-registered metric, not tunable.
 
-***definition** · status **active** · DECISIONS.md §7 · proposal §3.3 B1 · was `src/build/build_landuse_parking.py:SEG_M`*
+***definition** · status **active** · DECISIONS.md §7 · proposal §3.3 B1*
 
 #### `D.retail.vacancy_rate`
 
@@ -828,7 +828,7 @@ GDA94 / MGA Zone 56, metres. The proposal label GDA2020 was corrected.
 
 Full weekend day types are built, not a weekday-only model with a note. Beach and event demand is arguably this system strongest use case and excluding it would bias against the light rail (DECISIONS.md 1 item 5).
 
-***definition** · status **active** · DECISIONS.md §1 · was `src/build/build_activity_chains.py:DAY_TYPES`*
+***definition** · status **active** · DECISIONS.md §1*
 
 #### `E.matrix.scenario_ids`
 
@@ -840,7 +840,7 @@ The scenario matrix, fixed at P0. S2 vs S0 is the headline test, S2 vs S3 the va
 
 Seeded replications per scenario. One of the three things that can be cut to close the run-budget gap - the others being sweep breadth and day types. Sample fraction is the WEAKEST lever because cost is sublinear in it.
 
-***definition** · status **active** · DECISIONS.md §1 · was `src/build/build_scenario_configs.py:N_REPLICATIONS`*
+***definition** · status **active** · DECISIONS.md §1*
 
 > **Sweep basis.** proposal 5.2 specifies at least 30 SUMO replications; the sweep records that cutting replications is one of the three levers on the run budget
 

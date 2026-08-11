@@ -59,6 +59,14 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from osm_parse import parse, haversine, fnum
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 OUT = 'data/processed/network'
 ROADS_OSM = 'networks/osm/newcastle_roads.osm'
 SIGNALS_OSM = 'networks/osm/newcastle_signals.osm'
@@ -105,9 +113,9 @@ PARALLEL_STREETS = (
     'Telford Street', 'Worth Place', 'Railway Street', 'Hannell Street',
 )
 
-CORRIDOR_TRUNK_M = 60.0
-CORRIDOR_CROSS_M = 40.0
-PARALLEL_M = 1500.0
+CORRIDOR_TRUNK_M = CFG.get('A.corridor.trunk_buffer_m')
+CORRIDOR_CROSS_M = CFG.get('A.corridor.cross_buffer_m')
+PARALLEL_M = CFG.get('A.corridor.parallel_buffer_m')
 
 # Defaults from build_network_layers.py, repeated here so a value that came from
 # a rule can be identified as such rather than re-derived.
@@ -132,10 +140,10 @@ CAP_DEFAULT = {'motorway': 2000, 'trunk': 1800, 'primary': 1600, 'secondary': 14
 # `scenarios/E1_road_variants.csv` already carries; the sweep is what makes it
 # honest. See DECISIONS.md 3.4.
 # --------------------------------------------------------------------------
-PRE_LR_LANES_PER_DIR = 2
+PRE_LR_LANES_PER_DIR = CFG.get('A.corridor.pre_lr_lanes_per_dir')
 PRE_LR_LANES_SWEEP = (1, 2)
 PRE_LR_KERBSIDE = 'parking'
-EXTENSION_LANE_TAKE = 1          # lanes removed per direction on an extension trunk
+EXTENSION_LANE_TAKE = CFG.get('A.corridor.extension_lane_take')
 EXTENSION_LANE_TAKE_SWEEP = (0, 1)
 
 

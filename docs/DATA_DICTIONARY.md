@@ -581,6 +581,17 @@ Appendix A of the proposal.
 
 ## Zones
 
+### `data/processed/zones/sa1_to_lga.csv`
+
+1701 rows, 4 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `SA1_CODE21` | int | 10601110701 | 401/401 |
+| `zone_tier` | str | core | 401/401 |
+| `lga_name` | str | Cessnock | 401/401 |
+| `lga_code` | int | 11720 | 401/401 |
+
 ### `data/processed/zones/zone_lookup_SA1.csv`
 
 1701 rows, 13 columns
@@ -924,6 +935,21 @@ Appendix A of the proposal.
 | `trips` | int | 380232 | 108/108 |
 | `Year_Month` | str | Jul-2017 | 108/108 |
 
+### `data/processed/validation/count_station_links.csv`
+
+203 rows, 8 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `station_key` | int | 55710 | 203/203 |
+| `split` | str | calibration | 203/203 |
+| `station_name` | str | Pacific Highway | 203/203 |
+| `road_name` | str | Pacific Highway | 203/203 |
+| `link` | int | 95461 | 203/203 |
+| `link_name` | str | Pacific Highway | 203/203 |
+| `distance_m` | float | 50.2 | 203/203 |
+| `matched_by` | str | name_and_proximity | 203/203 |
+
 ### `data/processed/validation/lr_monthly_series.csv`
 
 89 rows, 3 columns
@@ -945,7 +971,7 @@ Appendix A of the proposal.
 
 ### `data/processed/validation/road_aadt_targets.csv`
 
-119 rows, 10 columns
+119 rows, 16 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -956,7 +982,13 @@ Appendix A of the proposal.
 | `lga` | str | Port Stephens | 119/119 |
 | `lat` | float | -32.818165 | 119/119 |
 | `lon` | float | 151.692841 | 119/119 |
-| `aadt` | int | 33114.0 | 119/119 |
+| `weekday_count` | int | 53721.0 | 119/119 |
+| `period` | str | WEEKDAYS | 119/119 |
+| `all_days_count` | int | 50133.0 | 119/119 |
+| `light_vehicles` | int | 6094.0 | 23/119 |
+| `heavy_vehicles` | int | 294.0 | 23/119 |
+| `heavy_share` | float | 0.046 | 23/119 |
+| `heavy_share_source` | str | not_classified_at_this_station | 119/119 |
 | `survey_year` | int | 2021 | 119/119 |
 | `split` | str | calibration | 119/119 |
 

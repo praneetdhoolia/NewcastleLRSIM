@@ -32,8 +32,10 @@
       "sweep_basis": "the plausible range for an unlabelled edge of each class",
       "status": "active",
       "decisions_ref": "3.1",
-      "legacy_symbol": "src/build/build_network_layers.py:LANES",
-      "description": "Fallback lane count where OSM carries no lanes tag. Applied only to edges with no observation - DECISIONS.md 2.5 corrected the proposal premise that the corridor is 75-98% imputed: as-built trunk lane counts are observed in OSM for 87.5% of corridor trunk edges. Full class table is in the build script; the registry overrides per class."
+      "description": "Fallback lane count where OSM carries no lanes tag. Applied only to edges with no observation - DECISIONS.md 2.5 corrected the proposal premise that the corridor is 75-98% imputed: as-built trunk lane counts are observed in OSM for 87.5% of corridor trunk edges. Full class table is in the build script; the registry overrides per class.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ]
     },
     "A.road.speed_default": {
       "value": {
@@ -62,8 +64,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.1",
-      "legacy_symbol": "src/build/build_network_layers.py:SPEED",
-      "description": "Fallback free-flow speed where OSM carries no maxspeed tag."
+      "description": "Fallback free-flow speed where OSM carries no maxspeed tag.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ]
     },
     "A.road.capacity_default": {
       "value": {
@@ -92,8 +96,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.2",
-      "legacy_symbol": "src/build/build_network_layers.py:CAP",
-      "description": "Saturation flow by road class. Never observed; a class-level convention."
+      "description": "Saturation flow by road class. Never observed; a class-level convention.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ]
     },
     "A.corridor.trunk_buffer_m": {
       "value": 60.0,
@@ -105,8 +111,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.4",
-      "legacy_symbol": "src/build/build_corridor_road_attributes.py:CORRIDOR_TRUNK_M",
-      "description": "Distance from the alignment within which a road edge is classified corridor trunk."
+      "description": "Distance from the alignment within which a road edge is classified corridor trunk.",
+      "consumers": [
+        "src/build/build_corridor_road_attributes.py"
+      ]
     },
     "A.corridor.cross_buffer_m": {
       "value": 40.0,
@@ -118,8 +126,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.4",
-      "legacy_symbol": "src/build/build_corridor_road_attributes.py:CORRIDOR_CROSS_M",
-      "description": "Distance within which a turn restriction or cross street is treated as on the corridor. At 40 m, 10 of the 1,385 resolved restrictions fall on the alignment, against the 14 E1 assumed."
+      "description": "Distance within which a turn restriction or cross street is treated as on the corridor. At 40 m, 10 of the 1,385 resolved restrictions fall on the alignment, against the 14 E1 assumed.",
+      "consumers": [
+        "src/build/build_corridor_road_attributes.py"
+      ]
     },
     "A.corridor.parallel_buffer_m": {
       "value": 1500.0,
@@ -131,8 +141,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.4",
-      "legacy_symbol": "src/build/build_corridor_road_attributes.py:PARALLEL_M",
-      "description": "Distance within which a road is treated as a parallel route that may absorb diverted traffic."
+      "description": "Distance within which a road is treated as a parallel route that may absorb diverted traffic.",
+      "consumers": [
+        "src/build/build_corridor_road_attributes.py"
+      ]
     },
     "A.corridor.pre_lr_lanes_per_dir": {
       "value": 2,
@@ -146,8 +158,10 @@
       "status": "active",
       "decisions_ref": "3.4",
       "proposal_ref": "3.3 B3",
-      "legacy_symbol": "src/build/build_corridor_road_attributes.py:PRE_LR_LANES_PER_DIR",
-      "description": "Hunter/Scott cross-section BEFORE the light rail. THIS IS THE COUNTERFACTUAL HYPOTHESIS B3 RESTS ON and it is assumed, not observed. It must be reported as swept and never as a point estimate."
+      "description": "Hunter/Scott cross-section BEFORE the light rail. THIS IS THE COUNTERFACTUAL HYPOTHESIS B3 RESTS ON and it is assumed, not observed. It must be reported as swept and never as a point estimate.",
+      "consumers": [
+        "src/build/build_corridor_road_attributes.py"
+      ]
     },
     "A.corridor.extension_lane_take": {
       "value": 1,
@@ -159,8 +173,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.4",
-      "legacy_symbol": "src/build/build_corridor_road_attributes.py:EXTENSION_LANE_TAKE",
-      "description": "Lanes removed per direction where an S4/S5 extension runs in the carriageway."
+      "description": "Lanes removed per direction where an S4/S5 extension runs in the carriageway.",
+      "consumers": [
+        "src/build/build_corridor_road_attributes.py"
+      ]
     },
     "A.corridor.off_corridor_penalty": {
       "value": 12.0,
@@ -172,8 +188,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.4",
-      "legacy_symbol": "src/build/shape_tools.py:OFF_CORRIDOR_PENALTY",
-      "description": "Routing penalty that keeps a reconstructed alignment on observed geometry."
+      "description": "Routing penalty that keeps a reconstructed alignment on observed geometry.",
+      "consumers": [
+        "src/build/shape_tools.py"
+      ]
     },
     "A.signals.scats_phasing": {
       "value": null,
@@ -203,8 +221,10 @@
       ],
       "status": "active",
       "decisions_ref": "5",
-      "legacy_symbol": "src/build/build_scenario_schedules.py:SIGNAL_DELAY_PER_INT",
-      "description": "Proxy signal delay per corridor intersection, used to decompose scheduled run time in the absence of SCATS phasing. Downstream of A.signals.scats_phasing."
+      "description": "Proxy signal delay per corridor intersection, used to decompose scheduled run time in the absence of SCATS phasing. Downstream of A.signals.scats_phasing.",
+      "consumers": [
+        "src/build/build_scenario_schedules.py"
+      ]
     },
     "A.signals.n_corridor_intersections": {
       "value": 14,
@@ -213,8 +233,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "5",
-      "legacy_symbol": "src/build/build_scenario_schedules.py:N_CORRIDOR_INTERSECTIONS",
-      "description": "Signalised intersections on the corridor. All 14 match a signalised junction in every SUMO road variant and every realised cycle lands within 1 s of its A2 value."
+      "description": "Signalised intersections on the corridor. All 14 match a signalised junction in every SUMO road variant and every realised cycle lands within 1 s of its A2 value.",
+      "consumers": [
+        "src/build/build_scenario_schedules.py"
+      ]
     },
     "A.signals.min_green_s": {
       "value": 6.0,
@@ -271,8 +293,10 @@
       ],
       "status": "active",
       "decisions_ref": "4.4",
-      "legacy_symbol": "src/build/build_scenario_schedules.py:DWELL_FIXED",
-      "description": "Boarding and alighting dwell, separate from charging dwell."
+      "description": "Boarding and alighting dwell, separate from charging dwell.",
+      "consumers": [
+        "src/build/build_scenario_schedules.py"
+      ]
     },
     "A.lightrail.line_speed_kmh": {
       "value": 40.0,
@@ -284,8 +308,10 @@
       ],
       "status": "active",
       "decisions_ref": "4.2",
-      "legacy_symbol": "src/build/build_scenario_schedules.py:LINE_SPEED",
-      "description": "Light rail running speed between stops, used in the run-time decomposition."
+      "description": "Light rail running speed between stops, used in the run-time decomposition.",
+      "consumers": [
+        "src/build/build_scenario_schedules.py"
+      ]
     },
     "A.lightrail.corridor_speed_kmh": {
       "value": 60.0,
@@ -297,8 +323,10 @@
       ],
       "status": "active",
       "decisions_ref": "4.2",
-      "legacy_symbol": "src/build/build_scenario_schedules.py:CORRIDOR_SPEED",
-      "description": "Design speed on the reserved corridor sections."
+      "description": "Design speed on the reserved corridor sections.",
+      "consumers": [
+        "src/build/build_scenario_schedules.py"
+      ]
     },
     "A.lightrail.tsp_enabled": {
       "value": false,
@@ -326,8 +354,10 @@
       ],
       "status": "active",
       "decisions_ref": "11",
-      "legacy_symbol": "src/build/build_gtfs_extras.py:INTERCHANGE_RADIUS_M",
-      "description": "Radius within which two stops are treated as one interchange for transfer generation."
+      "description": "Radius within which two stops are treated as one interchange for transfer generation.",
+      "consumers": [
+        "src/build/build_gtfs_extras.py"
+      ]
     },
     "A.transit.walk_speed_ms": {
       "value": 1.25,
@@ -339,8 +369,10 @@
       ],
       "status": "active",
       "decisions_ref": "11",
-      "legacy_symbol": "src/build/build_gtfs_extras.py:WALK_SPEED_MS",
-      "description": "Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05."
+      "description": "Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05.",
+      "consumers": [
+        "src/build/build_gtfs_extras.py"
+      ]
     },
     "A.transit.era1_line_speed_kmh": {
       "value": 60.0,
@@ -352,8 +384,10 @@
       ],
       "status": "active",
       "decisions_ref": "11",
-      "legacy_symbol": "src/build/build_era1_reconstruction.py:LINE_SPEED_KMH",
-      "description": "Heavy rail line speed in the reconstructed pre-2014 era. No 2014 public timetable has been obtained to validate this (DECISIONS.md 13 priority 8)."
+      "description": "Heavy rail line speed in the reconstructed pre-2014 era. No 2014 public timetable has been obtained to validate this (DECISIONS.md 13 priority 8).",
+      "consumers": [
+        "src/build/build_era1_reconstruction.py"
+      ]
     },
     "A.transit.era1_station_dwell_s": {
       "value": 30.0,
@@ -365,8 +399,10 @@
       ],
       "status": "active",
       "decisions_ref": "11",
-      "legacy_symbol": "src/build/build_era1_reconstruction.py:STATION_DWELL_S",
-      "description": "Heavy rail station dwell in the reconstructed pre-2014 era."
+      "description": "Heavy rail station dwell in the reconstructed pre-2014 era.",
+      "consumers": [
+        "src/build/build_era1_reconstruction.py"
+      ]
     },
     "A.transit.s0_join_tolerance_m": {
       "value": 1500.0,
@@ -378,8 +414,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.4",
-      "legacy_symbol": "src/build/build_scenario_schedules.py:S0_JOIN_TOLERANCE_M",
-      "description": "Tolerance for joining the retained heavy rail alignment to the observed network in S0."
+      "description": "Tolerance for joining the retained heavy rail alignment to the observed network in S0.",
+      "consumers": [
+        "src/build/build_scenario_schedules.py"
+      ]
     },
     "A.transit.sbc_extension_km": {
       "value": 6.65,
@@ -388,8 +426,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "3.4",
-      "legacy_symbol": "src/build/build_scenario_schedules.py:SBC_EXTENSION_KM",
-      "description": "Broadmeadow extension length as STATED in the Strategic Business Case. The alignment routed over observed OSM centreline is 7.00 km, 5.3% longer. The model uses the routed geometry; this field records the published figure."
+      "description": "Broadmeadow extension length as STATED in the Strategic Business Case. The alignment routed over observed OSM centreline is 7.00 km, 5.3% longer. The model uses the routed geometry; this field records the published figure.",
+      "consumers": [
+        "src/build/build_scenario_schedules.py"
+      ]
     },
     "A.parking.capacity_default": {
       "value": {
@@ -405,8 +445,10 @@
       ],
       "status": "active",
       "decisions_ref": "6",
-      "legacy_symbol": "src/build/build_landuse_parking.py:CAP_DEFAULT",
-      "description": "Fallback capacity where a parking facility carries none. 4,861 of 7,710 facilities carry an observed capacity."
+      "description": "Fallback capacity where a parking facility carries none. 4,861 of 7,710 facilities carry an observed capacity.",
+      "consumers": [
+        "src/build/build_landuse_parking.py"
+      ]
     },
     "A.parking.free_occupancy_profile": {
       "value": [
@@ -442,8 +484,10 @@
       },
       "status": "active",
       "decisions_ref": "6",
-      "legacy_symbol": "src/build/build_landuse_parking.py:FREE_OCC",
-      "description": "Hourly occupancy profile for free parking. Assumed: parking meter transactions were not obtained (DECISIONS.md 13 priority 6-adjacent)."
+      "description": "Hourly occupancy profile for free parking. Assumed: parking meter transactions were not obtained (DECISIONS.md 13 priority 6-adjacent).",
+      "consumers": [
+        "src/build/build_landuse_parking.py"
+      ]
     },
     "A.active.footway_width_default": {
       "value": {
@@ -464,8 +508,10 @@
       ],
       "status": "active",
       "decisions_ref": "3.1",
-      "legacy_symbol": "src/build/build_network_layers.py:FOOT_WIDTH",
-      "description": "Fallback footway width. Footway widths were not obtained for Newcastle."
+      "description": "Fallback footway width. Footway widths were not obtained for Newcastle.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ]
     }
   }
 }

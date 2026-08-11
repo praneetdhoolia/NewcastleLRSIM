@@ -49,16 +49,24 @@ import collections
 import numpy as np
 import pandas as pd
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 ZON = 'data/processed/zones'
 LU = 'data/processed/landuse'
 HTS = 'data/processed/hts'
 POP = 'demand/population'
 OUT = 'demand/plans'
 
-SEED = 20260810
+SEED = CFG.get('B.seed.master')
 PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'NHB']
-DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
-DAYS_PER_WEEK = {'WEEKDAY': 5.0, 'SAT': 1.0, 'SUN': 1.0}
+DAY_TYPES = CFG.get('E.matrix.day_types')
+DAYS_PER_WEEK = CFG.get('B.activity.days_per_week')
 
 # MATSim activity type per trip purpose. `home` is emitted for the leg that
 # closes a tour; the purpose column still carries the tour purpose.
@@ -81,7 +89,7 @@ ACT_TYPE = {'HW': 'work', 'HE': 'education', 'HS': 'shopping',
 # Sunday: they report one WEEKENDS figure. That ratio alone stays assumed, and
 # is swept. The absolute level is not free either - the shape is rescaled so
 # 5xWEEKDAY + SAT + SUN reproduces the HTS week average exactly.
-SAT_TO_SUN_RATE = 1.1875
+SAT_TO_SUN_RATE = CFG.get('B.activity.sat_to_sun_rate')
 SAT_TO_SUN_SWEEP = (1.00, 1.45)
 
 # How the purpose mix shifts by day type, as a multiplier on the weekday rate
@@ -90,11 +98,7 @@ SAT_TO_SUN_SWEEP = (1.00, 1.45)
 # Swept because the weekend collapse of commute and education is assumed: the
 # multiplier on each weekend purpose may move by this factor either way.
 DAY_PURPOSE_MIX_SWEEP = 0.30
-DAY_PURPOSE_MIX = {
-    'WEEKDAY': {'HW': 1.00, 'HE': 1.00, 'HS': 0.90, 'HO': 0.90, 'WB': 1.00, 'NHB': 1.00},
-    'SAT':     {'HW': 0.25, 'HE': 0.05, 'HS': 1.60, 'HO': 1.50, 'WB': 0.15, 'NHB': 1.10},
-    'SUN':     {'HW': 0.18, 'HE': 0.02, 'HS': 1.00, 'HO': 1.60, 'WB': 0.10, 'NHB': 1.00},
-}
+DAY_PURPOSE_MIX = CFG.get('B.activity.day_purpose_mix')
 
 # Probability that a person with the relevant status makes their mandatory tour
 # on a given day type. Assumed, but the weekday work figure is now bounded from
@@ -105,21 +109,17 @@ DAY_PURPOSE_MIX = {
 # sweep instead. The upper bound allows for leave and illness.
 P_MANDATORY_WORK_SWEEP = (None, 0.90)     # lower bound filled from C2 at load
 P_MANDATORY_EDUCATION_SWEEP = (0.70, 0.95)
-P_MANDATORY = {
-    'WEEKDAY': {'work': 0.78, 'education': 0.85},
-    'SAT': {'work': 0.16, 'education': 0.03},
-    'SUN': {'work': 0.09, 'education': 0.01},
-}
+P_MANDATORY = CFG.get('B.activity.p_mandatory')
 
 # Probability a tour includes an intermediate stop, by tour purpose. This is
 # what creates genuine sub-tours, and therefore what lets MATSim's mode choice
 # vary within a day rather than for the whole day at once. Assumed.
-P_INTERMEDIATE_STOP = {'HW': 0.22, 'HE': 0.12, 'HS': 0.18, 'HO': 0.20, 'WB': 0.30}
-P_SECOND_STOP = 0.25          # given a first intermediate stop
+P_INTERMEDIATE_STOP = CFG.get('B.activity.p_intermediate_stop')
+P_SECOND_STOP = CFG.get('B.activity.p_second_stop')
 P_SECOND_STOP_SWEEP = (0.12, 0.40)
 # Share of an under-12's drawn secondary tours that are actually made alone.
 # Applied as per-tour thinning, not as a scaling of the count.
-CHILD_TOUR_RETENTION = 0.4
+CHILD_TOUR_RETENTION = CFG.get('B.activity.child_tour_retention')
 CHILD_TOUR_RETENTION_SWEEP = (0.25, 0.60)
 P_INTERMEDIATE_SWEEP = (0.10, 0.35)
 
@@ -135,12 +135,12 @@ DETOUR_SOURCE = 'assumed - C2 factors file not found'
 NETWORK_FACTORS = 'params/C2_network_factors.json'
 
 # Mean activity duration in minutes by purpose (carried from P1, DECISIONS 9).
-ACT_DURATION = {'HW': 465, 'HE': 360, 'HS': 45, 'HO': 90, 'WB': 60, 'NHB': 20}
+ACT_DURATION = CFG.get('B.activity.act_duration_min')
 ACT_DURATION_SWEEP = 0.25       # proportional, applied to every mean duration
-DURATION_CV = 0.30
+DURATION_CV = CFG.get('B.activity.duration_cv')
 
 # The day closes. Chains are compressed rather than allowed to run past this.
-DAY_HORIZON_S = 30 * 3600
+DAY_HORIZON_S = CFG.get('B.activity.day_horizon_s')
 
 # Departure-time profiles by purpose, probability by hour 0..23 (carried from
 # P1, DECISIONS 9; assumed, NSW-typical shapes). Weekend tours start later; the
@@ -159,7 +159,7 @@ DEPART = {
     'NHB': [.002, .001, .001, .002, .006, .020, .060, .110, .105, .070, .060, .060,
             .060, .070, .100, .095, .070, .050, .030, .018, .008, .004, .002, .001],
 }
-WEEKEND_DEPARTURE_SHIFT_H = {'WEEKDAY': 0, 'SAT': 1, 'SUN': 1}
+WEEKEND_DEPARTURE_SHIFT_H = CFG.get('B.activity.weekend_departure_shift_h')
 
 # POI categories that are street furniture rather than somewhere anyone travels
 # to. Without this, 5,628 parking spaces and 652 benches would out-vote every
@@ -611,11 +611,11 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
 # Share of external-tier residents making a trip into the core on a weekday.
 # Assumed - no journey-linked Opal and no external-tier HTS cell exists to
 # estimate it from.
-EXTERNAL_INTERACTION_RATE = 0.08
+EXTERNAL_INTERACTION_RATE = CFG.get('B.external.interaction_rate')
 EXTERNAL_INTERACTION_SWEEP = (0.04, 0.15)
-EXTERNAL_DAY_FACTOR = {'WEEKDAY': 1.0, 'SAT': 0.40, 'SUN': 0.30}
-EXTERNAL_PURPOSE_SPLIT = {'HW': 0.70, 'HO': 0.30}
-EXTERNAL_PERSON_ID_BASE = 900000000
+EXTERNAL_DAY_FACTOR = CFG.get('B.external.day_factor')
+EXTERNAL_PURPOSE_SPLIT = CFG.get('B.external.purpose_split')
+EXTERNAL_PERSON_ID_BASE = CFG.get('B.external.person_id_base')
 
 
 def external_agents(zones, core, decay, u, day, seq_base):
@@ -708,7 +708,7 @@ COLUMNS = ['person_id', 'day_type', 'tour_id', 'trip_seq', 'purpose',
 
 # The HTS per-person-per-day trip rate for the study-area LGAs, carried from
 # DECISIONS 9 where it was derived from the same tables.
-HTS_RATE_PER_PERSON_DAY = 3.473
+HTS_RATE_PER_PERSON_DAY = CFG.get('B.activity.hts_rate_per_person_day')
 
 
 def main(seed=SEED, max_persons=None, day_types=None):

@@ -25,12 +25,12 @@
     "Beaumont Street": 57
   },
   "frontage_retail_m2_by_street": {
-    "Honeysuckle Drive": 10872.0,
-    "Darby Street": 16444.0,
-    "Hunter Street": 51843.0,
-    "Scott Street": 33812.0,
     "Beaumont Street": 15911.0,
+    "Darby Street": 16444.0,
+    "Honeysuckle Drive": 10872.0,
+    "Hunter Street": 51843.0,
     "King Street": 21876.0,
+    "Scott Street": 33812.0,
     "Wharf Road": 1634.0
   },
   "parking_facilities": 7710,

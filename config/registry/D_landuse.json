@@ -12,8 +12,10 @@
       "status": "active",
       "decisions_ref": "7",
       "proposal_ref": "3.3 B1",
-      "legacy_symbol": "src/build/build_landuse_parking.py:SEG_M",
-      "description": "Length of a Hunter St frontage segment. Hypothesis B1 is defined per 50 m segment, so this is fixed by the pre-registered metric, not tunable."
+      "description": "Length of a Hunter St frontage segment. Hypothesis B1 is defined per 50 m segment, so this is fixed by the pre-registered metric, not tunable.",
+      "consumers": [
+        "src/build/build_landuse_parking.py"
+      ]
     },
     "D.frontage.buffer_m": {
       "value": 30.0,
@@ -25,8 +27,10 @@
       ],
       "status": "active",
       "decisions_ref": "7",
-      "legacy_symbol": "src/build/build_landuse_parking.py:FRONTAGE_BUFFER_M",
-      "description": "Distance from a frontage segment within which a building is attributed to it."
+      "description": "Distance from a frontage segment within which a building is attributed to it.",
+      "consumers": [
+        "src/build/build_landuse_parking.py"
+      ]
     },
     "D.attraction.job_weight_by_category": {
       "value": {
@@ -47,8 +51,10 @@
       },
       "status": "active",
       "decisions_ref": "7",
-      "legacy_symbol": "src/build/build_zone_attractions.py:JOB_WEIGHT",
-      "description": "Relative employment weight by POI category, used to distribute SA2 job counts to zones. Retail floorspace and vacancy were not obtained, so this stands in for them (DECISIONS.md 13 priority 7)."
+      "description": "Relative employment weight by POI category, used to distribute SA2 job counts to zones. Retail floorspace and vacancy were not obtained, so this stands in for them (DECISIONS.md 13 priority 7).",
+      "consumers": [
+        "src/build/build_zone_attractions.py"
+      ]
     },
     "D.attraction.purpose_weight": {
       "value": {
@@ -102,8 +108,10 @@
       },
       "status": "active",
       "decisions_ref": "7",
-      "legacy_symbol": "src/build/build_zone_attractions.py:PURPOSE_WEIGHT",
-      "description": "Destination attraction weight by trip purpose and POI category."
+      "description": "Destination attraction weight by trip purpose and POI category.",
+      "consumers": [
+        "src/build/build_zone_attractions.py"
+      ]
     },
     "D.retail.vacancy_rate": {
       "value": null,

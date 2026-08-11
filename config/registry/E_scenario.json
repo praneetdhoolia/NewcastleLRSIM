@@ -36,8 +36,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "1",
-      "legacy_symbol": "src/build/build_activity_chains.py:DAY_TYPES",
-      "description": "Full weekend day types are built, not a weekday-only model with a note. Beach and event demand is arguably this system strongest use case and excluding it would bias against the light rail (DECISIONS.md 1 item 5)."
+      "description": "Full weekend day types are built, not a weekday-only model with a note. Beach and event demand is arguably this system strongest use case and excluding it would bias against the light rail (DECISIONS.md 1 item 5).",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "E.matrix.base_year": {
       "value": 2026,
@@ -68,8 +70,10 @@
       "sweep_basis": "proposal 5.2 specifies at least 30 SUMO replications; the sweep records that cutting replications is one of the three levers on the run budget",
       "status": "active",
       "decisions_ref": "1",
-      "legacy_symbol": "src/build/build_scenario_configs.py:N_REPLICATIONS",
-      "description": "Seeded replications per scenario. One of the three things that can be cut to close the run-budget gap - the others being sweep breadth and day types. Sample fraction is the WEAKEST lever because cost is sublinear in it."
+      "description": "Seeded replications per scenario. One of the three things that can be cut to close the run-budget gap - the others being sweep breadth and day types. Sample fraction is the WEAKEST lever because cost is sublinear in it.",
+      "consumers": [
+        "src/build/build_scenario_configs.py"
+      ]
     },
     "E.coupling.outer_loop_tolerance_s": {
       "value": null,

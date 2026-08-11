@@ -28,6 +28,14 @@ from shapely.ops import unary_union
 from shapely.strtree import STRtree
 import pyproj
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 OUT = 'data/processed/landuse'
 NET = 'data/processed/network'
 os.makedirs(OUT, exist_ok=True)
@@ -37,8 +45,8 @@ TO_M = pyproj.Transformer.from_crs('EPSG:4326', CRS_M, always_xy=True).transform
 TO_LL = pyproj.Transformer.from_crs(CRS_M, 'EPSG:4326', always_xy=True).transform
 
 CBD = dict(s=-32.9450, w=151.7250, n=-32.9050, e=151.8050)
-SEG_M = 50.0
-FRONTAGE_BUFFER_M = 30.0
+SEG_M = CFG.get('D.frontage.segment_length_m')
+FRONTAGE_BUFFER_M = CFG.get('D.frontage.buffer_m')
 
 TARGET_STREETS = {
     'Hunter Street': 'corridor',
@@ -277,10 +285,9 @@ PARK_ZONES = [
      2.00, 240, [0.10, 0.08, 0.07, 0.06, 0.08, 0.16, 0.30, 0.45, 0.58, 0.68, 0.76,
                  0.82, 0.85, 0.84, 0.80, 0.74, 0.66, 0.56, 0.48, 0.42, 0.36, 0.28, 0.20, 0.14]),
 ]
-FREE_OCC = [0.10, 0.08, 0.07, 0.06, 0.08, 0.14, 0.28, 0.46, 0.60, 0.66, 0.70,
-            0.72, 0.73, 0.72, 0.70, 0.66, 0.58, 0.46, 0.36, 0.30, 0.26, 0.22, 0.17, 0.13]
+FREE_OCC = CFG.get('A.parking.free_occupancy_profile')
 
-CAP_DEFAULT = {'onstreet': 12, 'offstreet_public': 60, 'offstreet_private': 40}
+CAP_DEFAULT = CFG.get('A.parking.capacity_default')
 
 
 def build_parking():
@@ -360,7 +367,11 @@ if __name__ == '__main__':
         'frontage_by_street': dict(collections.Counter(f['street_name'] for f in fr)),
         'frontage_retail_m2_by_street': {
             k: round(sum(f['retail_floorspace_m2'] for f in fr if f['street_name'] == k), 0)
-            for k in set(f['street_name'] for f in fr)},
+            # sorted(): iterating a set makes the output order hash-seed
+            # dependent, so two builds of identical data produce different
+            # bytes. Same defect as the P3 stage 0 stop_times.txt bug
+            # (DECISIONS.md §9.2). CLAUDE.md forbids it outright.
+            for k in sorted(set(f['street_name'] for f in fr))},
         'parking_facilities': pk[0], 'parking_capacity_imputed': pk[1],
         'parking_by_zone': pk[2], 'parking_spaces_by_zone': pk[3]}
     json.dump(rep, open(os.path.join(OUT, '_landuse_report.json'), 'w'), indent=2)

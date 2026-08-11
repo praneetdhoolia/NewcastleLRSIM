@@ -11,8 +11,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "9.1",
-      "legacy_symbol": "src/build/build_activity_chains.py:SEED",
-      "description": "The one seed everything synthetic derives from. CLAUDE.md forbids unseeded randomness, wall-clock dependence and dict/set-ordering dependence anywhere in a build script. Changing this changes every synthetic artefact."
+      "description": "The one seed everything synthetic derives from. CLAUDE.md forbids unseeded randomness, wall-clock dependence and dict/set-ordering dependence anywhere in a build script. Changing this changes every synthetic artefact.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.population.age_bands": {
       "value": [
@@ -66,8 +68,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "9.1",
-      "legacy_symbol": "src/build/build_population.py:AGE_BANDS",
-      "description": "Age banding for population synthesis. Follows the census table structure."
+      "description": "Age banding for population synthesis. Follows the census table structure.",
+      "consumers": [
+        "src/build/build_population.py"
+      ]
     },
     "B.population.licence_rate_by_age_band": {
       "value": [
@@ -90,8 +94,10 @@
       },
       "status": "active",
       "decisions_ref": "9.1",
-      "legacy_symbol": "src/build/build_population.py:LICENCE_RATE",
-      "description": "Driver licence holding by age band, aligned to B.population.age_bands."
+      "description": "Driver licence holding by age band, aligned to B.population.age_bands.",
+      "consumers": [
+        "src/build/build_population.py"
+      ]
     },
     "B.activity.hts_rate_per_person_day": {
       "value": 3.473,
@@ -103,8 +109,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:HTS_RATE_PER_PERSON_DAY",
-      "description": "Observed NSW HTS trip rate the synthesis is calibrated to reproduce. The realised rate is 3.397, 2.2% low."
+      "description": "Observed NSW HTS trip rate the synthesis is calibrated to reproduce. The realised rate is 3.397, 2.2% low.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.act_duration_min": {
       "value": {
@@ -122,8 +130,10 @@
       },
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:ACT_DURATION",
-      "description": "Mean activity duration by purpose."
+      "description": "Mean activity duration by purpose.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.duration_cv": {
       "value": 0.3,
@@ -135,8 +145,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:DURATION_CV",
-      "description": "Spread of activity duration around its mean."
+      "description": "Spread of activity duration around its mean.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.p_intermediate_stop": {
       "value": {
@@ -154,8 +166,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:P_INTERMEDIATE_STOP",
-      "description": "Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values."
+      "description": "Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.p_second_stop": {
       "value": 0.25,
@@ -167,8 +181,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:P_SECOND_STOP",
-      "description": "Probability of a second intermediate stop, given a first."
+      "description": "Probability of a second intermediate stop, given a first.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.child_tour_retention": {
       "value": 0.4,
@@ -180,8 +196,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:CHILD_TOUR_RETENTION",
-      "description": "Share of child tours retained as independent tours."
+      "description": "Share of child tours retained as independent tours.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.p_mandatory": {
       "value": {
@@ -207,8 +225,10 @@
       "sweep_basis": "the work entry is bounded BELOW by the census G62 observed attendance of 0.651, which bounds the sweep and is not allowed to set the value, because census night was August 2021 with 19.2% working from home",
       "status": "active",
       "decisions_ref": "2.4, 9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:P_MANDATORY",
-      "description": "Probability an employed person or student attends on a given day type."
+      "description": "Probability an employed person or student attends on a given day type.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.day_purpose_mix": {
       "value": {
@@ -244,8 +264,10 @@
       },
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:DAY_PURPOSE_MIX",
-      "description": "Weekend purpose mix relative to the weekday."
+      "description": "Weekend purpose mix relative to the weekday.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.sat_to_sun_rate": {
       "value": 1.1875,
@@ -257,8 +279,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:SAT_TO_SUN_RATE",
-      "description": "Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12)."
+      "description": "Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12).",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.weekend_to_weekday": {
       "value": 0.7521,
@@ -298,8 +322,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:DAYS_PER_WEEK",
-      "description": "Days each day type represents when composing a week."
+      "description": "Days each day type represents when composing a week.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.activity.weekend_departure_shift_h": {
       "value": {
@@ -315,8 +341,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:WEEKEND_DEPARTURE_SHIFT_H",
-      "description": "Shift applied to the weekday departure profile on weekend day types."
+      "description": "Shift applied to the weekday departure profile on weekend day types.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.external.interaction_rate": {
       "value": 0.08,
@@ -328,8 +356,10 @@
       ],
       "status": "active",
       "decisions_ref": "9.2, 13",
-      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_INTERACTION_RATE",
-      "description": "Rate at which external-tier residents interact with the core. LOCALISABLE BUT NOT YET AVAILABLE: the ABS journey-to-work origin-destination table (SA2 usual residence x SA2 place of work) would settle it. The package holds the place-of-work side but not the pairing. A standard TableBuilder extract, not a formal request (DECISIONS.md 13 priority 11)."
+      "description": "Rate at which external-tier residents interact with the core. LOCALISABLE BUT NOT YET AVAILABLE: the ABS journey-to-work origin-destination table (SA2 usual residence x SA2 place of work) would settle it. The package holds the place-of-work side but not the pairing. A standard TableBuilder extract, not a formal request (DECISIONS.md 13 priority 11).",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.external.day_factor": {
       "value": {
@@ -344,8 +374,10 @@
       },
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_DAY_FACTOR",
-      "description": "External boundary demand by day type, relative to the weekday."
+      "description": "External boundary demand by day type, relative to the weekday.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.external.purpose_split": {
       "value": {
@@ -359,8 +391,10 @@
       },
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_PURPOSE_SPLIT",
-      "description": "Purpose split for external boundary demand."
+      "description": "Purpose split for external boundary demand.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.external.person_id_base": {
       "value": 900000000,
@@ -369,8 +403,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:EXTERNAL_PERSON_ID_BASE",
-      "description": "Id offset that keeps external agents distinguishable from core agents."
+      "description": "Id offset that keeps external agents distinguishable from core agents.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.opal.journey_linked": {
       "value": null,
@@ -436,8 +472,10 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:DAY_HORIZON_S",
-      "description": "Simulation day horizon, 30 hours. Matches RUN.qsim.end_time_h. No leg may arrive after it; the P1 chains had 1.77% arriving late, latest 36.0 h. The build script writes it as the expression 30 * 3600, which is not a literal and so is not compared by value in the legacy-drift check."
+      "description": "Simulation day horizon, 30 hours. Matches RUN.qsim.end_time_h. No leg may arrive after it; the P1 chains had 1.77% arriving late, latest 36.0 h. The build script writes it as the expression 30 * 3600, which is not a literal and so is not compared by value in the legacy-drift check.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     }
   }
 }

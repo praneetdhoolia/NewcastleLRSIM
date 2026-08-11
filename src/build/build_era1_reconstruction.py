@@ -26,6 +26,14 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gtfs_tools import read_feed, write_feed
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 SRC = 'schedules/era2_2016_rail_truncated.zip'
 OUT = 'schedules/era1_pre2014_reconstructed.zip'
 REPORT = 'schedules/_era1_reconstruction_report.json'
@@ -37,9 +45,9 @@ CLOSED_STATIONS = [
     ('Newcastle Station (closed 2014)', -32.92820, 151.78460),
 ]
 TRUNCATION_POINTS = ('Hamilton Station', 'Newcastle Interchange', 'Wickham')
-LINE_SPEED_KMH = 60.0
+LINE_SPEED_KMH = CFG.get('A.transit.era1_line_speed_kmh')
 ACCEL, DECEL = 0.7, 0.8      # heavy rail EMU, gentler than a tram
-STATION_DWELL_S = 30.0
+STATION_DWELL_S = CFG.get('A.transit.era1_station_dwell_s')
 
 
 def hav(a, b):

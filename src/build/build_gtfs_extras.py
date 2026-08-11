@@ -17,12 +17,20 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gtfs_tools import read_feed
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 OUT = 'data/processed/schedule_extras'
 os.makedirs(OUT, exist_ok=True)
 BASE = 'schedules/base2026.zip'
 
-WALK_SPEED_MS = 1.25          # m/s, level ground
-INTERCHANGE_RADIUS_M = 250    # stops within this of each other form a group
+WALK_SPEED_MS = CFG.get('A.transit.walk_speed_ms')
+INTERCHANGE_RADIUS_M = CFG.get('A.transit.interchange_radius_m')
 
 MODE_BY_TYPE = {'0': 'lr', '1': 'metro', '2': 'heavy_rail', '3': 'bus', '4': 'ferry'}
 OPERATOR = {'nisc001': 'Keolis Downer Hunter (Newcastle Transport)',

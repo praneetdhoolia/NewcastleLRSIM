@@ -1667,6 +1667,37 @@ into the registry; the code was authoritative and the registry was corrected.
 The migration itself needs a full package rebuild to verify byte-identically and
 has not been run.
 
+### The build layer, migrated (P6 cleared)
+
+`src/build/*.py` no longer hold their own copies of the values the registry
+declares. 52 fields across 13 scripts now resolve from `config/registry/`, taking
+runtime consumption from **16 of 140 to 68 of 140**. The migration was mechanical
+— by AST, so no value was retyped — and gated by rebuilding the package in README
+order and asserting byte-identical output. `build_matsim_network.py` was
+**deliberately not re-run**: §3.5 forbids re-running the mapper, and the gate
+instead proves the feeds it was mapped from are unchanged, which `check_package`
+confirms through the stop→link fingerprints.
+
+**The gate did its job — it caught three defects, all pre-existing.**
+
+| Defect | Consequence |
+|---|---|
+| `build_landuse_parking.py` iterated an **unsorted set** to build `frontage_retail_m2_by_street` | The report was **hash-seed dependent**: three runs at different `PYTHONHASHSEED` gave three different digests. Identical data, different bytes. Same defect as the P3 stage 0 `stop_times.txt` bug, in a different file |
+| Every GTFS **zip embedded the wall clock** in each entry's header | The 11 scenario and era feeds could never regenerate byte-identically, so their manifest digests were unreproducible by construction. `det_io.py` already solved this one container up, for gzip |
+| `_landuse_report.json` and `_run_inputs_report.json` carried **dict-insertion order** as output order | A benign reordering changed the digest |
+
+All three are the same failure the project has fought before, and all three were
+invisible while nobody re-ran the builds. **A manifest digest only proves
+reproducibility if something actually re-derives it.** The package had not been
+rebuilt end to end since the manifest was written, so the gate had never fired.
+
+Fixed: the set iteration is sorted, `det_io.zip_entry` pins every zip entry to a
+fixed timestamp, and the registry key order matches the output order it feeds. The
+manifest was regenerated. Two fields keep their `legacy_symbol` deliberately —
+`B.activity.detour_factor` (the build keeps a labelled 1.30 fallback for when the
+C2 file is absent) and `A.lightrail.dwell_charging_s` (declared unobtained; the
+literal is the baseline sweep point, which lives in the scenario overlays).
+
 ### Fields whose value is null, and why that is the honest encoding
 
 | Field | Why |

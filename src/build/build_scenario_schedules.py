@@ -35,23 +35,31 @@ from shape_tools import (RoadGraph, harbourside_corridor, project_onto,
                          resolve_anchor, shape_rows, densify, dedupe,
                          polyline_length_m)
 
+# Model inputs come from config/registry/, not from literals in this file. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 BASE = 'schedules/base2026.zip'
 OUT = 'schedules/scenarios'
 os.makedirs(OUT, exist_ok=True)
 
 LR_ROUTE_PREFIX = 'lightrail:'
 ACCEL, DECEL = 1.2, 1.3
-LINE_SPEED = 40.0          # km/h on-street
-CORRIDOR_SPEED = 60.0      # km/h on reserved former-railway alignment
-DWELL_FIXED = 8.0
+LINE_SPEED = CFG.get('A.lightrail.line_speed_kmh')
+CORRIDOR_SPEED = CFG.get('A.lightrail.corridor_speed_kmh')
+DWELL_FIXED = CFG.get('A.lightrail.dwell_fixed_s')
 DWELL_CHARGING = 20.0
-SIGNAL_DELAY_PER_INT = 26.0   # s, derived residual per corridor intersection
+SIGNAL_DELAY_PER_INT = CFG.get('A.signals.delay_per_intersection_s')
 # How close a heavy-rail shape's end must come to the Interchange before the S0
 # corridor is spliced onto it. Newcastle Interchange platforms sit ~200 m from
 # the tram stop the corridor starts at, so this is generous but far short of
 # the next station in any direction.
-S0_JOIN_TOLERANCE_M = 1500.0
-N_CORRIDOR_INTERSECTIONS = 14
+S0_JOIN_TOLERANCE_M = CFG.get('A.transit.s0_join_tolerance_m')
+N_CORRIDOR_INTERSECTIONS = CFG.get('A.signals.n_corridor_intersections')
 
 # Extension stops. *That* there is a stop here is assumed - the SBC names the
 # corridor but sites no platform. *Where* it is is no longer assumed: each stop
@@ -379,7 +387,7 @@ LR_SHAPE_IN = 'lightrail:NLR.INBOUND'     # Newcastle Beach -> Interchange
 SBC_EXTENSION_STREETS = ('Hunter Street', 'Tudor Street', 'Belford Street',
                          'Lambton Road', 'Turton Road', 'Russell Road',
                          'Lookout Road')
-SBC_EXTENSION_KM = 6.65          # the length the SBC states, for cross-check
+SBC_EXTENSION_KM = CFG.get('A.transit.sbc_extension_km')
 INTERCHANGE_LL = (-32.92433, 151.75943)
 JHH_LL = (-32.92230, 151.69440)
 
