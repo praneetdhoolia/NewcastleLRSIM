@@ -244,6 +244,59 @@ def score_occupancy(metrics, c4):
                      'in any fit statistic')
 
 
+def score_trip_geometry(metrics, c4):
+    """Not a validation target: is each mode used over the right RANGE?
+
+    Mode share says how many people choose a mode; this says whether the trips
+    they choose it for are the right length. A mode can hit its share exactly
+    while being used for journeys it would never serve in reality.
+
+    Both sides are Newcastle LGA. Comparing a five-LGA modelled mean against the
+    Newcastle-LGA published mean is a geography error that flatters or damns a
+    mode by accident - the same trap DECISIONS.md 12.1 flags for the seed.
+
+    The RATIO between two modes is reported alongside the levels because it is
+    robust to that geography: it survives whatever the trip-length distribution
+    of the study area happens to be.
+    """
+    obs = (c4.get('trip_geometry') or {}).get('modes') or {}
+    mod = (metrics.get('trip_geometry') or {}).get('by_mode') or {}
+    if not obs or not mod:
+        return None
+    modes = {}
+    for m, o in sorted(obs.items()):
+        g = mod.get(m)
+        if not g:
+            continue
+        lo, hi = o['avg_distance_sweep']
+        km = g['mean_distance_km']
+        modes[m] = dict(
+            modelled_mean_distance_km=km,
+            observed_mean_distance_km=o['avg_distance_km'],
+            observed_distance_sweep=[lo, hi],
+            inside_observed_range=bool(lo <= km <= hi),
+            ratio_modelled_to_observed=round(km / o['avg_distance_km'], 4)
+            if o['avg_distance_km'] else None,
+            modelled_mean_time_min=g['mean_time_min'],
+            observed_mean_time_min=o['avg_time_min'],
+            trips=g['trips'])
+    out = dict(geography='Newcastle LGA, both sides', modes=modes,
+               note='a constraint, not a validation target; it is not counted '
+                    'in any fit statistic. The 67/143 split is pre-registered '
+                    'and this is not part of it')
+    if 'ride' in modes and 'car' in modes and modes['car']['modelled_mean_distance_km']:
+        mr = (modes['ride']['modelled_mean_distance_km']
+              / modes['car']['modelled_mean_distance_km'])
+        orr = (modes['ride']['observed_mean_distance_km']
+               / modes['car']['observed_mean_distance_km'])
+        out['ride_to_car_length_ratio'] = dict(
+            modelled=round(mr, 4), observed=round(orr, 4),
+            note='geography-robust: the level of either mode depends on the '
+                 'study area, this ratio does not. Observed passenger trips are '
+                 'slightly SHORTER than driver trips')
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--run', required=True)
@@ -266,6 +319,7 @@ def main():
     out['patronage'] = score_patronage(targets, metrics, out)
     out['counts'] = score_counts(targets, metrics, corrections, out)
     out['occupancy_constraint'] = score_occupancy(metrics, c4)
+    out['trip_geometry_constraint'] = score_trip_geometry(metrics, c4)
 
     account_for_the_rest(targets, out)
     scored = (out['mode_share']['n'] + out['patronage']['n'] + out['counts']['n'])
@@ -309,6 +363,21 @@ def main():
                   '-100%%, not dropped (issue 19)'
                   % (len(c['modelled_zero_stations']),
                      ', '.join(c['modelled_zero_stations'])))
+    tg = out.get('trip_geometry_constraint')
+    if tg:
+        print('\ntrip geometry, Newcastle LGA (a constraint, never scored):')
+        print('  %-5s %11s %11s %9s %8s' % ('mode', 'modelled km', 'observed km',
+                                            'ratio', 'in range'))
+        for m, g in sorted(tg['modes'].items()):
+            print('  %-5s %11.2f %11.2f %9.2f %8s'
+                  % (m, g['modelled_mean_distance_km'],
+                     g['observed_mean_distance_km'],
+                     g['ratio_modelled_to_observed'],
+                     'yes' if g['inside_observed_range'] else 'NO'))
+        r = tg.get('ride_to_car_length_ratio')
+        if r:
+            print('  ride:car trip length  modelled %.3f  observed %.3f  '
+                  '(geography-robust)' % (r['modelled'], r['observed']))
     o = out['occupancy_constraint']
     if o:
         print('\noccupancy constraint (not a target): modelled %.4f passengers '

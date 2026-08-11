@@ -349,6 +349,196 @@
       "decisions_ref": "9.8",
       "description": "Occupancy minus one. The quantity C.asc.car_passenger is solved against."
     },
+    "C.constraint.trip_length_km.bike": {
+      "value": 5.2,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          3.1,
+          5.2
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"other\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for bike (HTS \"other\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_time_min.bike": {
+      "value": 19.2,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          15.7,
+          19.4
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"other\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for bike (HTS \"other\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_length_km.car": {
+      "value": 10.2,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          6.6,
+          10.8
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle driver\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for car (HTS \"vehicle driver\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_time_min.car": {
+      "value": 17.2,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          14.5,
+          17.6
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle driver\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for car (HTS \"vehicle driver\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_length_km.pt": {
+      "value": 23.4,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          15.9,
+          24.5
+        ],
+        "basis": "the observed spread across all 3 survey years in the file for HTS category \"public transport\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for pt (HTS \"public transport\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_time_min.pt": {
+      "value": 34.4,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          30.7,
+          37.7
+        ],
+        "basis": "the observed spread across all 3 survey years in the file for HTS category \"public transport\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for pt (HTS \"public transport\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_length_km.ride": {
+      "value": 9.8,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          5.6,
+          9.8
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle passenger\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for ride (HTS \"vehicle passenger\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_time_min.ride": {
+      "value": 15.5,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          12.2,
+          15.5
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle passenger\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for ride (HTS \"vehicle passenger\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_length_km.walk": {
+      "value": 0.7,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          0.7,
+          1.1
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"walk only\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for walk (HTS \"walk only\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
+    "C.constraint.trip_time_min.walk": {
+      "value": 12.3,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          10.6,
+          14.8
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"walk only\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for walk (HTS \"walk only\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.",
+      "consumers": [
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/fit.py"
+      ]
+    },
     "C.nesting.pt_coefficient": {
       "value": 0.65,
       "units": "dimensionless",

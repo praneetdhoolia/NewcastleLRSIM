@@ -12,10 +12,11 @@ choosing, and the day-type filter left **the with-tram scenario with no tram on 
 weekday** (§9.9). Run cost, seed dependence and convergence are measured rather
 than assumed, and the ride constant is constrained to observed vehicle occupancy
 (§9.8). Every controllable value is now **declared** rather than typed into a script:
-`config/registry/` holds 142 fields with units, provenance and a sweep or a
+`config/registry/` holds 152 fields with units, provenance and a sweep or a
 held-fixed rule, and the resolver refuses to hand back a point value for
-anything unobtained (§15). **No fit has been computed against any of the 67
-calibration targets, no calibration loop exists, and nothing in this repo is a
+anything unobtained (§15). **Two fits have now been computed against the
+calibration targets — 38 scored, 29 explained — but both are on runs known to be
+short of relaxation, no calibration loop exists, and nothing in this repo is a
 result.**
 
 ---
@@ -30,7 +31,7 @@ Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.
 | P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
 | P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
 | P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 scenario×day-type input sets. They did not in fact load in MATSim — fixed at P4 stage 0 (§9.4). |
-| P4 Calibration | 🟡 stages 0–1 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed occupancy (§9.8), **the day-type filter corrected — the with-tram scenario had no tram on a weekday (§9.9)**, target identifiability written down (§12.1–12.4). `src/run/`, `src/calibrate/` and `src/analyse/` exist; **there is still no fit statistic and no calibration loop**. |
+| P4 Calibration | 🟡 stages 0–3 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed occupancy (§9.8), **the day-type filter corrected — the with-tram scenario had no tram on a weekday (§9.9)**, sample fraction tested (§9.10) and **1% found unusable** (§9.12), `ride` given a driver requirement (§9.11) and measured **necessary but not sufficient** (§9.12), trip length by mode constrained (§9.13), target identifiability written down (§12.1–12.4). Deliverables **3 of 7**: run harness, metric extraction and fit statistic exist and are tested; **the calibration loop, the calibrated base and the report do not** (#14), and the phase is blocked on the §8.5 ride specification (#16). |
 | P5 Scenario runs | ⬜ not started | The P4 harness in `src/run/` is what P5 will drive. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction — the specified load is ~765 days of wall clock and that cut has not been made. |
 | P6 Analysis | ⬜ not started | `src/analyse/` holds the P4 metric extraction only; nothing for the A/B hypotheses yet. |
 | P7 Write-up | ⬜ not started | |
@@ -432,7 +433,7 @@ sweep.
 
 | | |
 |---|---:|
-| Fields declared | **142** |
+| Fields declared | **152** |
 | …assumed | 72 |
 | …literature | 18 |
 | …definition | 36 |
@@ -671,6 +672,60 @@ parameters and the −0.85 prior as literals **and called `run_matsim.run()` wit
 pre-registry signature, so it could not execute at all**. All now resolve through
 the registry. `count_station_links.csv` rebuilds **byte-identical**, which is the
 gate. Two orphaned P1 probes were deleted.
+
+---
+
+## P4 stage 3 — trip length by mode, an observable the package always held (11 August 2026)
+
+The HTS carries `TRIP_AVG_DISTANCE` and `TRIP_AVG_TIME` per mode for fourteen
+years and **nothing used them**. Mode share says how many people choose a mode; it
+cannot say whether they choose it for the right journeys. Full detail in
+[`DECISIONS.md`](DECISIONS.md) §9.13.
+
+Now measured into [`params/C4_mode_constraints.json`](params/C4_mode_constraints.json)
+on the same principle as the §9.8 occupancy constraint — value from the base year,
+**sweep from the observed spread across every survey year**, never an interval
+anyone chose — declared as **ten registry fields** (one per mode per quantity,
+because the schema takes an interval per field and weakening it would have been the
+wrong repair), and reported by `fit.py` beside the fit.
+
+**It is a constraint, not a target.** The 67/143 split is pre-registered and
+nothing joins it; `check_package.py` asserts no calibration metric carries a
+trip-length name.
+
+**It caught an error the moment it existed, and the error was mine.** A hand
+comparison had reported car as "10.16 modelled against 10.20 observed — essentially
+exact". That compared a **five-LGA** modelled mean with a **Newcastle-LGA**
+published one — the same geography mismatch §12.1 records for the seed. Like for
+like, both sides Newcastle LGA:
+
+| mode | modelled km | observed km | ratio |
+|---|---:|---:|---:|
+| car | 6.36 | 10.20 | **0.62** |
+| ride | 8.56 | 9.80 | 0.87 |
+| walk | 2.90 | 0.70 | **4.14** |
+
+So car trips are **38% too short, not exact**, and the earlier "ride is 41% too
+long" was an artefact. What survives is the part that matters, because a **ratio is
+robust to geography**: modelled ride ÷ car trip length is **1.346** against an
+observed **0.961**. Observed passenger trips are slightly *shorter* than driver
+trips; the model makes them **35% longer** — the signature the §9.8 zero distance
+rate would produce. It also puts a number on a distortion nobody had looked at:
+modelled **walk** trips run **4.1× their observed length**.
+
+**Why it is in place before the §8.5 departure is chosen.** §9.8 set `ride`'s
+distance rate to zero and declared it *derived, not assumed*, on an aggregate-cost
+identity — and the observable that would have tested that identity was in the
+package all along. A value declared `derived` is only as good as the identity
+behind it. Whichever ride candidate is taken can now be judged against an
+observable rather than against the mode share it was chosen to move.
+
+**Also unused until now:** `Serve passenger` is **15.7% of observed journeys** —
+87,000 a day, the second-largest purpose in Newcastle, larger than commuting. B2
+generates none (#11). That is a measured demand component, not the assumption the
+issue recorded, and it is the driver side of the same problem.
+
+**942 checks**, 1 standing warning.
 
 ---
 

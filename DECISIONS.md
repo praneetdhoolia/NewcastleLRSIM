@@ -1438,6 +1438,104 @@ were deleted: no docstring, no artefact in the manifest, referenced by nothing.
 
 ---
 
+## 9.13 Trip length by mode — an observable the package always held (P4 stage 3)
+
+The HTS mode table carries `TRIP_AVG_DISTANCE` and `TRIP_AVG_TIME` per mode, per
+LGA, for fourteen survey years. **Nothing used them.** P4 read `MODE_SHARE` for
+the targets and `TRIPS_BY_MODE` for the §9.8 occupancy constraint, and left the
+two columns that say whether a mode is used over the right *range* untouched.
+
+Mode share says how many people choose a mode. It cannot say whether they choose
+it for the right journeys, and a model can hit a share exactly while using a mode
+for trips it would never serve in reality.
+
+### The constraint, measured
+
+`src/calibrate/measure_mode_constraints.py` now derives it into
+[`params/C4_mode_constraints.json`](../params/C4_mode_constraints.json) on the
+same principle as occupancy: the value is the base-year figure and the sweep is
+**the observed spread across every survey year for that mode**, not an interval
+anyone chose.
+
+| mode | HTS category | observed km | sweep | observed min | years |
+|---|---|---:|---|---:|---:|
+| car | Vehicle driver | 10.20 | 6.60 – 10.80 | 17.20 | 7 |
+| ride | Vehicle passenger | 9.80 | 5.60 – 9.80 | 15.50 | 7 |
+| pt | Public transport | 23.40 | 15.90 – 24.50 | 34.40 | 3 |
+| walk | Walk only | 0.70 | 0.70 – 1.10 | 12.30 | 7 |
+| bike | Other | 5.20 | 3.10 – 5.20 | 19.20 | 7 |
+
+Ten registry fields declare it — one per mode per quantity, because the schema
+takes an interval per field and **weakening the schema to accept a per-mode
+mapping would have been the wrong repair**. `fit.py` reports the comparison
+beside the fit and never counts it into one.
+
+**It is a constraint, not a target.** The 67/143 split is pre-registered and
+nothing here joins it; `check_package.py` asserts that no calibration metric
+carries a trip-length name.
+
+### It caught an error the moment it existed, and the error was mine
+
+Before the constraint was wired up, the comparison was made by hand and reported
+as *"car 10.16 modelled against 10.20 observed — essentially exact, and car is the
+only mode with a distance cost"*. **That was wrong.** The modelled figure was the
+**five-LGA** mean and the observed figure is **Newcastle LGA**. The study area
+includes Cessnock, Maitland and Port Stephens, whose trips are far longer than
+Newcastle's, so the two numbers were never comparable — the identical mismatch
+§12.1 records for the seed.
+
+Like for like, both sides Newcastle LGA, on `ride_sufficiency_10pct`:
+
+| mode | modelled km | observed km | ratio |
+|---|---:|---:|---:|
+| car | 6.36 | 10.20 | **0.62** |
+| ride | 8.56 | 9.80 | 0.87 |
+| pt | 11.02 | 23.40 | 0.47 |
+| walk | 2.90 | 0.70 | **4.14** |
+| bike | 5.72 | 5.20 | 1.10 |
+
+So the correct statement is nearly the opposite of the one first drawn: **car
+trips are 38% too short, not exact**, and `ride` is closer to its observed length
+than `car` is to its. The claim that ride was "41% too long" was an artefact of
+the geography error.
+
+### What survives the correction, and it is the part that matters
+
+The **ratio between two modes is robust to geography** — it does not depend on
+how long the study area's trips happen to be:
+
+| | modelled | observed |
+|---|---:|---:|
+| ride ÷ car trip length | **1.346** | **0.961** |
+
+Observed passenger trips are slightly **shorter** than driver trips. The model
+makes them **35% longer**. That asymmetry is real, it is the signature the §9.8
+zero distance rate would produce, and it is unaffected by the geography error
+that damaged the levels.
+
+It also puts a number on a second distortion nobody had looked at: modelled
+**walk** trips are **4.1× their observed length** (2.90 km against 0.70 km, and a
+median of 45.99 min), which is not walking behaviour under any reading.
+
+### Why this is recorded before any specification change
+
+§9.8 set `ride`'s monetary distance rate to zero and declared it *derived, not
+assumed*, on an aggregate-cost identity. The observable that would have tested
+that derivation was in the package the whole time. **A value declared `derived`
+is only as good as the identity it was derived from, and this is the check that
+catches one derived from the wrong identity.** It is in place before the §8.5
+departure is chosen, so whichever candidate is taken can be judged against an
+observable rather than against the mode share it was chosen to move.
+
+**Also unused until now: `Serve passenger` is 15.7% of observed journeys** —
+87,000 a day, average 6.4 km, the second-largest purpose in Newcastle and larger
+than commuting. B2 generates none of them (issue 11). That is a measured demand
+component, not the assumption the issue had recorded it as, and it is the driver
+side of the same problem: with no escort trips, a car passenger costs nobody
+anything.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -1720,7 +1818,7 @@ scripts**, a 110-parameter MATSim config per run set, and a handful of CLI
 defaults. One of those 316 carried a machine-readable `source` label. Eighteen
 carried a sweep.
 
-`config/registry/` now declares **142 fields** — every value the model consumes
+`config/registry/` now declares **152 fields** — every value the model consumes
 that is not read from an immutable raw download — each with its units, its
 provenance, and either a sweep range or an explicit rule holding it fixed.
 `src/registry/` resolves them; `docs/CONFIG_REFERENCE.md` is generated from them

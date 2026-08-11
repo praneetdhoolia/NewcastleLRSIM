@@ -20,6 +20,18 @@ targets is measured rather than chosen.
 Both are pure ratios of two published counts. Neither is a modelling choice, and
 the sweep range is the observed spread across every survey year in the file
 rather than an interval anyone picked.
+
+**Trip length and duration by mode.** The same HTS table carries
+`TRIP_AVG_DISTANCE` and `TRIP_AVG_TIME` per mode, and until now nothing used
+them. They are the observable that tells whether a mode is being used over the
+right RANGE, independently of how many people use it, and they are what would
+have caught DECISIONS.md 9.8: `car` is the only mode carrying a distance cost
+and the only mode whose modelled trip length is right, while `ride` - charged
+nothing per kilometre - runs 41% too long (DECISIONS.md 9.13).
+
+These are CONSTRAINTS, not validation targets. The 67/143 split is
+pre-registered and nothing here is added to it; they are reported beside the fit
+exactly as vehicle occupancy is, and are never counted into a fit statistic.
 """
 import json
 import os
@@ -30,6 +42,32 @@ HTS = 'data/processed/hts/hts_mode_newcastle.csv'
 OUT = 'params/C4_mode_constraints.json'
 BASE_YEAR = '2024/25'
 TARGET_LGA = 'Newcastle'
+# HTS mode vocabulary of the base year -> the MATSim mode it is comparable with.
+# Same map fit.py uses, and the same caveat: `bike` carries HTS "Other", which
+# also holds taxi, motorcycle and rideshare.
+MODE_VOCAB = {'vehicle driver': 'car', 'vehicle passenger': 'ride',
+              'public transport': 'pt', 'walk only': 'walk', 'other': 'bike'}
+
+
+def trip_geometry(h, area=None):
+    """Observed average trip distance and duration per mode, per year.
+
+    Published quantities, read from the artefact rather than typed in. The sweep
+    for each mode is the observed spread across the survey years, on the same
+    principle as the occupancy sweep: a range nobody picked.
+    """
+    out = {}
+    for yr in sorted(h['FINANCIAL_YEAR'].unique()):
+        y = h[h['FINANCIAL_YEAR'] == yr]
+        if area:
+            y = y[y['area_name'] == area]
+        for _, r in y.iterrows():
+            km, mins = r['TRIP_AVG_DISTANCE'], r['TRIP_AVG_TIME']
+            if pd.isna(km) or pd.isna(mins):
+                continue
+            out.setdefault(r['mode'], {})[yr] = {
+                'avg_distance_km': float(km), 'avg_time_min': float(mins)}
+    return out
 
 
 def series(h, area=None):
@@ -59,6 +97,32 @@ def main():
 
     newcastle = series(h, TARGET_LGA)
     study_area = series(h)
+    geom = trip_geometry(h, TARGET_LGA)
+
+    # Only the modes MATSim represents, mapped to the HTS vocabulary of the base
+    # year. 'walk linked' is excluded: it is structurally 0.0 (DECISIONS.md 12.1).
+    geometry = {'constrains': 'the RANGE a mode is used over, not its share',
+                'note': 'A CONSTRAINT, NOT A TARGET. The 67/143 split is '
+                        'pre-registered and this is not part of it; it is '
+                        'reported beside the fit and never counted into one, '
+                        'exactly as vehicle_occupancy is.',
+                'base_year': BASE_YEAR, 'modes': {}}
+    for hts_mode, years in sorted(geom.items()):
+        if hts_mode not in MODE_VOCAB or BASE_YEAR not in years:
+            continue
+        km = [v['avg_distance_km'] for v in years.values()]
+        mn = [v['avg_time_min'] for v in years.values()]
+        geometry['modes'][MODE_VOCAB[hts_mode]] = {
+            'hts_category': hts_mode,
+            'avg_distance_km': years[BASE_YEAR]['avg_distance_km'],
+            'avg_distance_sweep': [round(min(km), 4), round(max(km), 4)],
+            'avg_time_min': years[BASE_YEAR]['avg_time_min'],
+            'avg_time_sweep': [round(min(mn), 4), round(max(mn), 4)],
+            'years_observed': len(km),
+            'sweep_basis': 'the observed spread across all %d survey years in '
+                           'the file for this mode, not a chosen interval'
+                           % len(km),
+        }
     occ = [v['occupancy'] for v in newcastle.values()]
     base = newcastle[BASE_YEAR]
 
@@ -95,6 +159,7 @@ def main():
             "asc_lr, asc_bus or asc_rail, which stay at their 8.5 priors - so "
             "the effect under test is untouched and this is not the ASC "
             "absorption proposal 9 warns about.",
+        'trip_geometry': geometry,
         'by_year_newcastle': newcastle,
         'by_year_study_area': study_area,
     }
@@ -107,6 +172,14 @@ def main():
              doc['vehicle_occupancy']['sweep'][1],
              doc['vehicle_occupancy']['years_observed'],
              doc['passenger_per_driver']['value']))
+    print('trip geometry, %s %s (constraint, never scored):' % (TARGET_LGA, BASE_YEAR))
+    for m, g in sorted(doc['trip_geometry']['modes'].items()):
+        print('  %-5s %5.2f km (sweep %.2f-%.2f)  %5.2f min (sweep %.2f-%.2f)  '
+              'over %d years'
+              % (m, g['avg_distance_km'], g['avg_distance_sweep'][0],
+                 g['avg_distance_sweep'][1], g['avg_time_min'],
+                 g['avg_time_sweep'][0], g['avg_time_sweep'][1],
+                 g['years_observed']))
 
 
 if __name__ == '__main__':

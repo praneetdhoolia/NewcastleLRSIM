@@ -27,12 +27,12 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 142 fields are made of
+## What the 152 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 2 | read directly from a raw download |
-| `measured` | 5 | computed from observed data in this package |
+| `measured` | 15 | computed from observed data in this package |
 | `derived` | 9 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
 | `assumed` | 72 | chosen without direct empirical support |
@@ -40,7 +40,7 @@ Three things are refused at every layer:
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 129 | usable point value |
+| `active` | 139 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 7 | the datum does not exist in the package; must be swept, never pinned |
@@ -497,7 +497,7 @@ The one seed everything synthetic derives from. CLAUDE.md forbids unseeded rando
 
 ## Behavioural parameters (C1)
 
-*`config/registry/C_behaviour.json` - 33 fields*
+*`config/registry/C_behaviour.json` - 43 fields*
 
 Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.
 
@@ -511,6 +511,16 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.asc.rail` | `-0.65` | utils | `assumed` | **held fixed** |
 | `C.asc.walk` | `0.35` | utils | `assumed` | **held fixed** |
 | `C.constraint.passenger_per_driver` | `0.3503` | ratio | `derived` | 0.2493 - 0.394 |
+| `C.constraint.trip_length_km.bike` | `5.2` | kilometres_per_trip | `measured` | 3.1 - 5.2 |
+| `C.constraint.trip_length_km.car` | `10.2` | kilometres_per_trip | `measured` | 6.6 - 10.8 |
+| `C.constraint.trip_length_km.pt` | `23.4` | kilometres_per_trip | `measured` | 15.9 - 24.5 |
+| `C.constraint.trip_length_km.ride` | `9.8` | kilometres_per_trip | `measured` | 5.6 - 9.8 |
+| `C.constraint.trip_length_km.walk` | `0.7` | kilometres_per_trip | `measured` | 0.7 - 1.1 |
+| `C.constraint.trip_time_min.bike` | `19.2` | minutes_per_trip | `measured` | 15.7 - 19.4 |
+| `C.constraint.trip_time_min.car` | `17.2` | minutes_per_trip | `measured` | 14.5 - 17.6 |
+| `C.constraint.trip_time_min.pt` | `34.4` | minutes_per_trip | `measured` | 30.7 - 37.7 |
+| `C.constraint.trip_time_min.ride` | `15.5` | minutes_per_trip | `measured` | 12.2 - 15.5 |
+| `C.constraint.trip_time_min.walk` | `12.3` | minutes_per_trip | `measured` | 10.6 - 14.8 |
 | `C.constraint.vehicle_occupancy` | `1.3503` | persons_per_vehicle | `measured` | 1.2493 - 1.394 |
 | `C.crowding.seated_multiplier` | `1.0` | ratio | `literature` | 1 - 1.15 |
 | `C.crowding.standing_multiplier` | `1.45` | ratio | `literature` | 1.2 - 1.8 |
@@ -608,6 +618,66 @@ Alternative-specific constant relative to car driver = 0.
 Occupancy minus one. The quantity C.asc.car_passenger is solved against.
 
 ***derived** · status **active** · DECISIONS.md §9.8*
+
+#### `C.constraint.trip_length_km.bike`
+
+Observed mean trip length for bike (HTS "other"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_length_km.car`
+
+Observed mean trip length for car (HTS "vehicle driver"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_length_km.pt`
+
+Observed mean trip length for pt (HTS "public transport"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_length_km.ride`
+
+Observed mean trip length for ride (HTS "vehicle passenger"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_length_km.walk`
+
+Observed mean trip length for walk (HTS "walk only"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_time_min.bike`
+
+Observed mean trip duration for bike (HTS "other"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_time_min.car`
+
+Observed mean trip duration for car (HTS "vehicle driver"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_time_min.pt`
+
+Observed mean trip duration for pt (HTS "public transport"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_time_min.ride`
+
+Observed mean trip duration for ride (HTS "vehicle passenger"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
+
+#### `C.constraint.trip_time_min.walk`
+
+Observed mean trip duration for walk (HTS "walk only"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident.
+
+***measured** · status **active** · DECISIONS.md §9.13*
 
 #### `C.constraint.vehicle_occupancy`
 

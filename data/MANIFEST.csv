@@ -175,7 +175,7 @@ params/C1_parameters.json,processed,3770,,src/build/build_params.py,,,,,719cd2e9
 params/C1_sensitivity_sweep_grid.csv,processed,3555,140,src/build/build_params.py,,,,,b51d0d68b4e8f853f5cdc268f36d953c1f8c44e31ac678b62097cc4e9678e3e7
 params/C2_network_factors.json,processed,1346,,src/build/build_params.py,,,,,10605a6736eb59af5483f6a7209a54eef5992bfac5e6231d0ea11f5856325ad7
 params/C3_count_comparison.json,processed,1422,,src/build/build_params.py,,,,,311669773294716804a29645b2f415f4146c57d592404b234b6cc770fc17fb97
-params/C4_mode_constraints.json,processed,3483,,src/build/build_params.py,,,,,1d5686ade1d4b4c490016e87be965729754ff68c91a0731990fb81fd3152d0d6
+params/C4_mode_constraints.json,processed,5913,,src/build/build_params.py,,,,,7ac9a9d9b7a178e228fcdc9de3469b0480e30eb1685d17a4c0b061346bf64268
 scenarios/E1_parking_variants.csv,processed,209,2,src/build/build_scenario_configs.py,,,,,141f11e14f90a3d4fdad12a84b094b3d44f8f74725eb066934f494d105101e7b
 scenarios/E1_road_variants.csv,processed,565,4,src/build/build_scenario_configs.py,,,,,f699e93969423e97b54903469105ce617741b84881bb0f4afc20064c5e1a48e9
 scenarios/E1_scenarios.csv,processed,7334,10,src/build/build_scenario_configs.py,,,,,6814a84f5bb16c4be7bee62453516a586c190fd8554abcaae1d48f3eaa84f024

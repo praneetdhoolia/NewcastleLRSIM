@@ -1242,6 +1242,44 @@ if True:
               'scale_error scores a modelled zero and refuses an OBSERVED zero - '
               'the asymmetry is deliberate, a zero denominator has no percentage')
 
+        # DECISIONS.md 9.13: trip length by mode is a CONSTRAINT and must never
+        # become a target. The 67/143 split is pre-registered.
+        _c4 = json.load(open('params/C4_mode_constraints.json', encoding='utf-8'))
+        _tg = (_c4.get('trip_geometry') or {}).get('modes') or {}
+        check(set(_tg) == {'car', 'ride', 'pt', 'walk', 'bike'},
+              'C4 carries observed trip length and time for all five MATSim modes, '
+              'measured from the HTS TRIP_AVG_DISTANCE/TRIP_AVG_TIME columns that '
+              'nothing used before 9.13 (%d modes)' % len(_tg))
+        check(all(g['avg_distance_sweep'][0] <= g['avg_distance_km']
+                  <= g['avg_distance_sweep'][1]
+                  and g['avg_time_sweep'][0] <= g['avg_time_min']
+                  <= g['avg_time_sweep'][1] and g['years_observed'] >= 3
+                  for g in _tg.values()),
+              'every observed trip length and duration sits inside its own sweep, '
+              'and each sweep is the spread across that mode survey years rather '
+              'than a chosen interval')
+        _drift = [m for m, g in _tg.items()
+                  if (_fields.get('C.constraint.trip_length_km.%s' % m) or {})
+                  .get('value') != g['avg_distance_km']
+                  or (_fields.get('C.constraint.trip_time_min.%s' % m) or {})
+                  .get('value') != g['avg_time_min']]
+        check(not _drift,
+              'the registry trip constraints agree with C4 mode for mode, so the '
+              'declaration and the measurement cannot drift apart%s'
+              % ('' if not _drift else ': ' + ', '.join(_drift)))
+        check(all((_fields.get('C.constraint.trip_length_km.%s' % m) or {})
+                  .get('source') == 'measured'
+                  and (_fields.get('C.constraint.trip_length_km.%s' % m) or {})
+                  .get('sweep') for m in _tg),
+              'every per-mode trip-length constraint is declared measured WITH a '
+              'sweep, so proposal 8.1 holds for it like any other value')
+        _metrics_declared = {t['metric'] for t in _fit.load_targets()}
+        check(not any('trip_length' in x or 'trip_geometry' in x
+                      for x in _metrics_declared),
+              'trip length is NOT among the calibration target metrics - it is a '
+              'constraint reported beside the fit, and the pre-registered 67/143 '
+              'split is untouched by it')
+
         _radius = _fields.get('B.counts.station_match_radius_m')
         check(_radius is not None and _radius.get('sweep'),
               'the count-station match radius is a DECLARED registry field with a '
