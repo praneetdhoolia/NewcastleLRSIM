@@ -593,10 +593,21 @@ else:
                   '%s: seed car share %.1f%% is far from the HTS calibration '
                   'target %.1f%%, so the mode-share calibration is not handed '
                   'its answer' % (day, car, tgt_share['car']))
-        others = [v_ for k, v_ in seed.items() if k != 'car']
-        check(bool(others) and (max(others) - min(others)) < 0.02,
-              '%s: the seed is uninformed - uniform over the non-car modes '
-              '(spread %.4f)' % (day, (max(others) - min(others)) if others else -1))
+        # Uniform over the modes each person MAY use, which is not the same as
+        # uniform over all non-car modes: since DECISIONS.md 9.11, `ride` is
+        # offered only to the 77.9% who have a household driver, so its seed
+        # share is lower BY CONSTRUCTION. bike/pt/walk are available to everyone
+        # and must still be uniform; ride must sit below them but not at zero.
+        free = [v_ for k, v_ in seed.items() if k not in ('car', 'ride')]
+        check(bool(free) and (max(free) - min(free)) < 0.02,
+              '%s: the seed is uninformed - uniform over the modes available to '
+              'everyone (spread %.4f)' % (day, (max(free) - min(free)) if free else -1))
+        ride = seed.get('ride', 0)
+        check(0 < ride < min(free) if free else False,
+              '%s: seed ride share %.3f sits below the freely available modes '
+              '(%.3f) because 22.1%% of the population has nobody to drive them, '
+              'and is not zero (DECISIONS.md 9.11)'
+              % (day, ride, min(free) if free else -1))
     check(False,
           'lastIteration is NOT validated: two 250-iteration runs at 1% were '
           'still drifting after innovation was switched off (DECISIONS.md 9.7). '

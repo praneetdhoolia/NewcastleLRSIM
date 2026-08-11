@@ -1252,6 +1252,62 @@ into every downstream number, so the specification comes first.
 
 ---
 
+## 9.11 `ride` requires a driver — a logged departure under §8.5 (P4 stage 2)
+
+§9.10 established that ride dominance is specification, not sampling. This is the
+fix, and §8.5 requires it to be recorded **before results are seen**, which is now.
+
+**What was wrong.** MATSim's standard treatment lets any agent be a car passenger
+on any trip. Riding as a passenger should only be available when another agent is
+driving the same trip at the same time; it is usually modelled without that
+requirement and teleported. That is the field's default weakness, not a
+misconfiguration here.
+
+**What was rejected.** Solving `asc_car_passenger` harder. That is ASC absorption,
+the primary threat to validity in proposal §9: the constant would be doing the job
+the missing rule should do, and would misbehave the moment a scenario changes —
+which is the entire experiment.
+
+**What was implemented.** A per-person availability flag, DERIVED from B1: a person
+may be a car passenger only if their household holds a vehicle **and** contains at
+least one *other* licence holder. **22.1% of the weekday population (115,034 of
+521,502) may not ride.** Two pieces were needed, and the first alone did nothing:
+
+1. `src/java/wickham/RideAvailabilityModesCalculator.java` — core MATSim honours
+   `carAvail` but has no equivalent for `ride`, and `subtourModeChoice.modes` is
+   global, so a custom `PermissibleModesCalculator` is the smallest structural fix.
+   Bound by `wickham.WickhamControler`.
+2. **The seed had to be fixed too.** `PermissibleModesCalculator` governs only
+   *new* mode choices — it never strips a mode from a plan an agent already holds.
+   Seeding a person who cannot ride with `ride` leaves an illegal plan in memory
+   that `ChangeExpBeta` re-selects indefinitely. Measured: **4,723 illegal ride
+   legs survived 30 iterations** with the calculator alone. After seeding
+   correctly: **0**.
+
+| | before | after |
+|---|---:|---:|
+| Illegal ride legs at iteration 30 | 4,723 | **0** |
+| Seed ride share | 0.2228 | 0.1712 |
+| Ride at iteration 25 | 0.3098 | **0.2548** |
+
+**Toolchain.** The pinned digests are UNCHANGED: this adds a compiled artefact
+beside the shaded jar rather than replacing it. It builds from committed source
+with the pinned javac 25.0.4 — no Maven — which is what makes it reproducible.
+
+**This is necessary and probably not sufficient, and that is stated now rather
+than discovered later.** The constraint lowers the ceiling to the 77.9% who may
+ride; the unconstrained attractor was 0.72, so it does not bind hard at the
+corner. Ride was still climbing at iteration 30 (0.2787). Whether it now settles
+near the observed 0.206 is unmeasured and needs a converged run.
+
+**Residual limitation, stated not hidden.** This makes ride available or not per
+*person*. It does not bind a passenger to a specific driver at a specific time, so
+the model can still produce more passengers than there are drivers in any given
+hour. That is the socnetsim joint-plans contrib (Dubernet & Axhausen, STRC 2013;
+Transportation 2015), which is **absent from the pinned jar** and out of scope.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

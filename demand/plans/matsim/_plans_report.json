@@ -81,13 +81,13 @@
       "legs": 2237373,
       "activities": 2758875,
       "tours": 997332,
-      "bytes": 37541687,
+      "bytes": 38375456,
       "seed_mode_share": {
-        "bike": 0.2144,
-        "car": 0.1432,
-        "pt": 0.2146,
-        "ride": 0.214,
-        "walk": 0.2138
+        "bike": 0.2282,
+        "car": 0.1502,
+        "pt": 0.2284,
+        "ride": 0.1657,
+        "walk": 0.2276
       },
       "activity_types": {
         "business": 24078,
@@ -103,13 +103,13 @@
       "legs": 1861017,
       "activities": 2311790,
       "tours": 829771,
-      "bytes": 31184711,
+      "bytes": 31914413,
       "seed_mode_share": {
-        "bike": 0.2129,
-        "car": 0.1499,
-        "pt": 0.2126,
-        "ride": 0.2122,
-        "walk": 0.2125
+        "bike": 0.2272,
+        "car": 0.1576,
+        "pt": 0.2271,
+        "ride": 0.1614,
+        "walk": 0.2267
       },
       "activity_types": {
         "business": 2788,
@@ -125,13 +125,13 @@
       "legs": 1575989,
       "activities": 1990002,
       "tours": 701746,
-      "bytes": 27093872,
+      "bytes": 27766687,
       "seed_mode_share": {
-        "bike": 0.2129,
-        "car": 0.1493,
-        "pt": 0.2126,
-        "ride": 0.2127,
-        "walk": 0.2126
+        "bike": 0.2275,
+        "car": 0.1569,
+        "pt": 0.2271,
+        "ride": 0.162,
+        "walk": 0.2265
       },
       "activity_types": {
         "business": 1779,

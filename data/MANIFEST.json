@@ -1,10 +1,10 @@
 {
   "project": "Newcastle Light Rail counterfactual microsimulation (Project Wickham)",
-  "generated": "2026-08-11T17:00:36",
+  "generated": "2026-08-11T17:20:26",
   "base_year": 2026,
   "crs": "EPSG:28356 (GDA2020 / MGA Zone 56)",
   "n_files": 362,
-  "total_bytes": 3460357853,
+  "total_bytes": 3462594139,
   "total_gib": 3.22,
   "by_stage": {
     "raw": 61,
@@ -12,7 +12,7 @@
   },
   "bytes_by_stage": {
     "raw": 1956136023,
-    "processed": 1504221830
+    "processed": 1506458116
   },
   "files": [
     {
@@ -1987,7 +1987,7 @@
       "path": "demand/plans/matsim/_plans_report.json",
       "bytes": 3431,
       "rows": null,
-      "sha256": "f9e35c2d093948c00e736f671d549f763626c6c3abfb69cc9c4c34d18b7ee982",
+      "sha256": "3c85e3581956aec0136569eef4e0e9ab3fdd2df6b46ff9e57a015de9464fe9dd",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",
@@ -1997,9 +1997,9 @@
     },
     {
       "path": "demand/plans/matsim/population_SAT.xml.gz",
-      "bytes": 31184711,
+      "bytes": 31914413,
       "rows": null,
-      "sha256": "ec1194d60f32cbffbe9594a8d5ed1a86ef07714ca38ec39a9654cb1af21f7cfb",
+      "sha256": "4eb7625ddabf9922ecc501abb45d0b567c531ecff0b787218b942ca75e44e4d7",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",
@@ -2009,9 +2009,9 @@
     },
     {
       "path": "demand/plans/matsim/population_SUN.xml.gz",
-      "bytes": 27093872,
+      "bytes": 27766687,
       "rows": null,
-      "sha256": "5ffb10d18e8ce168e777429bae6b8d6618c7d8062c093bfff386fdc8a942ea78",
+      "sha256": "417f7217f31cba6364549dd6d6c55d9e73aa804c9fa51141b1b5370c9313287c",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",
@@ -2021,9 +2021,9 @@
     },
     {
       "path": "demand/plans/matsim/population_WEEKDAY.xml.gz",
-      "bytes": 37541687,
+      "bytes": 38375456,
       "rows": null,
-      "sha256": "f3a36c820751cb26a7aed3533b796fa448984bbb3a6eaf2c4ebd240c6a7058e3",
+      "sha256": "ff161938597a5bbe91eb0ed9c960f4322074b6265001989d38a7bb992d2188e2",
       "stage": "processed",
       "produced_by": "src/build/build_matsim_plans.py",
       "source": "",

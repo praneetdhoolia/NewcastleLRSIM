@@ -439,7 +439,7 @@ sweep.
 | …measured / derived / observed | 5 / 7 / 2 |
 | Fields with **no value at all** | **7** |
 | Fields **held fixed** under §8.5 | 6 |
-| `check_package.py` | 860 → **922 checks**, 1 standing warning |
+| `check_package.py` | 860 → **925 checks**, 1 standing warning |
 
 **Proposal §8.1 is now a schema constraint, not a discipline.** A field whose
 source is `assumed`, `literature`, `measured` or `derived` must carry a sweep, a
@@ -577,6 +577,39 @@ passengers would propagate it into every corridor number, so **SUMO waits**.
 
 ---
 
+## P4 stage 2 — `ride` now requires a driver (11 August 2026)
+
+The §9.10 finding acted on. Full rationale and the §8.5 departure in
+[`DECISIONS.md`](DECISIONS.md) §9.11.
+
+A person may be a car passenger only if their household holds a vehicle **and**
+contains another licence holder — derived from B1, not assumed. **22.1% of the
+weekday population (115,034 of 521,502) may not ride.**
+
+| | before | after |
+|---|---:|---:|
+| Illegal ride legs at iteration 30 | 4,723 | **0** |
+| Seed ride share | 0.2228 | 0.1712 |
+| Ride at iteration 25 | 0.3098 | **0.2548** |
+
+**Two pieces were needed and the first alone did nothing.** MATSim's
+`PermissibleModesCalculator` governs only *new* mode choices; it never strips a
+mode from a plan an agent already holds. With the calculator alone, 4,723 illegal
+ride legs survived 30 iterations because the *seed* had handed those agents a
+ride plan that `ChangeExpBeta` kept re-selecting. Fixing the seed as well took it
+to zero. Core MATSim honours `carAvail` but has no equivalent for `ride`, so the
+calculator is ours: [`src/java/wickham/`](src/java/wickham/), ~40 lines, compiled
+by the pinned javac. **The pinned toolchain digests are unchanged** — this adds an
+artefact beside the shaded jar rather than replacing one.
+
+**Necessary, probably not sufficient — stated now rather than discovered later.**
+The constraint lowers the ceiling to the 77.9% who may ride, and the
+unconstrained attractor was 0.72, so it does not bind hard at the corner. Ride was
+still climbing at iteration 30 (0.2787). **Whether it now settles near the
+observed 0.206 is unmeasured** and needs a converged run at 1% *and* 10%.
+
+---
+
 ## How to resume
 
 **For P4 specifically, read [`docs/P4_CHECKPOINT.md`](docs/P4_CHECKPOINT.md)
@@ -591,7 +624,7 @@ to drive it, and the traps. This file stays the short live status.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **922 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **925 checks**. Run it before declaring any phase
    complete.
 5. `python src/registry/render_docs.py` after any change to `config/registry/`, or
    `check_package.py` will report the reference as stale.

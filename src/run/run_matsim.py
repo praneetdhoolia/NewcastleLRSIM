@@ -37,7 +37,11 @@ from registry import outputs  # noqa: E402
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 JAVA = os.path.join(REPO, '.tools', 'jdk', 'bin', 'java.exe')
 JAR = os.path.join(REPO, '.tools', 'jars', 'pt2matsim-26.6-shaded.jar')
-MAIN = 'org.matsim.core.controler.Controler'
+CLASSES = os.path.join(REPO, '.tools', 'classes')
+# Our entry point, not MATSim's: it rebinds PermissibleModesCalculator so `ride`
+# can be withheld from a person with nobody to drive them (DECISIONS.md 15,
+# src/java/wickham/). The pinned jar is unchanged - this ADDS classes beside it.
+MAIN = 'wickham.WickhamControler'
 SETS = os.path.join(REPO, 'scenarios', 'matsim')
 PLANS = os.path.join(REPO, 'demand', 'plans', 'matsim')
 RESULTS = os.path.join(REPO, 'results')
@@ -195,7 +199,8 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
                                        iterations, threads, seed, overrides, cfg)
     snapshot = cfg.write_snapshot(os.path.join(run_dir, '_config.json'))
     log = os.path.join(run_dir, 'matsim.log')
-    cmd = [JAVA, '-Xmx%s' % xmx, '-XX:+UseParallelGC', '-cp', JAR, MAIN, config_path]
+    classpath = os.pathsep.join([JAR, CLASSES])
+    cmd = [JAVA, '-Xmx%s' % xmx, '-XX:+UseParallelGC', '-cp', classpath, MAIN, config_path]
     t0 = time.time()
     with open(log, 'w', encoding='utf-8', errors='replace') as lf:
         rc = subprocess.Popen(cmd, stdout=lf, stderr=subprocess.STDOUT,

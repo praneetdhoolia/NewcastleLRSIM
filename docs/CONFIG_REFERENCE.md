@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 140 fields are made of
+## What the 141 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 2 | read directly from a raw download |
 | `measured` | 5 | computed from observed data in this package |
-| `derived` | 8 | follows from another registry field by identity |
+| `derived` | 9 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
 | `assumed` | 71 | chosen without direct empirical support |
 | `definition` | 36 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 127 | usable point value |
+| `active` | 128 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 7 | the datum does not exist in the package; must be swept, never pinned |
@@ -283,7 +283,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`config/registry/B_demand.json` - 25 fields*
+*`config/registry/B_demand.json` - 26 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -313,6 +313,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.opal.journey_linked` | *(null - unobtained)* | dataset | `assumed` | `tap_sequence_matching_model` |
 | `B.population.age_bands` | `[[0, 4], [5, 11], [12, 17], [18, 24], [25, 34], [35, 44], [45, 54], [55, 64], [65, 74], [75, 84], [85, 120]]` | years | `definition` | - |
 | `B.population.licence_rate_by_age_band` | `[0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]` | probability | `literature` | plus/minus 10% |
+| `B.population.ride_requires_household_driver` | `true` | boolean | `derived` | derived: a person may be a car passenger only if their B1 household holds at le |
 | `B.seed.master` | `20260810` | integer_seed | `definition` | - |
 
 #### `B.activity.act_duration_min`
@@ -470,6 +471,14 @@ Age banding for population synthesis. Follows the census table structure.
 Driver licence holding by age band, aligned to B.population.age_bands.
 
 ***literature** · status **active** · DECISIONS.md §9.1*
+
+#### `B.population.ride_requires_household_driver`
+
+Whether `ride` is withheld from a person with nobody to drive them. MATSim's standard treatment lets any agent be a car passenger on any trip; DECISIONS.md 9.10 measures the cost at 0.72 of legs against an observed 0.206, unmoved by a tenfold sample increase, i.e. 5.9 people per car. Core MATSim can restrict `car` per person via `carAvail` but has no equivalent for `ride`, and subtourModeChoice.modes is global, so the fix is a person attribute honoured by a custom PermissibleModesCalculator (src/java/wickham/). Setting this false restores the previous behaviour for comparison. RESIDUAL LIMITATION, stated not hidden: this makes ride available or not per person, it does NOT bind a passenger to a specific driver at a specific time - that is the socnetsim joint-plans contrib (Dubernet & Axhausen), absent from the pinned jar and out of scope.
+
+***derived** · status **active** · DECISIONS.md §8.5, 9.10, 15 · proposal §9*
+
+> **Derived from** `B.seed.master`: a person may be a car passenger only if their B1 household holds at least one vehicle AND contains at least one OTHER licence holder who could drive them; computed from B1_synthetic_population.csv household_id, household_vehicles and licence_holder, so it is derived from the synthetic population rather than chosen
 
 #### `B.seed.master`
 

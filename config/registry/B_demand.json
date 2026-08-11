@@ -476,6 +476,24 @@
       "consumers": [
         "src/build/build_activity_chains.py"
       ]
+    },
+    "B.population.ride_requires_household_driver": {
+      "value": true,
+      "units": "boolean",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "8.5, 9.10, 15",
+      "proposal_ref": "9",
+      "derived_from": {
+        "fields": [
+          "B.seed.master"
+        ],
+        "identity": "a person may be a car passenger only if their B1 household holds at least one vehicle AND contains at least one OTHER licence holder who could drive them; computed from B1_synthetic_population.csv household_id, household_vehicles and licence_holder, so it is derived from the synthetic population rather than chosen"
+      },
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ],
+      "description": "Whether `ride` is withheld from a person with nobody to drive them. MATSim's standard treatment lets any agent be a car passenger on any trip; DECISIONS.md 9.10 measures the cost at 0.72 of legs against an observed 0.206, unmoved by a tenfold sample increase, i.e. 5.9 people per car. Core MATSim can restrict `car` per person via `carAvail` but has no equivalent for `ride`, and subtourModeChoice.modes is global, so the fix is a person attribute honoured by a custom PermissibleModesCalculator (src/java/wickham/). Setting this false restores the previous behaviour for comparison. RESIDUAL LIMITATION, stated not hidden: this makes ride available or not per person, it does NOT bind a passenger to a specific driver at a specific time - that is the socnetsim joint-plans contrib (Dubernet & Axhausen), absent from the pinned jar and out of scope."
     }
   }
 }

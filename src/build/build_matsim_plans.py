@@ -42,6 +42,12 @@ import pandas as pd
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from det_io import gzip_writer
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+# Whether `ride` is withheld from a person with nobody to drive them. Derived
+# from B1 household composition; see DECISIONS.md 15 and src/java/wickham/.
+RIDE_REQUIRES_DRIVER = CFG.get('B.population.ride_requires_household_driver')
 
 PLANS = 'demand/plans'
 POP = 'demand/population'
@@ -143,21 +149,63 @@ def esc(v):
 
 
 def load_person_attributes():
-    """car availability, age band and employment, keyed by person id."""
+    """car availability, age band, employment and RIDE availability, by person id.
+
+    `rideAvail` is DERIVED, not assumed: a person may be a car passenger only if
+    their household holds at least one vehicle AND contains at least one OTHER
+    licence holder who could actually drive them. MATSim's standard treatment
+    lets any agent be a passenger on any trip, which DECISIONS.md 9.10 measures
+    at 0.72 of legs against an observed 0.206 - 5.9 people in every car.
+
+    Core MATSim honours `carAvail` but has no equivalent for `ride`, so the
+    attribute is consumed by src/java/wickham/RideAvailabilityModesCalculator.
+    """
     p = pd.read_csv(os.path.join(POP, 'B1_synthetic_population.csv'),
-                    usecols=['person_id', 'age', 'car_available', 'licence_holder',
-                             'employment_status', 'student_status',
+                    usecols=['person_id', 'household_id', 'age', 'car_available',
+                             'licence_holder', 'employment_status', 'student_status',
                              'mobility_impairment_flag'])
+
+    if RIDE_REQUIRES_DRIVER:
+        # licence holders per household, and whether the household has a vehicle
+        drivers = p.groupby('household_id')['licence_holder'].sum()
+        vehicles = p.groupby('household_id')['household_vehicles'].max() \
+            if 'household_vehicles' in p.columns else None
+        if vehicles is None:
+            veh = pd.read_csv(os.path.join(POP, 'B1_households.csv'),
+                              usecols=['household_id', 'household_vehicles'])
+            vehicles = veh.set_index('household_id')['household_vehicles']
+        hh_drivers = p['household_id'].map(drivers).fillna(0).astype(int)
+        hh_vehicles = p['household_id'].map(vehicles).fillna(0).astype(int)
+        # "another" driver: subtract the person's own licence
+        other_drivers = hh_drivers - p['licence_holder'].astype(int)
+        ride_ok = ((hh_vehicles > 0) & (other_drivers > 0)).astype(int)
+    else:
+        ride_ok = pd.Series(1, index=p.index)
+
+    p = p.assign(ride_avail=ride_ok.values)
     return {
         int(r.person_id): (int(r.car_available), int(r.age), int(r.licence_holder),
                            str(r.employment_status), str(r.student_status),
-                           int(r.mobility_impairment_flag))
+                           int(r.mobility_impairment_flag), int(r.ride_avail))
         for r in p.itertuples()
     }
 
 
-def pick_mode(car_available, u, table_by_avail=None):
+def pick_mode(car_available, u, table_by_avail=None, ride_available=True):
+    """Draw a seed mode from the modes this person may actually use.
+
+    `ride_available` matters as much as `car_available`. MATSim's
+    PermissibleModesCalculator governs only NEW mode choices - it never strips a
+    mode from a plan the agent already holds - so seeding a person who has nobody
+    to drive them with `ride` leaves an illegal plan in their memory that
+    ChangeExpBeta can re-select forever. Measured: 4,723 such legs survived 30
+    iterations before this was fixed.
+    """
     table = (table_by_avail or SEED_MODE_SPLIT)[bool(car_available)]
+    if not ride_available:
+        table = [(m, w) for m, w in table if m != 'ride']
+        total = sum(w for _, w in table)
+        table = [(m, w / total) for m, w in table]   # renormalise, do not reweight
     x = u()
     c = 0.0
     for mode, p in table:
@@ -209,19 +257,24 @@ def write_day(day, attrs, rng, report, seed_table=None):
             rows.sort(key=lambda r: int(r['trip_seq']))
             external = rows[0]['agent_tier'] == 'external'
             if external:
-                car_av, age, lic, emp, stu, mob = 1, 40, 1, 'employed_full_time', 'none', 0
+                # external boundary agents are not in B1, so household composition
+                # is unknown and ride stays available. 5,384 of 521,502 weekday
+                # agents; recorded rather than silently assumed.
+                car_av, age, lic, emp, stu, mob, ride_av = (
+                    1, 40, 1, 'employed_full_time', 'none', 0, 1)
             else:
                 a = attrs.get(pid)
                 if a is None:
                     continue
-                car_av, age, lic, emp, stu, mob = a
+                car_av, age, lic, emp, stu, mob, ride_av = a
 
             # one mode per tour keeps chain-based modes conserved from the start
             tour_mode = {}
             for r in rows:
                 tid = int(r['tour_id'])
                 if tid not in tour_mode:
-                    tour_mode[tid] = pick_mode(car_av, u, seed_table)
+                    tour_mode[tid] = pick_mode(car_av, u, seed_table,
+                                               ride_available=bool(ride_av))
             tours += len(tour_mode)
 
             w.write('\t<person id="%d">\n' % pid)
@@ -238,6 +291,10 @@ def write_day(day, attrs, rng, report, seed_table=None):
                     '%s</attribute>\n' % esc(emp))
             w.write('\t\t\t<attribute name="mobilityImpaired" class="java.lang.String">'
                     '%s</attribute>\n' % ('yes' if mob else 'no'))
+            # consumed by wickham.RideAvailabilityModesCalculator; absent means
+            # available, so a population without it behaves as before
+            w.write('\t\t\t<attribute name="rideAvail" class="java.lang.String">'
+                    '%s</attribute>\n' % ('always' if ride_av else 'never'))
             w.write('\t\t</attributes>\n')
             w.write('\t\t<plan selected="yes">\n')
 
