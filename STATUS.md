@@ -529,6 +529,42 @@ WICKHAM_RUN_SAMPLE_FRACTION=0.10 python src/run/run_matsim.py --scenario S2 ...
 
 ---
 
+## P4 stage 2 — is the 1% sample representative? (11 August 2026)
+
+Two runs identical but for the sample fraction, 250 iterations, S2 × WEEKDAY.
+Full detail in [`DECISIONS.md`](DECISIONS.md) §9.10. **Neither is a result** —
+250 iterations is known non-converged; these are diagnostics.
+
+| Mode | 1% | 10% | difference | HTS |
+|---|---:|---:|---:|---:|
+| car | 0.1223 | 0.1913 | **+6.91 pp** | 0.590 |
+| ride | 0.7213 | 0.7190 | **−0.23 pp** | 0.206 |
+| pt | 0.0395 | 0.0044 | **−3.51 pp (9×)** | 0.038 |
+| walk | 0.0315 | 0.0123 | −1.93 pp | 0.134 |
+| bike | 0.0854 | 0.0730 | −1.24 pp | 0.032 |
+
+- **Ride dominance survives a ten-fold increase in population unchanged** — the
+  two trajectories track within 0.006 at every checkpoint. It is a specification
+  problem, not a sampling artefact, and §9.7 is confirmed at scale.
+- **Non-convergence is identical at both fractions**: ride drifts +0.046 and
+  +0.047 between iterations 200 and 250 *after innovation stops*.
+- **Car and PT levels do not transfer from 1%.** Calibration against the
+  mode-share targets cannot be done there, and the hope that sweeps could run
+  cheaply at 1% is not available for those two modes.
+- **The car/PT divergence has no established mechanism.** Transit capacity and
+  small-sample spillback were both checked and neither survives; recorded as open
+  rather than guessed.
+- **An unreconciled vehicle capacity surfaced**: the fleet gives light rail 180
+  seats and no standing room, while §4.1 records a published maximum of 270 and
+  an assumed 60 seated. Because nothing has standing room, the C1 crowding
+  multipliers can never apply in any scenario.
+
+**Sequencing consequence.** The dominant distortion is a specification error that
+scale does not cure. Coupling SUMO to a demand model in which 72% of legs are car
+passengers would propagate it into every corridor number, so **SUMO waits**.
+
+---
+
 ## How to resume
 
 **For P4 specifically, read [`docs/P4_CHECKPOINT.md`](docs/P4_CHECKPOINT.md)

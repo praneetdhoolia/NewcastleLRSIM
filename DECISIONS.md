@@ -1186,6 +1186,72 @@ different model.
 
 ---
 
+## 9.10 Is the 1% sample representative? Partly — and the answer splits (P4 stage 2)
+
+Every P4 behavioural result had been measured at **1%** — 5,209 people, 0.85% of
+the population. Two runs, identical but for the sample fraction, 250 iterations,
+8 threads, S2 × WEEKDAY, uninformed seed, shipped constants.
+
+| Mode | 1% (5,209) | 10% (52,758) | difference | HTS target |
+|---|---:|---:|---:|---:|
+| car | 0.1223 | 0.1913 | **+6.91 pp** | 0.590 |
+| ride | 0.7213 | 0.7190 | **−0.23 pp** | 0.206 |
+| pt | 0.0395 | 0.0044 | **−3.51 pp (9×)** | 0.038 |
+| walk | 0.0315 | 0.0123 | −1.93 pp | 0.134 |
+| bike | 0.0854 | 0.0730 | −1.24 pp | 0.032 |
+
+**1. Ride dominance is a property of the model, not of the sample.** The two
+trajectories track within 0.006 at *every* checkpoint — 0.2228/0.2167 at
+iteration 0, 0.4034/0.4011 at 50, 0.6208/0.6192 at 150, 0.7213/0.7190 at 250.
+Ten times the population reproduces the same curve. **The §9.7 finding is
+confirmed at scale and is a specification problem**: `ride` has no
+driver-availability constraint, consumes no road capacity, and since §9.8
+carries no distance cost either, so only `asc_car_passenger` restrains it. At
+0.7213 against a 0.206 target it is 3.5× observed, and the model puts 5.9 people
+in every car.
+
+**2. Non-convergence is likewise a model property.** Innovation stops at
+iteration 200. Between 200 and 250, with no new plans being created, `ride` rose
+**+0.0461 at 1% and +0.0474 at 10%** — the same drift at both fractions. This is
+not slow relaxation toward an equilibrium; it is a corner still being approached
+when the run stops.
+
+**3. But 1% is NOT representative for `car` or `pt`, and that invalidates a hope.**
+Car differs by 6.91 pp and PT by a factor of nine. Any statement about car or PT
+*levels* measured at 1% does not transfer, so calibration against the mode-share
+targets cannot be done at 1%. The hope that sweeps could run cheaply at 1% and
+only headline runs at 25% is therefore **not available for car or PT**, which is
+a direct cost to the §9.5 budget problem.
+
+**4. The mechanism for the car/PT divergence is NOT established, and is recorded
+as open rather than guessed.** Two candidate explanations were checked and
+neither survives:
+
+- *Transit capacity.* The fleet is seats-only (`standingRoomInPersons=0`
+  throughout) and seats scale with the fraction, flooring at 1 below ~1.5%
+  (issue #12), so 1% carries ~43% more PT capacity per capita than proportional.
+  But at 10% the timetable offers roughly **20× more boarding capacity than the
+  model uses**, so capacity is not binding and cannot explain a nine-fold
+  collapse.
+- *Small-sample spillback.* Ruled out separately: MATSim enforces
+  `storageCapacityFactor == flowCapacityFactor` (§15), and the storage floor
+  gives 1% *more* link storage than proportional, which would make car more
+  attractive at 1% — the opposite of the observed direction.
+
+**An unreconciled vehicle capacity, found while checking the above.** The MATSim
+fleet gives the light rail **180** seats and no standing room. §4.1 records the
+CAF Urbos 100 with a **published maximum capacity of 270** and an assumed
+`capacity_seated` of **60**. 180 reconciles with neither. Because the fleet has
+no standing room, the C1 crowding multipliers (1.00 seated / 1.45 standing) can
+never apply to any vehicle in any scenario.
+
+**What this settles for sequencing.** The dominant distortion is a specification
+error that scale does not cure. Calibrating, sweeping or coupling SUMO to a
+demand model in which 72% of legs are car passengers would propagate that error
+into every downstream number, so the specification comes first.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
