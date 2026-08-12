@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 12 August 2026 (P4 stage 6 - repaired demand measured, the issue backlog worked through, a live run view added)
+**Last updated:** 12 August 2026 (P4 stage 7 - every phase re-verified against the package, the deliverable list revised to nine, and a data search that settled the three unobtained inputs)
 **Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -24,17 +24,79 @@ result.**
 ## Phase board
 
 Phases as defined in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) §7.1.
+**Every state below was verified against the package on 12 August 2026**, not
+carried forward from a previous entry. "Complete" means the phase's own stated
+output exists and passes its gate — not that nothing about it will change.
 
-| Phase | State | Notes |
+| Phase | State | Verified against | What is NOT done |
+|---|---|---|---|
+| **P0** Scoping | ✅ complete | Base year, zone system, S0–S6 all settled ([`DECISIONS.md`](DECISIONS.md) §1) | P0's output includes *"requests lodged"*. **The repo carries no evidence any formal request was lodged by this project** — §13 lists them as outstanding tasks. See P1. |
+| **P1** Data acquisition | 🟡 **substantially complete, two named gaps** | 364 files hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv), 63 raw + 301 derived, all provenance-tagged | **Field measurement of dwell — named in P1's own work description — was never done.** SCATS is **refused by policy** (§9.21) and journey-linked Opal is unpublished; both are handled by sweep under proposal §7.2. |
+| **P2** Network build | 🟡 **complete, one refinement outstanding** | 1 MATSim base + 4 variants, 15 mapped feeds, 0 unmapped stops, 4 SUMO nets, all byte-identical on rebuild | §13 item 4: manual OSM correction on the corridor. Corridor trunk lane counts are **87.5% observed** (§2.5), so this is a refinement, not a hole. |
+| **P3** Demand synthesis | 🟡 **complete as built, and will be superseded** | 612,680 agents, 521,502 weekday persons, 3 day types, **30** scenario × day-type run-input sets on disk | **Freight, work-related business travel and boundary through traffic are absent.** Adding them (P4 deliverable 0d) regenerates B2 and breaks comparability with every run to date — a planned break, not a defect. |
+| **P4** Calibration | 🟡 **in progress — 6 of 9 deliverables** | See the checklist below | Deliverable **0** (new), **5** (calibrated base) and **8** (transfer-penalty estimate) are not met. |
+| **P5** Scenario runs | ⬜ not started | — | **SUMO has been built six times and simulated zero times**, deliberately. Verified: no run output exists anywhere in the repo. |
+| **P6** Analysis | ⬜ not started | — | `src/analyse/` holds P4 metric extraction and the run views only; nothing for the A/B hypotheses. |
+| **P7** Write-up | ⬜ not started | — | |
+
+**Four runs exist**, all `rc=0`: one on repaired demand at 10% and three
+superseded `ride_sufficiency_*`. **Nothing in this repository is a result.**
+
+---
+
+## The deliverable checklist
+
+Proposal §8 sets six project-level deliverables. P4's own list has grown from
+seven to nine: one because the proposal's §7.2 fallback was found never to have
+been built, and one because calibrating a model with known-missing demand would
+calibrate the wrong model.
+
+### P4 — calibration
+
+| # | Deliverable | State | Where |
+|---|---|---|---|
+| **0** | **Specification and input completeness** — **NEW, and it gates 5** | ⬜ **not started** | see breakdown below |
+| 1 | Run harness | ✅ done | [`src/run/`](src/run/) |
+| 2 | Metric extraction | ✅ done | [`src/analyse/`](src/analyse/) |
+| 3 | Fit statistic | ✅ done, 10 tests | [`src/calibrate/fit.py`](src/calibrate/fit.py) |
+| 4 | Calibration loop | ✅ done | [`src/calibrate/calibrate.py`](src/calibrate/calibrate.py) |
+| **5** | **Calibrated base + parameter provenance** | ❌ **NOT MET** — blocked by a modelling decision **and** now by deliverable 0 | `params/C5_calibration.json` |
+| 6 | Calibration report | ✅ done | [`src/calibrate/report.py`](src/calibrate/report.py) |
+| 7 | MATSim↔SUMO outer-loop tolerance | ✅ done — **5 s** | [`DECISIONS.md`](DECISIONS.md) §9.16 |
+| **8** | **Transfer-penalty estimate** — **NEW: proposal §7.2's own fallback, never built** | ⬜ **not started** | §9.21 |
+| 9 | Live run view | ✅ done | [`src/analyse/run_monitor.py`](src/analyse/run_monitor.py) |
+
+### Deliverable 0, broken down — the work that must precede a calibrated base
+
+Ordered. 0a is first because it may change what the rest is worth.
+
+| | Work package | Why it gates a calibrated base |
 |---|---|---|
-| P0 Scoping | ✅ complete | Base year 2026, zone system, scenario list S0–S6 settled. Scope calls closing proposal §10 are recorded in [`DECISIONS.md`](DECISIONS.md) §1. |
-| P1 Data acquisition | ✅ complete | 182 files, 2.31 GiB, all provenance-tagged and hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv). Three critical inputs remain unobtained — see below. |
-| P2 Network build | ✅ complete | MATSim network + 15 mapped schedules, 4 SUMO corridor nets, corridor attributes graded by evidence. See below. |
-| P3 Demand synthesis | ✅ complete | Shape defect closed, network rebuilt once, B2 rebuilt as tours (3 day types + external boundary demand), MATSim plans and 30 scenario×day-type input sets. They did not in fact load in MATSim — fixed at P4 stage 0 (§9.4). |
-| P4 Calibration | 🟡 stages 0–3 | Run inputs load (§9.4), run cost measured (§9.5), mode choice fixed and the seed uninformed (§9.6), seed dependence and convergence measured (§9.7), the ride constant constrained to observed occupancy (§9.8), **the day-type filter corrected — the with-tram scenario had no tram on a weekday (§9.9)**, sample fraction tested (§9.10) and **1% found unusable** (§9.12), `ride` given a driver requirement (§9.11) and measured **necessary but not sufficient** (§9.12), trip length by mode constrained (§9.13), **the external demand tier found to be 0.43% of trips and not driving, so no count-based calibration is safe yet (§9.14, #20)**, target identifiability written down (§12.1–12.4). Deliverables **3 of 7**: run harness, metric extraction and fit statistic exist and are tested; **the calibration loop, the calibrated base and the report do not** (#14), and the phase is blocked on the §8.5 ride specification (#16). |
-| P5 Scenario runs | ⬜ not started | The P4 harness in `src/run/` is what P5 will drive. **Read the one-build constraint in [`DECISIONS.md`](DECISIONS.md) §3.5 before designing a run**, and §9.5 before choosing a sample fraction — the specified load is ~765 days of wall clock and that cut has not been made. |
-| P6 Analysis | ⬜ not started | `src/analyse/` holds the P4 metric extraction only; nothing for the A/B hypotheses yet. |
-| P7 Write-up | ⬜ not started | |
+| **0a** | **Specification audit.** Walk population → activities → tours → mode choice → network → scoring → metrics → fit, and at each joint ask what would be wrong if this were wrong, and whether it would be visible. Output: a ranked register of places the logic can be silently wrong. | Mode share is car **32.5%** against an observed **59.0%**. Something structural is still wrong, and adding demand on top of an unexplained error makes it harder to find, not easier. Seven defects have already been found this way, every one of which produced a confident wrong answer rather than a failure. |
+| **0b** | **Derive what can be derived.** Move as many of the 78 `assumed` fields as the data supports to `measured`/`derived`, and reclassify those that are methodological choices rather than empirical guesses. **Realistic target 15–25, not 78** — the HTS held is aggregate tables, so anything about tour structure (intermediate stops, activity durations, second stops) is *not* derivable without a TfNSW unit-record request. Candidates: `B.activity.day_purpose_mix`, `B.activity.p_mandatory`, `B.activity.sat_to_sun_rate` (RMS hourly counts carry dates → real day-of-week), `B.external.interaction_rate` (ABS journey-to-work table, §13 item 11 — obtainable), `A.road.*_default` (observed OSM distributions), `A.lightrail.line_speed_kmh` (GTFS ÷ measured alignment), `C.vot.*` (TfNSW published economic parameters), and `RUN.routing.beeline_distance_factor`, which is **probably a duplicate** of the measured detour factor 1.3376. | 46% of the model's controllable values are educated guesses. Every one carries a sweep, so nothing is hidden — but a calibrated base resting on 78 guesses is a weaker claim than one resting on 55. |
+| **0c** | **Fleet capacities.** Apply the §9.21 figures: ferry 149 seated + 51 standing, rail from the Hunter/Endeavour car figures, bus 44 seated + 18 standing. `literature` with urls, swept — **not** `observed`. | **Every current capacity overstates the real vehicle**, rail by ~2.7×. PT capacity currently cannot bind, which distorts every A1–A5 hypothesis and partially explains §9.12. |
+| **0d** | **The missing demand.** In value order: **(1)** boundary/through traffic — the M1 gap, external-station matrix seeded from cordon counts, touching no holdout row; **(2)** work-related business travel — an **observed HTS purpose** the model does not generate; **(3)** freight — a heavy-vehicle layer from the measured 6.52% heavy share. **Deferred to P5:** SUMO pedestrian crossings, which need a SUMO version change and are therefore a §14 toolchain change. | Each adds demand and will move mode share. Calibrating before them means re-calibrating after them. |
+| **0e** | **Housekeeping.** Keep the `water` and `green` OSM layers, documented as visual-only so they never read as orphaned model inputs. | Rule: every artefact is either used or labelled. |
+
+### Declined, with reasons — recorded so they are not re-raised
+
+| Request | Answer |
+|---|---|
+| Incorporate the 143 held-back targets | **No.** They are the only test the model has. The split was fixed before any fitting precisely so nobody can move a target after seeing a result. They open **once**, at the end. New observables become **constraints** (the §9.8 / §9.13 pattern), never targets. |
+| Delete the targets that cannot inform anything | **No.** The 13 Opal card-type rows are *calibration* rows in the pre-registered 210. Deleting them retrospectively changes a set fixed in advance — the move that would let anyone drop whatever the model fails at. They cost one line of explanation and are reported with the reason they cannot be scored. |
+| Taxi / motorcycle / rideshare as their own modes | **No target exists.** The HTS reports "Other" as one bucket; IPART's survey measures usage incidence, not Newcastle mode share. Three unfalsifiable modes would be structure pretending to be rigour. |
+| Obtain SCATS phasing | **Refused by policy**, documented (§9.21). Proposal §7.2's contingency is now the operative path and binds every headline figure to a stated uncertainty band. |
+
+### Project-level (proposal §8)
+
+| # | Deliverable | State |
+|---|---|---|
+| 1 | Reproducible model | 🟡 on track — seeded, pinned, byte-identical rebuilds; not containerised |
+| 2 | Open data package | ✅ 364 files, provenance, licence, lineage |
+| 3 | Calibration report | 🟡 generator exists; no calibrated base to report |
+| 4 | Findings paper | ⬜ not started |
+| 5 | Interactive result explorer | 🟡 replay + live run view exist; per-scenario explorer does not |
+| 6 | Method note on evaluation gaps | 🟡 **strengthened** — the SCATS refusal is now a documented, citable instance (§9.21) |
 
 ---
 
@@ -998,11 +1060,15 @@ remembered. **All checks pass, 1 standing warning** — `lastIteration`, which i
 
 ## How to resume
 
-**For P4 specifically, read [`docs/P4_CHECKPOINT.md`](docs/P4_CHECKPOINT.md)
-first** — the long-form handoff: the seven defects and the pattern they share,
-every measurement taken, every decision and its rationale, what is built and how
-to drive it, and the traps. This file stays the short live status.
+**Starting a fresh session?** [`docs/NEXT_SESSION_PROMPT.md`](docs/NEXT_SESSION_PROMPT.md)
+is a ready-to-paste brief that orients an agent in one message and points back
+here. It is kept in step with this file and the checkpoint.
 
+**For P4 specifically, read [`docs/P4_CHECKPOINT.md`](docs/P4_CHECKPOINT.md)** —
+the long-form handoff: what has been measured and is true, the traps, the errors
+already made and how to drive the harness. **This file stays the source of truth
+for the phase board and the deliverable checklist**; the checkpoint does not
+repeat them.
 
 1. Read this file, then [`DECISIONS.md`](DECISIONS.md) §0 (status summary) and
    [`CLAUDE.md`](CLAUDE.md) (conventions and hard constraints).
@@ -1010,7 +1076,7 @@ to drive it, and the traps. This file stays the short live status.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **~950 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **~960 checks**. Run it before declaring any phase
    complete.
 5. `python src/registry/render_docs.py` after any change to `config/registry/`, or
    `check_package.py` will report the reference as stale.

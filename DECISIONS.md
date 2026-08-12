@@ -2219,6 +2219,116 @@ They are reported with that reason and are not dropped.
 
 ---
 
+## 9.21 What a wide data search settled, and what it did not (P4 stage 7)
+
+The three unobtained inputs (§0, §13) and the undeclared fleet capacities (§9.18)
+were searched for exhaustively rather than assumed to be unavailable. The result
+changes the *status* of two of them from "request outstanding" to something
+firmer, and it produces real vehicle figures for the first time.
+
+### SCATS phasing is refused by policy, and that is now citable
+
+**This is no longer an outstanding request. It is a documented refusal.** In
+April 2025 WalkSydney, Better Streets and Jake Coppinger formally requested
+SCATS signal phasing data. Transport for NSW replied that it *"does not publish
+the SCATS Signal Phasing data you requested and currently has no plans to make
+this information publicly available"*, and maintained that position through
+follow-up correspondence and a meeting in July 2025. **Western Australia
+publishes the equivalent data freely.**
+
+Two consequences, and the second is binding:
+
+1. **Proposal §7.2's "No SCATS" contingency is the operative path, not a
+   hypothetical.** It requires signal delay to be inferred from GTFS-Realtime
+   run-time distributions, cycle time and priority to be **swept**, and — the
+   part that binds every future headline — *"state the resulting uncertainty
+   band explicitly in all headline figures."* `A.signals.scats_phasing` stays
+   `unobtained` with its three-way categorical sweep, and the corridor result
+   may never be quoted as a point estimate.
+2. **It is a finding, not only a gap.** The proposal already argues that the
+   absence of ex-post evaluation is a governance choice rather than a technical
+   limit. A refusal to release the phasing data that would let anyone else check
+   a corridor claim is the same argument with a citation attached, and it
+   belongs in deliverable 6 (the method note on evaluation gaps).
+
+### Journey-linked Opal is not published, and our own fallback was never built
+
+Only aggregate trip counts are published, which is what the package already
+holds. A privacy-preserving unit-record sample was released with CSIRO Data61,
+but it is Sydney and pre-dates the light rail opening, so it cannot inform a
+Newcastle transfer penalty.
+
+**The more useful finding is about this project rather than about TfNSW.**
+Proposal §7.2 specifies what to do when this request fails: *"estimate transfer
+rates from tap-on/tap-off timing at the Interchange using aggregate stop-level
+data plus a matching model, validate against the published interchange
+percentages."* **That was never built.** `C.transfer.beta_transfer_penalty_min`
+is consumed by `build_params.py` and `build_matsim_run_inputs.py` and is
+estimated by nothing; the package holds `lr_tapon_share_by_stop` and the station
+entry/exit series the method would need. The fallback was skipped in favour of
+sweeping, and sweeping is what §7.2 permits only *after* the estimate is
+attempted. **This is a missing deliverable, not a missing dataset.**
+
+**One incidental confirmation.** TfNSW records that from 1 July 2024,
+aggregations between line, agency and mode are no longer valid because a
+passenger may use several lines on one trip. That is independent operator
+confirmation of the §12 trap on hypothesis A1's denominator, which until now
+rested on our own reading.
+
+### Charging dwell has no published figure
+
+WSP and Aurecon both describe the charge-bar system; neither publishes a
+duration. §4.3's assessment — *"not published anywhere"* — survives the search.
+`A.lightrail.dwell_charging_s` stays `unobtained`, swept 10–35 s.
+
+**A false lead is recorded so it is not re-followed.** A search summary asserted
+20–30 s at each stop and attributed it to the Newcastle Light Rail encyclopaedia
+entry. **The page does not contain that figure.** It was not adopted. Anything
+that reaches this model must be read from the source, not from a summary of it.
+
+### The fleet, and every capacity in it was too generous
+
+The mapped fleet is pt2matsim's generic defaults (§9.18). Published figures were
+found for three of the four vehicle types:
+
+| vehicle | published | model carried |
+|---|---|---|
+| Stockton ferry (MV Shortland / MV Hunter) | **200 total, 149 seated** | 250 seats, 0 standing |
+| Hunter railcar | **77 (HM) / 69 (HMT) per car**, 7 two-car sets | 400 seats, 0 standing |
+| Endeavour railcar | **95 (LE) / 82 (TE) per car** | *(same `Rail` type)* |
+| Volvo B12BLE bus | **44 seated + 18 standing = 62** | 70 seats, 0 standing |
+| Volvo B10B bus | **51 seated** | |
+
+**Every one of them overstates capacity** — rail by roughly 2.7x on a two-car
+set, ferry by 25%, bus seats by about 59%. That is consistent with, and
+partially explains, §9.12's finding that transit capacity never binds: some of
+the headroom was fictional. Newcastle still operates an almost entirely diesel
+bus fleet — three battery-electric buses — so the Volvo figures are the right
+basis rather than the zero-emission models now entering service elsewhere.
+
+**Source grade, stated rather than glossed.** These are encyclopaedia and
+enthusiast-maintained fleet pages, not operator or manufacturer publications;
+the authoritative Australian fleet list refused automated access. They therefore
+enter the registry as `literature` **with their urls**, and **swept** — not as
+`observed`, which this package reserves for a value read from a source it
+downloaded itself. That is a weaker claim than §9.18's light rail figure, whose
+270 is a published manufacturer maximum, and the difference is deliberate.
+
+### Taxi, motorcycle and rideshare cannot be separated
+
+The HTS tables this package holds report **"Other" as a single bucket**. No
+observed decomposition into taxi, motorcycle and rideshare exists in the
+package or in the open data searched. IPART runs an annual Survey of Point to
+Point Transport Use, but it measures *usage incidence* among NSW residents, not
+trip mode share for Newcastle, so it can suggest a split and cannot validate
+one.
+
+**Adding three modes with no target for any of them would add structure that
+cannot be falsified**, which is the opposite of what this project is for. The
+single approximate mode stays, and stays labelled approximate in `fit.py`.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

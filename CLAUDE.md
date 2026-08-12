@@ -151,7 +151,9 @@ those depend on ABS/TfNSW/Overpass availability and on compute, not on the diff.
 |------|---------------|
 | `newcastle-lr-proposal.md` | The research design: scenarios, tests, appendices. |
 | `DECISIONS.md` | Every assumed/modelled value + rationale + sweep range (don't re-litigate). |
-| `STATUS.md` | Live status, roadmap, continuation handoff (read at session start; keep current). |
+| `STATUS.md` | **Verified phase board + the full deliverable checklist** — the source of truth for both (read at session start; keep current). |
+| `docs/P4_CHECKPOINT.md` | Long-form P4 handoff: what is measured and true, the traps, errors already made, how to drive the harness. |
+| `docs/NEXT_SESSION_PROMPT.md` | Ready-to-paste brief that orients a fresh session in one message. Keep in step with the two above. |
 | `README.md` | Data-package guide: layout, reproduction commands, sources and licences. |
 | `docs/DATA_DICTIONARY.md` | Column-level definitions for every processed artefact. |
 | `docs/project-flow.html` | One-page orientation: P0–P7 flow, data layers, scenario matrix, pre-registered metrics. Plan, not result — restate its run-time figures when SCATS/dwell land. |
