@@ -145,20 +145,31 @@ def rows_c1():
 
 def rows_sweep():
     """The mandatory sensitivity grid. Every headline finding is reported as a
-    curve across this grid, never as a point estimate (proposal 3.4 S-d)."""
+    curve across this grid, never as a point estimate (proposal 3.4 S-d).
+
+    `walk_decay_beta_per_m` was a third axis of five levels and is NOT one any
+    more. It reaches the model through nothing - zero occurrences of the decay
+    curve in the generated MATSim config, and it is named in `not_representable`
+    for that reason (issue 21, DECISIONS.md 9.3). Sweeping it five ways produced
+    a sensitivity band of exactly zero by construction, which would have been
+    reported as "insensitive to walk access" when the truth is "walk decay is
+    not in the model" - a false negative, and worse than an absent one. It also
+    consumed four fifths of the grid: 140 points, of which 112 could not differ
+    from another point for any reason a reader would care about.
+
+    140 -> 28 (DECISIONS.md 9.22). The axis returns the day the curve reaches
+    the model, and not before.
+    """
     out = []
     i = 0
     for tp in TRANSFER_PENALTY['grid']:
-        for wd in WALK_DECAY['sweep']['beta_per_m']:
-            for ch in [0.0, 10.0, 20.0, 35.0]:
-                i += 1
-                out.append(dict(sweep_id='SW%04d' % i,
-                                beta_transfer_penalty_min=tp,
-                                walk_decay_beta_per_m=wd,
-                                dwell_charging_s=ch,
-                                is_baseline=int(tp == TRANSFER_PENALTY['base'] and
-                                                wd == WALK_DECAY['params']['beta_per_m'] and
-                                                ch == 20.0)))
+        for ch in [0.0, 10.0, 20.0, 35.0]:
+            i += 1
+            out.append(dict(sweep_id='SW%04d' % i,
+                            beta_transfer_penalty_min=tp,
+                            dwell_charging_s=ch,
+                            is_baseline=int(tp == TRANSFER_PENALTY['base'] and
+                                            ch == 20.0)))
     return out
 
 

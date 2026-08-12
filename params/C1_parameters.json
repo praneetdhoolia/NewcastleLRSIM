@@ -161,7 +161,7 @@
     "source": "assumed"
   },
   "n_param_sets": 30,
-  "n_sweep_points": 140,
+  "n_sweep_points": 28,
   "assumed_rows": [
     "C1_all_HW",
     "C1_all_HE",

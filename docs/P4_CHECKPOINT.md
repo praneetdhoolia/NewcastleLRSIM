@@ -1,7 +1,7 @@
 # P4 checkpoint — the long-form handoff
 
 **Rewritten 12 August 2026, after every phase was re-verified against the
-package.** [`STATUS.md`](../STATUS.md) is the short live status and holds the
+package and the three open decisions were taken (§9.22).** [`STATUS.md`](../STATUS.md) is the short live status and holds the
 **verified phase board and the full deliverable checklist**; this is the
 full picture for someone picking the work up cold. Where the two disagree,
 `STATUS.md` is newer.
@@ -30,7 +30,8 @@ STATUS.md                     verified phase board + the nine deliverables
 DECISIONS.md  §0, §8.5, §9.7–§9.21, §12.1, §15, §16
 CLAUDE.md                     conventions and hard constraints
 docs/CONFIG_REFERENCE.md      generated; skim "no value" and "held fixed"
-gh issue list --state open   11 open, and they ARE the worklist
+gh issue list --state open   12 open; NONE awaits a decision -
+                             9 awaiting-implementation, 3 awaiting-run
 ```
 
 Then confirm the package is intact:

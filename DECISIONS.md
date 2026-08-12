@@ -2329,6 +2329,134 @@ single approximate mode stays, and stays labelled approximate in `fit.py`.
 
 ---
 
+## 9.22 Three decisions taken, and the carried-over work re-prioritised (P4 stage 7)
+
+Three questions that had been open for the user rather than for the code were
+put and answered on 12 August 2026.
+
+### 1. The §8.5 question is DEFERRED, not answered
+
+Deliverable 5 needs a ruling on whether the mode constants may move, and there
+were three ways forward (§9.16). **The decision is to take none of them yet, and
+to revisit after deliverable 0a.**
+
+The reasoning is that the fit is currently wrong in a way nobody has explained:
+car **32.5%** against an observed **59.0%**, car passenger **50.0%** against
+**20.6%**, and the §9.15 demand repair moved car by 1.69 pp. Seven defects have
+already been found in this model and **every one produced a confident wrong
+answer rather than an obvious failure**. If 0a finds an eighth, the fit may move
+without touching a constant.
+
+**Choosing branch (b) — re-opening §8.5 — to fix what turns out to be a bug
+would be the exact failure proposal §9 names as the primary threat to
+validity**, and it would be unrecoverable: once a constant has absorbed a
+specification error, no later run can tell you it did. Deferring costs nothing,
+because 0a has to happen regardless.
+
+### 2. The run programme is cut, and one fifth of it was never doing anything
+
+Issue #6. The specified load is 140 sweep points × 10 scenarios + 10 scenarios ×
+30 replications, each over three day types = **5,100 run-days ≈ 765 days of wall
+clock** at 25%.
+
+**A fifth of it required no decision at all.** The grid was 7 × 5 × 4 over
+`beta_transfer_penalty_min`, `walk_decay_beta_per_m` and `dwell_charging_s`.
+**`walk_decay_beta_per_m` reaches the model through nothing** (issue #21): zero
+occurrences in the generated config, and it is named in `not_representable` for
+that reason. Sweeping it five ways produces a sensitivity band of exactly zero
+**by construction**, which would be reported as *"insensitive to walk access"*
+when the truth is *"walk decay is not in the model"*. That is a false negative in
+a sensitivity analysis, and worse than an absent one.
+
+**The grid is cut from 140 to 28 points**, and the axis returns the day the decay
+curve reaches the model, not before. This is a defect fix, not a scope cut:
+**112 of the 140 points could not have differed from another point for any reason
+a reader would care about.**
+
+The remaining cuts are scope decisions and were approved:
+
+| cut | run-days | wall clock at 25% |
+|---|---:|---:|
+| as specified | 5,100 | ~765 days |
+| drop the axis that reaches nothing | 1,740 | ~284 days |
+| + sweep **weekday only** | 1,180 | ~193 days |
+| + replications 30 → 5 | 430 | ~70 days |
+| + sweep only the decisive contrasts (S2vS0, S2vS2b) | **262** | **~43 days** |
+
+At 25% a run needs 31.5 GiB, so **two fit concurrently in 63.5 GiB** — roughly
+**three weeks of wall clock**, which is the first version of this programme that
+this machine can actually execute.
+
+**Replications are to be measured, not assumed.** `E.replication.n_replications`
+is 30 with a declared range of 5–30; the 5 above is a planning figure and the
+value must come from **measured seed variance**, which is cheap. Until that
+measurement exists the 5 is provisional and is recorded as such.
+
+### 3. The two refusals are confirmed
+
+Both were requested directly and both were declined; the user confirmed the
+refusals stand.
+
+- **The 143 holdout targets stay closed.** They are the only test the model has.
+  The 67/143 split was fixed before any fitting precisely so that no target can
+  move after a result is seen. They open **once**, at the end. A new observable
+  becomes a **constraint** (the §9.8 / §9.13 pattern), never a target.
+- **The 13 Opal card-type targets are not deleted.** They are calibration rows
+  inside the pre-registered 210 and cannot be scored, because MATSim has no
+  fare-product dimension. Deleting them retrospectively would change a set fixed
+  in advance — the move that would let anyone quietly drop whatever the model
+  fails at. They are reported with the reason instead.
+
+### 4. Carried-over work from P0–P2, re-prioritised
+
+Verifying the phase board (`STATUS.md`) found work carried from earlier phases
+that no deliverable owned. Two items are now urgent for reasons that did not
+apply when they were first listed.
+
+**GTFS-Realtime collection is now on the critical path, and it only accrues
+forward.** §13 item 10 says *"start now; it is the fallback for both dwell and
+signal delay, and it accrues only forward."* **No collection exists** — verified,
+the only reference in `src/` is a note naming it as an acquisition route. That
+was tolerable while SCATS was merely unobtained. **§9.21 established that SCATS
+is refused by policy**, which makes proposal §7.2's contingency the operative
+path — and §7.2 requires signal delay to be *"inferred from GTFS-Realtime
+run-time distributions."* **The fallback for the largest single uncertainty in
+the model depends on a dataset nobody is collecting, and every day of delay is a
+day of it permanently lost.** It is cheap to start and impossible to backfill.
+
+**The corridor's road attributes are mostly imputed, and B3 rests on them.**
+Measured over the 714 corridor and parallel edges:
+
+| field | observed in OSM | imputed |
+|---|---:|---:|
+| speed limit | 639 | 75 |
+| one-way | 475 | 239 |
+| lane count | 435 | **279** |
+| turn lanes | 70 | **644 absent** |
+| kerbside | 36 | **678** |
+| lane width | 10 | **704** |
+| capacity | 0 | **714** |
+
+§2.5's *"87.5% of as-built trunk lane counts are observed"* is true and is about
+the **40 trunk edges**; it is not a statement about the 714. **Kerbside is 95%
+imputed, lane width 98.6%, capacity 100%** — and B3, *"the decisive test of
+Claim B"*, is precisely the hypothesis that turns on lane loss, banned turns and
+kerbside parking removal. §13 item 4 named this and nothing owned it.
+
+**Also carried, and now explicitly owned rather than floating:** the charging
+dwell field measurement (§13 item 2, physical, one visit), pedestrian counts
+(§13 item 6 — B1 has no observable at all without them), retail vacancy (§13
+item 7 — `D.retail.vacancy_rate` is `unobtained` and B2 depends on it), the ABS
+journey-to-work table (§13 item 11, obtainable, settles a swept parameter), and
+the 2014 timetable (§13 item 8, validates the era-1 reconstruction).
+
+**What this changes:** these are not P4 calibration work, and pretending
+otherwise is how they stayed unowned. They are recorded in `STATUS.md` as
+**carried-over deliverables with an explicit owner phase and priority**, and the
+two urgent ones are issues rather than list items.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

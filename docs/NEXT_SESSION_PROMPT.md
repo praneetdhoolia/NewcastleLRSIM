@@ -1,15 +1,18 @@
 # Next-session prompt
 
-Paste the block below verbatim to start the next session. It is written to be
-self-contained enough to orient without reading everything, and to point at the
-authoritative documents rather than duplicate them — those documents are kept
-current; a copy inside a prompt is not.
+Paste the block below verbatim to start the next session. It is written to
+orient an agent in one message and to **point at the authoritative documents
+rather than duplicate them** — those documents are kept current; a copy inside a
+prompt goes stale the moment anything moves.
+
+Keep it in step with [`../STATUS.md`](../STATUS.md) and
+[`P4_CHECKPOINT.md`](P4_CHECKPOINT.md) whenever the state changes.
 
 ---
 
 Project Wickham — P4 calibration. Branch `praneetdhoolia/external-cordon-and-escort`
-(on top of `praneetdhoolia/config-registry`). 14 commits, NONE PUSHED.
-Nothing in this repo is a result.
+(on top of `praneetdhoolia/config-registry`). 22 commits ahead of main, NONE PUSHED.
+**Nothing in this repo is a result.**
 
 ═══════════════════════════════════════════════════════════════════════════════
 STANDING INSTRUCTIONS FROM THE USER — these override convenience
@@ -22,7 +25,8 @@ STANDING INSTRUCTIONS FROM THE USER — these override convenience
 3. EVERY PIECE OF CODE IS TRACKED, DOCUMENTED AND ACTIVELY INVOLVED. A file
    nothing references, a docstring that lies, or a `consumers` entry naming a
    reader that does not read — all are defects. A DECLARED, SWEPT PARAMETER
-   THAT REACHES NOTHING IS THE SAME DEFECT.
+   THAT REACHES NOTHING IS THE SAME DEFECT, and it has now bitten three times
+   (issues #21, #12, and a whole sweep axis worth 112 wasted grid points).
 4. Do not change things speculatively. Monitor what runs; when you find factors
    that might matter, LOG them rather than acting on them. REPRODUCE A DEFECT
    BEFORE ATTRIBUTING IT — this was got wrong once already.
@@ -32,21 +36,22 @@ STANDING INSTRUCTIONS FROM THE USER — these override convenience
 6. RUN THE GATE BEFORE THE RUN, NOT AFTER. Rebuilding inputs and launching a
    2-hour run without re-running check_package.py and diffing the resolved
    configs happened once. It passed on inspection afterwards. That was luck.
+7. CLOSE ISSUES AS YOU GO, and label what blocks each one. Never close one
+   because the list looks long: the bar is STRUCTURALLY PREVENTED, NOT
+   REMEMBERED.
 
 ═══════════════════════════════════════════════════════════════════════════════
 BOOTSTRAP — cheap, in this order
 ═══════════════════════════════════════════════════════════════════════════════
-  STATUS.md                  VERIFIED phase board + THE NINE DELIVERABLES.
-                             Start here. Every phase state in it was checked
-                             against the package on 12 Aug, not carried forward.
-  docs/P4_CHECKPOINT.md      the long-form handoff: what is measured and true,
-                             the traps, the errors already made, how to drive it
-  DECISIONS.md §0, §8.5, §9.7–§9.21, §12.1, §15, §16
+  STATUS.md                  VERIFIED phase board, THE NINE P4 DELIVERABLES, the
+                             CARRIED-OVER work from P0–P2, and what was DECLINED.
+                             Start here — it is the source of truth for all four.
+  docs/P4_CHECKPOINT.md      long-form handoff: what is measured and true, the
+                             traps, the errors already made, how to drive it
+  DECISIONS.md §0, §8.5, §9.7–§9.22, §12.1, §13, §15, §16
   CLAUDE.md
   docs/CONFIG_REFERENCE.md   generated; skim "no value" and "held fixed"
-  gh issue list --state open       11 open, and they ARE the worklist.
-                             Deliverable 0 is #22 #23 #24 (+ #18 #20);
-                             deliverable 8 is #25; deliverable 5 is #14.
+  gh issue list --state open
 
   python tests/check_manifest.py                    fast, committed subset
   python src/setup/bootstrap_toolchain.py --verify  JDK/pt2matsim/SUMO digests
@@ -58,129 +63,146 @@ DO NOT RE-READ THE P1–P3 PACKAGE. 364 files hashed in data/MANIFEST.csv.
 MACHINE: 24 logical cores, 63.5 GiB. One run averages 2.4 BUSY CORES OF 24 — the
 mobsim synchronises every simulated second, so threads idle. Memory
 (9.6 + 87 GiB × fraction) binds long before cores. PARALLELISE ACROSS RUNS, never
-threads within one: thread count is part of the run identity. NO GPU PATH exists;
-do not re-investigate.
+threads within one: thread count is part of the run identity. At 25% a run needs
+31.5 GiB, so TWO fit at once. NO GPU PATH exists; do not re-investigate.
 
 ═══════════════════════════════════════════════════════════════════════════════
-YOUR TASK: DELIVERABLE 0, THEN RE-BASELINE, THEN RUN
+THE BOARD — 12 open issues, and NONE of them awaits a decision
 ═══════════════════════════════════════════════════════════════════════════════
-P4 has NINE deliverables and SIX are met. The full checklist with the reasoning
-is in STATUS.md — read it there, it is the source of truth. In short:
+Every open issue is labelled with what blocks it. All decisions have been taken.
 
-  0  Specification and input completeness   NOT STARTED  ← YOUR WORK, AND IT
-                                                          GATES DELIVERABLE 5
-  1  Run harness                            done
-  2  Metric extraction                      done
-  3  Fit statistic                          done, 10 tests
-  4  Calibration loop                       done
-  5  Calibrated base + provenance           NOT MET (decision + deliverable 0)
-  6  Calibration report                     done
-  7  Outer-loop tolerance                   done: 5 s
-  8  Transfer-penalty estimate              NOT STARTED — proposal §7.2's OWN
-                                            fallback, which was never built
-  9  Live run view                          done
+  awaiting-implementation (9)   work that is scoped, decided and not yet built
+    #26  URGENT  GTFS-Realtime collection — accrues ONLY FORWARD
+    #22  0a      specification audit
+    #23  0b      derive what can be derived
+    #18  0c      apply the published bus/rail/ferry capacities
+    #20  0d(1)   boundary through traffic, so the M1 carries cars
+    #24  0d(2,3) work-related business travel + freight
+    #25  8       the transfer-penalty estimate §7.2 specified
+    #27  P2      corridor kerbside/width/capacity are imputed; B3 rests on them
+    #14  5       calibrated base — also gated by deliverable 0
 
-DO THEM IN THIS ORDER. 0c and 0e touch no demand and may run in parallel.
+  awaiting-run (3)              decision taken, a run must produce the number
+    #16  the §9.17 ride-cost departure, logged with its falsification conditions
+    #5   the iteration count — the model does not converge
+    #9   re-solve asc_car_passenger, downstream of #5
 
-  0a  SPECIFICATION AUDIT — first, and it may change what the rest is worth.
-      Walk population → activities → tours → mode choice → network → scoring →
-      metrics → fit. At each joint ask: what would be wrong if this were wrong,
-      and WOULD WE SEE IT? Output a ranked register of where the logic can be
-      silently wrong. WHY FIRST: mode share is car 32.5% against an observed
-      59.0% and car passenger 50.0% against 20.6%. Something structural is still
-      wrong, and adding demand on top of an unexplained error makes it harder to
-      find. Seven defects have already been found this way and every one
-      produced a confident wrong answer rather than an obvious failure.
+═══════════════════════════════════════════════════════════════════════════════
+YOUR TASK, IN THIS ORDER
+═══════════════════════════════════════════════════════════════════════════════
+0.  START #26 TODAY, BEFORE ANYTHING ELSE. It is a poller and a store, an hour
+    of work, and it is the ONLY item on the board where waiting destroys the
+    option. §9.21 established SCATS phasing is REFUSED BY POLICY, which makes
+    proposal §7.2's contingency the operative path — and §7.2 requires signal
+    delay to be inferred from GTFS-REALTIME RUN-TIME DISTRIBUTIONS. Nobody is
+    collecting them. A stream not captured today does not exist tomorrow, and
+    the loss is silent. Collect only; the inference is separate work that gets
+    better the longer this has been running.
 
-  0b  DERIVE WHAT CAN BE DERIVED. Move as many of the 78 `assumed` fields to
-      measured/derived as the data supports, and reclassify the ones that are
-      methodological choices rather than empirical guesses. REALISTIC TARGET
-      15–25, NOT 78: the HTS held is AGGREGATE tables, so tour structure
-      (intermediate stops, activity durations, second stops) is NOT derivable
-      without a TfNSW unit-record request. Named candidates are in STATUS.md.
-      Two specifics worth doing early: B.external.interaction_rate is settled by
-      the ABS journey-to-work SA2×SA2 table, which §13 says is a standard
-      TableBuilder extract and NOT a formal request; and
-      RUN.routing.beeline_distance_factor is PROBABLY A DUPLICATE of the
-      measured detour factor 1.3376 — check before deriving anything else.
+1.  #22 — 0a SPECIFICATION AUDIT. First of the modelling work, because it may
+    change what the rest is worth. Walk population → activities → tours → mode
+    choice → network → scoring → metrics → fit, and at each joint ask: what
+    would be wrong if this were wrong, and WOULD WE SEE IT? Output a ranked
+    register of where the logic can be silently wrong.
+    WHY FIRST: car is 32.5% against an observed 59.0% and car passenger 50.0%
+    against 20.6%. The §9.15 demand repair moved car 1.69 pp. Something
+    structural is still wrong. Seven defects have been found this way and EVERY
+    ONE produced a confident wrong answer rather than an obvious failure.
 
-  0c  FLEET CAPACITIES. Apply the §9.21 figures: ferry 149 seated + 51 standing,
-      rail from the Hunter/Endeavour car figures, bus 44 seated + 18 standing.
-      Enter them as `literature` WITH THEIR URLS and SWEPT — not `observed`,
-      which is reserved for a value this package downloaded itself. Light rail
-      is already done (270 published, §9.18). EVERY CURRENT CAPACITY OVERSTATES
-      THE REAL VEHICLE, rail by ~2.7× on a two-car set.
+2.  #23 — 0b DERIVE WHAT CAN BE DERIVED. Target 15–25 of the 78 `assumed`
+    fields, NOT 78: the HTS held is AGGREGATE tables, so tour structure is not
+    derivable without a TfNSW unit-record request. Candidates are listed in
+    STATUS.md. CHECK FIRST: RUN.routing.beeline_distance_factor (1.3, assumed)
+    is probably the SAME QUANTITY as B.activity.detour_factor (1.3376,
+    measured) declared twice. Also fold in the ABS journey-to-work table
+    (obtainable, settles B.external.interaction_rate) and the day-of-week split
+    from RMS hourly counts, which carry dates.
 
-  0d  THE MISSING DEMAND, in value order:
-      (1) boundary/through traffic — the M1 gap (#20). External-station matrix
-          seeded from cordon counts. All five Pacific Motorway stations are
-          CALIBRATION rows, so this touches NO HOLDOUT.
-      (2) work-related business travel — an OBSERVED HTS purpose the model does
-          not generate.
-      (3) freight — a heavy-vehicle layer from the measured 6.52% heavy share.
-      DEFERRED TO P5: SUMO pedestrian crossings, which need a SUMO version
-      change and are therefore a §14 toolchain change = a model change.
+3.  #18 — 0c FLEET, and #27 — corridor attributes. NEITHER TOUCHES DEMAND, so
+    both can run in parallel with 1 and 2. Figures and their source grade are in
+    §9.21; they enter as `literature` WITH URLS and SWEPT, never `observed`.
 
-  0e  HOUSEKEEPING. Keep the `water` and `green` OSM layers, documented as
-      VISUAL-ONLY so they never read as orphaned model inputs.
+4.  #20, #24 — 0d THE MISSING DEMAND. Through traffic first, then business
+    travel, then freight. All three MOVE MODE SHARE, which is why they precede
+    any calibration.
 
-  8   TRANSFER-PENALTY ESTIMATE. Proposal §7.2 specifies exactly what to do when
-      journey-linked Opal is refused: estimate transfer rates from tap-on/tap-off
-      timing at the Interchange using aggregate stop-level data plus a matching
-      model, and validate against the published interchange percentages. The
-      package holds lr_tapon_share_by_stop and the station entry/exit series.
-      CAREFUL: lr_tapon_share_by_stop is HOLDOUT. Validate against the published
-      percentages, NOT against those rows.
+5.  RE-BASELINE. One run, declared pipeline, on the rebuilt demand.
 
-THEN: rebuild the demand, re-baseline with one run, and only then calibrate.
-Every part of 0d moves mode share, so a base calibrated before it must be
-calibrated again after it.
+6.  #16 — the ride-cost measurement, against its pre-recorded falsification
+    conditions. THEN #5 (iteration count), THEN #9, THEN #14.
+
+7.  #25 — deliverable 8, the transfer-penalty estimate. Independent of the
+    above; slot it wherever it fits.
 
 FINALLY, SIMULATE. Declared pipeline, no exceptions:
   run_matsim.py → extract_metrics.py → fit.py → report.py
-producing schema-validated _metrics.json and _fit.json. The run prints a live
-view url as it launches; src/analyse/run_monitor.py --run <tag> serves a
-finished or in-flight run on its own.
+producing schema-validated _metrics.json and _fit.json. run_matsim.py prints a
+live-view url as it launches; src/analyse/run_monitor.py --run <tag> serves an
+in-flight or finished run on its own.
 
 ═══════════════════════════════════════════════════════════════════════════════
-DECLINED — recorded so they are not re-raised
+DECISIONS ALREADY TAKEN — do not re-litigate (DECISIONS.md §9.22)
+═══════════════════════════════════════════════════════════════════════════════
+• THE §8.5 QUESTION IS DEFERRED until after 0a, deliberately. The fit is wrong in
+  a way nobody has explained; if 0a finds an eighth defect the fit may move
+  without touching a constant. Choosing to re-open §8.5 to fix what turns out to
+  be a bug would be the exact failure proposal §9 names as the PRIMARY THREAT TO
+  VALIDITY, and it is unrecoverable: once a constant has absorbed a
+  specification error, no later run can tell you it did.
+• THE RUN PROGRAMME IS CUT. The sweep grid went 140 → 28 because
+  walk_decay_beta_per_m REACHES NOTHING and 112 points could not have differed
+  from another point. Approved scope cuts take 5,100 run-days → 262, i.e. ~765
+  days of wall clock → ~43, or ~3 weeks with two runs concurrent.
+  E.replication.n_replications STAYS AT 30 in the registry: the planning figure
+  of 5 must come from MEASURED SEED VARIANCE, and pinning 5 now would replace an
+  unjustified 30 with an unjustified 5.
+• SCATS IS REFUSED BY POLICY and it is citable (§9.21). §7.2's contingency is
+  the operative path and BINDS EVERY CORRIDOR HEADLINE to an explicitly stated
+  uncertainty band.
+
+═══════════════════════════════════════════════════════════════════════════════
+DECLINED — do not re-raise (STATUS.md, and §9.22)
 ═══════════════════════════════════════════════════════════════════════════════
 • THE 143 HELD-BACK TARGETS STAY UNTOUCHED. They are the only test the model
-  has. The 67/143 split was fixed before any fitting precisely so that nobody
-  can move a target after seeing a result. They open ONCE, at the end. A new
-  observable becomes a CONSTRAINT (the §9.8 / §9.13 pattern), never a target.
-• THE 13 OPAL CARD-TYPE TARGETS ARE NOT DELETED. They are calibration rows in
-  the pre-registered 210; deleting them retrospectively changes a set fixed in
+  has. The 67/143 split was fixed before any fitting precisely so no target can
+  move after a result is seen. They open ONCE, at the end. A new observable
+  becomes a CONSTRAINT (the §9.8 / §9.13 pattern), never a target.
+• THE 13 OPAL CARD-TYPE TARGETS ARE NOT DELETED. Calibration rows in the
+  pre-registered 210; deleting them retrospectively changes a set fixed in
   advance, which is the move that would let anyone drop whatever the model fails
   at. They are reported with the reason they cannot be scored.
 • NO SEPARATE TAXI / MOTORCYCLE / RIDESHARE MODES. The HTS reports "Other" as
   one bucket and no decomposition exists. Three unfalsifiable modes would be
   structure pretending to be rigour.
-• SCATS PHASING IS REFUSED BY POLICY and that is documented and citable (§9.21).
-  Proposal §7.2's contingency is now the OPERATIVE PATH and it binds every
-  corridor headline to an explicitly stated uncertainty band.
 
 ═══════════════════════════════════════════════════════════════════════════════
 HARD CONSTRAINTS
 ═══════════════════════════════════════════════════════════════════════════════
 1. The 67/143 split is PRE-REGISTERED. Never calibrate on, re-split or peek at a
-   holdout row. If you need one to diagnose something: SAY SO AND STOP.
+   holdout row. If you need one to diagnose something: SAY SO AND STOP. Note
+   that the obvious data for deliverable 8 IS holdout — use the aggregate
+   stop-level series and validate against the PUBLISHED interchange percentages,
+   exactly as §7.2 words it.
 2. ONE BUILD OF THE NETWORK PER COMPARISON (§3.5). A scenario runs on its own
    schedules/<S>/network.xml.gz + the E1 patch by osm:way:id. NEVER RE-RUN THE
    MAPPER.
 3. Mode-share target is HTS NEWCASTLE LGA (59.0/20.6/13.4/3.8/3.2). Comparing a
    five-LGA modelled mean to a Newcastle-LGA published one is the error §9.13
-   records being made — it once inverted a headline.
-4. The three unobtained inputs stay SWEPT, never pinned. B.external.interaction_rate
-   too, until the ABS table lands.
+   records being made — it once inverted a headline. The same trap applies to
+   §2.5's "87.5% observed", which is about the 40 TRUNK edges and NOT the 714
+   corridor edges (§9.22).
+4. The three unobtained inputs stay SWEPT, never pinned.
+   B.external.interaction_rate too, until the ABS table lands.
 5. Everything seeded 20260810. normalise_eol.py BEFORE build_manifest.py, then
    again after.
 6. NO INVENTED DATA — derive it from the package or SWEEP it. Never type an
-   observed value into a script; read it from its artefact. And DO NOT TRUST A
+   observed value into a script; read it from its artefact. DO NOT TRUST A
    SEARCH SUMMARY: one asserted a charging-dwell figure the cited page does not
    contain.
-7. NO COUNT-BASED CALIBRATION until the M1 gap is resolved (§9.14).
-   calibrate.py ENFORCES this.
+7. NO COUNT-BASED CALIBRATION until #20 lands (§9.14). calibrate.py ENFORCES
+   this. When building #20, note that seeding demand from counts and then
+   scoring against those same counts is CIRCULAR — seed from the cordon
+   stations, score elsewhere.
 8. BASH HEREDOCS MANGLE BACKTICKS. Write prose to a file and splice with Python.
    This has bitten three times.
 
@@ -191,10 +213,13 @@ OUT OF P4 SCOPE — do not start these
   the outer loop are P5. The corridor has been built six times and simulated
   ZERO times, deliberately: coupling it to a demand model whose mode share is
   wrong would propagate the error into run time, car delay and B3 — the decisive
-  test of Claim B. SUMO pedestrian crossings belong here too.
+  test of Claim B. #27 must land BEFORE the first corridor run. SUMO pedestrian
+  crossings need a SUMO version change = a §14 toolchain change = a model change.
 • socnetsim joint plans — absent from the pinned jar; a §14 toolchain change.
 • P5 scenario runs, P6 analysis, and a 2013 historical reconstruction
   (considered and dropped — do not reopen without the user).
+• The 🟡 carried-over items in STATUS.md (pedestrian counts, retail vacancy, the
+  2014 timetable) block P6, NOT P4. Do not let them reorder deliverable 0.
 
 STYLE: inventory first, state findings, propose, wait for sign-off, then
 implement. Keep STATUS.md current in the SAME commit as the work. Commit

@@ -87,6 +87,34 @@ Ordered. 0a is first because it may change what the rest is worth.
 | Taxi / motorcycle / rideshare as their own modes | **No target exists.** The HTS reports "Other" as one bucket; IPART's survey measures usage incidence, not Newcastle mode share. Three unfalsifiable modes would be structure pretending to be rigour. |
 | Obtain SCATS phasing | **Refused by policy**, documented (§9.21). Proposal §7.2's contingency is now the operative path and binds every headline figure to a stated uncertainty band. |
 
+### Carried over from P0–P2 — work no deliverable owned
+
+Verifying the phase board found work carried from earlier phases that was listed
+in [`DECISIONS.md`](DECISIONS.md) §13 and owned by nothing. It is owned now.
+**Two are urgent for reasons that did not apply when they were first written**
+(§9.22).
+
+| | Carried item | From | Priority | Why now |
+|---|---|---|---|---|
+| **#26** | **GTFS-Realtime collection** | P1 (§13.10) | 🔴 **URGENT — start today** | **It accrues only forward and cannot be backfilled.** §9.21 established SCATS is **refused by policy**, so proposal §7.2's contingency is the operative path — and §7.2 requires signal delay to be *inferred from GTFS-Realtime run-time distributions.* The fallback for the largest single uncertainty in the model depends on a dataset nobody is collecting. It is also the fallback for charging dwell. |
+| **#27** | **Corridor road-attribute correction** | P2 (§13.4) | 🟠 **high** | **B3 is "the decisive test of Claim B" and rests on lane loss, banned turns and kerbside parking removal.** Measured over the 714 corridor edges: kerbside **95% imputed**, lane width **98.6%**, capacity **100%**, turn lanes **90% absent**. §2.5's 87.5%-observed figure is about the **40 trunk edges**, not these. |
+| — | Charging dwell field measurement | P1 (§13.2) | 🟡 medium | Physical, one visit to Civic or Crown Street. Worth 11% of end-to-end run time; `A.lightrail.dwell_charging_s` stays `unobtained` and swept until then. GTFS-RT (#26) is the fallback. |
+| — | ABS journey-to-work SA2×SA2 table | P1 (§13.11) | 🟡 medium | **Obtainable** — a standard TableBuilder extract, not a request. Settles `B.external.interaction_rate`, currently assumed 0.08. **Folded into deliverable 0b.** |
+| — | Day-of-week travel split | P1 (§13.12) | 🟡 medium | The Saturday:Sunday division is the last assumed part of the day-type shape. RMS hourly counts carry dates, so this is derivable. **Folded into deliverable 0b.** |
+| — | Pedestrian counts | P1 (§13.6) | 🟡 medium | **B1 has no observable at all without them** — none are published for Newcastle. §7.2's fallback is temporary counters on Hunter St, or calibrating from land use and modelled alightings. A P6 blocker, not a P4 one. |
+| — | Retail floorspace and vacancy audit | P1 (§13.7) | 🟡 medium | `D.retail.vacancy_rate` is `unobtained` and **B2 depends on it**. A P6 blocker. |
+| — | 2014 public timetable | P1 (§13.8) | 🟢 low | Validates the era-1 reconstruction. Nothing currently depends on it. |
+| — | LiDAR DTM for the CBD | P1 (§13.5) | 🟢 low | **Demoted.** It was to replace GLO-30 "where gradient actually matters" — but #21 established gradient **reaches the behavioural model through nothing**. It matters only for corridor grades now. |
+| — | Event attendance data | P1 (§13.9) | 🟢 low | Feeds the event-demand overlay, a proposal §10 extension. Out of scope until the base works. |
+| — | *"Requests lodged"* (P0 output) | P0 | ✅ **settled** | SCATS is **refused by policy** and documented (§9.21); journey-linked Opal is unpublished and its §7.2 fallback is now **deliverable 8**. Nothing further to lodge. |
+
+**Priority rule applied here:** urgency is set by *whether waiting destroys the
+option*, not by how much each is worth. #26 is first because the data is gone if
+not collected; #27 is second because it gates the decisive test of Claim B.
+Everything marked 🟡 blocks P6, not P4, and must not be allowed to reorder
+deliverable 0.
+
+
 ### Project-level (proposal §8)
 
 | # | Deliverable | State |
