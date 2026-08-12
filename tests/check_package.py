@@ -15,6 +15,8 @@ import re
 import hashlib
 import zipfile
 import collections
+import shutil
+import time
 
 FAIL = []
 WARN = []
@@ -1358,6 +1360,86 @@ if True:
 
 # ---- report ----
 print('PASS %d' % len(OK))
+# ---- P. the live run view (src/analyse/run_monitor.py) ----
+#
+# It reports no fit statistic, but it DOES compute the post-innovation drift that
+# issue 5 turns on, and a number that can be cited needs coverage - deliverable 3
+# had none, and that is how issue 19 survived. Driven on a synthetic run
+# directory, so no completed run is needed: `results/` is gitignored and a check
+# may not depend on one.
+if True:
+    sys.path.insert(0, os.path.join('src', 'analyse'))
+    try:
+        import run_monitor as _mon
+    except ImportError as _e:
+        check(False, 'src/analyse/run_monitor.py imports (%s)' % _e)
+        _mon = None
+
+    if _mon is not None:
+        import tempfile as _tf
+        _d = _tf.mkdtemp(prefix='wickham_mon_')
+        _out = os.path.join(_d, 'output')
+        os.makedirs(_out)
+        with open(os.path.join(_d, 'config.xml'), 'w', encoding='utf-8') as _f:
+            _f.write('<config>\n'
+                     '<param name="lastIteration" value="10" />\n'
+                     '<param name="fractionOfIterationsToDisableInnovation" value="0.8" />\n'
+                     '<param name="transitScheduleFile" '
+                     'value="C:/x/scenarios/matsim/S2/WEEKDAY/transitSchedule.xml.gz" />\n'
+                     '</config>\n')
+        # two iterations 30 s apart, so the median iteration time is knowable
+        with open(os.path.join(_d, 'matsim.log'), 'w', encoding='utf-8') as _f:
+            _f.write('2026-08-12T10:00:00,000  INFO AbstractController:137 '
+                     '### ITERATION 8 BEGINS\n'
+                     '2026-08-12T10:00:30,000  INFO AbstractController:137 '
+                     '### ITERATION 9 BEGINS\n')
+        with open(os.path.join(_out, 'modestats.csv'), 'w', encoding='utf-8') as _f:
+            _f.write('iteration;car;ride\n8;0.30;0.50\n9;0.31;0.54\n')
+        _s = _mon.scan(_d)
+
+        check(_s['target'] == 10 and _s['iteration'] == 9,
+              'run_monitor reads the iteration and the target from the run own '
+              'config and log, so progress is the run self-report and not an '
+              'argument someone passed')
+        check(_s['scenario'] == 'S2' and _s['day'] == 'WEEKDAY',
+              'run_monitor identifies scenario and day type from the transit '
+              'schedule path BEFORE _run.json exists - that file is written when '
+              'a run ENDS, which is exactly when nobody is watching')
+        check(_s['median_iteration_s'] == 30.0 and _s['eta_s'] == 30,
+              'run_monitor derives the per-iteration cost and the ETA from '
+              'OBSERVED iteration times, never from the measured 9.5 figures, so '
+              'a run that slows down is reported as slower')
+        check(_s['innovation_off_at'] == 8,
+              'run_monitor locates the iteration at which innovation switches '
+              'off from fractionOfIterationsToDisableInnovation x lastIteration '
+              '- the point after which any drift is the issue 5 question')
+        check(abs(_s['post_innovation_drift'].get('ride', 0) - 0.04) < 1e-9
+              and abs(_s['post_innovation_drift'].get('car', 0) - 0.01) < 1e-9,
+              'run_monitor post-innovation drift is measured from the innovation '
+              'cut-off to the last iteration, per mode - a model still moving '
+              'once it can no longer create plans has not relaxed (issue 5)')
+        # a log written a moment ago is a RUNNING run; backdate it past
+        # RUN.monitor.stall_s to exercise the other branch
+        _old = time.time() - (_mon.STALL_S + 60)
+        os.utime(os.path.join(_d, 'matsim.log'), (_old, _old))
+        _s2 = _mon.scan(_d)
+        check(_s['state'] == 'running' and _s2['state'] == 'stalled',
+              'run_monitor calls a run with a cold log STALLED rather than '
+              'running, so a died run is never displayed as though it were '
+              'still working')
+
+        _p = _mon.PAGE.format(name='x', poll=3)
+        check('{' + '{' not in _p and '}' + '}' not in _p,
+              'the run monitor page template survives formatting with its CSS '
+              'and JS braces intact, so the served page is not silently broken')
+        check('modestats' in _p and 'never a result' in _p,
+              'the live view states on its face that its mode trajectory is the '
+              'mode agents CHOSE and is never a result - modestats and '
+              '_metrics.json disagree by construction (DECISIONS.md 9.12)')
+
+        shutil.rmtree(_d, ignore_errors=True)
+
+
 for m in OK:
     print('  ok    %s' % m)
 if WARN:

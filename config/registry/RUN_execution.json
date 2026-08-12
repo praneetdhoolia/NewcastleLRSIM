@@ -324,6 +324,42 @@
       "decisions_ref": "9.7",
       "matsim_param": "global.randomSeed",
       "description": "MATSim random seed. Held at the master seed unless replications are being drawn."
+    },
+    "RUN.monitor.enabled": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.19",
+      "description": "Serve the live run view while a run is in flight. An OBSERVER only: it reads the run directory, holds no lock and writes nothing, so a run observed is byte-for-byte a run unobserved. It is not part of the run identity and cannot alter a result."
+    },
+    "RUN.monitor.port": {
+      "value": 8731,
+      "units": "tcp_port",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.19",
+      "description": "Loopback port for the live run view. Bound on 127.0.0.1 only. If it is taken - a second concurrent run - the next free port is used and the actual url is printed, so parallel runs do not collide."
+    },
+    "RUN.monitor.poll_s": {
+      "value": 3,
+      "units": "seconds",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.19",
+      "description": "How often the page re-reads status. Well under a single iteration at any usable sample fraction (9.8 s at 1%, 56.4 s at 25%), so no iteration passes unseen."
+    },
+    "RUN.monitor.stall_s": {
+      "value": 300,
+      "units": "seconds",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.19",
+      "description": "How long the log may go untouched before the live view calls a run stalled rather than running. Comfortably longer than the slowest iteration measured (56.4 s at 25%) and than the events and plans writes that punctuate every tenth iteration, so a working run is never reported as stalled."
     }
   }
 }

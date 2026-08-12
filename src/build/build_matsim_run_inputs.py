@@ -185,6 +185,29 @@ def split_schedule(src_dir, dst_dir, day):
             kept_veh += 1
         else:
             vroot.remove(veh)
+    # The mapped fleet is pt2matsim's generic defaults, and for the tram that
+    # is 180 seats with NO standing room - a figure that reconciles with
+    # neither the published 270 maximum nor the 60 seated of DECISIONS.md 4.1,
+    # and which left the C1 crowding multipliers inert by construction because
+    # standing never occurred anywhere in the fleet (issue 18). The light rail
+    # vehicle is the object of study, and it is the one vehicle whose capacity
+    # this package actually has a published source for, so it is the one that
+    # is corrected here. Bus, rail and ferry keep their pt2matsim defaults and
+    # keep no standing room; that is a stated limitation, not an oversight.
+    lr_seated = CFG.get('A.lightrail.capacity_seated')
+    lr_standing = CFG.get('A.lightrail.capacity_standing')
+    patched_types = []
+    for vt in vroot:
+        if tag(vt) != 'vehicleType' or vt.get('id') != 'Tram':
+            continue
+        for cap in vt:
+            if tag(cap) != 'capacity':
+                continue
+            patched_types.append((vt.get('id'), cap.get('seats'),
+                                  cap.get('standingRoomInPersons'),
+                                  str(lr_seated), str(lr_standing)))
+            cap.set('seats', str(lr_seated))
+            cap.set('standingRoomInPersons', str(lr_standing))
     out_veh = os.path.join(dst_dir, 'transitVehicles.xml.gz')
     with gzip_writer(out_veh, text=False) as f:
         vtree.write(f, encoding='utf-8', xml_declaration=True)
@@ -193,6 +216,7 @@ def split_schedule(src_dir, dst_dir, day):
                 departures=kept_dep, departures_dropped=dropped_dep,
                 routes_kept_under_a_foreign_day_id=mixed_routes,
                 vehicles=kept_veh,
+                vehicle_capacity_patched=patched_types,
                 vehicle_refs=len(vehicles_used),
                 stop_facilities_kept=kept_fac, stop_facilities_dropped=dropped_fac,
                 transfer_relations_kept=kept_rel,
@@ -378,6 +402,18 @@ def scoring_from_c1(c1, purpose_share):
             'purpose-specific values' % vot_avg,
             'crowding multipliers (beta_crowding_*): require an explicit '
             'capacity-dependent scoring extension, not enabled here',
+            'gradient penalties (beta_gradient_uphill=%s, beta_gradient_'
+            'downhill=%s): MATSim scores a leg from time and distance and has '
+            'no gradient term, so the gradient attached to 43,112 road and '
+            '35,653 footway edges reaches mode choice through nothing. It '
+            'remains used for corridor grades (issue 21)'
+            % (w['beta_gradient_uphill']['base'],
+               w['beta_gradient_downhill']['base']),
+            'PT walk-access decay (walk_decay, beta_per_m=%s): the access and '
+            'egress walk that actually happens is routing.accessEgressType '
+            'plus SwissRailRaptor own radius handling, neither of which reads '
+            'a decay curve, so the declared curve reaches nothing (issue 21)'
+            % c1['walk_decay']['params']['beta_per_m'],
         ])
 
 

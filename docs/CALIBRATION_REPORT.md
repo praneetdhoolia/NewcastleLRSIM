@@ -8,10 +8,10 @@ Every number below comes from `fit.py`, which reads **only** the calibration hal
 | | |
 |---|---:|
 | Calibration targets available | 67 |
-| Scored | **38** |
-| Could not be scored, each with a reason | 29 |
+| Scored | **35** |
+| Could not be scored, each with a reason | 32 |
 
-Scoring 38 of 67 is **not** the same as fitting 67. DECISIONS.md §12.1 sets out why: several targets identify nothing in MATSim, several are duplicates or schedule inputs, and only the 2024/25 mode-share vintage applies to a 2026 base. The effective independent information is roughly **four mode-share degrees of freedom**, one patronage level, and the counts.
+Scoring 35 of 67 is **not** the same as fitting 67. DECISIONS.md §12.1 sets out why: several targets identify nothing in MATSim, several are duplicates or schedule inputs, and only the 2024/25 mode-share vintage applies to a 2026 base. The effective independent information is roughly **four mode-share degrees of freedom**, one patronage level, and the counts.
 
 **Traffic counts are scored and reported here but were not optimised against.** DECISIONS.md §9.14 and §9.15: the external tier carries no boundary through traffic, so every boundary-adjacent count is biased low by construction, and tuning the core network against them would compensate for demand the model does not contain.
 
@@ -39,16 +39,16 @@ Five shares that sum to one carry four independent numbers. That is the ceiling 
 
 ## Traffic counts — scored, reported, not fitted
 
-**`S2_WEEKDAY_f01_i250_s20260810`** — 33 stations, light-vehicle basis
+**`S2_WEEKDAY_f01_i250_s20260810`** — 30 stations, light-vehicle basis
 
 | statistic | value |
 |---|---:|
-| mean percentage error | -72.2% |
-| mean absolute percentage error | 72.2% |
-| RMSE | 21467 vehicles (91.8% of mean observed) |
-| heavy-vehicle share assumed at | 30 of 33 stations |
+| mean percentage error | -69.9% |
+| mean absolute percentage error | 69.9% |
+| RMSE | 22205 vehicles (90.7% of mean observed) |
+| heavy-vehicle share assumed at | 27 of 30 stations |
 
-**The model routes no traffic at all over 2 station(s):** `V096`, `V113`. These are scored at −100%, not dropped: a modelled zero is a result, and the worst one in the set (issue #19). Dropping them flattered the fit by removing exactly where the model fails hardest.
+**The model routes no traffic at all over 1 station(s):** `V113`. These are scored at −100%, not dropped: a modelled zero is a result, and the worst one in the set (issue #19). Dropping them flattered the fit by removing exactly where the model fails hardest.
 
 
 ## Constraints — checked, never fitted
@@ -72,17 +72,17 @@ Ride-to-car trip length: modelled **1.352** against observed **0.961**. A ratio 
 
 ## What could not be scored, and why
 
-29 of the 67 calibration targets could not be compared with this run. Each is named, because "fits 67 targets" is a much stronger claim than this data supports.
+32 of the 67 calibration targets could not be compared with this run. Each is named, because "fits 67 targets" is a much stronger claim than this data supports.
 
 | n | targets | why not |
 |---:|---|---|
 | 13 | `V004`, `V005`, `V006`, `V007`, `V008`, `V009`, `V010`, `V011`, … (5 more) | MATSim has no fare-product dimension, and 31.7% of the observed mix is CTP - contactless payment, an instrument rather than a person attribute, so the mix is not decomposable into anything the model represents (DECISIONS.md 12.1) |
 | 6 | `V196`, `V197`, `V198`, `V199`, `V200`, `V201` | 2018/19 vintage: a different mode vocabulary from the base year, and a pre-pandemic PT market (DECISIONS.md 12.1) |
 | 4 | `V001`, `V002`, `V023`, `V024` | Mar 2019 - Feb 2020 is a pre-pandemic PT market; the base year is 2026 and PT mode share roughly halved (DECISIONS.md 12). V002 is also V001 divided by 30.4, and the 20.8% share is algebraically V001/(V001+V023) |
+| 4 | `V079`, `V091`, `V096`, `V187` | station did not resolve to any link on the run network, so the model carries no counterpart to compare (outside the modelled area - issue 10) |
 | 2 | `V208`, `V209` | a schedule INPUT: MATSim runs transit on the timetable, so it reproduces 12.00 min by construction. It is a SUMO corridor target, not a MATSim one |
 | 1 | `V206` | no MATSim mode corresponds to this HTS category ("Walk linked" is 0.0 by construction: the walk stage of a PT trip is counted as PT in a linked mode share) |
 | 1 | `V003` | monthly total: needs WEEKDAY, SAT and SUN runs composed over a calendar month. A single day-type run cannot be compared with it |
-| 1 | `V079` | station did not resolve to any link on the run network, so the model carries no counterpart to compare (outside the modelled area - issue 10) |
 | 1 | `V210` | network geometry, already satisfied by the P2 build; it identifies no behavioural parameter |
 
 ## Parameter provenance
@@ -97,8 +97,8 @@ On `S2_WEEKDAY_f01_i250_s20260810`:
 - **Vehicle driver** is -26.46 pp out (modelled 32.54 against observed 59.00)
 - **Vehicle passenger** is +29.43 pp out (modelled 50.03 against observed 20.60)
 - **Walk only** is -12.65 pp out (modelled 0.75 against observed 13.40)
-- **traffic counts** average -72.2% across 33 stations
-- **2 station(s) carry no modelled traffic at all**
+- **traffic counts** average -69.9% across 30 stations
+- **1 station(s) carry no modelled traffic at all**
 - **bike trip length** is 5.78 km against an observed 5.20 km
 - **car trip length** is 6.33 km against an observed 10.20 km
 - **pt trip length** is 11.97 km against an observed 23.40 km

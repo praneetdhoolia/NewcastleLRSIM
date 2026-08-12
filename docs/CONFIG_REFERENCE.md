@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 164 fields are made of
+## What the 171 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
-| `observed` | 2 | read directly from a raw download |
+| `observed` | 3 | read directly from a raw download |
 | `measured` | 15 | computed from observed data in this package |
-| `derived` | 13 | follows from another registry field by identity |
+| `derived` | 14 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
-| `assumed` | 77 | chosen without direct empirical support |
-| `definition` | 39 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 78 | chosen without direct empirical support |
+| `definition` | 43 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 152 | usable point value |
+| `active` | 159 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -72,7 +72,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/A_supply.json` - 28 fields*
+*`config/registry/A_supply.json` - 31 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -85,6 +85,9 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.corridor.parallel_buffer_m` | `1500.0` | metres | `assumed` | 1000 - 2500 |
 | `A.corridor.pre_lr_lanes_per_dir` | `2` | lanes_per_direction | `assumed` | 1 - 2 |
 | `A.corridor.trunk_buffer_m` | `60.0` | metres | `assumed` | 40 - 100 |
+| `A.lightrail.capacity_seated` | `60` | persons_per_vehicle | `assumed` | 50 - 80 |
+| `A.lightrail.capacity_standing` | `210` | persons_per_vehicle | `derived` | derived: capacity_standing = capacity_total - capacity_seated |
+| `A.lightrail.capacity_total` | `270` | persons_per_vehicle | `observed` | - |
 | `A.lightrail.corridor_speed_kmh` | `60.0` | km_per_hour | `assumed` | 40 - 70 |
 | `A.lightrail.dwell_charging_s` | *(null - unobtained)* | seconds_per_intermediate_stop | `assumed` | 10 - 35 |
 | `A.lightrail.dwell_fixed_s` | `8.0` | seconds_per_stop | `assumed` | 5 - 15 |
@@ -150,6 +153,26 @@ Hunter/Scott cross-section BEFORE the light rail. THIS IS THE COUNTERFACTUAL HYP
 Distance from the alignment within which a road edge is classified corridor trunk.
 
 ***assumed** · status **active** · DECISIONS.md §3.4*
+
+#### `A.lightrail.capacity_seated`
+
+Seats on a light rail vehicle. Only the split is assumed - the total it is taken from is observed.
+
+***assumed** · status **active** · DECISIONS.md §4.1, 9.18*
+
+#### `A.lightrail.capacity_standing`
+
+Standing room on a light rail vehicle. Not a free value: it is whatever the published maximum leaves once seats are taken out. Before this existed, no vehicle in the fleet had standing room at all, so the C1 crowding multipliers could never apply in any scenario (issue 18).
+
+***derived** · status **active** · DECISIONS.md §4.1, 9.18*
+
+> **Derived from** `A.lightrail.capacity_total`, `A.lightrail.capacity_seated`: capacity_standing = capacity_total - capacity_seated
+
+#### `A.lightrail.capacity_total`
+
+Maximum capacity of the CAF Urbos 100 as published, and the figure DECISIONS.md 4.1 records. The mapped fleet carried 180 seats with no standing room, which is pt2matsim generic tram default and reconciles with neither the published maximum nor the assumed seated figure (issue 18).
+
+***observed** · status **active** · DECISIONS.md §4.1, 9.18*
 
 #### `A.lightrail.corridor_speed_kmh`
 
@@ -1041,7 +1064,7 @@ Seeded replications per scenario. One of the three things that can be cut to clo
 
 ## Execution control
 
-*`config/registry/RUN_execution.json` - 26 fields*
+*`config/registry/RUN_execution.json` - 30 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -1058,6 +1081,10 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.mode_choice.chain_based_modes` | `["car", "bike"]` | enum | `definition` | - |
 | `RUN.mode_choice.consider_car_availability` | `true` | boolean | `definition` | - |
 | `RUN.mode_choice.modes` | `["car", "ride", "pt", "bike", "walk"]` | enum | `definition` | - |
+| `RUN.monitor.enabled` | `true` | boolean | `definition` | - |
+| `RUN.monitor.poll_s` | `3` | seconds | `definition` | - |
+| `RUN.monitor.port` | `8731` | tcp_port | `definition` | - |
+| `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
 | `RUN.qsim.end_time_h` | `30` | hours | `definition` | - |
 | `RUN.qsim.main_mode` | `car` | enum | `definition` | - |
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
@@ -1139,6 +1166,30 @@ MATSim defaults this to FALSE, which made mode choice ignore the car availabilit
 Modes subtour mode choice may switch between. IF RIDE IS OMITTED, MATSim defaults to car,pt,bike,walk and a ride subtour becomes an ABSORBING STATE - ride sat at 0.18311 in every iteration to five decimals, and 18.6% of legs were an input wearing the costume of a result.
 
 ***definition** · status **active** · DECISIONS.md §9.6 · MATSim `subtourModeChoice.modes`*
+
+#### `RUN.monitor.enabled`
+
+Serve the live run view while a run is in flight. An OBSERVER only: it reads the run directory, holds no lock and writes nothing, so a run observed is byte-for-byte a run unobserved. It is not part of the run identity and cannot alter a result.
+
+***definition** · status **active** · DECISIONS.md §9.19*
+
+#### `RUN.monitor.poll_s`
+
+How often the page re-reads status. Well under a single iteration at any usable sample fraction (9.8 s at 1%, 56.4 s at 25%), so no iteration passes unseen.
+
+***definition** · status **active** · DECISIONS.md §9.19*
+
+#### `RUN.monitor.port`
+
+Loopback port for the live run view. Bound on 127.0.0.1 only. If it is taken - a second concurrent run - the next free port is used and the actual url is printed, so parallel runs do not collide.
+
+***definition** · status **active** · DECISIONS.md §9.19*
+
+#### `RUN.monitor.stall_s`
+
+How long the log may go untouched before the live view calls a run stalled rather than running. Comfortably longer than the slowest iteration measured (56.4 s at 25%) and than the events and plans writes that punctuate every tenth iteration, so a working run is never reported as stalled.
+
+***definition** · status **active** · DECISIONS.md §9.19*
 
 #### `RUN.qsim.end_time_h`
 

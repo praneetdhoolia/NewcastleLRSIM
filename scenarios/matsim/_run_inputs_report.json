@@ -80,7 +80,9 @@
     "not_representable": [
       "nesting_coefficient_pt=0.65 and the nested-logit structure: MATSim mode choice is a co-evolutionary search with no nest parameter",
       "per-purpose value of time: MATSim scores per mode, so a trip-weighted average (16.96 AUD/h) is used in place of the six purpose-specific values",
-      "crowding multipliers (beta_crowding_*): require an explicit capacity-dependent scoring extension, not enabled here"
+      "crowding multipliers (beta_crowding_*): require an explicit capacity-dependent scoring extension, not enabled here",
+      "gradient penalties (beta_gradient_uphill=0.09, beta_gradient_downhill=0.02): MATSim scores a leg from time and distance and has no gradient term, so the gradient attached to 43,112 road and 35,653 footway edges reaches mode choice through nothing. It remains used for corridor grades (issue 21)",
+      "PT walk-access decay (walk_decay, beta_per_m=0.0018): the access and egress walk that actually happens is routing.accessEgressType plus SwissRailRaptor own radius handling, neither of which reads a decay curve, so the declared curve reaches nothing (issue 21)"
     ]
   },
   "scenarios": {
@@ -101,6 +103,7 @@
           "departures_dropped": 1862,
           "routes_kept_under_a_foreign_day_id": 38,
           "vehicles": 1908,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 1908,
           "stop_facilities_kept": 4097,
           "stop_facilities_dropped": 74,
@@ -114,6 +117,7 @@
           "departures_dropped": 2775,
           "routes_kept_under_a_foreign_day_id": 118,
           "vehicles": 995,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 995,
           "stop_facilities_kept": 2142,
           "stop_facilities_dropped": 2029,
@@ -127,6 +131,7 @@
           "departures_dropped": 2903,
           "routes_kept_under_a_foreign_day_id": 126,
           "vehicles": 867,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 867,
           "stop_facilities_kept": 2163,
           "stop_facilities_dropped": 2008,
@@ -152,6 +157,7 @@
           "departures_dropped": 2136,
           "routes_kept_under_a_foreign_day_id": 39,
           "vehicles": 2115,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 2115,
           "stop_facilities_kept": 4110,
           "stop_facilities_dropped": 71,
@@ -165,6 +171,7 @@
           "departures_dropped": 3119,
           "routes_kept_under_a_foreign_day_id": 113,
           "vehicles": 1132,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 1132,
           "stop_facilities_kept": 2151,
           "stop_facilities_dropped": 2030,
@@ -178,6 +185,7 @@
           "departures_dropped": 3247,
           "routes_kept_under_a_foreign_day_id": 123,
           "vehicles": 1004,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 1004,
           "stop_facilities_kept": 2172,
           "stop_facilities_dropped": 2009,
@@ -200,6 +208,15 @@
           "departures_dropped": 2130,
           "routes_kept_under_a_foreign_day_id": 39,
           "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4103,
           "stop_facilities_dropped": 71,
@@ -213,6 +230,15 @@
           "departures_dropped": 3141,
           "routes_kept_under_a_foreign_day_id": 114,
           "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2147,
           "stop_facilities_dropped": 2027,
@@ -226,6 +252,15 @@
           "departures_dropped": 3267,
           "routes_kept_under_a_foreign_day_id": 122,
           "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2168,
           "stop_facilities_dropped": 2006,
@@ -248,6 +283,15 @@
           "departures_dropped": 2130,
           "routes_kept_under_a_foreign_day_id": 39,
           "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4104,
           "stop_facilities_dropped": 73,
@@ -261,6 +305,15 @@
           "departures_dropped": 3141,
           "routes_kept_under_a_foreign_day_id": 114,
           "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2149,
           "stop_facilities_dropped": 2028,
@@ -274,6 +327,15 @@
           "departures_dropped": 3267,
           "routes_kept_under_a_foreign_day_id": 122,
           "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2170,
           "stop_facilities_dropped": 2007,
@@ -296,6 +358,15 @@
           "departures_dropped": 2130,
           "routes_kept_under_a_foreign_day_id": 39,
           "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4103,
           "stop_facilities_dropped": 71,
@@ -309,6 +380,15 @@
           "departures_dropped": 3141,
           "routes_kept_under_a_foreign_day_id": 114,
           "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2147,
           "stop_facilities_dropped": 2027,
@@ -322,6 +402,15 @@
           "departures_dropped": 3267,
           "routes_kept_under_a_foreign_day_id": 122,
           "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2168,
           "stop_facilities_dropped": 2006,
@@ -347,6 +436,15 @@
           "departures_dropped": 2130,
           "routes_kept_under_a_foreign_day_id": 39,
           "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4103,
           "stop_facilities_dropped": 71,
@@ -360,6 +458,15 @@
           "departures_dropped": 3141,
           "routes_kept_under_a_foreign_day_id": 114,
           "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2147,
           "stop_facilities_dropped": 2027,
@@ -373,6 +480,15 @@
           "departures_dropped": 3267,
           "routes_kept_under_a_foreign_day_id": 122,
           "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2168,
           "stop_facilities_dropped": 2006,
@@ -395,6 +511,7 @@
           "departures_dropped": 2240,
           "routes_kept_under_a_foreign_day_id": 38,
           "vehicles": 2191,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 2191,
           "stop_facilities_kept": 4104,
           "stop_facilities_dropped": 73,
@@ -408,6 +525,7 @@
           "departures_dropped": 3247,
           "routes_kept_under_a_foreign_day_id": 114,
           "vehicles": 1184,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 1184,
           "stop_facilities_kept": 2150,
           "stop_facilities_dropped": 2027,
@@ -421,6 +539,7 @@
           "departures_dropped": 3375,
           "routes_kept_under_a_foreign_day_id": 123,
           "vehicles": 1056,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 1056,
           "stop_facilities_kept": 2171,
           "stop_facilities_dropped": 2006,
@@ -445,6 +564,15 @@
           "departures_dropped": 2130,
           "routes_kept_under_a_foreign_day_id": 40,
           "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4105,
           "stop_facilities_dropped": 71,
@@ -458,6 +586,15 @@
           "departures_dropped": 3141,
           "routes_kept_under_a_foreign_day_id": 114,
           "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2149,
           "stop_facilities_dropped": 2027,
@@ -471,6 +608,15 @@
           "departures_dropped": 3267,
           "routes_kept_under_a_foreign_day_id": 123,
           "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2170,
           "stop_facilities_dropped": 2006,
@@ -495,6 +641,15 @@
           "departures_dropped": 2130,
           "routes_kept_under_a_foreign_day_id": 40,
           "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4110,
           "stop_facilities_dropped": 71,
@@ -508,6 +663,15 @@
           "departures_dropped": 3141,
           "routes_kept_under_a_foreign_day_id": 114,
           "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2154,
           "stop_facilities_dropped": 2027,
@@ -521,6 +685,15 @@
           "departures_dropped": 3267,
           "routes_kept_under_a_foreign_day_id": 123,
           "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2175,
           "stop_facilities_dropped": 2006,
@@ -546,6 +719,7 @@
           "departures_dropped": 1832,
           "routes_kept_under_a_foreign_day_id": 37,
           "vehicles": 1887,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 1887,
           "stop_facilities_kept": 4092,
           "stop_facilities_dropped": 71,
@@ -559,6 +733,7 @@
           "departures_dropped": 2739,
           "routes_kept_under_a_foreign_day_id": 113,
           "vehicles": 980,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 980,
           "stop_facilities_kept": 2136,
           "stop_facilities_dropped": 2027,
@@ -572,6 +747,7 @@
           "departures_dropped": 2867,
           "routes_kept_under_a_foreign_day_id": 121,
           "vehicles": 852,
+          "vehicle_capacity_patched": [],
           "vehicle_refs": 852,
           "stop_facilities_kept": 2157,
           "stop_facilities_dropped": 2006,

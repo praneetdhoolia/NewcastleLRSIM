@@ -19,14 +19,11 @@ station_key,split,station_name,road_name,link,link_name,distance_m,matched_by
 55763,holdout,New England Highway,New England Highway,22450,New England Highway,64.5,name_and_proximity
 55767,holdout,New England Highway,New England Highway,54344,New England Highway,5.1,name_and_proximity
 55767,holdout,New England Highway,New England Highway,109116,New England Highway,47.0,name_and_proximity
-55777,calibration,Pacific Motorway,Pacific Motorway,103555,George Booth Drive Offramp,59.7,proximity_only
-55777,calibration,Pacific Motorway,Pacific Motorway,46104,George Booth Drive Offramp,112.0,proximity_only
 55779,calibration,Awaba Road,Awaba Road,39809,Awaba Road,36.3,name_and_proximity
 55781,calibration,Pacific Motorway,Pacific Motorway,104753,Pacific Motorway,72.9,name_and_proximity
 55783,calibration,Pacific Motorway,Pacific Motorway,104753,Pacific Motorway,97.5,name_and_proximity
 55826,calibration,Newcastle Street,Newcastle Street,114335,Newcastle Street,8.4,name_and_proximity
 55826,calibration,Newcastle Street,Newcastle Street,130932,Newcastle Street,27.2,name_and_proximity
-55839,calibration,Raymond Terrace Road,Raymond Terrace Road,40474,Dockyard Road,107.9,proximity_only
 55847,holdout,Charlestown Road,Charlestown Road,120502,Charlestown Road,28.2,name_and_proximity
 55847,holdout,Charlestown Road,Charlestown Road,126760,Charlestown Road,28.6,name_and_proximity
 55856,calibration,Nelson Bay Road,Nelson Bay Road,96674,Nelson Bay Road,32.2,name_and_proximity
@@ -49,8 +46,8 @@ station_key,split,station_name,road_name,link,link_name,distance_m,matched_by
 55879,calibration,Lake Road,Lake Road,86651,Lake Road,30.5,name_and_proximity
 55881,calibration,Hannell Street,Hannell Street,127371,Hannell Street,7.1,name_and_proximity
 55881,calibration,Hannell Street,Hannell Street,103653,Hannell Street,22.7,name_and_proximity
-55883,calibration,Red Head Road,Red Head Road,16304,White Cap Close,38.2,proximity_only
-55883,calibration,Red Head Road,Red Head Road,113025,Redhead Road,46.4,proximity_only
+55883,calibration,Red Head Road,Red Head Road,113025,Redhead Road,46.4,name_and_proximity
+55883,calibration,Red Head Road,Red Head Road,113027,Redhead Road,76.8,name_and_proximity
 55885,calibration,Warners Bay Road,Warners Bay Road,54080,Warners Bay Road,20.1,name_and_proximity
 55885,calibration,Warners Bay Road,Warners Bay Road,63095,Warners Bay Road,41.8,name_and_proximity
 55886,calibration,Croudace Bay Road,Croudace Bay Road,86459,Croudace Bay Road,31.1,name_and_proximity
@@ -101,8 +98,8 @@ station_key,split,station_name,road_name,link,link_name,distance_m,matched_by
 55977,holdout,Nelson Bay Road,Nelson Bay Road,143385,Nelson Bay Road,23.5,name_and_proximity
 55978,holdout,Nelson Bay Road,Nelson Bay Road,53222,Nelson Bay Road,92.4,name_and_proximity
 55978,holdout,Nelson Bay Road,Nelson Bay Road,125918,Nelson Bay Road,94.3,name_and_proximity
-55993,holdout,St James Road,St James Road,75112,Saint James Road,21.6,proximity_only
-55993,holdout,St James Road,St James Road,75110,Saint James Road,25.9,proximity_only
+55993,holdout,St James Road,St James Road,75112,Saint James Road,21.6,name_and_proximity
+55993,holdout,St James Road,St James Road,75110,Saint James Road,25.9,name_and_proximity
 56012,holdout,Newcastle Road,Newcastle Road,15609,Newcastle Road,9.7,name_and_proximity
 56012,holdout,Newcastle Road,Newcastle Road,42772,Newcastle Road,30.6,name_and_proximity
 56019,holdout,Newcastle Link Road,Newcastle Link Road,52678,Newcastle Link Road,74.1,name_and_proximity
@@ -131,8 +128,6 @@ station_key,split,station_name,road_name,link,link_name,distance_m,matched_by
 56075,holdout,Main Road,Main Road,20407,Main Road,23.6,name_and_proximity
 56077,calibration,Main Road,Main Road,131566,Main Road,9.7,name_and_proximity
 56077,calibration,Main Road,Main Road,38876,Main Road,21.1,name_and_proximity
-56079,holdout,George Booth Drive,George Booth Drive,122765,Main Road,8.4,proximity_only
-56079,holdout,George Booth Drive,George Booth Drive,122757,Main Road,19.6,proximity_only
 56086,holdout,Tomago Road,Tomago Road,15056,Tomago Road,15.6,name_and_proximity
 56088,holdout,Cabbage Tree Road,Cabbage Tree Road,123882,Cabbage Tree Road,77.8,name_and_proximity
 56088,holdout,Cabbage Tree Road,Cabbage Tree Road,123880,Cabbage Tree Road,103.3,name_and_proximity
@@ -183,18 +178,15 @@ station_key,split,station_name,road_name,link,link_name,distance_m,matched_by
 56196,holdout,Minmi Road,Minmi Road,145757,Minmi Road,59.7,name_and_proximity
 56197,holdout,New England Highway,New England Highway,19725,New England Highway,47.3,name_and_proximity
 56197,holdout,New England Highway,New England Highway,3240,New England Highway,59.3,name_and_proximity
-56200,holdout,Main Road,Main Road,148328,Newcastle Inner City Bypass,17.9,proximity_only
-56200,holdout,Main Road,Main Road,16570,Newcastle Inner City Bypass,39.8,proximity_only
 56202,holdout,Grandview Road,Grandview Road,41020,Grandview Road,44.3,name_and_proximity
 56202,holdout,Grandview Road,Grandview Road,41022,Grandview Road,62.8,name_and_proximity
-56205,calibration,Nelson Bay Road,Nelson Bay Road,137652,Teal Street,36.7,proximity_only
 56206,holdout,Five Islands Road,Five Islands Road,146197,Five Islands Road,95.7,name_and_proximity
 56206,holdout,Five Islands Road,Five Islands Road,84022,Five Islands Road,103.5,name_and_proximity
 56207,holdout,T C Frith Avenue,T C Frith Avenue,63233,T C Frith Avenue,62.4,name_and_proximity
 56208,holdout,Industrial Drive,Industrial Drive,80305,Industrial Drive,25.9,name_and_proximity
 56208,holdout,Industrial Drive,Industrial Drive,33072,Industrial Drive,32.0,name_and_proximity
-56209,holdout,Werribi Street,Werribi Street,36722,Werribi Street (West),19.9,proximity_only
-56209,holdout,Werribi Street,Werribi Street,14607,Werribi Street (West),23.0,proximity_only
+56209,holdout,Werribi Street,Werribi Street,36722,Werribi Street (West),19.9,name_and_proximity
+56209,holdout,Werribi Street,Werribi Street,14607,Werribi Street (West),23.0,name_and_proximity
 56210,holdout,Turton Road,Turton Road,146944,Turton Road,10.3,name_and_proximity
 56210,holdout,Turton Road,Turton Road,146864,Turton Road,20.5,name_and_proximity
 56211,holdout,Turton Road,Turton Road,140010,Turton Road,17.3,name_and_proximity

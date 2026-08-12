@@ -2060,6 +2060,165 @@ top of it. Both are recorded here **before** the run that tests them.
 
 ---
 
+## 9.18 The light rail vehicle carries the capacity that was published (P4 stage 6, issue #18)
+
+**Three numbers described one vehicle and none of them agreed.** The mapped
+fleet gave the tram **180 seats and no standing room**; `DECISIONS.md` §4.1
+records a published CAF Urbos 100 maximum of **270** and an assumed
+`capacity_seated` of **60**. 180 reconciles with neither.
+
+180 is not a Newcastle figure at all — it is **pt2matsim's generic tram
+default**, and the zero standing room is a flag the build never set. So was
+every other vehicle's: bus, rail and ferry are all seats-only.
+
+### Why the second half was worse than the first
+
+Because **no vehicle in the fleet had standing room**, the C1 crowding
+multipliers (1.00 seated / 1.45 standing) were **inert by construction**.
+Standing never occurred, so a multiplier on standing could never apply, in any
+scenario. That is the §9.3 pattern again and the issue #21 defect class: a
+declared parameter that reaches nothing produces a sensitivity band of zero and
+would be reported as "insensitive to crowding" when the truth is "crowding
+cannot happen here".
+
+### The decision
+
+| field | value | source |
+|---|---:|---|
+| `A.lightrail.capacity_total` | **270** | **observed** — published, §4.1 |
+| `A.lightrail.capacity_seated` | **60** | **assumed**, swept 50–80 |
+| `A.lightrail.capacity_standing` | **210** | **derived** — total − seated |
+
+Only the *split* is assumed; the total it is taken from is published. The
+standing figure is not a free value and carries no sweep of its own, because it
+is whatever the published maximum leaves once the seats are removed — the
+`derived_from` identity the schema requires instead of an invented interval.
+
+Applied in `build_matsim_run_inputs.py`, over the **already-mapped** fleet.
+The schedule mapper is not re-run, so §3.5 holds unchanged.
+
+### What is deliberately NOT done
+
+**Bus, rail and ferry keep their pt2matsim defaults and keep no standing room.**
+This package holds a published capacity for the light rail vehicle — the object
+of study — and holds none for a Newcastle bus, a Hunter Line car or the Stockton
+ferry. Setting a standing figure for those would be inventing an observation,
+which is the one failure this project cannot absorb. **It is recorded as a
+limitation and is the open half of issue #18**, to be closed by a source or by
+an explicit swept assumption, not by a number chosen here.
+
+**Consequence to carry:** light rail capacity rises 180 → 270 per vehicle, which
+is +50%, and it moves the ceiling on hypothesis A1's own metric. No result
+existed when this was taken.
+
+---
+
+## 9.19 A live view of a run, and why it is not a live map (P4 stage 6)
+
+`src/analyse/run_monitor.py` serves a run in flight on loopback; `run_matsim.py`
+prints the url as it launches MATSim.
+
+**It is an observer.** It reads the run directory, holds no lock, opens nothing
+the run is writing to and writes nothing itself. It is not in `_run.json` and
+not part of the run identity: a run observed is byte-for-byte a run unobserved.
+`RUN.monitor.enabled` turns it off.
+
+### Why it shows progress and convergence rather than vehicles
+
+A live *map* was measured and rejected on the measurement, not on effort.
+Events are written only every `RUN.controler.write_events_interval` = **10**
+iterations. When they are written, the file grows at **~5.2 MB/s** and the whole
+30 h simulated day lands in about **50 s** of wall clock — roughly **2,000×
+real time** — then nothing for ~3.5 minutes until the next events iteration.
+A partial gzip does decode cleanly (a 10 MiB prefix yields 93.8 MB of XML to
+simulated 07:15), so the *plumbing* would work; there is simply no steady stream
+to watch. A live map would show a flicker and then a blank screen.
+
+What changes at a human pace is **progress** and **convergence**, so that is what
+is served: iteration against target with an ETA from the observed iteration
+time, the mode trajectory, the score trajectory, and the drift after innovation
+switches off — which is the direct read on the question issue #5 turns on.
+
+**The mode trajectory is `modestats`, and the page says so on its face:** the
+mode agents *chose*, not trips that *completed* (§9.12). `extract_metrics.py` →
+`fit.py` remains the only route to a reportable number.
+
+`replay_events.py` is unaffected and remains the instrument for what a finished
+run did in space.
+
+---
+
+## 9.20 A count of one road is not a count of its neighbour (P4 stage 6, issues #20, #10)
+
+`map_count_stations.py` matched a station on road name **and** proximity where a
+name existed, and fell back to the **nearest link of any name** where it did
+not. The fallback was doing more work than intended, and in two directions.
+
+### It was rejecting matches that were the same road
+
+| station | link it was attached to | distance | what it is |
+|---|---|---:|---|
+| Red Head Road | **Redhead** Road | 46.4 m | one road, spaced two ways |
+| St James Road | **Saint** James Road | 25.9 m | RMS abbreviates, OSM does not |
+| Werribi Street | Werribi Street **(West)** | 23.0 m | OSM carries a qualifier, the station does not |
+
+All three were being recorded as `proximity_only` — a weaker claim than the
+truth. `normalise` now folds `saint`→`st` as it already folded `street`, drops a
+parenthetical qualifier, and a second naming tier compares with spaces removed.
+
+### It was accepting matches that were a different road
+
+The other nine fallbacks attached a station to a road it does not count. The
+clearest is **Raymond Terrace Road** (V096, observed **11,810 AADT**), attached
+at 107.9 m to **Dockyard Road** — one lane, 50 km/h, which is not a plausible
+carrier of 11,810 vehicles a day — and then **scored against it**. Also
+**Pacific Motorway** to a *George Booth Drive Offramp*, and **Nelson Bay Road**
+to *Teal Street*.
+
+**The rule now: a station that names its road may only be matched to a link
+bearing that name.** Where none is in range the station is reported unmatched,
+with the count of nearby links that were deliberately *not* taken. Proximity
+alone still matches a station that names no road.
+
+**Every one of the 195 matched links is now `name_and_proximity`; zero are
+proximity-only.**
+
+### This moves the reported count fit, and in which direction matters
+
+| | before | after |
+|---|---:|---:|
+| stations matched | 116 | **111** |
+| links | 203 | **195** |
+| proximity-only | 14 | **0** |
+| count stations scored | 33 | **30** |
+| mean count error | −72.2% | **−69.9%** |
+| modelled zeros | 2 (V096, V113) | **1 (V113)** |
+
+The fit **improves by 2.3 pp, and that improvement is not the model getting
+better** — it is a wrong comparison being withdrawn. This has to be stated
+plainly because it is the shape of the #19 defect running backwards: #19 was a
+station being dropped *because* the model failed on it, which flattered the fit.
+Here a station leaves the scored set because the link was never its road. The
+test that separates the two is whether the reason survives inspection without
+reference to the model's answer, and V096's does: *Dockyard Road is not Raymond
+Terrace Road*, which was true before any run existed.
+
+**The M1 at Wyee (V113) is untouched and still scores −100%.** It matched by
+name, on both carriageways, at 67.3 m and 68.3 m. That was the point of
+separating the two halves of #20: the mis-match is a mapping fault and is now
+fixed; **the modelled zero on the M1 is a demand fault and is not**, and it
+stays visible in the fit. §9.14's consequence stands unchanged — no count-based
+calibration until the boundary through-traffic question is settled.
+
+**Issue #10 is answered rather than fixed.** Tarean Road, The Bucketts Way and
+one Nelson Bay Road station have **no car link within 120 m in any direction**:
+they lie outside the five-LGA clip, which is a scope decision (§1, decision 3),
+not an oversight. Extending the clip would mean rebuilding the network and
+re-running the schedule mapper, which §3.5 forbids for anything already run.
+They are reported with that reason and are not dropped.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

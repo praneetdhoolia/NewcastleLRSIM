@@ -30,9 +30,11 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, '..'))
+sys.path.insert(0, os.path.join(HERE, '..', 'analyse'))
 from sample_population import subsample_plans, scale_transit_capacity, SEED  # noqa: E402
 import registry  # noqa: E402
 from registry import outputs  # noqa: E402
+import run_monitor  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 JAVA = os.path.join(REPO, '.tools', 'jdk', 'bin', 'java.exe')
@@ -84,7 +86,8 @@ def build_config(src_dir, run_dir, scenario, day, fraction, iterations, threads,
         scaled = []
     else:
         n_in, n_out = subsample_plans(plans_src, plans_dst, fraction, seed)
-        scaled = scale_transit_capacity(veh_src, veh_dst, fraction)
+        scaled = scale_transit_capacity(veh_src, veh_dst, fraction,
+                                        cfg.get('RUN.sample.transit_capacity_floor'))
 
     text = setp(text, 'inputNetworkFile', fwd(os.path.join(base, 'network.xml.gz')))
     text = setp(text, 'transitScheduleFile',
@@ -201,6 +204,13 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
     log = os.path.join(run_dir, 'matsim.log')
     classpath = os.pathsep.join([JAR, CLASSES])
     cmd = [JAVA, '-Xmx%s' % xmx, '-XX:+UseParallelGC', '-cp', classpath, MAIN, config_path]
+    # The live view is an observer: it reads this directory and writes nothing,
+    # so it is not part of the run identity and is not recorded in _run.json.
+    if cfg.get('RUN.monitor.enabled'):
+        url = run_monitor.serve(run_dir, cfg.get('RUN.monitor.port'),
+                                cfg.get('RUN.monitor.poll_s'))
+        print('live view: %s' % (url or 'unavailable - no free loopback port'),
+              flush=True)
     t0 = time.time()
     with open(log, 'w', encoding='utf-8', errors='replace') as lf:
         rc = subprocess.Popen(cmd, stdout=lf, stderr=subprocess.STDOUT,

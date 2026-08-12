@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 12 August 2026 (P4 stage 4 - external tier repaired at the cordon, escort trips typed, mode coverage audited)
+**Last updated:** 12 August 2026 (P4 stage 6 - repaired demand measured, the issue backlog worked through, a live run view added)
 **Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -895,6 +895,107 @@ page states its run, sample fraction and iteration count, and carries a
 
 ---
 
+## P4 stage 5 — the repaired demand measured (12 August 2026)
+
+The first run on the §9.15 demand, S2 × WEEKDAY, 10%, 250 iterations, seed
+20260810, `ride` distance rate still at zero — so it isolates the demand repair
+and nothing else. Declared pipeline; `rc=0`, 2.05 h, 23.87 s median iteration.
+**Not a result:** 250 iterations is measurably short of relaxation (§9.7).
+
+| Newcastle LGA | pre-repair | post-repair | Δ | HTS |
+|---|---:|---:|---:|---:|
+| Vehicle driver | 30.85 | **32.54** | +1.69 | 59.0 |
+| Vehicle passenger | 50.94 | **50.03** | −0.91 | 20.6 |
+| Public transport | 0.99 | 0.83 | −0.16 | 3.8 |
+| Walk only | 0.80 | 0.75 | −0.05 | 13.4 |
+| Other | 16.43 | 15.86 | −0.57 | 3.2 |
+| MAE over 5 targets | 17.43 pp | **16.83 pp** | −0.60 | |
+| passengers per driver | 1.6512 | **1.5376** | | 0.3503 |
+| ride ÷ car trip length | 1.3462 | **1.3516** | +0.005 | 0.9608 |
+
+**Repairing the external tier and typing 14.53% of legs as escort trips did not
+touch the ride problem.** Ride stays near 50% against an observed 20.6%. That is
+confirmation rather than disappointment: it puts the distortion in `ride`'s
+specification, where §9.17 says it is, and closes the demand-side line of
+enquiry that §9.15 opened.
+
+**§9.17's premise survives the demand rebuild.** The ride ÷ car length ratio the
+departure was justified against moved 1.3462 → 1.3516 — that is, not at all. Had
+it collapsed on repaired demand, §9.17 would have been justified by an artefact.
+
+**Post-innovation drift, measured on this run:** ride still moves **+0.0367**
+between iterations 200 and 250 after new plans stop being created. §9.7's finding
+holds on the repaired demand: the model has not relaxed, and **#5 remains open**.
+
+---
+
+## P4 stage 6 — the issue backlog worked through (12 August 2026)
+
+Twelve issues were open. Each was checked against the code and the data rather
+than against its own description; several had been overtaken by later work.
+
+| issue | outcome |
+|---|---|
+| **#17** car/pt diverge with sample fraction | **closed** — the mechanism was established at §9.12 and the issue predates it: `flowCapacityFactor = 0.01` discharges an 1,800 veh/h link once per 200 s, 1,032 car legs abort against 4 at 10%, and 10%→25% moves car only +1.6 pp |
+| **#13** target identifiability | **closed** — the reporting rule it asked for is enforced, not remembered: `fit.py` refuses to emit a statistic without naming its target ids, and `scored + unscorable == 67` is asserted |
+| **#21** gradient and walk decay reach nothing | **closed** — both are now named in `not_representable`, so the §9.3 register is complete |
+| **#12** the transit capacity floor | **closed** — and it was worse than recorded: `RUN.sample.transit_capacity_floor` was declared and **swept 1–4** while the code held a literal `1`, so the sweep moved a number nothing read |
+| **#10** three count stations outside the network | **closed** — answered, not fixed: they lie outside the five-LGA clip, a scope decision (§1), and closing it would mean re-running the mapper (§3.5). Reported with that reason (§9.20) |
+| **#20** boundary through traffic | **halved** — the Raymond Terrace Road mis-match is fixed (§9.20); the M1 demand gap is a scope decision and **stays open** |
+| **#18** light rail capacity | **halved** — the light rail vehicle now carries its published 270 (§9.18); bus, rail and ferry standing room needs a source and **stays open** |
+| **#14** P4 deliverables | **corrected** — it claimed 4–6 were not started; the loop and the report landed at §9.16. Only deliverable 5 remains, blocked on a decision |
+| **#16, #5, #9, #6** | **open, correctly** — each needs a run or a decision, not code |
+
+### What the fixes changed
+
+**#12 — a swept parameter that reached nothing.** `sample_population.py`
+resolved the seed from the registry and then floored capacity at a hard-coded
+`1`. Now `RUN.sample.transit_capacity_floor`, passed from the run's own resolved
+config.
+
+**#18 — the light rail vehicle carries the capacity that was published.**
+180 seats and no standing room was pt2matsim's generic tram default. Now
+270 = 60 seated + 210 standing, the seated split assumed and swept, the standing
+count derived (§9.18). Because *nothing* in the fleet had standing room, the C1
+crowding multipliers were inert by construction — the #21 defect class again.
+
+**#20 / #10 — a count of one road is not a count of its neighbour.** The station
+matcher accepted the nearest link of any name when no name matched, which
+attached Raymond Terrace Road (11,810 AADT) to a one-lane Dockyard Road and
+scored the model against it. It also rejected `Red Head Road` ↔ `Redhead Road`
+and `St James` ↔ `Saint James` as mere proximity. Both repaired (§9.20).
+**All 195 matched links are now name-and-proximity; none is proximity-only.**
+The count fit improves −72.2% → −69.9%, and **that improvement is a wrong
+comparison being withdrawn, not the model getting better.** The M1 at Wyee is
+untouched and still scores −100%.
+
+### A live view of a run in flight
+
+`src/analyse/run_monitor.py` serves a run on loopback and `run_matsim.py` prints
+the url as it launches MATSim:
+
+```
+live view: http://127.0.0.1:8731/
+```
+
+Progress against target with an ETA from the observed iteration time, the mode
+and score trajectories, and the drift after innovation switches off — the direct
+read on #5. **An observer only:** it reads the run directory, holds no lock and
+writes nothing, so it is not part of the run identity and cannot alter a result.
+
+**It is deliberately not a live map**, and that was measured rather than assumed
+(§9.19): events are written every tenth iteration, and when they are, the whole
+30 h day lands in ~50 s of wall clock — about 2,000× real time — then nothing for
+minutes. `replay_events.py` remains the instrument for what a finished run did in
+space.
+
+**Registry: 164 → 171 fields.** `check_package.py` caught a hard-coded constant
+in the new module on its first run, which is the rule working rather than being
+remembered. **All checks pass, 1 standing warning** — `lastIteration`, which is
+#5 and is supposed to be there.
+
+---
+
 ## How to resume
 
 **For P4 specifically, read [`docs/P4_CHECKPOINT.md`](docs/P4_CHECKPOINT.md)
@@ -909,7 +1010,7 @@ to drive it, and the traps. This file stays the short live status.
 3. `python src/setup/bootstrap_toolchain.py --verify` — confirms the toolchain, or run it
    without `--verify` to fetch it (~1.4 GiB, needed only to rebuild the networks).
 4. `python tests/check_package.py` — needs the full local package, the built networks
-   **and** the P3 demand artefacts; **925 checks**. Run it before declaring any phase
+   **and** the P3 demand artefacts; **~950 checks**. Run it before declaring any phase
    complete.
 5. `python src/registry/render_docs.py` after any change to `config/registry/`, or
    `check_package.py` will report the reference as stale.

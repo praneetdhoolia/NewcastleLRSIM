@@ -58,14 +58,31 @@ WAY_NAME_RE = re.compile(r'<attribute name="osm:way:name"[^>]*>([^<]*)</attribut
 
 
 def normalise(name):
-    """Compare road names without punctuation, case or the usual abbreviations."""
+    """Compare road names without punctuation, case or the usual abbreviations.
+
+    A directional qualifier is dropped because OSM carries it and the count
+    station does not: `Werribi Street (West)` and `Werribi Street` are one road
+    counted at one point. `saint` folds to `st` for the same reason `street`
+    does - RMS writes `St James Road`, OSM writes `Saint James Road`.
+    """
     s = (name or '').lower()
-    for a, b in (('street', 'st'), ('road', 'rd'), ('avenue', 'ave'),
-                 ('drive', 'dr'), ('highway', 'hwy'), ('parade', 'pde'),
-                 ('lane', 'ln'), ('place', 'pl'), ('terrace', 'tce'),
-                 ('crescent', 'cres'), ('boulevard', 'blvd')):
+    s = re.sub(r'\([^)]*\)', ' ', s)
+    for a, b in (('saint', 'st'), ('street', 'st'), ('road', 'rd'),
+                 ('avenue', 'ave'), ('drive', 'dr'), ('highway', 'hwy'),
+                 ('motorway', 'mwy'), ('parade', 'pde'), ('lane', 'ln'),
+                 ('place', 'pl'), ('terrace', 'tce'), ('crescent', 'cres'),
+                 ('boulevard', 'blvd')):
         s = re.sub(r'\b%s\b' % a, b, s)
-    return re.sub(r'[^a-z0-9 ]', '', s).strip()
+    return re.sub(r'\s+', ' ', re.sub(r'[^a-z0-9 ]', '', s)).strip()
+
+
+def name_key(name):
+    """`normalise` with spaces removed: `Red Head Road` == `Redhead Road`.
+
+    Applied only as a second naming tier, never to decide between two roads
+    that differ by more than their spacing.
+    """
+    return normalise(name).replace(' ', '')
 
 
 def load_network(path):
@@ -124,6 +141,23 @@ def match(stations, links, radius_m):
             continue
         want = normalise(s.get('road_name') or s.get('name'))
         named = [(d, l) for d, l in near if want and normalise(l['name']) == want]
+        if not named and want:
+            key = name_key(s.get('road_name') or s.get('name'))
+            named = [(d, l) for d, l in near if name_key(l['name']) == key]
+        # A station that NAMES its road may only be matched to a link bearing
+        # that name. Falling back to the nearest differently-named link
+        # attached Raymond Terrace Road (11,810 AADT observed) to a one-lane
+        # 50 km/h Dockyard Road and scored the model against it, which measures
+        # neither road (issue 20). Unmatched-and-named beats matched-and-wrong:
+        # fit.py reports every unscorable target with its reason (issue 19).
+        if want and not named:
+            unmatched.append((s, 'no link named %r within %d m; %d other car '
+                                 'link(s) are in range and were NOT matched, '
+                                 'because a count of one road is not a count '
+                                 'of its neighbour'
+                              % (s.get('road_name') or s.get('name'),
+                                 radius_m, len(near))))
+            continue
         how = 'name_and_proximity' if named else 'proximity_only'
         pool = named or near
         pool.sort(key=lambda t: t[0])

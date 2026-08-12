@@ -298,6 +298,45 @@
         "src/build/build_scenario_schedules.py"
       ]
     },
+    "A.lightrail.capacity_total": {
+      "value": 270,
+      "units": "persons_per_vehicle",
+      "source": "observed",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "4.1, 9.18",
+      "description": "Maximum capacity of the CAF Urbos 100 as published, and the figure DECISIONS.md 4.1 records. The mapped fleet carried 180 seats with no standing room, which is pt2matsim generic tram default and reconciles with neither the published maximum nor the assumed seated figure (issue 18)."
+    },
+    "A.lightrail.capacity_seated": {
+      "value": 60,
+      "units": "persons_per_vehicle",
+      "source": "assumed",
+      "sweep": {
+        "interval": [
+          50,
+          80
+        ],
+        "basis": "The seated/standing split of the Urbos 100 is NOT published; only the 270 maximum is. 60 is the class-typical figure already recorded in DECISIONS.md 4.1 for a 33 m five-module 100% low-floor LRV, and the interval spans the seating layouts that class carries. Swept because it is assumed, never pinned."
+      },
+      "status": "active",
+      "decisions_ref": "4.1, 9.18",
+      "description": "Seats on a light rail vehicle. Only the split is assumed - the total it is taken from is observed."
+    },
+    "A.lightrail.capacity_standing": {
+      "value": 210,
+      "units": "persons_per_vehicle",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "4.1, 9.18",
+      "description": "Standing room on a light rail vehicle. Not a free value: it is whatever the published maximum leaves once seats are taken out. Before this existed, no vehicle in the fleet had standing room at all, so the C1 crowding multipliers could never apply in any scenario (issue 18).",
+      "derived_from": {
+        "fields": [
+          "A.lightrail.capacity_total",
+          "A.lightrail.capacity_seated"
+        ],
+        "identity": "capacity_standing = capacity_total - capacity_seated"
+      }
+    },
     "A.lightrail.line_speed_kmh": {
       "value": 40.0,
       "units": "km_per_hour",
