@@ -61,3 +61,8 @@ __pycache__/
 
 # --- local-only harness overrides (never committed) ---
 .claude/settings.local.json
+
+# --- credentials (never committed): the TfNSW Open Data Hub API key ---
+.env
+.env.*
+!.env.example

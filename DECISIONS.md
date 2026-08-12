@@ -2413,8 +2413,8 @@ Verifying the phase board (`STATUS.md`) found work carried from earlier phases
 that no deliverable owned. Two items are now urgent for reasons that did not
 apply when they were first listed.
 
-**GTFS-Realtime collection is now on the critical path, and it only accrues
-forward.** §13 item 10 says *"start now; it is the fallback for both dwell and
+**GTFS-Realtime collection was judged to be on the critical path here. That
+judgement was overturned in §9.23 and this paragraph is superseded.** §13 item 10 says *"start now; it is the fallback for both dwell and
 signal delay, and it accrues only forward."* **No collection exists** — verified,
 the only reference in `src/` is a note naming it as an acquisition route. That
 was tolerable while SCATS was merely unobtained. **§9.21 established that SCATS
@@ -2454,6 +2454,116 @@ the 2014 timetable (§13 item 8, validates the era-1 reconstruction).
 otherwise is how they stayed unowned. They are recorded in `STATUS.md` as
 **carried-over deliverables with an explicit owner phase and priority**, and the
 two urgent ones are issues rather than list items.
+
+---
+
+## 9.23 Own collection dropped, and what the published catalogue actually holds (P4 stage 8)
+
+An Open Data Hub API key was obtained. That changed the option set that had made
+own GTFS-Realtime collection look like the only path (§9.22), so the collector
+built earlier in that stage was **reverted in full** and issue #26 closed as not
+planned. This section records what the published catalogue was found to contain,
+because the assessment is the thing that justifies the reversal.
+
+### The archive that would have replaced collection covers the wrong modes
+
+TfNSW publishes **Historical GTFS and GTFS Realtime** — trip updates, vehicle
+positions and timetable — through `POST /v1/gtfs/historical`. Its documentation
+says Metro and Ferry only. That was verified against the live API rather than
+taken from the page:
+
+| request | files returned |
+|---|---|
+| `FER` / `SydneyFerries` / `TripUpdate`, the documented sample dates | **3** |
+| `MET` / `Metro` / `VehiclePosition`, 2024 and 2026 | **5** each |
+| every light rail naming tried (`LRT`, `LR`, `NLR` × `NewcastleLightRail`, `LightRail`) | **0** |
+| `BUS` / `Buses` | **0** |
+
+The controls return files, so the empty light rail results are the archive's
+content and not a malformed request. **The archive cannot backfill Newcastle.**
+
+This leaves proposal §7.2's contingency for the SCATS refusal without a realtime
+source. That is recorded as an **open gap**, not a solved one. What it does not
+justify is standing up an unbounded rolling stream for months before the rest of
+the catalogue has been worked: the published data settles several things the
+stream never would, and it settles them today rather than in a quarter.
+
+### The catalogue, enumerated
+
+230 datasets, pulled from the CKAN endpoint
+`/data/api/3/action/package_search` and matched against the registry's **6
+unobtained** and **78 assumed** fields and the open issues.
+
+### What it settles — verified against the data, not the title
+
+**Traffic Lights Location — the strongest hit, and it lands on the corridor.**
+4,582 signals statewide with `Equipment_ID`, cross streets, suburb, install date
+and coordinates. **352 fall in the study area; all 14 distinct corridor
+intersections in `A2_signal_control_corridor.csv` match one within 60 m** (most
+within 10 m). Three consequences:
+
+- `scats_site_id` in that artefact is a **declared but empty column** on all 70
+  rows. `Equipment_ID` *is* the SCATS site number, so the column can be filled
+  from an observed source.
+- **8 of the 14 corridor signals were installed in 2018**, four of them in the
+  September batch along Scott St and two named `LIGHT RAIL CROSSING`. The
+  pre-light-rail corridor had **6** signalised intersections, not 14. That is an
+  observed, dated basis for a counterfactual the model currently assumes.
+- The signal inventory is currently OSM-inferred (`A2_signal_nodes_osm.csv`,
+  1,265 nodes). This is an independent observed source to validate it against.
+
+**Strategic Freight Model 2022 (SFM22).** NSW freight commodity movements on an
+**origin-destination basis**, 20 commodity groups, road and rail, 2021–2061, as
+a flat file with a data dictionary. Issue #24's freight layer currently has
+nothing but a measured 6.52% heavy-vehicle share to work from.
+
+**Reference Tables for TfNSW GTFS feeds.** Carries `IC-Hunter Line - Up` and
+`- Dn` running-time tables (March 2026) and the turn-up-and-go frequency list.
+Bears directly on `A.transit.era1_line_speed_kmh` and `era1_station_dwell_s`,
+both assumed, and on the era-1 reconstruction that has no 2014 timetable.
+
+**School and public holidays.** NSW public holidays and public-school term dates
+as CSV. The RMS hourly counts carry dates, so this is the join that turns them
+into a school-term / holiday / public-holiday stratification — which is what
+`B.activity.sat_to_sun_rate` and the day-type shape need (§13 item 12).
+
+**Covid-19 TfNSW Vehicle Capacity.** Vehicle capacity by transport class across
+several restriction levels. Relevant to issue #18, with the obvious caveat that
+a physical-distancing capacity is not a normal one; only a baseline column would
+be usable, and it enters as `literature` with a url, swept — never `observed`.
+
+**Opal Tap On and Tap Off, Release 3.** Tap counts by **time and location** for
+four separate weeks in 2020, all four modes. Finer than the monthly series the
+package holds. It is **not journey-linked** — there is no card-level chaining —
+so `B.opal.journey_linked` stays `unobtained` and deliverable 8 keeps its §7.2
+fallback.
+
+### What it does not settle, recorded so it is not re-searched
+
+- **No SCATS phase data anywhere in the catalogue.** §9.21 stands.
+- **Kerbside, lane width, turn lanes and capacity for the corridor are still
+  imputed.** The four datasets that look like the answer — Loading Zones
+  Kerbside, Off-Street Parking, Bus Lanes, NSW Clearways and NSW Transit Lanes —
+  are **Sydney-only** by their own descriptions. Issue #27 is untouched by the
+  catalogue and still needs its own survey.
+- **Journey to Work 2016 was withdrawn by TfNSW** for re-identification risk and
+  must come from the ABS. JTW 2006 and 2011 remain available with travel-zone
+  geography, so `B.external.interaction_rate` can be settled on an older vintage
+  or wait for the ABS extract.
+- **Speed Zones** is statewide and covers Newcastle, but the CSV resource carries
+  attributes with **no geometry**; the usable form is the shapefile.
+- **Historic Roads Travel Time (TTDS)** is GPS speed traces with speed limits,
+  which is the right shape for road signal delay — but only four weeks of 2016
+  and two months of 2017, and its area coverage is unverified.
+
+### What this does not do
+
+No value has been changed. Nothing here has been acquired, written to
+`data/raw/`, or entered in the registry: this is an assessment of what is
+available and what it would settle. Each item above becomes an acquisition with
+a provenance record and a registry field of its own, or it does not happen.
+`A.lightrail.dwell_charging_s`, `A.signals.scats_phasing` and
+`B.opal.journey_linked` all remain `unobtained` and swept.
 
 ---
 
@@ -2715,8 +2825,14 @@ should be revisited, because at that point the bus level *would* be identifying.
    building footprints; vacancy is empty.
 8. **2014 public timetable** — to validate the era-1 reconstruction.
 9. **Event attendance data** — for the event-demand overlay (§10 item 6).
-10. **GTFS-Realtime collection** — start now; it is the fallback for both dwell
-    and signal delay, and it accrues only forward.
+10. **GTFS-Realtime collection** — **considered and dropped (§9.23).** A collector
+    was built and reverted once an Open Data Hub API key made the published
+    catalogue assessable. TfNSW's own **Historical GTFS and GTFS Realtime**
+    archive carries trip updates and vehicle positions but **only for Metro and
+    Ferry** — verified against the live API, with Metro/Ferry returning files and
+    every light rail and bus naming returning none — so it does not backfill
+    Newcastle. Standing up an unbounded rolling stream is not justified until the
+    published catalogue has been worked through; that assessment is §9.23.
 11. **Journey-to-work origin-destination table** (ABS: SA2 usual residence ×
     SA2 place of work) — the package holds the place-of-work side (`W01A…`,
     jobs *by* SA2) but not the origin-destination pairing, which is what would
@@ -2949,6 +3065,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-12 | **P4 stage 8 - own realtime collection dropped, and the published catalogue assessed instead (§9.23).** A GTFS-Realtime collector was built and **reverted in full** once an Open Data Hub API key made the 230-dataset catalogue assessable. TfNSW's own **Historical GTFS Realtime** archive was verified against the live API and carries **Metro and Ferry only** - controls return files, every light rail and bus naming returns none - so it cannot backfill Newcastle, and §7.2's contingency for the SCATS refusal is recorded as an **open gap**. What the catalogue does settle, verified against the data rather than the titles: **Traffic Lights Location** matches **all 14 corridor intersections within 60 m**, supplies the `scats_site_id` that `A2_signal_control_corridor.csv` declares but leaves empty, and dates **8 of the 14 as 2018 light-rail installations** - so the pre-intervention corridor had 6 signals, not 14, which is an observed basis for a counterfactual now assumed; **SFM22** gives origin-destination freight for issue #24; the **GTFS reference tables** carry Hunter Line running times bearing on the assumed era-1 constants; **school and public holiday** dates stratify the dated RMS counts. Recorded as *not* settled: no SCATS phasing exists in the catalogue, the kerbside and lane-width datasets are **Sydney-only** so issue #27 is untouched, JTW 2016 is withdrawn by TfNSW, and Opal tap data is **not journey-linked** so deliverable 8 keeps its fallback. **No value was acquired, changed or registered** - this is an assessment. No parameter value changed, no target value changed, the 67/143 split is untouched and no scenario was run. |
 | 2026-08-11 | **The input registry (§15).** Every value the model consumes that is not read from an immutable raw download is now declared in `config/registry/` with its units, its provenance and either a sweep range or an explicit rule holding it fixed — **123 fields**, against 316 module-level constants of which exactly one carried a machine-readable source label. Proposal §8.1 becomes a schema constraint rather than a discipline: `assumed` without a sweep does not validate. The three unobtained inputs carry `value: null` and the resolver **raises** rather than returning a point value, so §0 and §13 are enforced structurally; the §8.5 mode constants are `held_fixed` and no overlay, environment variable or flag can move them. Two factors that governed every P4 result were found set in code with no rationale and no range — `flowCapacityFactor` (derived, and now stated as such) and `storageCapacityFactor` (assumed, exponent swept 0.75–1.0, and an open risk at 1% because MATSim floors link storage at one vehicle). Outputs are declared to the same standard: `_run.json`, `_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema, and a fit block that does not name its target ids fails its contract. `docs/CONFIG_REFERENCE.md` is generated and checked for staleness. `check_package.py` 860 → **908 checks**, 1 standing warning. The build layer is declared but not yet migrated and is pinned to the registry by a drift test, which caught four transcription errors on its first run. No parameter value was changed, no target value was changed, the 67/143 split is untouched and no scenario was run. |
 | 2026-08-10 | **P4 stage 0 — the assembled run inputs did not load, and what a run actually costs (§9.4, §9.5, §12.1–12.3).** MATSim was pointed at `scenarios/matsim/S2/WEEKDAY/` and refused it. Three independent defects, none visible to a check that treats the artefacts as data: the day-type filter dropped the doctype MATSim selects its reader from (all 30 sets); it left stop facilities and `minimalTransferTimes` relations orphaned by the routes it removed, which makes SwissRailRaptor dereference a null array (all 30); and the kerbside patch appended a second `<attributes>` block to links that already had one, invalidating **6 of the 10** run networks — precisely the six carrying an E1 road change. Fixed, rebuilt byte-identically with the patch counts unchanged, and **all 30 sets now load and run**. `check_package.py` 556 → **657 checks**, with the three failure modes asserted per set. Run cost measured on this machine rather than estimated: **9.8 s/iteration at 1%, 29.9 s at 10%, ~64 s at 25%**, memory 9.8/18.4/31.5 GiB, extrapolating to ~4.5 min and ~97 GiB at 100% — so **a 100% weekday run does not fit in 63.5 GiB** and the specified 5,100 run-days is ~765 days of wall clock. Also recorded, without acting on either: 13 of the 67 calibration targets (`lr_cardtype_share`) can identify nothing in MATSim and several others are duplicates or schedule inputs, leaving ~4 mode-share degrees of freedom + 1 patronage level + 34 counts; and the 119 `road_aadt` values are the mean of `ALL DAYS` with the peak-period rows, 0.58–0.71× the true figure. **The 67/143 split is untouched, no holdout value was used, no target value was changed and no falsification condition altered. Still no scenario run.** |
 | 2026-08-10 | **P3 stage 3 — assumptions replaced by Newcastle measurements where the data allows, and the sweep-range rule made mechanical.** Three constants derived rather than typed: the **detour factor** is now routed over the observed A1 road graph (**1.3376**, 551 zone pairs, was assumed 1.30); the **weekday/weekend travel split** comes from the RMS counts' own `WEEKDAYS`/`WEEKENDS` periods (**0.752**, 551 station-years, was implied 0.825); and census G62 gives an observed **lower bound** on work attendance (0.651) without being allowed to set the value, since census night carries the 2021 lockdown (§2.4). Seven parameters that breached proposal §8.1 by carrying no sweep range now carry one, and `check_package.py` **enforces the rule as a test** rather than leaving it to discipline. What genuinely cannot be localised is labelled so: MATSim's `performing`, distance rates, typical durations and replanning weights are properties of the scoring formulation, not of Newcastle. `EXTERNAL_INTERACTION_RATE` stays swept and the missing ABS journey-to-work origin-destination table is added to §13. 497 → **556 checks**, all passing. Still no scenario run; no falsification condition altered. |

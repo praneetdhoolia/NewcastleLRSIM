@@ -96,9 +96,9 @@ in [`DECISIONS.md`](DECISIONS.md) §13 and owned by nothing. It is owned now.
 
 | | Carried item | From | Priority | Why now |
 |---|---|---|---|---|
-| **#26** | **GTFS-Realtime collection** | P1 (§13.10) | 🔴 **URGENT — start today** | **It accrues only forward and cannot be backfilled.** §9.21 established SCATS is **refused by policy**, so proposal §7.2's contingency is the operative path — and §7.2 requires signal delay to be *inferred from GTFS-Realtime run-time distributions.* The fallback for the largest single uncertainty in the model depends on a dataset nobody is collecting. It is also the fallback for charging dwell. |
+| - | GTFS-Realtime collection | P1 (§13.10) | **settled - dropped** | Own collection was built and reverted. TfNSW's **Historical GTFS Realtime** archive covers **Metro and Ferry only** (verified against the live API: Metro and Ferry return files, every light rail and bus naming returns none), so it cannot backfill Newcastle - but nor is a months-long rolling stream justified before the published catalogue is worked through. Issue #26 closed as not planned; the catalogue assessment is §9.23. |
 | **#27** | **Corridor road-attribute correction** | P2 (§13.4) | 🟠 **high** | **B3 is "the decisive test of Claim B" and rests on lane loss, banned turns and kerbside parking removal.** Measured over the 714 corridor edges: kerbside **95% imputed**, lane width **98.6%**, capacity **100%**, turn lanes **90% absent**. §2.5's 87.5%-observed figure is about the **40 trunk edges**, not these. |
-| — | Charging dwell field measurement | P1 (§13.2) | 🟡 medium | Physical, one visit to Civic or Crown Street. Worth 11% of end-to-end run time; `A.lightrail.dwell_charging_s` stays `unobtained` and swept until then. GTFS-RT (#26) is the fallback. |
+| — | Charging dwell field measurement | P1 (§13.2) | 🟡 medium | Physical, one visit to Civic or Crown Street. Worth 11% of end-to-end run time; `A.lightrail.dwell_charging_s` stays `unobtained` and swept until then. The GTFS-Realtime fallback is **gone** (§9.23): TfNSW's historical archive excludes light rail, so field measurement is now the only route. |
 | — | ABS journey-to-work SA2×SA2 table | P1 (§13.11) | 🟡 medium | **Obtainable** — a standard TableBuilder extract, not a request. Settles `B.external.interaction_rate`, currently assumed 0.08. **Folded into deliverable 0b.** |
 | — | Day-of-week travel split | P1 (§13.12) | 🟡 medium | The Saturday:Sunday division is the last assumed part of the day-type shape. RMS hourly counts carry dates, so this is derivable. **Folded into deliverable 0b.** |
 | — | Pedestrian counts | P1 (§13.6) | 🟡 medium | **B1 has no observable at all without them** — none are published for Newcastle. §7.2's fallback is temporary counters on Hunter St, or calibrating from land use and modelled alightings. A P6 blocker, not a P4 one. |
@@ -109,8 +109,9 @@ in [`DECISIONS.md`](DECISIONS.md) §13 and owned by nothing. It is owned now.
 | — | *"Requests lodged"* (P0 output) | P0 | ✅ **settled** | SCATS is **refused by policy** and documented (§9.21); journey-linked Opal is unpublished and its §7.2 fallback is now **deliverable 8**. Nothing further to lodge. |
 
 **Priority rule applied here:** urgency is set by *whether waiting destroys the
-option*, not by how much each is worth. #26 is first because the data is gone if
-not collected; #27 is second because it gates the decisive test of Claim B.
+option*, not by how much each is worth. #26 was first on that rule and has since
+been **dropped** (§9.23) - the option it protected turned out not to exist for
+Newcastle. **#27 is now first**, because it gates the decisive test of Claim B.
 Everything marked 🟡 blocks P6, not P4, and must not be allowed to reorder
 deliverable 0.
 

@@ -67,12 +67,11 @@ threads within one: thread count is part of the run identity. At 25% a run needs
 31.5 GiB, so TWO fit at once. NO GPU PATH exists; do not re-investigate.
 
 ═══════════════════════════════════════════════════════════════════════════════
-THE BOARD — 12 open issues, and NONE of them awaits a decision
+THE BOARD — 11 open issues, and NONE of them awaits a decision
 ═══════════════════════════════════════════════════════════════════════════════
 Every open issue is labelled with what blocks it. All decisions have been taken.
 
-  awaiting-implementation (9)   work that is scoped, decided and not yet built
-    #26  URGENT  GTFS-Realtime collection — accrues ONLY FORWARD
+  awaiting-implementation (8)   work that is scoped, decided and not yet built
     #22  0a      specification audit
     #23  0b      derive what can be derived
     #18  0c      apply the published bus/rail/ferry capacities
@@ -90,14 +89,15 @@ Every open issue is labelled with what blocks it. All decisions have been taken.
 ═══════════════════════════════════════════════════════════════════════════════
 YOUR TASK, IN THIS ORDER
 ═══════════════════════════════════════════════════════════════════════════════
-0.  START #26 TODAY, BEFORE ANYTHING ELSE. It is a poller and a store, an hour
-    of work, and it is the ONLY item on the board where waiting destroys the
-    option. §9.21 established SCATS phasing is REFUSED BY POLICY, which makes
-    proposal §7.2's contingency the operative path — and §7.2 requires signal
-    delay to be inferred from GTFS-REALTIME RUN-TIME DISTRIBUTIONS. Nobody is
-    collecting them. A stream not captured today does not exist tomorrow, and
-    the loss is silent. Collect only; the inference is separate work that gets
-    better the longer this has been running.
+0.  OWN GTFS-REALTIME COLLECTION IS DROPPED - do not restart it (§9.23, issue
+    #26 closed). A collector was built and reverted. TfNSW's own Historical
+    GTFS Realtime archive holds trip updates and vehicle positions but ONLY FOR
+    METRO AND FERRY - verified against the live API - so it cannot backfill
+    Newcastle either. §7.2's contingency for the SCATS refusal therefore has no
+    realtime source yet, and that is an OPEN GAP, not a solved one.
+    What replaced it: an Open Data Hub API key and an assessment of the 230
+    published datasets against the 6 unobtained and 78 assumed registry fields
+    (§9.23). Work the catalogue before proposing any new collection.
 
 1.  #22 — 0a SPECIFICATION AUDIT. First of the modelling work, because it may
     change what the rest is worth. Walk population → activities → tours → mode
