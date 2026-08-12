@@ -25,6 +25,7 @@ Usage:
 """
 import os
 import sys
+import glob
 import json
 import shutil
 import hashlib
@@ -180,6 +181,50 @@ def netconvert_path():
     return ''
 
 
+JAVA_SRC = os.path.join('src', 'java')
+CLASSES = os.path.join(TOOLS, 'classes')
+
+
+def javac_path():
+    for cand in (os.path.join(TOOLS, 'jdk', 'bin', 'javac.exe'),
+                 os.path.join(TOOLS, 'jdk', 'bin', 'javac')):
+        if os.path.exists(cand):
+            return cand
+    return None
+
+
+def compile_java():
+    """Compile the project's MATSim entry point against the pinned jar.
+
+    `run_matsim.py` runs `wickham.WickhamControler`, not the stock MATSim
+    Controler, because two bindings differ: ride availability (DECISIONS.md 9.11)
+    and the ride travel time that issue #28 fixed. The source is committed;
+    `.tools/` is not. Until this step existed the classes were built by hand, so
+    a fresh checkout had the source, the jar and no way to run - the classpath
+    would simply lack the main class. Compiling here, with the pinned javac
+    against the pinned jar, is what makes a run reproducible from a clone.
+    """
+    javac = javac_path()
+    jar = pt2matsim_jar()
+    if not javac or not jar:
+        print('\nskip javac: toolchain incomplete (javac=%s jar=%s)' % (javac, jar))
+        return False
+    srcs = sorted(glob.glob(os.path.join(JAVA_SRC, '*', '*.java')))
+    if not srcs:
+        print('\nno java sources under %s' % JAVA_SRC)
+        return False
+    os.makedirs(CLASSES, exist_ok=True)
+    cmd = [javac, '-cp', jar, '-d', CLASSES] + srcs
+    out = subprocess.run(cmd, capture_output=True, text=True)
+    if out.returncode != 0:
+        print('\njavac FAILED\n%s' % (out.stderr or out.stdout))
+        raise SystemExit(1)
+    print('\njavac      %d source(s) -> %s' % (len(srcs), CLASSES))
+    for src in srcs:
+        print('             %s' % src.replace('\\', '/'))
+    return True
+
+
 def java_path():
     for cand in (os.path.join(TOOLS, 'jdk', 'bin', 'java.exe'),
                  os.path.join(TOOLS, 'jdk', 'bin', 'java')):
@@ -226,6 +271,11 @@ def verify():
         ok = got == c['sha256']
         print('  %-8s %-9s %s' % ('ok' if ok else 'MISMATCH', c['component'], got[:16]))
         bad += 0 if ok else 1
+    # The custom controler is part of the toolchain a run depends on, and its
+    # classes live under the gitignored .tools/. Recompiling here keeps --verify
+    # an honest statement that this checkout can actually run.
+    if not bad:
+        compile_java()
     print('toolchain %s' % ('OK' if not bad else 'FAILED'))
     return 1 if bad else 0
 
@@ -255,6 +305,8 @@ def main():
     with open(os.path.join(TOOLS, 'toolchain.json'), 'w', encoding='utf-8', newline='\n') as f:
         json.dump(man, f, indent=2)
         f.write('\n')
+
+    compile_java()
 
     print('\njava       %s' % java_path())
     print('pt2matsim  %s' % pt2matsim_jar())

@@ -2544,8 +2544,10 @@ fallback.
 - **Kerbside, lane width, turn lanes and capacity for the corridor are still
   imputed.** The four datasets that look like the answer — Loading Zones
   Kerbside, Off-Street Parking, Bus Lanes, NSW Clearways and NSW Transit Lanes —
-  are **Sydney-only** by their own descriptions. Issue #27 is untouched by the
-  catalogue and still needs its own survey.
+  are **Sydney-only** by their own descriptions, so the four fields #27 turns on
+  still need their own survey. **One exception, verified since:** `speed_limit` is
+  only 10.5% imputed (75 of 714 corridor edges) and Speed Zones is statewide, so
+  that part is closable from published data.
 - **Journey to Work 2016 was withdrawn by TfNSW** for re-identification risk and
   must come from the ABS. JTW 2006 and 2011 remain available with travel-zone
   geography, so `B.external.interaction_rate` can be settled on an older vintage
@@ -2619,8 +2621,10 @@ era.
 variant and no parameter has been altered by it. `S0_no_tram` still carries all
 14 intersections at a 100 s cycle, exactly as before.
 
-That is a decision, not an oversight. Re-deriving the pre-light-rail corridor
-from this observation would reshape the same counterfactual that
+**The decision was taken on 12 August 2026: no.** The pre-light-rail corridor
+keeps all 14 signalised intersections in `S0_no_tram`, and the install dates
+stay an attribute. Re-deriving the counterfactual from this observation would
+reshape the same quantity that
 `A.corridor.pre_lr_lanes_per_dir` encodes — and that constant *is* the B3
 hypothesis, the decisive test of Claim B. Changing the hypothesis to fit an
 observation discovered afterwards is the move proposal §9 names as the primary
@@ -2653,7 +2657,10 @@ at what they score.
 `routing.networkModes = car,ride`, so `ride` is routed over the network and given
 free-flow link times: it never queues and never contributes to congestion.
 Measured over a completed 250-iteration run, **ride realises 55.7 km/h against
-car's 49.3** - a car passenger arrives 13% faster than the car carrying them.
+car's 49.3**. That aggregate overstates it - ride legs are longer and longer
+trips use faster roads - and the corrected figure is **4-8%, present in every
+distance bin from under 2 km to over 40 km**, which a composition artefact
+would not survive. A car passenger arrives faster than the car carrying them.
 The scoring config makes ride look *dominated* (identical time and money
 disutility, and a -0.85 constant against car's 0.0), so nobody reading the
 behavioural parameters would find this. It is worst exactly where car is most

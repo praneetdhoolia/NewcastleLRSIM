@@ -19,6 +19,8 @@ the plans and the toolchain. Nothing else. The fit statistic lives in
 `src/calibrate/`, and the holdout rows are never opened by either.
 """
 import argparse
+import glob
+import hashlib
 import json
 import os
 import re
@@ -44,6 +46,31 @@ CLASSES = os.path.join(REPO, '.tools', 'classes')
 # can be withheld from a person with nobody to drive them (DECISIONS.md 15,
 # src/java/wickham/). The pinned jar is unchanged - this ADDS classes beside it.
 MAIN = 'wickham.WickhamControler'
+JAVA_SRC = os.path.join(REPO, 'src', 'java')
+
+
+def controler_sha256():
+    """Hash the committed source of the entry point this run will execute.
+
+    The run name is built from the scenario and the registry values, so it
+    cannot see the controler. That was harmless while the controler only
+    rebound ride availability; issue #28 made it decide how `ride` gets its
+    travel time, which moves every mode share. A result produced before that
+    change and one produced after are different results with the same name, so
+    the run record carries this and `main` refuses to resume across a change.
+
+    Sources are hashed, not the compiled classes: javac output is not
+    guaranteed byte-identical across JDK builds, and the source is what is
+    committed and reviewable.
+    """
+    h = hashlib.sha256()
+    for p in sorted(glob.glob(os.path.join(JAVA_SRC, '*', '*.java'))):
+        h.update(os.path.basename(p).encode('utf-8'))
+        with open(p, 'rb') as f:
+            h.update(f.read())
+    return h.hexdigest()
+
+
 SETS = os.path.join(REPO, 'scenarios', 'matsim')
 PLANS = os.path.join(REPO, 'demand', 'plans', 'matsim')
 RESULTS = os.path.join(REPO, 'results')
@@ -191,9 +218,22 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
                                for k, v in sorted(overrides.items()))
     run_dir = os.path.join(RESULTS, name)
     record = os.path.join(run_dir, '_run.json')
+    controler = controler_sha256()
     if os.path.exists(record) and not force:
-        print('resume: %s already complete' % name, flush=True)
-        return json.load(open(record, encoding='utf-8'))
+        prior = json.load(open(record, encoding='utf-8'))
+        if prior.get('controler_sha256') == controler:
+            print('resume: %s already complete' % name, flush=True)
+            return prior
+        # The run name is built from the scenario and the registry values, which
+        # cannot see the controler's own source. Without this check a completed
+        # run would be handed back after the model's behaviour had changed -
+        # silently, and with no way to tell the two apart afterwards. Issue #28
+        # changed how `ride` gets its travel time and moved every mode share, so
+        # a stale result reused here would be indistinguishable from a real one.
+        print('re-running %s: the controler changed since it was produced\n'
+              '  recorded %s\n  current  %s'
+              % (name, (prior.get('controler_sha256') or 'not recorded')[:16],
+                 controler[:16]), flush=True)
     if os.path.exists(run_dir):
         shutil.rmtree(run_dir, ignore_errors=True)
     os.makedirs(run_dir, exist_ok=True)
@@ -227,6 +267,7 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
                overrides=overrides, rc=rc, wall_s=round(wall, 1),
                median_iteration_s=steady[len(steady) // 2] if steady else None,
                config_snapshot=os.path.relpath(snapshot, run_dir).replace(os.sep, '/'),
+               controler_sha256=controler,
                **sample)
     # The run record must meet its declared contract before it is written; a
     # completed run without a config snapshot cannot state what produced it.

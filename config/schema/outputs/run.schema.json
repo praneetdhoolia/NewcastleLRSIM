@@ -105,6 +105,11 @@
     "transit_capacity_scaled": {
       "type": "array",
       "description": "Per vehicle type: [attribute, before, after]. Empty at fraction 1.0. Seats MUST scale with the sample or a 10% run gives every bus ten times its real capacity and crowding silently disappears."
+    },
+    "controler_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 over the committed source of src/java/wickham, the MATSim entry point this run executed. The run name is built from the scenario and the registry values and cannot see the controler, so without this a result produced before a controler change and one produced after would share a name and be indistinguishable. run_matsim.py refuses to resume a completed run whose recorded hash differs from the current source. Absent from records written before DECISIONS.md 9.26."
     }
   },
   "additionalProperties": true

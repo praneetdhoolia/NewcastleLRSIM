@@ -45,9 +45,27 @@ queues, never waits, and never contributes to the congestion it should be part o
 | **ride** | 122,025 | 13.46 | 13.4 | **55.7** |
 | **car** | 66,604 | 10.02 | 10.9 | **49.3** |
 
-**A car passenger arrives 13% faster than the car they are sitting in.** That is
-not a calibration error; it is physically impossible, and it is the strongest
-single explanation of the car↔ride inversion.
+**A car passenger arrives faster than the car they are sitting in.** That is not
+a calibration error; it is physically impossible.
+
+**Correction to this finding's headline, made on re-checking.** The 13% above is
+an aggregate over legs of different lengths, and ride legs are longer (13.46 km
+against 10.02 km) while longer trips use faster roads — so composition inflates
+it. Controlling for distance, the advantage is smaller and **more damning,
+because it is present in every bin**:
+
+| leg distance | car km/h | ride km/h | ride/car |
+|---|---:|---:|---:|
+| 0–2 km | 39.7 | 42.7 | 1.08× |
+| 2–5 km | 44.1 | 47.9 | 1.08× |
+| 5–10 km | 48.3 | 52.1 | 1.08× |
+| 10–20 km | 54.7 | 58.0 | 1.06× |
+| 20–40 km | 63.6 | 66.4 | 1.04× |
+| 40 km+ | 69.4 | 72.4 | 1.04× |
+
+**4–8%, consistently positive at every distance.** A composition artefact would
+not survive stratification; this does. The defect is real and the aggregate
+figure was the wrong way to state it.
 
 **Why it is invisible.** The scoring parameters make ride look *unattractive* —
 car and ride carry identical `marginalUtilityOfTraveling` (−10.9608) and
@@ -111,10 +129,18 @@ asymmetry is currently undeclared and unlabelled.
 
 ---
 
-## A4 — walk is 18× under-represented, and trip lengths may be why · **high**
+## A4 — walk is 18× under-represented, and trip lengths are why · **high**
 
-Walk is 0.75% modelled against 13.4% observed. Two candidate causes, and this
-audit did **not** separate them:
+**RESOLVED since this register was written — cause 2 confirmed, and sufficient
+on its own.** Observed walk trips average **0.7 km** and are 13.4% of all trips;
+the model carries only **4.9% of trips under 1 km**. Walk cannot reach its
+observed share because the trips are not there to be won, which caps it near 5%
+before mode choice is consulted. It is destination *placement*, not a uniform
+stretch: education is **2.19×** too long (6.57 km against an observed 3.00 km),
+commute 1.50×, while social/recreation is 0.81× — too *close*. Purpose shares
+themselves are good. Full working in issue #30.
+
+The original two candidates, kept for the record:
 
 1. **Scoring.** Walk's time disutility is −27.92 util/hr against bike's −16.05,
    at 3.78 km/h against 15.1 km/h. Beyond roughly a kilometre bike dominates
