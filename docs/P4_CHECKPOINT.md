@@ -1,359 +1,355 @@
-# P4 checkpoint — read this before touching anything
+# P4 checkpoint — the long-form handoff
 
-Handoff for **P4 calibration**, branch `praneetdhoolia/p4-calibration`, PR #4.
-[`STATUS.md`](../STATUS.md) stays the short live status; this is the long form:
-what was found, what was decided and why, what is built, what is open, and the
-traps waiting for whoever picks it up.
-
-**One-line state:** the model runs, the inputs are correct for the first time,
-nothing has been fitted to any calibration target, and P4 is blocked on two
-decisions the next session should take early.
+**Written 12 August 2026.** [`STATUS.md`](../STATUS.md) is the short live status;
+this is the full picture for someone picking the work up cold. Where the two
+disagree, `STATUS.md` is newer.
 
 ---
 
-## 1. The short version
+## 0. The one-paragraph version
 
-| | |
+P4 is calibration. Three of its seven deliverables were already built; **three
+more landed this session (the loop, the report, the outer-loop tolerance)**, and
+**one — the calibrated base — is not met and is blocked by a modelling decision
+rather than by missing code.** Two specification defects were found by
+measurement and repaired: the external demand tier was being charged a walk to
+the network that the modes it chose instead were exempt from, and escort trips
+were being generated as two-hour discretionary stays instead of five-minute
+drop-offs. A §8.5 departure was logged, before results, charging car passengers
+the same distance cost as drivers. **Nothing in this repository is a result.**
+
+---
+
+## 1. Read these first, in this order
+
+```
+STATUS.md                       where the build is
+DECISIONS.md  §0, §8.5, §9.7–§9.17, §12.1, §15     every value that is not observed
+CLAUDE.md                       conventions and hard constraints
+docs/CONFIG_REFERENCE.md        generated; skim "no value" and "held fixed"
+gh issue list --state open      12 open, and they ARE the worklist
+```
+
+Then confirm the package is intact:
+
+```
+python tests/check_manifest.py                    fast, committed subset
+python src/setup/bootstrap_toolchain.py --verify  JDK / pt2matsim / SUMO digests
+python tests/check_package.py                     ~950 checks, 1 standing warning
+```
+
+The standing warning is `lastIteration`, and it is issue #5. It is *supposed* to
+be there.
+
+**Do not re-read the P1–P3 package.** 364 files are hashed in
+[`data/MANIFEST.csv`](../data/MANIFEST.csv) and the build is verified.
+
+**Machine:** 24 logical cores, 63.5 GiB. One run averages **2.4 busy cores of 24**
+— the mobsim synchronises every simulated second, so threads idle. Memory
+(9.6 + 87 GiB × fraction) binds long before cores. **Parallelise across runs,
+never threads within one**: thread count is part of the run identity. There is
+**no GPU path**; do not re-investigate it.
+
+---
+
+## 2. What is running, or was
+
+| run | what it is |
 |---|---|
-| Started as | P4 calibration: fit the base to observed counts, Opal boardings and run times |
-| Actually became | Removing **seven** defects that made calibration impossible, then building the instrument |
-| Deliverables complete | **3 of 7** (run harness, metric extraction, fit statistic) |
-| Fitted to a calibration target | **Twice, on unconverged diagnostics.** Nothing is a result |
-| Package checks | 556 → **937**, 1 standing warning |
-| Commits | 12; the 7 on `praneetdhoolia/config-registry` are **unpushed** |
-| Blocked on | the §8.5 ride specification (§5.0), then the iteration count (§5.1) and the run-budget cut (§5.2) |
+| `results/S2_WEEKDAY_f01_i250_s20260810/` | **the first run on repaired demand.** S2 × WEEKDAY, 10%, 250 iterations, 8 threads, seed 20260810. Overlay `config/runs/cordon_escort_10pct.json`. Was at iteration 191/250 when this was written |
+| `results/ride_sufficiency_{1,10,25}pct/` | **historical.** Pre-repair demand. 30.6 GiB. The evidence base for §9.10, §9.12, §9.13 and §9.17 — all now recorded in `DECISIONS.md`. `ride_sufficiency_25pct` also backs the published replay |
 
-**Nothing in the repo is a result.** No scenario has been run to completion at a
-defensible iteration count, and every fit computed so far is on a run known to be
-short of relaxation.
+The run directory is auto-named because `--tag` was omitted; the overlay name is
+`cordon_escort_10pct` and `_run.json` records the parameters. Not worth fixing
+retroactively.
 
-**Currency warning.** Sections 1–4 and 6–8 below were written before
-[`DECISIONS.md`](../DECISIONS.md) §9.10, §9.11, §9.12 and §15. **The history is
-sound and worth reading; the numbers in it are superseded.** Where this file and
-`DECISIONS.md` disagree, `DECISIONS.md` wins. In particular:
+**⚠ First action:** if `_run.json` exists, run the declared pipeline on it:
 
-- the registry (§15) landed after this file was written: **142 declared fields**,
-  and every controllable value now resolves through it rather than through a
-  constant in a script;
-- `ride` now requires a household driver (§9.11), which changed every mode share
-  quoted below;
-- **1% is unusable for any behavioural reading** (§9.12, issue 17) — a fifth of
-  car legs never complete at that fraction, so every 1% number in §3 carries an
-  artefact;
-- the fit statistic was **flattering itself** (§9.12, issue 19) and now scores
-  38 targets, not 35.
+```
+python src/analyse/extract_metrics.py --run S2_WEEKDAY_f01_i250_s20260810
+python src/calibrate/fit.py           --run S2_WEEKDAY_f01_i250_s20260810
+python src/calibrate/report.py        --run S2_WEEKDAY_f01_i250_s20260810 \
+       --out docs/CALIBRATION_REPORT.md
+```
 
----
+**⚠ Second action, and it is easy to miss:** the registry now charges `ride` the
+car distance rate (§9.17) but **the built run inputs in `scenarios/matsim/` still
+carry the old zero.** They were not rebuilt because the run in flight reads the
+shared network and schedule from that directory. Once it finishes:
 
-## 2. The seven defects, and the pattern they share
+```
+python src/build/build_matsim_run_inputs.py
+python src/build/normalise_eol.py && python src/build/build_manifest.py && python src/build/normalise_eol.py
+```
 
-Every one of these produces a **confident wrong answer** rather than an obvious
-failure, and every one was invisible to a check that looked structurally sound.
-That pattern is the single most important thing to carry forward.
-
-| # | Defect | Reach | Recorded |
-|---|---|---|---|
-| 1 | Day-type filter dropped the schedule **doctype**; MATSim selects its reader from it | all 30 run-input sets | §9.4 |
-| 2 | Filtering orphaned **stop facilities and transfer relations**; SwissRailRaptor NPEs | all 30 | §9.4 |
-| 3 | Kerbside patch appended a **second `<attributes>` block**; network DTD rejects it | **6 of 10** run networks — exactly the six carrying an E1 road change | §9.4 |
-| 4 | `ride` declared a network mode **no link permitted** | every config | §9.6 |
-| 5 | `subtourModeChoice` unconfigured, so a `ride` subtour was an **absorbing state** | ride share = seed, to five decimals | §9.6 |
-| 6 | `considerCarAvailability` defaulted false — **B1's car availability ignored** | all mode choice | §9.6 |
-| 7 | Day-type filter keyed on **route id**, but pt2matsim groups trips by stop sequence, not service | **29.5% of departures in the wrong day type; the with-tram scenario had no tram on a weekday** | §9.9 |
-
-Plus, in the validation layer: the 119 `road_aadt` target **values** were the mean
-of `ALL DAYS` with the peak-period rows — 0.58–0.71× the true figure, and not a
-constant factor (§12.2).
-
-### The failure mode, stated plainly
-
-**An invariant that is true but is not the one that matters.**
-
-- Defect 7's check asserted the day-type split *partitions the route set exactly*
-  — 1,231 + 291 + 192 = 1,714. Perfectly true. Partitioning routes is not
-  partitioning service, because a route is not day-type homogeneous.
-- The P3 checks verified the run inputs exhaustively **as data** and never asked
-  whether a simulator could read them (defects 1–3).
-- My own first cut of `fit.py` scored 35 targets and listed 16 reasons out of 67,
-  leaving 16 neither scored nor explained — a statistic that looked complete
-  because nothing contradicted it. It now **asserts** `scored + explained ==
-  total` and exits otherwise.
-
-Two of the seven were found only by **building the thing downstream that consumes
-the output**: defect 4 by running the shipped config, defect 7 by extracting
-metrics and seeing zero light rail boardings. That is the cheapest known detector
-for this class, and it argues for building consumers early rather than late.
-
-**There is an open proposal to spend a deliberate pass hunting this class before
-the calibration loop is built on top** — see issue *"Audit pass: invariants that
-are true but not the one that matters"*.
+Then launch the ride-corrected run. **That is the measurement §9.17 was logged
+against.**
 
 ---
 
-## 3. What was measured (not assumed)
+## 3. The seven deliverables
 
-### 3.1 Run cost, on this machine — §9.5
-
-24 cores, 63.5 GiB. S2 × WEEKDAY, nested subsamples, 16 threads.
-
-| Sample | Persons | Steady per-iteration | Peak resident |
-|---|---:|---:|---:|
-| 1% | 5,209 | 9.8 s | 9.8 GiB |
-| 10% | 52,758 | 29.9 s | 18.4 GiB |
-| 25% | 131,291 | ~64 s | 31.5 GiB |
-
-Large fixed cost, near-linear slope: **time ≈ 3.1 s + 268 s × fraction**,
-**memory ≈ 9.6 + 87 GiB × fraction**. So ~4.5 min/iteration and **~97 GiB at
-100% — a full-population weekday run does not fit in 63.5 GiB**. Practical
-ceiling ≈ 40%.
-
-### 3.2 Seed dependence and convergence — §9.7
-
-Two 250-iteration runs at 1%, identical but for the initial mode draw:
-
-- seed influence **decays but is not gone**: a 42.1 pp gap on car share closes to
-  5.4 pp;
-- **the model does not converge.** Innovation switches off at iteration 200;
-  ride share still moved 0.619 → 0.664 over the last 50 iterations with no new
-  plans being created. `lastIteration=100` is far too low and **250 is also too
-  low**.
-
-### 3.3 Observed vehicle occupancy — §9.8
-
-From HTS driver and passenger trip counts, Newcastle LGA:
-
-| Year | 16/17 | 17/18 | 18/19 | 19/20 | 22/23 | 23/24 | **24/25** |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Occupancy | 1.3174 | 1.2838 | 1.2493 | 1.2845 | 1.3940 | 1.3438 | **1.3503** |
-
-Sweep 1.2493–1.3940 = the observed spread, not a chosen interval. The
-unconstrained model produced **5.52 people per car**.
-
----
-
-## 4. Decisions taken, and where the rationale lives
-
-| Decision | Where | One-line rationale |
+| # | deliverable | state |
 |---|---|---|
-| Traffic-count targets are **`WEEKDAYS`**, two-way, all classes | §12.2 | The old value averaged daily totals with peak-period rows. 119 values changed; **split untouched** |
-| **No contemporary bus target added** | §12.4 | MATSim collapses all PT into one `pt` mode with one constant, so it would identify nothing the LR level and PT mode share do not already |
-| Seed is **uninformed** (uniform over usable modes, car 14.3% vs target 59.0%) | §9.6 | A model that starts at the answer cannot be said to have found it. Informed seed retained behind `--seed-mode informed` |
-| `ride` distance cost **0.0**, not half car's | §9.8 | A vehicle's cost is paid once; at occupancy 1.35 charging both occupants made aggregate cost 1.35× real. Zero is the only derivable value |
-| `asc_car_passenger` **constrained to observed occupancy** | §9.8 | §8.5's second branch — *"constrain them and report the constraint"*. The constrained constant is **car passenger**; `asc_lr`/`asc_bus`/`asc_rail` are untouched, so the effect under test is untouched |
-| Modelled vehicles = **car legs alone** | §12.2a | Observed vehicle trips *are* driver trips, so a teleported `ride` correctly adds none |
-| Output compression **gzip**, not zst | §9.8 | The repo declares no `zstandard` dependency; an undeclared one is a reproducibility hole |
+| 1 | Run harness | done — `src/run/` |
+| 2 | Metric extraction | done — `src/analyse/` |
+| 3 | Fit statistic | done and tested — `src/calibrate/fit.py` |
+| 4 | **Calibration loop** | **done — `src/calibrate/calibrate.py`** |
+| 5 | **Calibrated base + provenance** | **NOT MET.** Blocked by a decision, not by code |
+| 6 | **Calibration report** | **done — `src/calibrate/report.py`** |
+| 7 | **Outer-loop tolerance** | **done — 5 s.** §9.16, issue #8 closed |
 
-### Values derived from data, with their sweeps
+### Why deliverable 5 is blocked, and what the choice is
 
-| Value | Value | Sweep | Derived from |
-|---|---|---|---|
-| Vehicle occupancy | 1.3503 | 1.2493–1.3940 | HTS driver/passenger trip counts, 7 survey years |
-| Heavy-vehicle share | 0.0652 | 0.0129–0.1529 | RMS classified counts, 23 of 119 stations, weekday |
-| HTS mode share (linked, Newcastle LGA) | car 59.0 / ride 20.6 / pt 3.8 / walk 13.4 / other 3.2 | — | HTS `MODE_SHARE`, derived not typed |
+The loop derives its search space from the registry. Of **38** fields carrying a
+scalar sweep, **21 are excluded with a stated reason** — the loop's own controls,
+run identity, the measurement apparatus, anything needing the schedule mapper
+re-run (§3.5), anything with no consumer. Of the rest, almost all need a **demand
+rebuild per candidate** that the loop does not implement. What remains is **one
+parameter that barely matters**.
 
-**Rule that bit twice:** a value recorded only in prose breaches the project's own
-sweep-range rule *and* slips past the test that enforces it. Anything assumed goes
-in a `params/*.json` artefact.
+That is not a bug. The mode constants are `held_fixed` under §8.5 *precisely*
+because moving them absorbs the effect under test. **A calibrated base is not
+reachable by turning the dials that are open.** Three ways forward, and it is a
+modelling decision:
 
----
-
-## 5. Open decisions — take these first
-
-### 5.0 The §8.5 ride specification (blocking everything, including 5.1)
-
-**This supersedes 5.1 as the first decision.** `ride` requiring a household driver
-(§9.11) was necessary and **not sufficient**: at 10% and 250 iterations, vehicle
-passenger lands at **50.94%** of Newcastle-LGA trips against an observed **20.6%**,
-with **1.65** passengers per driver against **0.3503** (§9.12, issue 16). Three
-candidates remain, each a §8.5 departure that must be **logged before results are
-seen**:
-
-1. **`ride` pays no distance cost** since §9.8. Revisit the *argument*, not the
-   value: the aggregate-cost reasoning is sound but MATSim scores per-agent
-   perceived cost, and zeroing it makes ride strictly cheaper than car beyond
-   4,722 m. There is a second internally consistent form — each occupant pays
-   1/occupancy, derivable from the measured 1.3503 — that §9.8 did not consider.
-2. **`ride` never experiences congestion.** Measured: it runs **15–22% faster per
-   kilometre than car in every distance band**, with identical leg composition and
-   routed detour, because it is teleported at the router's estimate while car is
-   queued. Worth ~1.06 utils on a 15 km trip against an 0.85 ASC gap.
-3. **socnetsim joint plans** — the structurally correct fix, **absent from the
-   pinned jar**, so a toolchain change under §14.
-
-A **fourth** consideration belongs on the table before choosing: **B2 generates no
-escort trips** (issue 11), so no driver ever travels solely to carry someone. The
-model therefore cannot represent the cost a passenger imposes, on either side.
-
-**Do not solve `asc_car_passenger` harder.** That is the ASC absorption proposal §9
-names as the primary threat to validity (issue 9).
-
-### 5.1 The iteration count (blocked by 5.0)
-
-100 and 250 are both measurably too low (§9.7), and the non-convergence is the same
-at 1% and 10%. **Do not chase this before 5.0 is settled** — you would be timing a
-corner forming. `RUN.controler.last_iteration` carries `value: null` and
-`run_matsim.py` refuses to start without an explicit value; do not invent one.
-
-### 5.2 The run-budget cut (blocking P5 sizing)
-
-1,400 sweep + 300 headline runs across three day types is **5,100 run-days ≈ 765
-days of wall clock at 25%**. Three orders of magnitude out. **§9.12 made this
-worse, not better:** 1% is now unusable for behaviour, so the cheap tier that
-sweeps were meant to run on is gone. It closes by cutting sweep breadth,
-replications and day types — measure seed variance rather than assuming 30
-replications, replace the 140-point full factorial with a screening design, sweep
-weekday only. **Parallelise across runs, not threads within one:** thread count is
-part of the run identity, and one run averages ~2.4 busy cores of 24, so memory
-(9.6 + 87 GiB × fraction) binds before cores do. If it still does not fit, put the
-choice — cut scope or rent compute — to the user.
-
-### 5.3 The audit pass — **done, by demonstration** (issue 7, closed)
+1. **Implement the demand-rebuild stage** — makes `B.activity.*` reachable, at
+   roughly 50 min extra per candidate on top of a 2.3 h run.
+2. **Re-open §8.5** — fastest, and proposal §9 names it the primary threat to
+   validity. Requires a departure logged before results.
+3. **Accept a constrained base** rather than a calibrated one, and report it as
+   such. The report already says which applies.
 
 ---
 
-## 6. What is built, and how to drive it
+## 4. What was found this session, by measurement
 
-```
-src/run/
-  sample_population.py    nested hash subsample + transit seat capacity scaled
-                          with the fraction (without which a 10% sample gives
-                          every bus 10x its real capacity)
-  run_matsim.py           deterministic, resumable, records its own parameters.
-                          --iterations has NO default, deliberately (5.1)
-src/calibrate/
-  measure_mode_constraints.py   HTS -> params/C4_mode_constraints.json
-  solve_asc_ride.py             solves asc_car_passenger against observed occupancy
-  fit.py                        fit statistics, CALIBRATION ROWS ONLY
-src/analyse/
-  map_sa1_to_lga.py       ABS LGA boundaries -> data/processed/zones/sa1_to_lga.csv
-  map_count_stations.py   119 stations -> links, by road name AND proximity
-  extract_metrics.py      mode share by LGA, PT boardings by line, link volumes
-```
+### 4.1 The external tier was walking to the network (§9.15)
 
-### The pipeline, end to end
+Six hypotheses had already died. The seventh was measured.
 
-```bash
-python src/run/run_matsim.py --scenario S2 --day WEEKDAY \
-    --fraction 0.01 --iterations 250 --threads 7 --xmx 12g \
-    --set ride.constant=-4.35 --tag my_run
-python src/analyse/extract_metrics.py --run my_run     # -> results/my_run/_metrics.json
-python src/calibrate/fit.py          --run my_run      # -> results/my_run/_fit.json
-```
+`routing.accessEgressType = accessEgressModeToLink` with
+`networkModes = car,ride` charges car and ride an access walk to the link and
+charges the teleported modes **nothing**. **All 201 external zones lie outside
+the modelled area** — median **21.3 km** beyond the boundary, max **128.7 km** —
+while the network is clipped to the study area.
 
-`run_matsim.py` **resumes**: re-invoking a completed run is a no-op. A run that
-died leaves no `_run.json` and repeats from the start (MATSim has no mid-run
-checkpoint).
+| tier | mode | median access walk |
+|---|---|---:|
+| core | car | **0.097 km** |
+| external | car | **2.656 km** (top deciles 16.4 / 39.9 / **49.8 km**) |
+| external | bike | **0.000 km** |
 
-### Holdout safety, by construction
+At iteration 0 (uniform seed, so mode is exogenous), a car tour with <0.5 h of
+access scored **+94.21**; one with >6 h scored **−1165.01**, and **48% were in
+that band**. 39.0% of external car tours never got home, against 13.9% by bike.
+**Mode choice was correct** — the 478 agents cycling 96 km were picking the only
+mode that did not require walking to a road.
 
-`fit.py` filters `split == 'calibration'` at read time and raises if anything
-else survives — a holdout value is never in memory. `extract_metrics.py` and
-`solve_asc_ride.py` never open `validation_targets.csv` at all. **The split is
-67/143 and `check_package.py` asserts it exactly**, so a target-value correction
-cannot quietly move a row between sets.
+**Repaired:** boundary demand now enters at one of **42 cordon crossings**,
+derived from the network rather than listed, choosing the entry that minimises
+`d(zone, cordon) + d(cordon, destination)`. Destinations placed on observed
+attractors. Median external leg **54.2 → 21.6 km**.
 
----
+**Two more defects alongside:** all 531 external agents carried
+`rideAvail=always` although built household-less — **432 of 962 external trips
+were passengers with no possible driver** — and the tier is a **single SA4 arc**
+(SE/S/SW = 0 zones), so the M1 gap is *outside its declared scope*, not a
+tier-size problem.
 
-## 7. What the 67 calibration targets can actually do — §12.1
+### 4.2 Escort trips were mistyped, not missing (§9.15)
 
-`fit.py` scores **35** and explains **32**, reconciled by assertion.
+`Serve passenger` **was** read — mapped to `NHB`, then folded into discretionary
+tours because NHB is not a tour purpose. The trip **rate** survived; the **type**
+did not. An escort was a two-hour stay made by anyone rather than a five-minute
+drop-off made by a driver.
 
-| Block | n | Verdict |
-|---|---:|---|
-| `road_aadt` | 34 | Scored at **30**; 4 stations lie outside the modelled network |
-| `lr_cardtype_share` | 13 | **Identifies nothing** — no fare-product dimension in MATSim, and 31.7% of the mix is contactless payment, an instrument not a person attribute |
-| `hts_mode_share` | 12 | Only the **2024/25 six** apply to a 2026 base; `Walk linked` is structurally 0.0 → **5 scored, 4 free degrees of freedom** |
-| `lr_boardings_*` | 3 | V001 and V002 are the same datum ÷ 30.4. All pre-pandemic except V003, which is monthly and needs all three day types composed |
-| `bus_boardings_monthly_mean` | 1 | 2019 only, pre-pandemic |
-| `lr_share_of_local_pt_boardings` | 1 | Algebraically V001/(V001+V023). **Never calibrate A1 against 20.8%** |
-| `lr_scheduled_runtime` | 2 | A schedule **input**; MATSim reproduces it by construction. A SUMO target |
-| `lr_alignment_length` | 1 | Geometry, already satisfied |
+Now its own purpose `HX`: own gravity decay against the observed journey
+distance, education departure profile and attractors, licence requirement, and a
+5-minute MATSim `escort` activity. **14.53% of weekday legs against an observed
+15.7% of journeys.** Week trip rate −2.2% → **−1.6%**.
 
-**Effective independent information: ~4 mode-share degrees of freedom, one
-contemporary patronage level, 30 usable counts.** Any statement of fit must name
-its targets; "fits 67 targets" is not what this measures.
+### 4.3 The §8.5 departure, logged before results (§9.17)
 
-**The holdout is not a contemporary test set** either: 85 of its 143 targets are
-traffic counts from 2007 (×2), 2008 (×21) and 2010 (×62) — §12.3.
+`C.scoring.monetary_distance_rate['ride']`: **0.0 → −0.00018**, the car rate.
 
----
+§9.8 set it to zero on the identity *a vehicle cost is paid once*. **True, and
+about the wrong quantity** — that governs aggregate system cost accounting;
+`monetaryDistanceRate` is the cost **perceived by one person choosing**. §9.13
+had already falsified it with a **constraint, not a target**: modelled ride ÷ car
+trip length **1.372** against an observed **0.961**, widening with sample
+fraction — the signature a zero marginal distance cost produces.
 
-## 8. Traps for the next session
+**Not** `asc_car_passenger`, which stays at −0.85 and is unreachable by the loop.
 
-1. **`lastIteration=100` is shipped and known wrong.** Left in place rather than
-   replaced by another unjustified number. A standing warning fires on every
-   `check_package.py` run.
-2. **The ASC solve is provisional.** It runs at a fixed 250-iteration protocol
-   which is not equilibrium. Re-solve once 5.1 is settled.
-3. **One build of the network per comparison** (§3.5) still binds. The day-type
-   fix operates on the already-mapped schedule; **never re-run the mapper.**
-4. **A scenario runs on its own `schedules/<S>/network.xml.gz` + the E1 patch**,
-   never on `networks/matsim/variants/` (§9.3).
-5. **Transit capacity floors at 1 seat** below ~1.5% sample, so capacity is
-   systematically too generous at small fractions. Fine while crowding scoring is
-   off; revisit if it is ever enabled.
-6. **`bike` carries HTS "Other"**, which also holds taxi, motorcycle and
-   rideshare. An imperfect map, stated in `fit.py` rather than hidden.
-7. **Runs made before `compressionType=gzip`** write `.zst`. `extract_metrics.py`
-   accepts them only if `zstandard` happens to be installed, which the repo does
-   not require.
-8. **Everything seeded 20260810.** Run `normalise_eol.py` before
-   `build_manifest.py`, then again after — `build_manifest.py` writes CRLF.
+**Falsification recorded in advance:** if ride overshoots *below* 20.6%, or the
+length ratio below 0.961, the rate is doing more work than the correction
+justifies and the second candidate must not be stacked on it.
 
----
+### 4.4 Mode coverage, audited
 
-## 9. Open issues
-
-Filed on the repo, labelled `P4` / `blocker` / `decision-needed` / `data-quality` /
-`modelling-limitation` / `carried-forward`. GitHub issues are repo-level, not
-per-branch. **Every one carries measured evidence in its comments; read those
-before the titles.**
-
-| # | Title | Why it is open |
+| observed (Newcastle LGA 2024/25) | model | note |
 |---|---|---|
-| [#16](../../issues/16) | Is the ride-availability constraint sufficient? | **Blocker, and the first decision.** Measured: necessary, **not sufficient** (§9.12) |
-| [#5](../../issues/5) | The iteration count is unknown, and the model does not converge | **Blocker.** Downstream of #16 |
-| [#6](../../issues/6) | The run load is ~765 days of wall clock and no cut has been made | **Blocker.** Worse since #17 killed the 1% tier |
-| [#17](../../issues/17) | Car and pt diverge with sample fraction | **Mechanism found** (§9.12): flow-capacity granularity. Open for the 25% confirmation |
-| [#18](../../issues/18) | Light rail vehicle capacity unreconciled, no standing room anywhere | Diagnosed: both halves are pt2matsim defaults nobody declared. Bounded, needs no new data |
-| [#9](../../issues/9) | Re-solve `asc_car_passenger` once the iteration count is settled | Superseded by §9.11; may end in "drop it" |
-| [#8](../../issues/8) | The MATSim–SUMO outer-loop tolerance is undefined | A P4 obligation that was on no list. `value: null` |
-| [#13](../../issues/13) | ~4 mode-share d.o.f., 1 patronage level and 33 counts constrain the model | Reporting rule, the two §12 traps, and the count discrepancy now resolved |
-| [#19](../../issues/19) | `fit.py` drops a station because the model fails there | **Fixed and regression-tested.** The gap it exposed moved to #20 |
-| [#20](../../issues/20) | The external demand tier is 0.43% of trips and does not drive, so the M1 is empty | **Blocks count-based calibration.** Motorway stations median -97.4%; 6 of 962 external trips are by car |
-| [#10](../../issues/10) | Three count stations lie outside the modelled network | Reported, not fixed; nothing blocked |
-| [#12](../../issues/12) | Transit capacity floors at 1 seat below ~1.5% sample | Largely moot since #17 — 1% is unusable anyway |
-| [#11](../../issues/11) | B2 generates no escort trips | A stated limitation that is now **material to the #16 decision** |
-| [#14](../../issues/14) | Deliverables 4–6 not started | Downstream of #16, #5 and #6 |
+| Vehicle driver 59.0% | `car` | queue-simulated |
+| Vehicle passenger 20.6% | `ride` | network-routed, teleported in qsim |
+| Public transport 3.8% | `pt` | bus 1,448 + rail 332 + light rail 252 + ferry 107 weekday departures |
+| Walk only 13.4% | `walk` | teleported |
+| Other 3.2% | `bike` | **approximate** — "Other" also holds taxi, motorcycle, rideshare |
 
-**Closed:** #7 (audit done by demonstration), #15 (unobtained inputs now carry
-`value: null` and the resolver **raises** — mechanically prevented, not remembered;
-that is the bar for closing anything here).
+Freight is not modelled and the comparison accounts for it: counts use the
+**light-vehicle** column, heavy share **measured** at 6.52%.
+
+### 4.5 Two findings that are now issues
+
+- **#21 (new):** gradient penalties and PT walk-access decay are declared, swept,
+  mirrored into C1 — and **read by nothing**. `gradient` appears **zero** times
+  in the generated MATSim config, and neither is on §9.3's register of what does
+  not survive translation. Sweeping a parameter that reaches nothing yields a
+  sensitivity band of zero, reported as "insensitive" when the truth is "absent".
+- **The registry/C1 mirror:** the C-layer behavioural values live in
+  `config/registry/` *and* `params/C1_parameters.json`, and the model reads the
+  latter. `check_legacy_drift.py` pins the registry to source *constants*, not to
+  a params file, so the pair was unpinned. All 11 comparable values agree; a
+  check now asserts it (§9.16).
 
 ---
 
-## 10. Resuming
+## 5. Measured and true — do not re-derive
 
-```bash
-python tests/check_manifest.py                   # committed subset, fast
-python src/setup/bootstrap_toolchain.py --verify # JDK/pt2matsim/SUMO digests
-python tests/check_package.py                    # 943 checks, needs full package
-```
+**Pre-repair mode share**, S2 × WEEKDAY, 250 iterations, Newcastle LGA from
+`_fit.json` — the reportable geography, **not** the five-LGA aggregate:
 
-Then read, in order: [`STATUS.md`](../STATUS.md), [`DECISIONS.md`](../DECISIONS.md)
-§0, §8.5, §9.4–§9.14, §12.1–12.4 and §15, [`CLAUDE.md`](../CLAUDE.md), the generated
-[`docs/CONFIG_REFERENCE.md`](CONFIG_REFERENCE.md), and then this file for the
-long-form history. **Read the open issues and their comments — they are the live
-state of what this project does not yet know.**
+| | 1% | 10% | 25% | HTS |
+|---|---:|---:|---:|---:|
+| Vehicle driver | 16.01 | 30.85 | 32.48 | **59.0** |
+| **Vehicle passenger** | 61.06 | 50.94 | 49.87 | **20.6** |
+| Public transport | 0.62 | 0.99 | 0.97 | 3.8 |
+| Walk only | 1.59 | 0.80 | 0.74 | 13.4 |
+| Other | 20.73 | 16.43 | 15.93 | 3.2 |
+| MAE over 5 targets | 23.19pp | 17.43pp | 16.80pp | |
+| passengers/driver | 3.814 | 1.651 | 1.535 | **0.3503** |
 
-**First action: take decision §5.0.** The evidence is in `DECISIONS.md` §9.12 and
-issue #16, and a 25% confirmation run was launched to establish that the 10%
-reading is specification rather than a residual small-sample artefact. Nothing
-downstream should be built until the §8.5 departure is chosen and logged, because
-that choice determines what a calibration loop is allowed to move.
+- **1% is unusable, not merely unrepresentative** (#17, §9.12). 1,032 car legs
+  abort at the 30 h horizon against 4 at 10%; 380 PT passengers board and never
+  alight against 0. `flowCapacityFactor = 0.01` gives an 1,800 veh/h link **one
+  vehicle per 200 s**. This is *flow*, distinct from the *storage* argument §9.10
+  ruled out. Every 1% behavioural number carries it.
+- **Fraction sensitivity has flattened:** 1%→10% moved car +14.8 pp; 10%→25%
+  moves it +1.6 pp.
+- `modestats.csv` ≠ `_metrics.json` — one records the mode agents **chose**, the
+  other trips that **completed**. Both correct. **Never report from modestats.**
+- **Counts do not move with fraction:** −72.9 / −73.8 / −73.1%.
+- **Run cost:** 9.8 s/iter at 1%, ~28 s at 10%, 56.4 s at 25%. Memory ≈
+  9.6 + 87 GiB × fraction. **100% does not fit in 63.5 GiB; ceiling ≈ 40%.**
+- `fit.py` scores **38** + explains **29** = **67**, over 33 count stations. A
+  modelled zero is scored at −100% and named. Ten tests guard it.
+- **Registry: 164 fields.** After any registry edit:
+  `python src/registry/render_docs.py`
+- A `consumers` entry is a **machine claim**, verified true by `check_package.py`.
 
-> The earlier instruction here — *"read `results/asc_ride_*/`, three candidate
-> `asc_car_passenger` values"* — is **withdrawn**. Those runs were **discarded, not
-> reported** (§9.9): they were solved on a network that had no weekday tram, which
-> makes them a solve of a different model. `results/` is gitignored, so they are
-> also simply absent.
+**Two §12 traps — handle, do not rediscover:**
+- The observed 20.8% "light rail share of local PT boardings" is LR ÷ (LR + NISC 1
+  bus) **taps**. Hypothesis A1's metric is LR person-**legs** ÷ total PT
+  person-legs. It is an **upper bound**. Never calibrate A1 against it.
+- PT mode share **halved**, 7.3% (2018/19) → 3.8% (2024/25). A 2026 base
+  calibrates to a pandemic-suppressed PT market. **Comparisons** stay valid;
+  **absolute patronage** does not transfer.
+
+---
+
+## 6. Next tasks, in order
+
+1. **Measure the repaired demand.** Pipeline on
+   `S2_WEEKDAY_f01_i250_s20260810`. This is the first look at whether the §9.15
+   repair moved car and ride.
+2. **Rebuild the run inputs** so §9.17's rate reaches MATSim, then **run it**.
+   Compare against step 1 — that is the departure's test, and its falsification
+   conditions are already written down.
+3. **#16 — close it** on that measurement, or take the second candidate (zero-PCE
+   queued `ride`), which **ships only with its measurement**: ride min/km must
+   converge on car's, and `vol_car` at the 33 stations must not move, or §12.2a's
+   count identity breaks.
+4. **#5 — the iteration count.** Do not chase it before #16: you would be timing
+   a corner forming. `run_matsim.py` refuses to start without one.
+5. **#6 — the run programme.** ~765 machine-days, worse since #17 killed the
+   cheap 1% tier. Measure seed variance rather than assuming 30 replications;
+   replace the 140-point full factorial with a screening design; sweep **weekday
+   only**. If it still does not fit, put "cut scope vs rent compute" to the user
+   — they have not ruled out spending money.
+6. **#14 — deliverable 5**, on the decision in §3 above.
+7. **#20 — boundary through traffic**, if count-based calibration is wanted. All
+   five Pacific Motorway stations are **calibration** rows, so an external-station
+   matrix seeded from cordon counts touches no holdout. It is a **scope decision**
+   about what the model is for.
+
+### Fixable without running the simulation
+
+These need no compute and can be done in parallel with anything above:
+
+| issue | what it needs |
+|---|---|
+| **#21** | name gradient and walk decay in `not_representable`, so the register is complete. Cheap and honest. Making them *reach* the model is a §14-scale decision |
+| **#18** | light rail capacity: 180 seats is pt2matsim's generic tram default and the zero standing room is a `useStandingRoom` flag the build never set. Fully diagnosed. A vehicle-definition fix in the build layer |
+| **#10** | three count stations outside the network, one a calibration target. Pure geometry and matching; #20 already showed Raymond Terrace Road was a proximity-only mismatch at 107.9 m |
+| **#12** | the 1-seat capacity floor below ~1.5% sample. Largely moot since 1% is unusable, but it is a build-layer capacity floor and could be made explicit |
+
+---
+
+## 7. Hard constraints — do not violate
+
+1. **The 67/143 split is pre-registered.** Never calibrate on, re-split or peek at
+   a holdout row. New observables become **constraints** (the C4 pattern), never
+   targets.
+2. **One build of the network per comparison** (§3.5). A scenario runs on its own
+   `schedules/<S>/network.xml.gz` plus the E1 patch by `osm:way:id`. **Never
+   re-run the mapper.**
+3. **Mode-share target is HTS Newcastle LGA** (59.0 / 20.6 / 13.4 / 3.8 / 3.2).
+   Comparing a five-LGA modelled mean to a Newcastle-LGA published one is the
+   error §9.13 records being made.
+4. **The three unobtained inputs stay swept, never pinned** — SCATS phasing,
+   journey-linked Opal, measured charging dwell. `B.external.interaction_rate`
+   too.
+5. **Everything seeded 20260810.** `normalise_eol.py` **before**
+   `build_manifest.py`, then again after.
+6. **No invented data.** Derive it from the package or sweep it. Never type an
+   observed value into a script.
+7. **Run the declared pipeline:** `run_matsim.py` → `extract_metrics.py` →
+   `fit.py`, producing schema-validated `_metrics.json` and `_fit.json`.
+8. **No count-based calibration until #20 is resolved** (§9.14). `calibrate.py`
+   enforces this; it is no longer a matter of remembering.
+9. **Bash heredocs mangle backticks.** Write prose to a file and splice with
+   Python.
+
+---
+
+## 8. Out of P4 scope
+
+- **socnetsim joint plans** — absent from the pinned jar; a §14 toolchain change,
+  which is a model change.
+- **Running SUMO.** Deliverable 7 is the **tolerance**, a number. The SUMO harness
+  and the outer loop are **P5**. The corridor has been built six times and
+  simulated zero times, deliberately: coupling it to a demand model whose mode
+  share is wrong would propagate the error into run time, car delay and B3 — the
+  decisive test of Claim B.
+- **P5 scenario runs, P6 analysis**, and a 2013 historical reconstruction
+  (considered and dropped).
+- **Any holdout row.** If you need one to diagnose something: **say so and stop.**
+- **Walk trips are 5× observed length** (3.55 km modelled vs 0.70). That is a
+  **finding to report** under deliverable 6, not a work item to chase.
+
+---
+
+## 9. Housekeeping
+
+- **30.6 GiB of superseded runs** sit in `results/ride_sufficiency_*`. They are
+  the evidence base for §9.12, §9.13 and §9.17, all now recorded, and
+  `ride_sufficiency_25pct` backs the published replay. **Deliberately not
+  deleted** — they underpin a decision logged hours ago. Delete once the
+  post-repair runs have replaced them as the reference, not before.
+- The run replay tooling (`src/analyse/replay_events.py`, `build_basemap.py`,
+  `build_replay_page.py`) is used and documented. Its output page is **not
+  committed** — megabytes of payload, and this repo does not commit bulk data.
+  Two Overpass layers (`water`, `green`) were fetched for it; both are ODbL like
+  every other OSM-derived layer and **neither has a model consumer**.
+- **Branch:** `praneetdhoolia/external-cordon-and-escort`, on top of
+  `praneetdhoolia/config-registry`. **Nothing has been pushed.**
