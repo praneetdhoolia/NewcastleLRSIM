@@ -78,6 +78,13 @@ configuration, three modules away.
 exactly where car is most congested — the peak, and the corridor. So the defect
 biases the corridor result, which is the study's subject.
 
+**VERIFIED AND LARGELY FIXED (§9.26).** Binding `ride` to the congested car
+travel time moved **car 32.54 → 52.30%** and **ride 50.03 → 29.45%** against a
+like-for-like baseline, closing the gap to target from 84.2 to 44.6 pp — and it
+left walk↔bike untouched (−0.03 / +0.81), confirming these are two independent
+inversions. **Not eliminated:** ride is still 1.01–1.11× faster at matched
+distance, worst on short trips, so #28 remains open on the residual.
+
 **Do not fix by tuning `asc_car_passenger`.** §8.5 and proposal §9 name ASC
 absorption as the primary threat to validity, and #9 already holds that constant
 provisional. A constant that absorbs this would hide it permanently.

@@ -2702,6 +2702,104 @@ a register and four issues; the fixes are separate work, and #28 must land befor
 
 ---
 
+## 9.26 The passenger stops outrunning the driver, and the car–ride inversion mostly closes (P4 stage 10, issue #28)
+
+§9.25 A1 found that `ride` sits in `routing.networkModes` but is not the qsim
+`mainMode`, so MATSim routed it over the network on **free-flow** link times: a
+car passenger never queued, never waited, and never met the congestion the
+driver met. `WickhamControler` now binds `ride`'s travel time to
+`networkTravelTime()` and its disutility to the car factory, so a passenger is
+priced with the congested car times.
+
+It deliberately does **not** put a ride vehicle in the mobsim. A passenger
+travels in a car that is already there; a second vehicle would double-count the
+traffic. So `ride` now *experiences* congestion without *causing* it — correct
+only insofar as every ride trip is paired with a driver trip, and it is not.
+That is issue #31, still open.
+
+### What it moved
+
+Two runs at 10%, 250 iterations, seed 20260810, 8 threads — **identical but for
+the controler**. Newcastle LGA, linked trips, the figures comparable to the
+target (§9.13):
+
+| mode | before | after | change | target |
+|---|---:|---:|---:|---:|
+| car | 32.54% | **52.30%** | **+19.76** | 59.0% |
+| ride | 50.03% | **29.45%** | **−20.58** | 20.6% |
+| walk | 0.75% | 0.71% | −0.03 | 13.4% |
+| bike | 15.86% | 16.67% | +0.81 | 3.2% |
+| pt | 0.83% | 0.88% | +0.05 | 3.8% |
+
+**Total absolute gap to target: 84.2 → 44.6 percentage points.** The largest
+single correction this model has had, and it came from a defect rather than a
+constant.
+
+**It also confirms the audit's central claim.** §9.25 argued the symptom was
+*two* inversions, not five miscalibrated constants. Fixing the car↔ride
+mechanism moved car and ride by ±20 points and left walk↔bike **untouched**
+(−0.03 / +0.81). Two independent mechanisms, exactly as the register predicted.
+Walk and bike are #30 and #29.
+
+### The defect is reduced, not eliminated
+
+Ride is still faster than car at matched distance. Both runs, ride/car speed
+ratio by leg distance:
+
+| distance | before | after |
+|---|---:|---:|
+| 0–2 km | 1.08× | **1.11×** |
+| 2–5 km | 1.08× | 1.07× |
+| 5–10 km | 1.08× | 1.05× |
+| 10–20 km | 1.06× | 1.04× |
+| 20–40 km | 1.04× | 1.02× |
+| 40 km+ | 1.04× | **1.01×** |
+
+The advantage collapses on long trips and **grows on short ones**. Two
+mechanisms are consistent with that and this section does not separate them: the
+router prices `ride` from the *previous* iteration's travel times while `car`
+realises the current one, which matters more the further from relaxation the run
+is (#5); and a teleported leg never pays the junction queueing that dominates a
+short trip. **#28 stays open on the residual.**
+
+### Why the first verification was thrown away
+
+It ran at 1% and was uninterpretable. §15 records that MATSim floors link storage
+at one vehicle, so a 1% sample produces **spurious spillback that inflates car
+delay** — and `ride`, being teleported, is immune to precisely that. It
+penalises car by construction and widens the gap the fix exists to close. It
+duly showed ride 1.14–1.25× faster, which says nothing. **A fraction-sensitive
+artefact makes a cross-fraction comparison invalid**, so the verification was
+re-run at the baseline's own 10%.
+
+### Two reproducibility defects the fix exposed
+
+**Nothing compiled the Java.** `run_matsim.py` runs `wickham.WickhamControler`,
+the source is committed, `.tools/` is gitignored, and no script built one from
+the other — the classes had been made by hand. A fresh clone held the source,
+the jar, and no way to run. `bootstrap_toolchain.py` now compiles with the
+pinned `javac` against the pinned jar, on the fetch path and the `--verify` path.
+
+**A run record could not say which controler produced it.** The run name is built
+from the scenario and the registry values, which cannot see the controler.
+Re-running after this change would have found the old `_run.json` and returned
+the **pre-fix** result silently, with nothing to tell the two apart. Records now
+carry `controler_sha256` over the committed Java source, it is declared in the
+run contract, and the harness re-runs rather than resuming across a change. It is
+also why the verification ran under its own tag: the harness deletes a run
+directory before repeating it, and the only pre-fix baseline in existence sat in
+the directory the new run would have claimed.
+
+### What this is not
+
+**Not a result.** 250 iterations is measurably short of relaxation (§9.7), the
+demand still lacks boundary through traffic and freight, and no count-based
+calibration may be read from it (§9.14). **No target was fitted**: the mode share
+moved because a defect was removed, not because anything was tuned. No parameter
+value changed, the 67/143 split is untouched, and no holdout row was opened.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -3200,6 +3298,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-13 | **P4 stage 10 - the passenger stops outrunning the driver (§9.26, issue #28).** `ride` was routed over the network on **free-flow** times because it is in `routing.networkModes` but is not the qsim `mainMode`. `WickhamControler` now binds its travel time to `networkTravelTime()` and its disutility to the car factory. Verified against a like-for-like 10% baseline differing only in the controler: **car 32.54 -> 52.30%, ride 50.03 -> 29.45%**, total absolute gap to target **84.2 -> 44.6 pp** - the largest single correction this model has had, and it came from a defect rather than a constant. It confirms §9.25's claim that the symptom was **two** inversions: car↔ride moved ±20 points while walk↔bike moved -0.03/+0.81, untouched. **The defect is reduced, not eliminated** - ride is still 1.01-1.11x faster at matched distance, worst on short trips, so #28 stays open. The audit's headline was also corrected: the original 13% was an aggregate confounded by trip-length composition; stratified it is 4-8%, present in every bin. A first verification at 1% was **discarded as uninterpretable** - §15's storage floor produces spurious spillback that inflates car delay while teleported ride is immune, so a cross-fraction comparison is invalid. Two reproducibility defects exposed and closed: **nothing compiled the committed Java**, so a fresh clone could not run; and a run record could not say which controler produced it, so re-running would have served pre-fix results silently - records now carry `controler_sha256` and the harness refuses to resume across a change. `prune_run.py` drops MATSim's per-iteration scratch, **95% of a run's bytes** and read by nothing, reclaiming 36.6 GiB. **Not a result:** 250 iterations is short of relaxation, demand still lacks through traffic and freight, no target was fitted, the 67/143 split is untouched and no holdout row was opened. |
 | 2026-08-12 | **P4 stage 8 - own realtime collection dropped, and the published catalogue assessed instead (§9.23).** A GTFS-Realtime collector was built and **reverted in full** once an Open Data Hub API key made the 230-dataset catalogue assessable. TfNSW's own **Historical GTFS Realtime** archive was verified against the live API and carries **Metro and Ferry only** - controls return files, every light rail and bus naming returns none - so it cannot backfill Newcastle, and §7.2's contingency for the SCATS refusal is recorded as an **open gap**. What the catalogue does settle, verified against the data rather than the titles: **Traffic Lights Location** matches **all 14 corridor intersections within 60 m**, supplies the `scats_site_id` that `A2_signal_control_corridor.csv` declares but leaves empty, and dates **8 of the 14 as 2018 light-rail installations** - so the pre-intervention corridor had 6 signals, not 14, which is an observed basis for a counterfactual now assumed; **SFM22** gives origin-destination freight for issue #24; the **GTFS reference tables** carry Hunter Line running times bearing on the assumed era-1 constants; **school and public holiday** dates stratify the dated RMS counts. Recorded as *not* settled: no SCATS phasing exists in the catalogue, the kerbside and lane-width datasets are **Sydney-only** so issue #27 is untouched, JTW 2016 is withdrawn by TfNSW, and Opal tap data is **not journey-linked** so deliverable 8 keeps its fallback. **No value was acquired, changed or registered** - this is an assessment. No parameter value changed, no target value changed, the 67/143 split is untouched and no scenario was run. |
 | 2026-08-11 | **The input registry (§15).** Every value the model consumes that is not read from an immutable raw download is now declared in `config/registry/` with its units, its provenance and either a sweep range or an explicit rule holding it fixed — **123 fields**, against 316 module-level constants of which exactly one carried a machine-readable source label. Proposal §8.1 becomes a schema constraint rather than a discipline: `assumed` without a sweep does not validate. The three unobtained inputs carry `value: null` and the resolver **raises** rather than returning a point value, so §0 and §13 are enforced structurally; the §8.5 mode constants are `held_fixed` and no overlay, environment variable or flag can move them. Two factors that governed every P4 result were found set in code with no rationale and no range — `flowCapacityFactor` (derived, and now stated as such) and `storageCapacityFactor` (assumed, exponent swept 0.75–1.0, and an open risk at 1% because MATSim floors link storage at one vehicle). Outputs are declared to the same standard: `_run.json`, `_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema, and a fit block that does not name its target ids fails its contract. `docs/CONFIG_REFERENCE.md` is generated and checked for staleness. `check_package.py` 860 → **908 checks**, 1 standing warning. The build layer is declared but not yet migrated and is pinned to the registry by a drift test, which caught four transcription errors on its first run. No parameter value was changed, no target value was changed, the 67/143 split is untouched and no scenario was run. |
 | 2026-08-10 | **P4 stage 0 — the assembled run inputs did not load, and what a run actually costs (§9.4, §9.5, §12.1–12.3).** MATSim was pointed at `scenarios/matsim/S2/WEEKDAY/` and refused it. Three independent defects, none visible to a check that treats the artefacts as data: the day-type filter dropped the doctype MATSim selects its reader from (all 30 sets); it left stop facilities and `minimalTransferTimes` relations orphaned by the routes it removed, which makes SwissRailRaptor dereference a null array (all 30); and the kerbside patch appended a second `<attributes>` block to links that already had one, invalidating **6 of the 10** run networks — precisely the six carrying an E1 road change. Fixed, rebuilt byte-identically with the patch counts unchanged, and **all 30 sets now load and run**. `check_package.py` 556 → **657 checks**, with the three failure modes asserted per set. Run cost measured on this machine rather than estimated: **9.8 s/iteration at 1%, 29.9 s at 10%, ~64 s at 25%**, memory 9.8/18.4/31.5 GiB, extrapolating to ~4.5 min and ~97 GiB at 100% — so **a 100% weekday run does not fit in 63.5 GiB** and the specified 5,100 run-days is ~765 days of wall clock. Also recorded, without acting on either: 13 of the 67 calibration targets (`lr_cardtype_share`) can identify nothing in MATSim and several others are duplicates or schedule inputs, leaving ~4 mode-share degrees of freedom + 1 patronage level + 34 counts; and the 119 `road_aadt` values are the mean of `ALL DAYS` with the peak-period rows, 0.58–0.71× the true figure. **The 67/143 split is untouched, no holdout value was used, no target value was changed and no falsification condition altered. Still no scenario run.** |
