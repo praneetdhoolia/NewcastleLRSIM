@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 12 August 2026 (P4 stage 7 - every phase re-verified against the package, the deliverable list revised to nine, and a data search that settled the three unobtained inputs)
+**Last updated:** 12 August 2026 (P4 stage 9 - own realtime collection dropped for an assessment of the 230 published datasets, and the corridor signals given the SCATS identity the A2 layer had always declared and left empty)
 **Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -77,6 +77,14 @@ Ordered. 0a is first because it may change what the rest is worth.
 | **0c** | **Fleet capacities.** Apply the §9.21 figures: ferry 149 seated + 51 standing, rail from the Hunter/Endeavour car figures, bus 44 seated + 18 standing. `literature` with urls, swept — **not** `observed`. | **Every current capacity overstates the real vehicle**, rail by ~2.7×. PT capacity currently cannot bind, which distorts every A1–A5 hypothesis and partially explains §9.12. |
 | **0d** | **The missing demand.** In value order: **(1)** boundary/through traffic — the M1 gap, external-station matrix seeded from cordon counts, touching no holdout row; **(2)** work-related business travel — an **observed HTS purpose** the model does not generate; **(3)** freight — a heavy-vehicle layer from the measured 6.52% heavy share. **Deferred to P5:** SUMO pedestrian crossings, which need a SUMO version change and are therefore a §14 toolchain change. | Each adds demand and will move mode share. Calibrating before them means re-calibrating after them. |
 | **0e** | **Housekeeping.** Keep the `water` and `green` OSM layers, documented as visual-only so they never read as orphaned model inputs. | Rule: every artefact is either used or labelled. |
+
+### Landed from the published catalogue (§9.23, §9.24)
+
+| Input | State |
+|---|---|
+| **Corridor SCATS site ids** | ✅ **observed.** `A2_signal_control_corridor.csv` declared `scats_site_id` from P2 and left it empty on all 70 rows. TfNSW's Traffic Lights Location inventory fills all 14 intersections, mean match 8.0 m, max 26.4 m. The join tolerance `A.signals.scats_match_radius_m` is **held fixed, not swept** - no output varies across it. |
+| **Corridor signal install dates** | ✅ **observed, and deliberately not acted on.** **8 of the 14 corridor signals were installed in 2018 for the light rail**, two named *light rail crossing*; the pre-intervention corridor had **6**. Recorded as an attribute only. Re-deriving the counterfactual from it would reshape the same hypothesis `A.corridor.pre_lr_lanes_per_dir` encodes, which is the B3 test - **held for an explicit decision** (§9.24). |
+| **SCATS phasing** | ❌ still refused. The inventory gives identity, location and install date, and **no phase plan, cycle time or split**. `A.signals.scats_phasing` stays `unobtained` and swept. |
 
 ### Declined, with reasons — recorded so they are not re-raised
 

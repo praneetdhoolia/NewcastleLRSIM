@@ -551,6 +551,22 @@
       "consumers": [
         "src/build/build_network_layers.py"
       ]
+    },
+    "A.signals.scats_match_radius_m": {
+      "value": 60,
+      "units": "metres",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "A data-join tolerance, not a model parameter. It decides which observed TfNSW signal is the same physical intersection as a clustered OSM one, and no behaviour, run time or score reads it - only the identity written into scats_site_id. It is held fixed rather than swept because a sweep could not change the join: all 14 corridor intersections match inside 26 m, so every radius from the 45 m OSM clustering distance up to about 100 m yields the identical assignment, and widening it past that would begin attaching an intersection to its neighbour rather than resolving a real ambiguity. Declaring a sweep interval over which the output is constant would be the defect this project has already hit three times.",
+        "decisions_ref": "9.24",
+        "departure_requires": "a re-measured match-distance distribution showing a corridor intersection falling outside this radius, or a corridor extension into an area where signals sit closer together than the radius"
+      },
+      "status": "active",
+      "decisions_ref": "9.24",
+      "description": "Radius within which an intersection in A2_signal_control_corridor.csv is matched to a signal in the TfNSW Traffic Lights Location inventory, to recover its SCATS site number and installation date. The corridor intersections are clusters of OSM traffic-signal nodes and carry no identifier of their own; the TfNSW inventory is the only observed source of both. Measured match distances on the 14 corridor intersections range from 1 to 26 m.",
+      "consumers": [
+        "src/build/build_corridor_layers.py"
+      ]
     }
   }
 }

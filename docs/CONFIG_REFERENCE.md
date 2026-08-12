@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 171 fields are made of
+## What the 172 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -35,12 +35,12 @@ Three things are refused at every layer:
 | `measured` | 15 | computed from observed data in this package |
 | `derived` | 14 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
-| `assumed` | 78 | chosen without direct empirical support |
+| `assumed` | 79 | chosen without direct empirical support |
 | `definition` | 43 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 159 | usable point value |
+| `active` | 160 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -58,10 +58,11 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `RUN.controler.last_iteration` | 250 - 2000 | NO JUSTIFIED VALUE HAS BEEN MEASURED |
 | `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
-### The 7 fields held fixed
+### The 8 fields held fixed
 
 Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating them would fit away the effect under test - proposal 9 names ASC absorption as the primary threat to validity.
 
+- `A.signals.scats_match_radius_m` - A data-join tolerance, not a model parameter. It decides which observed TfNSW signal is the same physical intersection as a clustered OSM one, and no behaviour, run time or score r
 - `C.asc.bus` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.car_passenger` - Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the seco
 - `C.asc.cycle` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
@@ -72,7 +73,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/A_supply.json` - 31 fields*
+*`config/registry/A_supply.json` - 32 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -102,6 +103,7 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.signals.junction_match_m` | `60.0` | metres | `assumed` | 30 - 100 |
 | `A.signals.min_green_s` | `6.0` | seconds | `assumed` | 4 - 10 |
 | `A.signals.n_corridor_intersections` | `14` | count | `observed` | - |
+| `A.signals.scats_match_radius_m` | `60` | metres | `assumed` | **held fixed** |
 | `A.signals.scats_phasing` | *(null - unobtained)* | phase_plan | `assumed` | `proxy_no_priority`, `proxy_partial_priority`, `proxy_full_priority` |
 | `A.transit.era1_line_speed_kmh` | `60.0` | km_per_hour | `assumed` | 45 - 75 |
 | `A.transit.era1_station_dwell_s` | `30.0` | seconds | `assumed` | 20 - 45 |
@@ -261,6 +263,16 @@ Minimum green time in a generated SUMO signal program.
 Signalised intersections on the corridor. All 14 match a signalised junction in every SUMO road variant and every realised cycle lands within 1 s of its A2 value.
 
 ***observed** · status **active** · DECISIONS.md §5*
+
+#### `A.signals.scats_match_radius_m`
+
+Radius within which an intersection in A2_signal_control_corridor.csv is matched to a signal in the TfNSW Traffic Lights Location inventory, to recover its SCATS site number and installation date. The corridor intersections are clusters of OSM traffic-signal nodes and carry no identifier of their own; the TfNSW inventory is the only observed source of both. Measured match distances on the 14 corridor intersections range from 1 to 26 m.
+
+***assumed** · status **active** · DECISIONS.md §9.24*
+
+> **Held fixed.** A data-join tolerance, not a model parameter. It decides which observed TfNSW signal is the same physical intersection as a clustered OSM one, and no behaviour, run time or score reads it - only the identity written into scats_site_id. It is held fixed rather than swept because a sweep could not change the join: all 14 corridor intersections match inside 26 m, so every radius from the 45 m OSM clustering distance up to about 100 m yields the identical assignment, and widening it past that would begin attaching an intersection to its neighbour rather than resolving a real ambiguity. Declaring a sweep interval over which the output is constant would be the defect this project has already hit three times.
+>
+> *Departure requires: a re-measured match-distance distribution showing a corridor intersection falling outside this radius, or a corridor extension into an area where signals sit closer together than the radius*
 
 #### `A.signals.scats_phasing`
 

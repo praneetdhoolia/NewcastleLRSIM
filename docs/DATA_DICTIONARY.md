@@ -232,13 +232,16 @@ Appendix A of the proposal.
 
 ### `data/processed/corridor/A2_signal_control_corridor.csv`
 
-70 rows, 24 columns
+70 rows, 27 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
 | `intersection_id` | str | NLR_SIG_01 | 70/70 |
 | `osm_node_id` | str | 8229466262;11359660267;72866859... | 70/70 |
-| `scats_site_id` | empty |  | 0/70 |
+| `scats_site_id` | int | 4762 | 70/70 |
+| `scats_match_dist_m` | float | 15.1 | 70/70 |
+| `signal_installed` | str | 2018-11-15 | 70/70 |
+| `scats_source` | str | observed | 70/70 |
 | `n_approach_nodes` | int | 7 | 70/70 |
 | `lat` | float | -32.92452494285714 | 70/70 |
 | `lon` | float | 151.7598467 | 70/70 |
@@ -937,18 +940,18 @@ Appendix A of the proposal.
 
 ### `data/processed/validation/count_station_links.csv`
 
-203 rows, 8 columns
+195 rows, 8 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
-| `station_key` | int | 55710 | 203/203 |
-| `split` | str | calibration | 203/203 |
-| `station_name` | str | Pacific Highway | 203/203 |
-| `road_name` | str | Pacific Highway | 203/203 |
-| `link` | int | 95461 | 203/203 |
-| `link_name` | str | Pacific Highway | 203/203 |
-| `distance_m` | float | 50.2 | 203/203 |
-| `matched_by` | str | name_and_proximity | 203/203 |
+| `station_key` | int | 55710 | 195/195 |
+| `split` | str | calibration | 195/195 |
+| `station_name` | str | Pacific Highway | 195/195 |
+| `road_name` | str | Pacific Highway | 195/195 |
+| `link` | int | 95461 | 195/195 |
+| `link_name` | str | Pacific Highway | 195/195 |
+| `distance_m` | float | 50.2 | 195/195 |
+| `matched_by` | str | name_and_proximity | 195/195 |
 
 ### `data/processed/validation/lr_monthly_series.csv`
 
@@ -1101,15 +1104,14 @@ Appendix A of the proposal.
 
 ### `params/C1_sensitivity_sweep_grid.csv`
 
-140 rows, 5 columns
+28 rows, 4 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
-| `sweep_id` | str | SW0001 | 140/140 |
-| `beta_transfer_penalty_min` | float | 3.0 | 140/140 |
-| `walk_decay_beta_per_m` | float | 0.001 | 140/140 |
-| `dwell_charging_s` | int | 0.0 | 140/140 |
-| `is_baseline` | int | 0 | 140/140 |
+| `sweep_id` | str | SW0001 | 28/28 |
+| `beta_transfer_penalty_min` | float | 3.0 | 28/28 |
+| `dwell_charging_s` | int | 0.0 | 28/28 |
+| `is_baseline` | int | 0 | 28/28 |
 
 ## E1 scenarios
 
@@ -1173,7 +1175,7 @@ Appendix A of the proposal.
 
 ### `demand/plans/B2_activity_trips_SAT.csv`
 
-1861017 rows, 22 columns
+1869962 rows, 22 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -1181,48 +1183,48 @@ Appendix A of the proposal.
 | `day_type` | str | SAT | 401/401 |
 | `tour_id` | int | 1 | 401/401 |
 | `trip_seq` | int | 1 | 401/401 |
-| `purpose` | str | HO | 401/401 |
-| `tour_purpose` | str | HO | 401/401 |
-| `dest_activity_type` | str | other | 401/401 |
+| `purpose` | str | HX | 401/401 |
+| `tour_purpose` | str | HX | 401/401 |
+| `dest_activity_type` | str | escort | 401/401 |
 | `origin_sa1` | int | 10601110701 | 401/401 |
-| `dest_sa1` | int | 10602161507 | 401/401 |
+| `dest_sa1` | int | 10601110723 | 401/401 |
 | `origin_x` | float | 348659.1 | 401/401 |
 | `origin_y` | float | 6383994.3 | 401/401 |
-| `dest_x` | float | 362372.1 | 401/401 |
-| `dest_y` | float | 6381129.7 | 401/401 |
-| `dep_time_s` | int | 49539 | 401/401 |
-| `arr_time_s` | int | 51718 | 401/401 |
-| `straight_dist_km` | float | 14.009 | 401/401 |
-| `activity_duration_s` | int | 4352 | 401/401 |
+| `dest_x` | float | 349424.3 | 401/401 |
+| `dest_y` | float | 6381945.5 | 401/401 |
+| `dep_time_s` | int | 29496 | 401/401 |
+| `arr_time_s` | int | 30038 | 401/401 |
+| `straight_dist_km` | float | 2.187 | 401/401 |
+| `activity_duration_s` | int | 339 | 401/401 |
 | `is_tour_anchor` | int | 1 | 401/401 |
 | `party_size` | int | 1 | 401/401 |
 | `time_flexibility_band` | str | flexible | 401/401 |
-| `dest_placement` | str | poi | 401/401 |
+| `dest_placement` | str | jitter | 401/401 |
 | `agent_tier` | str | core | 401/401 |
 
 ### `demand/plans/B2_activity_trips_SUN.csv`
 
-1575989 rows, 22 columns
+1577265 rows, 22 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
-| `person_id` | int | 2 | 401/401 |
+| `person_id` | int | 1 | 401/401 |
 | `day_type` | str | SUN | 401/401 |
 | `tour_id` | int | 1 | 401/401 |
 | `trip_seq` | int | 1 | 401/401 |
-| `purpose` | str | HO | 401/401 |
-| `tour_purpose` | str | HO | 401/401 |
-| `dest_activity_type` | str | other | 401/401 |
+| `purpose` | str | HS | 401/401 |
+| `tour_purpose` | str | HS | 401/401 |
+| `dest_activity_type` | str | shopping | 401/401 |
 | `origin_sa1` | int | 10601110701 | 401/401 |
-| `dest_sa1` | int | 10602161512 | 401/401 |
+| `dest_sa1` | int | 10601110712 | 401/401 |
 | `origin_x` | float | 348659.1 | 401/401 |
 | `origin_y` | float | 6383994.3 | 401/401 |
-| `dest_x` | float | 361001.4 | 401/401 |
-| `dest_y` | float | 6380488.0 | 401/401 |
-| `dep_time_s` | int | 38708 | 401/401 |
-| `arr_time_s` | int | 41834 | 401/401 |
-| `straight_dist_km` | float | 12.831 | 401/401 |
-| `activity_duration_s` | int | 6338 | 401/401 |
+| `dest_x` | float | 349050.5 | 401/401 |
+| `dest_y` | float | 6383095.4 | 401/401 |
+| `dep_time_s` | int | 56963 | 401/401 |
+| `arr_time_s` | int | 57338 | 401/401 |
+| `straight_dist_km` | float | 0.98 | 401/401 |
+| `activity_duration_s` | int | 3274 | 401/401 |
 | `is_tour_anchor` | int | 1 | 401/401 |
 | `party_size` | int | 1 | 401/401 |
 | `time_flexibility_band` | str | flexible | 401/401 |
@@ -1231,7 +1233,7 @@ Appendix A of the proposal.
 
 ### `demand/plans/B2_activity_trips_WEEKDAY.csv`
 
-2237373 rows, 22 columns
+2255047 rows, 22 columns
 
 | column | type | example | non-empty in sample |
 |---|---|---|---|
@@ -1243,15 +1245,15 @@ Appendix A of the proposal.
 | `tour_purpose` | str | HW | 401/401 |
 | `dest_activity_type` | str | work | 401/401 |
 | `origin_sa1` | int | 10601110701 | 401/401 |
-| `dest_sa1` | int | 11102121507 | 401/401 |
+| `dest_sa1` | int | 10602161611 | 401/401 |
 | `origin_x` | float | 348659.1 | 401/401 |
 | `origin_y` | float | 6383994.3 | 401/401 |
-| `dest_x` | float | 370216.3 | 401/401 |
-| `dest_y` | float | 6347295.1 | 401/401 |
+| `dest_x` | float | 360614.0 | 401/401 |
+| `dest_y` | float | 6379776.7 | 401/401 |
 | `dep_time_s` | int | 45533 | 401/401 |
-| `arr_time_s` | int | 51666 | 401/401 |
-| `straight_dist_km` | float | 42.562 | 401/401 |
-| `activity_duration_s` | int | 27523 | 401/401 |
+| `arr_time_s` | int | 47528 | 401/401 |
+| `straight_dist_km` | float | 12.677 | 401/401 |
+| `activity_duration_s` | int | 31662 | 401/401 |
 | `is_tour_anchor` | int | 1 | 401/401 |
 | `party_size` | int | 1 | 401/401 |
 | `time_flexibility_band` | str | fixed | 401/401 |

@@ -1,0 +1,10 @@
+{
+  "overlay": "convergence_pilot_10pct",
+  "description": "Issue #5 pilot at the sample fraction the run programme actually uses. Paired with convergence_pilot_1pct and run concurrently: memory is 9.8 GiB at 1% and 18.4 GiB at 10%, so both fit inside 63.5 GiB at once, and each occupies about 2.4 busy cores of 24 so neither starves the other. Configured identically to cordon_escort_10pct - same fraction, threads and seed - with only the iteration horizon changed from 250 to 1000, so the pair answers whether relaxation depends on sample fraction as well as on horizon. Innovation switches off at iteration 800, leaving 200 iterations of measurable post-innovation drift per mode. IT IS A PILOT, NOT THE ANSWER: it runs on the CURRENT demand, which deliverable 0d will replace. RUN.controler.last_iteration stays UNOBTAINED, and no mode share, count comparison or fit statistic may be read from it.",
+  "set": {
+    "RUN.sample.fraction": 0.10,
+    "RUN.controler.last_iteration": 1000,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "26g"
+  }
+}

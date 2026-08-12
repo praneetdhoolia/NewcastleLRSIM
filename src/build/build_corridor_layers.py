@@ -22,9 +22,65 @@ import zipfile
 import io
 import collections
 
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
 OUT = 'data/processed/corridor'
 os.makedirs(OUT, exist_ok=True)
 LRZIP = 'schedules/raw/base2026/lightrail.zip'
+
+# The observed statewide signal inventory. The corridor intersections in the A2
+# layer are clusters of OSM traffic-signal nodes and carry no identifier of
+# their own, so `scats_site_id` has always been declared and left empty. This is
+# the only published source of both the SCATS site number and the date each
+# signal was installed (DECISIONS.md 9.24).
+SCATS_XLSX = 'data/raw/signals/tfnsw_traffic_lights_location.xlsx'
+SCATS_MATCH_M = CFG.get('A.signals.scats_match_radius_m')
+
+
+def load_scats_inventory():
+    """Every signal in the TfNSW inventory, as (lat, lon, site_id, installed).
+
+    Read statewide and matched by distance rather than pre-filtered to a bounding
+    box: 4,582 signals against 14 intersections is trivial to scan, and a bbox
+    would be one more undeclared constant deciding which observations are
+    eligible. Rows without usable coordinates are skipped rather than guessed at.
+    """
+    import openpyxl
+    wb = openpyxl.load_workbook(SCATS_XLSX, read_only=True, data_only=True)
+    ws = wb[wb.sheetnames[0]]
+    it = ws.iter_rows(values_only=True)
+    hdr = [str(c).strip() if c is not None else '' for c in next(it)]
+    ix = {h: i for i, h in enumerate(hdr)}
+    out = []
+    for r in it:
+        try:
+            la, lo = float(r[ix['Latitude']]), float(r[ix['Longitude']])
+        except (TypeError, ValueError, KeyError):
+            continue
+        d = r[ix['Date_Install']]
+        out.append((la, lo, str(r[ix['Equipment_ID']]), str(d)[:10] if d else ''))
+    wb.close()
+    return out
+
+
+def match_scats(ll, inv):
+    """Nearest observed signal to a corridor intersection, or blanks if none.
+
+    An unmatched intersection returns empty fields and is written with
+    scats_source='unmatched' rather than being dropped or given a neighbour's
+    id: a missing identity must stay visible in the artefact.
+    """
+    best = None
+    for la, lo, site, installed in inv:
+        d = hav(ll, (la, lo))
+        if best is None or d < best[0]:
+            best = (d, site, installed)
+    if best is None or best[0] > SCATS_MATCH_M:
+        return '', '', ''
+    return best[1], round(best[0], 1), best[2]
 
 # --------------------------------------------------------------------------
 # A4 vehicle specification - CAF Urbos 100, Newcastle fleet 2151-2156
@@ -225,11 +281,16 @@ def build():
               'n_approach_nodes': len(c['members'])},
              c['centre']) for c in clusters]
     sigs.sort(key=lambda x: x[2][1])
+    scats = load_scats_inventory()
     sig_rows = []
     for i, (dmin, r, ll) in enumerate(sigs):
+        site, site_d, installed = match_scats(ll, scats)
         sig_rows.append(dict(
             intersection_id='NLR_SIG_%02d' % (i + 1),
-            osm_node_id=r['node_id'], scats_site_id='', n_approach_nodes=r.get('n_approach_nodes',''),
+            osm_node_id=r['node_id'], scats_site_id=site,
+            scats_match_dist_m=site_d, signal_installed=installed,
+            scats_source='observed' if site else 'unmatched',
+            n_approach_nodes=r.get('n_approach_nodes',''),
             lat=ll[0], lon=ll[1], dist_to_alignment_m=round(dmin, 1),
             control_type='adaptive',            # SCATS is adaptive by definition
             cycle_time_s=110, cycle_time_sweep_low=80, cycle_time_sweep_high=140,

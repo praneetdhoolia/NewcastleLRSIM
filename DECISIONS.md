@@ -2567,6 +2567,75 @@ a provenance record and a registry field of its own, or it does not happen.
 
 ---
 
+## 9.24 The corridor signals acquire their real identity, and a dated counterfactual appears (P4 stage 9)
+
+`A2_signal_control_corridor.csv` has declared a `scats_site_id` column since P2
+and left it empty on all 70 rows. The corridor intersections are clusters of OSM
+traffic-signal nodes, so they carried no identifier that anything outside this
+package would recognise. TfNSW's **Traffic Lights Location** dataset (§9.23)
+supplies one: `Equipment_ID` *is* the SCATS site number.
+
+### The join, and why its tolerance is held fixed rather than swept
+
+4,582 signals statewide, matched by distance to the 14 corridor intersections.
+No bounding box is applied first — scanning the whole inventory is trivial, and a
+bbox would be one more undeclared constant deciding which observations are
+eligible.
+
+**All 14 matched, at a mean of 8.0 m and a maximum of 26.4 m.** Nothing is
+unmatched, and an unmatched intersection would have been written with
+`scats_source='unmatched'` and blank fields rather than dropped or given a
+neighbour's id.
+
+`A.signals.scats_match_radius_m` is declared at 60 m and **held fixed**, not
+swept. The rule is recorded in the registry: no behaviour, run time or score
+reads it — only the identity written into the artefact — and every radius from
+the 45 m OSM clustering distance up to roughly 100 m produces the identical
+assignment, because the furthest true match is 26.4 m. Declaring a sweep
+interval across which the output cannot vary is the defect this project has
+already hit three times (issues #21, #12, and 112 wasted grid points). Departure
+requires a re-measured distance distribution, not a preference.
+
+This also migrates `build_corridor_layers.py` onto the registry, which it had
+never read.
+
+### Eight of the fourteen corridor signals were installed for the light rail
+
+The inventory carries an installation date, now written to `signal_installed`:
+
+| era | count | examples |
+|---|---:|---|
+| 2018 | **8** | 4762 *Stewart Av / light rail crossing* (Nov 2018), 4770 *Steel St / light rail crossing* (Nov 2018), 4766–4769 along Scott St (Sep 2018) |
+| pre-2018 | 6 | 782 Hunter/Auckland (1973), 1655 Hunter/Darby (1981), 1875 Scott/Watt (1988) |
+
+**The pre-intervention corridor carried 6 signalised intersections, not 14.**
+That is an observed, dated fact about the counterfactual the B3 test rests on,
+and the model currently assumes a corridor whose signal count does not vary by
+era.
+
+### What has deliberately NOT been changed
+
+**Nothing downstream.** The date is recorded as an attribute and no scenario, no
+variant and no parameter has been altered by it. `S0_no_tram` still carries all
+14 intersections at a 100 s cycle, exactly as before.
+
+That is a decision, not an oversight. Re-deriving the pre-light-rail corridor
+from this observation would reshape the same counterfactual that
+`A.corridor.pre_lr_lanes_per_dir` encodes — and that constant *is* the B3
+hypothesis, the decisive test of Claim B. Changing the hypothesis to fit an
+observation discovered afterwards is the move proposal §9 names as the primary
+threat to validity. It is held for an explicit decision, with the evidence now
+on the table for that decision to be made against.
+
+Note also what this does **not** supply: the inventory gives location, identity
+and install date. It gives **no phase plan, no cycle time and no split**. SCATS
+phasing remains refused (§9.21) and `A.signals.scats_phasing` remains
+`unobtained` and swept. What has changed is that the corridor's signals can now
+be named in a request, a citation or a SUMO controller — not that their
+operation is known.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

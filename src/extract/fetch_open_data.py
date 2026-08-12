@@ -20,6 +20,15 @@ M=[
  ("counts/rms_yearly_summary.csv",B+"ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/cba9a012-c305-414e-b848-f0e3aad18d97/download/road_traffic_counts_yearly_summary.csv","NSW road traffic counts yearly summary (AADT)","CC-BY 4.0"),
  ("counts/rms_hourly_permanent.zip",B+"ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/bca06c7e-30be-4a90-bc8b-c67428c0823a/download/road_traffic_counts_hourly_permanent.zip","NSW road traffic counts hourly, permanent stations","CC-BY 4.0"),
  ("counts/rms_documentation.pdf",B+"ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/13d061b1-1606-49b5-b182-d36ce0801f14/download/rms-dataset-documentation-nsw-traffic-volume-counts_0.pdf","NSW traffic volume counts documentation","CC-BY 4.0"),
+ # ---- A2 signal inventory. The only OBSERVED source for which corridor
+ #      intersections are signalised and when each was built; the A2 layer is
+ #      otherwise inferred from OSM traffic-signal nodes. Equipment_ID is the
+ #      SCATS site number, which is what fills the scats_site_id column that
+ #      A2_signal_control_corridor.csv has always declared and left empty
+ #      (DECISIONS.md 9.24). The resource is labelled CSV in the catalogue and
+ #      is served as XLSX; it is stored under the name of what it actually is.
+ ("signals/tfnsw_traffic_lights_location.xlsx",B+"93ba5c23-f46c-45d7-98ed-96022b7ea626/resource/406ac670-b3ad-4474-9284-c03d444a1aec/download/traffic-lights-location-data-june-2026.xlsx","TfNSW Traffic Lights Location (statewide signal inventory: SCATS Equipment_ID, cross streets, suburb, install date, coordinates; June 2026)","CC-BY 4.0"),
+ ("signals/tfnsw_traffic_lights_location_documentation.pdf",B+"93ba5c23-f46c-45d7-98ed-96022b7ea626/resource/b8e2dd7c-c136-4cfd-9d67-fd6107d2a583/download/traffic-lights-location-v1.pdf","TfNSW Traffic Lights Location field documentation","CC-BY 4.0"),
  # ---- C1 behavioural evidence: HTS ----
  ("hts/hts_by_lga_2020-21_to_2024-25.xlsx",B+"c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/8b0a7e54-9dea-43c3-9804-5e2917bf4f1f/download/data-by-lga-2020_21-to-2024_25.xlsx","NSW Household Travel Survey by LGA 2020/21-2024/25","CC-BY 4.0"),
  ("hts/hts_by_sa3_2020-21_to_2024-25.xlsx",B+"c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/e95e31d5-64ed-44f1-b845-250498849758/download/data-by-sa3-2020_21-to-2024_25.xlsx","NSW Household Travel Survey by SA3 2020/21-2024/25","CC-BY 4.0"),
