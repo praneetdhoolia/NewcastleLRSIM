@@ -1964,6 +1964,102 @@ copies of a number is the drift this package cannot absorb.
 
 ---
 
+## 9.17 The §8.5 departure: a car passenger pays for the kilometre (P4 stage 5, issue #16)
+
+**Logged before the result it will be judged on.** §8.5 requires a departure to
+be recorded *before* results are seen, and this section is written while the
+`cordon_escort_10pct` run is still at iteration 161 of 250, before any fit has
+been computed on it.
+
+**What had been seen, stated rather than glossed:** the intermediate
+`modestats.csv` of that run up to iteration 161. That file records the mode
+agents *chose*, not trips that *completed* (§9.12), it is far short of
+relaxation, and — the part that matters — **neither piece of evidence for this
+departure comes from it.** Both were measured on the `ride_sufficiency_*` runs
+and are recorded in §9.12 and §9.13, before the demand repair existed.
+
+### The departure
+
+`C.scoring.monetary_distance_rate['ride']` moves from **0.0** to **−0.00018
+AUD/m**, the car rate.
+
+### Why this is a correction, not a calibration
+
+§9.8 set the rate to zero and declared it **derived, not assumed**, on this
+identity: *a vehicle's operating cost is paid once, and at occupancy 1.35
+charging both occupants makes aggregate vehicle operating cost 1.35× the real
+one.*
+
+**That identity is true, and it is about the wrong quantity.** It is a statement
+about **aggregate system cost accounting** — do not count the same litre of fuel
+twice when totting up what the region spends. `monetaryDistanceRate` is not that.
+In MATSim it is the cost **perceived by one person weighing one alternative**.
+The identity was applied to a term it does not govern.
+
+Stated as the identity that now applies: **a kilometre in a car costs the same
+kilometre whether you are in the driver's seat or beside it.** The rate is still
+*derived* — derived from the car rate, because it is the same vehicle — rather
+than assumed or fitted.
+
+### The observable that falsified the old identity, and it is not a target
+
+§9.13 measured trip length by mode against the HTS, as a **constraint** that is
+reported and never scored:
+
+| | modelled | observed |
+|---|---:|---:|
+| ride ÷ car trip length | **1.372** | **0.961** |
+
+Observed passenger trips are slightly **shorter** than driver trips. The model
+made them **43% longer**, and the distortion **widened with sample fraction**
+(1.075 → 1.346 → 1.372). §9.13 named it at the time: *"the signature the §9.8
+zero distance rate would produce."* A mode with no marginal cost of distance is
+chosen disproportionately for long trips, which is exactly what was measured.
+
+This matters for the integrity of the departure: the evidence is a **constraint**
+in the C4 sense, not one of the 67 calibration targets and not a holdout row. The
+correction is justified without reference to any target the model is scored
+against, so it cannot be a case of fitting the answer.
+
+§9.8's own field description also anticipated it: *"with ride at zero and no
+driver-availability constraint, ride is cheaper than car on any trip longer than
+about 4.7 km. That asymmetry is real."* It is now removed rather than left for
+the constant to absorb.
+
+### What this deliberately is NOT
+
+**It is not solving `asc_car_passenger` harder.** The constant stays where §9.8
+constrained it, at −0.85, tied to observed vehicle occupancy. Proposal §9 names
+ASC absorption as the primary threat to validity, and moving a distance rate that
+was mis-specified is the opposite of absorbing a specification error into a
+constant. `calibrate.py` cannot reach the mode constants at all — they are
+`held_fixed`.
+
+**It is not the whole of #16.** The second candidate — a zero-PCE queued `ride`,
+so that a car passenger experiences congestion instead of being teleported at the
+router's free-flow estimate — remains **scoped and unapplied**. It addresses a
+separately measured distortion: `ride` runs **15–22% faster per kilometre than
+car in every distance band**, with identical leg composition and near-identical
+routed detour (1.4490 against 1.4716). A passenger physically travels in a car
+and cannot arrive sooner than one.
+
+That candidate is deliberately **not** applied in the same change, for two
+reasons. It alters the mobsim rather than the scoring, so it must ship with its
+own measurement — `ride` minutes per kilometre must converge on `car`'s, and
+`vol_car` at the 33 count stations must not move, or §12.2a's count identity
+breaks. And applying two corrections at once makes neither attributable. This one
+is the larger lever and the better evidenced; it goes first, and the second is
+decided on what it leaves behind.
+
+### What would falsify this departure
+
+If `ride` overshoots **below** the observed 20.6% share, or if the ride ÷ car
+trip-length ratio overshoots below the observed 0.961, the rate is doing more
+work than the correction justifies and the second candidate must not be added on
+top of it. Both are recorded here **before** the run that tests them.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

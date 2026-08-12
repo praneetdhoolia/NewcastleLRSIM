@@ -567,7 +567,7 @@
     "C.scoring.monetary_distance_rate": {
       "value": {
         "car": -0.00018,
-        "ride": 0.0,
+        "ride": -0.00018,
         "pt": 0.0,
         "walk": 0.0,
         "bike": 0.0
@@ -578,14 +578,20 @@
         -0.00025,
         -0.00012
       ],
-      "sweep_basis": "applies to the car entry only; the others are derived and not free",
+      "sweep_basis": "applies to the car entry only; ride follows it by the identity above, and pt, walk and bike remain zero because no vehicle operating cost is borne by their traveller",
       "status": "active",
-      "decisions_ref": "9.8",
+      "decisions_ref": "9.8, 9.13, 9.17",
       "matsim_param": "scoring.modeParams[*].monetaryDistanceRate",
-      "description": "Vehicle operating cost per metre. RIDE IS ZERO AND THAT IS DERIVED, NOT ASSUMED: a vehicle cost is paid once, and at occupancy 1.35 charging both occupants would make aggregate vehicle operating cost 1.35x the real one (DECISIONS.md 9.8). The earlier half-of-car was typed in and double-charged. CAUTION: with ride at zero and no driver-availability constraint, ride is cheaper than car on any trip long enough for the distance term to exceed the 0.85 ASC gap - about 4.7 km. That asymmetry is real and is why the constant must be constrained rather than left to absorb it.",
+      "description": "Vehicle operating cost per metre AS PERCEIVED BY THE TRAVELLER MAKING THE CHOICE. RIDE CARRIES THE CAR RATE (DECISIONS.md 9.17, the 8.5 departure for issue 16). It was zero, derived from an aggregate-cost identity that governs system accounting rather than individual choice; the 9.13 trip-length constraint then measured modelled ride:car trip length at 1.372 against an observed 0.961, which is what a mode with no marginal distance cost produces. This is NOT a move of asc_car_passenger, which stays constrained to observed occupancy at -0.85 and is held fixed under 8.5: proposal 9 names ASC absorption as the primary threat to validity, and correcting a mis-specified distance rate is the opposite of absorbing that error into a constant.",
       "consumers": [
         "src/build/build_matsim_run_inputs.py"
-      ]
+      ],
+      "derived_from": {
+        "fields": [
+          "C.scoring.monetary_distance_rate"
+        ],
+        "identity": "a kilometre in a car costs the same kilometre whether you are in the driver seat or beside it, so ride carries the car rate. This SUPERSEDES the 9.8 identity that set ride to zero: that identity - a vehicle operating cost is paid once, so charging both occupants makes AGGREGATE cost 1.35x the real one - is a statement about system cost accounting, and monetaryDistanceRate is the cost PERCEIVED BY ONE PERSON weighing one alternative. The 9.13 trip length constraint falsified the old treatment: modelled ride to car trip length was 1.372 against an observed 0.961, widening with sample fraction - the signature a zero marginal distance cost produces. See DECISIONS.md 9.17"
+      }
     },
     "C.scoring.activity_typical_duration_s": {
       "value": {

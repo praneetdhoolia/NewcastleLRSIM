@@ -619,7 +619,7 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.scoring.activity_minimal_duration_s` | `900` | seconds | `assumed` | 300 - 1800 |
 | `C.scoring.activity_typical_duration_s` | `{"home": 43200, "work": 28800, "education": 21600, "shopping": 3600, "other": 7200, "business": 3600, "esco...` | seconds | `assumed` | plus/minus 25% |
 | `C.scoring.marginal_utility_of_money` | `1.0` | utils_per_AUD | `definition` | - |
-| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": 0.0, "pt": 0.0, "walk": 0.0, "bike": 0.0}` | AUD_per_metre | `derived` | -0.00025 - -0.00012 |
+| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
 | `C.scoring.performing_utils_per_h` | `6.0` | utils_per_hour | `literature` | 4 - 8 |
 | `C.time_weights.beta_headway` | `0.5` | ratio_to_ivt | `literature` | 0.35 - 0.65 |
 | `C.time_weights.beta_ivt` | `1.0` | ratio_to_ivt | `definition` | - |
@@ -838,11 +838,13 @@ Sets the utility numeraire to AUD. Definitional, not empirical.
 
 #### `C.scoring.monetary_distance_rate`
 
-Vehicle operating cost per metre. RIDE IS ZERO AND THAT IS DERIVED, NOT ASSUMED: a vehicle cost is paid once, and at occupancy 1.35 charging both occupants would make aggregate vehicle operating cost 1.35x the real one (DECISIONS.md 9.8). The earlier half-of-car was typed in and double-charged. CAUTION: with ride at zero and no driver-availability constraint, ride is cheaper than car on any trip long enough for the distance term to exceed the 0.85 ASC gap - about 4.7 km. That asymmetry is real and is why the constant must be constrained rather than left to absorb it.
+Vehicle operating cost per metre AS PERCEIVED BY THE TRAVELLER MAKING THE CHOICE. RIDE CARRIES THE CAR RATE (DECISIONS.md 9.17, the 8.5 departure for issue 16). It was zero, derived from an aggregate-cost identity that governs system accounting rather than individual choice; the 9.13 trip-length constraint then measured modelled ride:car trip length at 1.372 against an observed 0.961, which is what a mode with no marginal distance cost produces. This is NOT a move of asc_car_passenger, which stays constrained to observed occupancy at -0.85 and is held fixed under 8.5: proposal 9 names ASC absorption as the primary threat to validity, and correcting a mis-specified distance rate is the opposite of absorbing that error into a constant.
 
-***derived** · status **active** · DECISIONS.md §9.8 · MATSim `scoring.modeParams[*].monetaryDistanceRate`*
+***derived** · status **active** · DECISIONS.md §9.8, 9.13, 9.17 · MATSim `scoring.modeParams[*].monetaryDistanceRate`*
 
-> **Sweep basis.** applies to the car entry only; the others are derived and not free
+> **Sweep basis.** applies to the car entry only; ride follows it by the identity above, and pt, walk and bike remain zero because no vehicle operating cost is borne by their traveller
+
+> **Derived from** `C.scoring.monetary_distance_rate`: a kilometre in a car costs the same kilometre whether you are in the driver seat or beside it, so ride carries the car rate. This SUPERSEDES the 9.8 identity that set ride to zero: that identity - a vehicle operating cost is paid once, so charging both occupants makes AGGREGATE cost 1.35x the real one - is a statement about system cost accounting, and monetaryDistanceRate is the cost PERCEIVED BY ONE PERSON weighing one alternative. The 9.13 trip length constraint falsified the old treatment: modelled ride to car trip length was 1.372 against an observed 0.961, widening with sample fraction - the signature a zero marginal distance cost produces. See DECISIONS.md 9.17
 
 #### `C.scoring.performing_utils_per_h`
 
