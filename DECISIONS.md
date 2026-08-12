@@ -2636,6 +2636,65 @@ operation is known.
 
 ---
 
+## 9.25 The specification audit: two inversions, not five miscalibrations (P4 deliverable 0a)
+
+Deliverable 0a ran first because mode share was wrong in a way nobody had
+explained, and calibrating on top of an unexplained error fits it into a
+constant. The full ranked register is [`docs/SPEC_AUDIT.md`](docs/SPEC_AUDIT.md);
+this records what it changes.
+
+**The symptom is two near-exact inversions, not five independent errors.** Car
+-26.5 against ride +29.4, and walk -12.7 against bike +12.7. That pattern points
+at structural asymmetries moving pairs of modes, not at five constants set
+wrongly - which is why the audit looked at how modes are simulated rather than
+at what they score.
+
+**A1, and it is physically impossible.** `qsim.mainMode = car` while
+`routing.networkModes = car,ride`, so `ride` is routed over the network and given
+free-flow link times: it never queues and never contributes to congestion.
+Measured over a completed 250-iteration run, **ride realises 55.7 km/h against
+car's 49.3** - a car passenger arrives 13% faster than the car carrying them.
+The scoring config makes ride look *dominated* (identical time and money
+disutility, and a -0.85 constant against car's 0.0), so nobody reading the
+behavioural parameters would find this. It is worst exactly where car is most
+congested, which is the peak and the corridor. Issue #28.
+
+**A2 and A3 push the same way.** `ride` is not a chain-based mode while `car` is,
+so a subtour adopts ride freely but must conserve a car; and the 9.11 ride
+constraint is choice-set only, so one household driver can chauffeur unlimited
+simultaneous passengers (#31). Separately, **car is the only mode whose ownership
+is modelled** - bike is available to every agent always, and returns 15.86%
+against an observed 3.2% (#29). A4 records that walk's 18x deficit may be a
+trip-length problem rather than a scoring one, and names the test (#30).
+
+**B1 is the finding that prevented damage.** Issue #24 states that work-related
+business travel is an observed HTS purpose the model does not generate. **It
+does.** B2 carries 47,612 weekday `WB` legs, **2.11%** of all legs, against an
+HTS Newcastle figure of **2.0%**. Building it as scoped would have double-counted
+an already-correct purpose and moved mode share for a reason no later run could
+attribute. #24 is narrowed to freight, which does stand, as does #20 - external
+legs are 0.48% of the total and every one terminates inside the study area.
+
+**A caution about the registry's own defect detector.** `consumers` is generated
+from read logging and is stale: three light rail capacity fields list no
+consumers while `build_matsim_run_inputs.py` reads two of them. An empty
+`consumers` means the generator has not seen the field, **not** that nothing
+reads it, so it can neither confirm nor deny reach. Reach must be established by
+changing a value and observing the output. This matters because "a declared,
+swept parameter that reaches nothing" is a defect class this project has hit
+three times and `consumers` is the mechanism used to catch it.
+
+**Deliverable 0e is already satisfied** and its checklist entry was stale: the
+`water` and `green` layers are annotated *"for the run replay basemap only"* in
+`overpass.py` and are consumed by `build_basemap.py`.
+
+**Nothing was changed by this audit.** No parameter, no target, no scenario. The
+67/143 split is untouched and no holdout row was opened. The audit's product is
+a register and four issues; the fixes are separate work, and #28 must land before
+#9 is re-solved or #14 is attempted, because both would otherwise absorb it.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
