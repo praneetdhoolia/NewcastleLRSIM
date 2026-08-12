@@ -76,20 +76,18 @@
       ]
     },
     "E.coupling.outer_loop_tolerance_s": {
-      "value": null,
+      "value": 5.0,
       "units": "seconds",
       "source": "assumed",
-      "sweep": {
-        "interval": [
-          5.0,
-          60.0
-        ],
-        "basis": "no basis has been established; the interval brackets a plausible stability criterion on a 12-minute corridor run time and is a placeholder for a decision, not a decision"
-      },
-      "status": "unobtained",
+      "status": "active",
       "decisions_ref": "15",
       "proposal_ref": "5.2",
-      "description": "Corridor run-time stability tolerance for the MATSim-SUMO outer loop. Proposal 5.2 defers this explicitly - run the loop 'until the corridor run time is stable within a tolerance TO BE DEFINED AT CALIBRATION'. IT HAS NOT BEEN DEFINED. This is a P4 obligation that appeared on no deliverable list until issue 8. Registered with a null value so it cannot be silently assumed by whoever builds the loop."
+      "description": "Corridor run-time stability tolerance for the MATSim-SUMO outer loop. Proposal 5.2 defers this explicitly - run the loop \"until the corridor run time is stable within a tolerance to be defined at calibration\". P4 deliverable 7 defines it: the loop is converged when end-to-end corridor run time changes by less than this between successive outer iterations. Derived from the resolution of the target and the size of the declared sensitivities rather than chosen - see the held_fixed rule. The SUMO run harness and the loop itself are P5; this is the number they must honour.",
+      "held_fixed": {
+        "rule": "A convergence tolerance is a numerical control, not a quantity of Newcastle: it decides how many outer-loop iterations are paid for, not what the answer is, PROVIDED it stays well below the smallest difference the study reports. So it is held fixed rather than swept, and it is bounded from above by three measured quantities. (1) The corridor run time is validated against V208/V209, which are SCHEDULED times: every segment in A4_segment_runtime_decomposition.csv is a whole multiple of 60 s and direction 0 sums to exactly the 720 s target, so the target itself is known only to plus or minus 30 s. (2) The charging dwell assumption is worth 11% of end-to-end run time, about 79 s - the smallest declared corridor sensitivity in the project. (3) The signal priority sweep (S2 against S2b) moves run time 38%, about 274 s. At 5 s - 0.69% of the 720 s run time - the loop is an order of magnitude inside the smallest of those and well inside the resolution of the target it is judged against, so a converged loop cannot contribute materially to any reported difference.",
+        "decisions_ref": "9.16",
+        "departure_requires": "A SELF-POLICING BOUND, not a preference: if any reported scenario comparison ever turns on a corridor run-time difference smaller than TWICE this tolerance, the difference is not resolvable by the loop that produced it. The tolerance must then be tightened and both scenarios re-run before the comparison is reported."
+      }
     }
   }
 }

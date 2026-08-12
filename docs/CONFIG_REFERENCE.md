@@ -27,25 +27,25 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 158 fields are made of
+## What the 164 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 2 | read directly from a raw download |
 | `measured` | 15 | computed from observed data in this package |
-| `derived` | 11 | follows from another registry field by identity |
+| `derived` | 13 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
-| `assumed` | 74 | chosen without direct empirical support |
-| `definition` | 38 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 77 | chosen without direct empirical support |
+| `definition` | 39 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 145 | usable point value |
+| `active` | 152 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
-| `unobtained` | 7 | the datum does not exist in the package; must be swept, never pinned |
+| `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
 
-### The 7 fields with no value
+### The 6 fields with no value
 
 These carry `value: null` and the resolver refuses to return a point value for them. They are the project's honest edge: what it does not know, declared rather than guessed.
 
@@ -55,11 +55,10 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `A.signals.scats_phasing` | `proxy_no_priority`, `proxy_partial_priority`, `proxy_full_priority` | NOT OBTAINED - a formal TfNSW request is outstanding |
 | `B.opal.journey_linked` | `tap_sequence_matching_model` | NOT OBTAINED - a formal TfNSW request is outstanding |
 | `D.retail.vacancy_rate` | 0 - 0.25 | NOT OBTAINED and not currently consumed by any metric |
-| `E.coupling.outer_loop_tolerance_s` | 5 - 60 | Proposal 5.2 defers this explicitly - run the loop 'until the corridor run time is stable within a tolerance TO BE DEFINED AT CALIBRATION' |
 | `RUN.controler.last_iteration` | 250 - 2000 | NO JUSTIFIED VALUE HAS BEEN MEASURED |
 | `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
-### The 6 fields held fixed
+### The 7 fields held fixed
 
 Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating them would fit away the effect under test - proposal 9 names ASC absorption as the primary threat to validity.
 
@@ -69,6 +68,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 - `C.asc.light_rail` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.rail` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.walk` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
+- `E.coupling.outer_loop_tolerance_s` - A convergence tolerance is a numerical control, not a quantity of Newcastle: it decides how many outer-loop iterations are paid for, not what the answer is, PROVIDED it stays well 
 
 ## Network supply (A1-A6)
 
@@ -527,6 +527,61 @@ The one seed everything synthetic derives from. CLAUDE.md forbids unseeded rando
 
 ***definition** · status **active** · DECISIONS.md §9.1*
 
+## Calibration (P4 deliverables 4-6)
+
+*`config/registry/CAL_calibration.json` - 6 fields*
+
+What the calibration loop is allowed to move, what it scores itself against, and the guards that stop it fitting more parameters than the data can identify. The objective deliberately excludes traffic counts: DECISIONS.md 9.14 forbids count-based calibration while boundary through traffic is unrepresented, and the loop enforces that rather than remembering it.
+
+| Field | Value | Units | Provenance | Sweep |
+|---|---|---|---|---|
+| `CAL.objective.components` | `{"mode_share.mean_abs_pp": 1.0}` | weight_per_fit_component | `definition` | - |
+| `CAL.objective.include_counts` | `false` | boolean | `derived` | derived: the external tier represents boundary demand from one SA4 to the north |
+| `CAL.objective.independent_targets` | `4` | count | `derived` | derived: five HTS mode-share targets are reported but they are shares of one to |
+| `CAL.search.convergence_delta` | `0.25` | percentage_points | `assumed` | 0.1 - 1 |
+| `CAL.search.max_rounds` | `3` | count | `assumed` | 1 - 6 |
+| `CAL.search.points_per_parameter` | `3` | count | `assumed` | 3 - 7 |
+
+#### `CAL.objective.components`
+
+Dotted paths into _fit.json that form the scalar objective, with their weights. ONE component, and that is not an oversight: patronage scores n=0 in a single day-type run (the contemporary monthly target needs WEEKDAY, SAT and SUN composed over a calendar month, and the rest are a pre-pandemic PT market), and counts are excluded by CAL.objective.include_counts. Mode share is what is left. A component named here that is missing from a fit output is a hard error, never a silent zero.
+
+***definition** · status **active** · DECISIONS.md §9.16, 12.1*
+
+#### `CAL.objective.include_counts`
+
+Whether traffic counts may enter the calibration objective. FALSE, and the loop refuses to start if it is set true without a recorded departure. Counts are still SCORED and REPORTED on every run; they are simply not optimised against.
+
+***derived** · status **active** · DECISIONS.md §9.14, 9.15*
+
+> **Derived from** `B.external.interaction_rate`: the external tier represents boundary demand from one SA4 to the north-west and no through traffic at all, so every boundary-adjacent count is biased low by construction; tuning core network parameters against those counts would be compensating for demand the model does not contain, which is the count analogue of the ASC absorption proposal 9 names as the primary threat to validity (DECISIONS.md 9.14, 9.15)
+
+#### `CAL.objective.independent_targets`
+
+How many independent numbers the objective actually contains. The loop refuses to move more free parameters than this, because a fit of more parameters than data is not a calibration.
+
+***derived** · status **active** · DECISIONS.md §12.1*
+
+> **Derived from** `CAL.objective.components`: five HTS mode-share targets are reported but they are shares of one total and sum to 1, so only four are independent; DECISIONS.md 12.1 reaches the same number from the other direction, that the effective information in the calibration half is roughly four mode-share degrees of freedom plus one patronage level plus the counts
+
+#### `CAL.search.convergence_delta`
+
+A coordinate pass that improves the objective by less than this ends the search. In the units of the objective, which is mean absolute mode-share error in percentage points. Below roughly 0.1 pp the search would be chasing seed noise rather than parameter effects, which DECISIONS.md 9.7 measured at the same order.
+
+***assumed** · status **active** · DECISIONS.md §9.16*
+
+#### `CAL.search.max_rounds`
+
+Maximum coordinate-descent passes over the free parameters. The loop stops earlier if a pass improves the objective by less than CAL.search.convergence_delta.
+
+***assumed** · status **active** · DECISIONS.md §9.16*
+
+#### `CAL.search.points_per_parameter`
+
+Points evaluated along each parameter's declared sweep interval in one coordinate pass, endpoints included. Three is the smallest number that can show curvature. Each point is a full run, so this multiplies wall clock directly.
+
+***assumed** · status **active** · DECISIONS.md §9.16*
+
 ## Behavioural parameters (C1)
 
 *`config/registry/C_behaviour.json` - 45 fields*
@@ -933,7 +988,7 @@ The scenario matrix and the coupling controls. Per-scenario variant references s
 
 | Field | Value | Units | Provenance | Sweep |
 |---|---|---|---|---|
-| `E.coupling.outer_loop_tolerance_s` | *(null - unobtained)* | seconds | `assumed` | 5 - 60 |
+| `E.coupling.outer_loop_tolerance_s` | `5.0` | seconds | `assumed` | **held fixed** |
 | `E.matrix.base_year` | `2026` | year | `definition` | - |
 | `E.matrix.crs` | `EPSG:28356` | enum | `definition` | - |
 | `E.matrix.day_types` | `["WEEKDAY", "SAT", "SUN"]` | enum | `definition` | - |
@@ -942,9 +997,13 @@ The scenario matrix and the coupling controls. Per-scenario variant references s
 
 #### `E.coupling.outer_loop_tolerance_s`
 
-Corridor run-time stability tolerance for the MATSim-SUMO outer loop. Proposal 5.2 defers this explicitly - run the loop 'until the corridor run time is stable within a tolerance TO BE DEFINED AT CALIBRATION'. IT HAS NOT BEEN DEFINED. This is a P4 obligation that appeared on no deliverable list until issue 8. Registered with a null value so it cannot be silently assumed by whoever builds the loop.
+Corridor run-time stability tolerance for the MATSim-SUMO outer loop. Proposal 5.2 defers this explicitly - run the loop "until the corridor run time is stable within a tolerance to be defined at calibration". P4 deliverable 7 defines it: the loop is converged when end-to-end corridor run time changes by less than this between successive outer iterations. Derived from the resolution of the target and the size of the declared sensitivities rather than chosen - see the held_fixed rule. The SUMO run harness and the loop itself are P5; this is the number they must honour.
 
-***assumed** · status **unobtained** · DECISIONS.md §15 · proposal §5.2*
+***assumed** · status **active** · DECISIONS.md §15 · proposal §5.2*
+
+> **Held fixed.** A convergence tolerance is a numerical control, not a quantity of Newcastle: it decides how many outer-loop iterations are paid for, not what the answer is, PROVIDED it stays well below the smallest difference the study reports. So it is held fixed rather than swept, and it is bounded from above by three measured quantities. (1) The corridor run time is validated against V208/V209, which are SCHEDULED times: every segment in A4_segment_runtime_decomposition.csv is a whole multiple of 60 s and direction 0 sums to exactly the 720 s target, so the target itself is known only to plus or minus 30 s. (2) The charging dwell assumption is worth 11% of end-to-end run time, about 79 s - the smallest declared corridor sensitivity in the project. (3) The signal priority sweep (S2 against S2b) moves run time 38%, about 274 s. At 5 s - 0.69% of the 720 s run time - the loop is an order of magnitude inside the smallest of those and well inside the resolution of the target it is judged against, so a converged loop cannot contribute materially to any reported difference.
+>
+> *Departure requires: A SELF-POLICING BOUND, not a preference: if any reported scenario comparison ever turns on a corridor run-time difference smaller than TWICE this tolerance, the difference is not resolvable by the loop that produced it. The tolerance must then be tightened and both scenarios re-run before the comparison is reported.*
 
 #### `E.matrix.base_year`
 

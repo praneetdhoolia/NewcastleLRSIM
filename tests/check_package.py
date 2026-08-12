@@ -1053,6 +1053,44 @@ if _registry is not None:
               % (os.path.basename(os.path.dirname(_rec)),
                  '' if not _problems else ': ' + _problems[0][:80]))
 
+    # The C-layer behavioural values live in TWO places: config/registry/ declares
+    # them, and params/C1_parameters.json is what build_matsim_run_inputs.py
+    # actually reads. check_legacy_drift.py pins the registry to source
+    # CONSTANTS, not to a params file, so this pair was unpinned and could drift
+    # apart silently - two copies of a number is the drift this package cannot
+    # absorb. The registry copy is a mirror; C1 is what reaches the model.
+    _C1_PAIRS = {
+        'C.transfer.beta_transfer_penalty_min': ('transfer_penalty', 'base'),
+        'C.gradient.uphill_penalty_per_pct': ('weights', 'beta_gradient_uphill', 'base'),
+        'C.gradient.downhill_penalty_per_pct': ('weights', 'beta_gradient_downhill', 'base'),
+        'C.crowding.seated_multiplier': ('weights', 'beta_crowding_seated', 'base'),
+        'C.crowding.standing_multiplier': ('weights', 'beta_crowding_standing', 'base'),
+        'C.time_weights.beta_ivt': ('weights', 'beta_ivt', 'base'),
+        'C.time_weights.beta_wait': ('weights', 'beta_wait', 'base'),
+        'C.time_weights.beta_walk_access': ('weights', 'beta_walk_access', 'base'),
+        'C.time_weights.beta_walk_egress': ('weights', 'beta_walk_egress', 'base'),
+        'C.time_weights.beta_headway': ('weights', 'beta_headway', 'base'),
+        'C.time_weights.beta_reliability': ('weights', 'beta_reliability', 'base'),
+    }
+    if os.path.exists('params/C1_parameters.json'):
+        _c1 = json.load(open('params/C1_parameters.json', encoding='utf-8'))
+        _bad = []
+        for _k, _path in sorted(_C1_PAIRS.items()):
+            _node = _c1
+            for _bit in _path:
+                _node = _node.get(_bit) if isinstance(_node, dict) else None
+                if _node is None:
+                    break
+            _rv = _fields.get(_k, {}).get('value')
+            if _node is None or not isinstance(_rv, (int, float)):
+                _bad.append('%s: no comparable C1 value' % _k)
+            elif abs(float(_rv) - float(_node)) > 1e-9:
+                _bad.append('%s: registry %s vs C1 %s' % (_k, _rv, _node))
+        check(not _bad,
+              'the C-layer behavioural values agree between config/registry/ and '
+              'params/C1_parameters.json, which is the copy build_matsim_run_inputs.py '
+              'actually reads%s' % ('' if not _bad else ': ' + '; '.join(_bad[:3])))
+
     # the two capacity factors that were previously set in code with no rationale
     _sce = _fields['RUN.sample.storage_capacity_exponent']
     check(_sce.get('value') == 1.0 and 'derived_from' in _sce and _sce.get('sweep') is None,
@@ -1136,9 +1174,22 @@ if _registry is not None:
     check(_fields.get('RUN.sumo.replications', {}).get('status') == 'unobtained',
           'SUMO replications carry no value - proposal 5.2 asks for at least 30, the '
           'measured run budget does not fit, and the cut has not been made (issue 6)')
-    check(_fields.get('E.coupling.outer_loop_tolerance_s', {}).get('value') is None,
-          'the MATSim-SUMO outer-loop tolerance is still undefined and is declared as '
-          'such, so a loop cannot be built on an unexamined default (issue 8)')
+    # P4 deliverable 7 defined this (DECISIONS.md 9.16). The check is the
+    # INVERSION of the one it replaces, which asserted the tolerance was still
+    # null so a loop could not be built on an unexamined default: now it must
+    # carry a value, a rule holding it fixed, and the self-policing bound that
+    # says what to do if a comparison ever turns on a difference it cannot
+    # resolve. A number without that bound would be exactly the unexamined
+    # default the old check existed to prevent.
+    _tol = _fields.get('E.coupling.outer_loop_tolerance_s', {})
+    check(isinstance(_tol.get('value'), (int, float)) and _tol['value'] > 0
+          and 'held_fixed' in _tol
+          and 'departure_requires' in _tol.get('held_fixed', {})
+          and _tol.get('status') == 'active',
+          'the MATSim-SUMO outer-loop tolerance is DEFINED (%s s), held fixed with a '
+          'stated rule, and carries the bound that forces a re-run if a reported '
+          'comparison ever turns on a difference smaller than twice it (issue 8, '
+          'P4 deliverable 7)' % _tol.get('value'))
 
 
     # A `consumers` entry is a MACHINE-READABLE CLAIM that a named file reads the

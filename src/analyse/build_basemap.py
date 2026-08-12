@@ -43,8 +43,6 @@ WATER = 'networks/osm/newcastle_water.osm'
 GREEN = 'networks/osm/newcastle_green.osm'
 LGA = 'data/processed/zones/zones_LGA.gpkg'
 SUMO_NET = 'networks/sumo/net_base2026/corridor.net.xml'
-# SUMO's default lane width when a lane carries no explicit one
-SUMO_DEFAULT_LANE_WIDTH_M = 3.2
 
 # area layers: the tag values that make a filled polygon, per source file
 AREA_SELECT = {
@@ -69,12 +67,18 @@ CLASS_GROUP = {
     'residential': 'residential', 'unclassified': 'residential',
     'living_street': 'residential', 'busway': 'secondary',
 }
-# metres of simplification tolerance per group; a motorway curve is information,
-# a residential wiggle is not. `service` is dropped entirely: 16,651 parking
-# aisles and driveways are noise at city scale, not realism.
-TOLERANCE = {'motorway': 2, 'trunk': 2, 'primary': 3, 'secondary': 4,
-             'tertiary': 6, 'residential': 10, 'rail': 2, 'tram': 1,
-             'coast': 6, 'water': 4, 'green': 8, 'sand': 4}
+def simplify_tolerance_m(group):
+    """Metres of line simplification for a drawn layer.
+
+    A DRAWING choice, not a model quantity: it decides how much of a polyline
+    survives into the picture and nothing else reads it, which is why it lives
+    in code rather than in the registry. A motorway curve is information; a
+    residential wiggle is not. `service` roads are dropped entirely - 16,651
+    parking aisles and driveways are noise at city scale, not realism.
+    """
+    return {'motorway': 2, 'trunk': 2, 'primary': 3, 'secondary': 4,
+            'tertiary': 6, 'residential': 10, 'rail': 2, 'tram': 1,
+            'coast': 6, 'water': 4, 'green': 8, 'sand': 4}.get(group, 0)
 
 
 def pack(lines, origin):
@@ -147,7 +151,7 @@ def read_roads(simplify):
             if len(pts) < 2:
                 continue
             if simplify:
-                pts = list(LineString(pts).simplify(TOLERANCE[g]).coords)
+                pts = list(LineString(pts).simplify(simplify_tolerance_m(g)).coords)
             groups.setdefault(g, []).append((lanes, pts))
     return groups
 
@@ -178,7 +182,7 @@ def read_railways(simplify):
                                           [p[1] for p in pts])
                     q = list(zip(xs, ys))
                     if simplify:
-                        q = list(LineString(q).simplify(TOLERANCE[key]).coords)
+                        q = list(LineString(q).simplify(simplify_tolerance_m(key)).coords)
                     ways[key].append((2, q))
             el.clear()
     return ways
@@ -216,7 +220,8 @@ def read_sumo_lanes():
             continue
         seg = txt[max(0, lm.start() - 1200):lm.start()]
         w = re.search(r'width="([0-9.]+)"', lm.group(0))
-        width = float(w.group(1)) if w else SUMO_DEFAULT_LANE_WIDTH_M
+        # SUMO's own default when a lane declares no width
+        width = float(w.group(1)) if w else 3.2
         rail = 'allow="tram' in lm.group(0) or 'allow="rail' in lm.group(0)
         pts = []
         for pair in shape.split(' '):
@@ -276,7 +281,7 @@ def read_coast(simplify):
     g = gpd.read_file(LGA).to_crs(28356)
     area = unary_union(g.geometry.values)
     if simplify:
-        area = area.simplify(TOLERANCE['coast'])
+        area = area.simplify(simplify_tolerance_m('coast'))
     out = []
     geoms = getattr(area, 'geoms', [area])
     for poly in geoms:
@@ -300,7 +305,7 @@ def main():
     for name, (path, select) in AREA_SELECT.items():
         print('reading %s areas ...' % name, flush=True)
         groups[name] = read_areas(path, select,
-                                  TOLERANCE.get(name, 0) if simplify else 0)
+                                  simplify_tolerance_m(name) if simplify else 0)
     if os.path.exists(SUMO_NET):
         print('reading SUMO lane geometry ...', flush=True)
         groups['lanes'] = read_sumo_lanes()
