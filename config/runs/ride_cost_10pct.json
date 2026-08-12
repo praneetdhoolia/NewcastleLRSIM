@@ -1,0 +1,10 @@
+{
+  "overlay": "ride_cost_10pct",
+  "description": "The DECISIONS.md 9.17 departure measured: ride carries the car distance rate (-0.00018 AUD/m) instead of zero. Configured identically to cordon_escort_10pct - same demand, fraction, iterations, threads and seed - so the difference between the two runs is the distance rate and nothing else. FALSIFICATION CONDITIONS, recorded in 9.17 BEFORE this run: if ride overshoots BELOW the observed 20.6% share, or the ride:car trip-length ratio overshoots below the observed 0.961, the rate is doing more work than the correction justifies and the second issue 16 candidate must NOT be stacked on it. NOT A RESULT: 250 iterations is measurably short of relaxation (9.7).",
+  "set": {
+    "RUN.sample.fraction": 0.1,
+    "RUN.controler.last_iteration": 250,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "26g"
+  }
+}

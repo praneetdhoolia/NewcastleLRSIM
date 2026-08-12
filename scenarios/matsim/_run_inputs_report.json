@@ -11,7 +11,7 @@
     ],
     "monetary_distance_rate": {
       "car": -0.00018,
-      "ride": 0.0,
+      "ride": -0.00018,
       "pt": 0.0,
       "walk": 0.0,
       "bike": 0.0
