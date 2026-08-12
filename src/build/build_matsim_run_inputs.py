@@ -472,7 +472,7 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 ACTIVITY_BLOCK = """\t\t<parameterset type="activityParams">
 \t\t\t<param name="activityType" value="{name}" />
 \t\t\t<param name="typicalDuration" value="{duration}" />
-\t\t\t<param name="minimalDuration" value="00:15:00" />
+\t\t\t<param name="minimalDuration" value="{minimal}" />
 \t\t</parameterset>"""
 
 MODE_BLOCK = """\t\t<parameterset type="modeParams">
@@ -514,8 +514,14 @@ STRATEGIES = [('ChangeExpBeta', 0.70), ('ReRoute', 0.15),
 # co-evolution can move mode share; swept. Not Newcastle-specific.
 SUBTOUR_MODE_CHOICE_WEIGHT_SWEEP = (0.05, 0.20)
 
-TYPICAL_DURATION_S = {'home': 12 * 3600, 'work': 8 * 3600, 'education': 6 * 3600,
-                      'shopping': 1 * 3600, 'other': 2 * 3600, 'business': 1 * 3600}
+# Declared rather than typed in: these are properties of the MATSim scoring
+# formulation, not observable quantities of Newcastle (DECISIONS.md 9.3), so
+# they are assumed and swept like anything else that is not measured. `escort`
+# is the drop-off that comes with the serve-passenger tour purpose.
+TYPICAL_DURATION_S = CFG.get('C.scoring.activity_typical_duration_s')
+# Applied as min(this, typical): a 15-minute floor over a 5-minute drop-off
+# would be self-contradictory, and MATSim would hold the vehicle there.
+MINIMAL_DURATION_S = CFG.get('C.scoring.activity_minimal_duration_s')
 
 
 def hhmmss(s):
@@ -567,7 +573,8 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
         print('   does not survive translation: %s' % line, flush=True)
 
     activities = '\n'.join(
-        ACTIVITY_BLOCK.format(name=k, duration=hhmmss(v))
+        ACTIVITY_BLOCK.format(name=k, duration=hhmmss(v),
+                              minimal=hhmmss(min(MINIMAL_DURATION_S, v)))
         for k, v in sorted(TYPICAL_DURATION_S.items()))
     modes = '\n'.join(
         MODE_BLOCK.format(mode=m, constant=v['constant'],

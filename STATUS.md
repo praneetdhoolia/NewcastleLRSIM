@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 11 August 2026 (P4 stage 3 - ride measured, trip length constrained, external tier found empty)
+**Last updated:** 12 August 2026 (P4 stage 4 - external tier repaired at the cordon, escort trips typed, mode coverage audited)
 **Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -768,6 +768,128 @@ measured.
 resolved.** Tuning the core network against counts that are missing their through
 traffic is the count analogue of the ASC absorption proposal §9 names as the
 primary threat to validity.
+
+---
+
+## P4 stage 4 — the external tier was walking to the network (12 August 2026)
+
+§9.14 recorded the external tier's behaviour as open after six hypotheses died.
+The seventh was measured. Full detail in [`DECISIONS.md`](DECISIONS.md) §9.15.
+
+**The mechanism.** `accessEgressType = accessEgressModeToLink` charges `car` and
+`ride` a walk from the activity coordinate to the network link. `bike` and `walk`
+are teleported and are charged **nothing**. That is harmless for the core
+population, whose activities sit on observed POIs inside the network — and not
+harmless for the external tier, because **all 201 external zones lie outside the
+modelled area**, a median 21.3 km beyond the boundary and up to 128.7 km, while
+the road network is clipped to the study area.
+
+| tier | mode | median access walk | median main leg |
+|---|---|---:|---:|
+| core | car | **0.097 km** | 8.8 km |
+| core | bike | 0.000 km | 7.1 km |
+| **external** | **car** | **2.656 km** | 46.9 km |
+| external | bike | **0.000 km** | 72.0 km |
+
+External car access walk is **27x the core's**, with its top three deciles at
+**16.4 / 39.9 / 49.8 km — of walking**. At iteration 0, where the uninformed seed
+makes mode exogenous, a car tour with under half an hour of access scores
+**+94.21**; one with over six hours scores **−1165.01**, and **48% of them are in
+that band**. The tour truncates: **39.0%** of external car tours never get home,
+against **13.9%** by bike. **Mode choice was behaving correctly** — the 478
+agents cycling 96 km were choosing the only mode that did not require them to
+walk to a road.
+
+**Two further defects, found alongside.** Every one of the 531 external agents
+carried `rideAvail=always` although the generator builds them household-less, so
+§9.11's own rule was bypassed for the whole tier and **432 of 962 external trips
+were car passengers with no possible driver**. And the tier is not a ring: all
+201 zones sit in one SA4 to the north-west (SE/S/SW = **0** zones), so the M1
+gap is **outside the tier's declared scope** rather than a tier-size problem —
+which corrects the framing in issue #20.
+
+**The repair**, on the standard boundary treatment: external demand now enters
+at an **external station** on the cordon, on a real link, and the journey beyond
+the study area is not modelled. The cordon set is *derived, not listed* — a node
+is a crossing if it is the nearest cordon-class node to at least one external
+zone, giving **42 crossings** — and each agent enters through the one minimising
+`d(zone, cordon) + d(cordon, destination)`.
+
+`Serve passenger` also became its own tour purpose. It was mapped to NHB and
+folded into the discretionary tours, which kept the trip **rate** and lost the
+trip **type**: an escort was a two-hour discretionary stay made by anyone rather
+than a five-minute drop-off made by a driver. **Issue #11's premise is corrected
+— the demand was not absent, it was mistyped.**
+
+| | before | after |
+|---|---:|---:|
+| External leg length, median | 54.2 km | **21.6 km** |
+| External destination placement | 5,385 jittered | **5,408 on an observed attractor**, 59 jittered |
+| Serve-passenger share of weekday legs | **0** | **14.53%** (observed 15.7% of journeys) |
+| Week trip rate vs HTS 3.473 | 3.397 (−2.2%) | **3.418 (−1.6%)** |
+| Seed ride share | 0.1712 | 0.1620 |
+
+**This is a planned comparability break.** B2 was regenerated, so the three
+`ride_sufficiency_*` runs are historical and no earlier run shares this demand.
+
+**Not repaired, deliberately:** the M1 and boundary through traffic, which needs
+an external-station matrix seeded from cordon counts and is a scope decision
+rather than a defect fix. **The §9.14 consequence stands: no count-based
+calibration until it is resolved.** `B.external.interaction_rate` stays assumed
+and swept.
+
+## P4 stage 4 — mode coverage, checked rather than assumed (12 August 2026)
+
+Every mode the HTS reports is carried by the model, and the one approximation is
+named rather than buried:
+
+| observed, Newcastle LGA 2024/25 | model mode | treatment |
+|---|---|---|
+| Vehicle driver **59.0%** | `car` | network mode, queue-simulated |
+| Vehicle passenger **20.6%** | `ride` | network-routed, teleported in the qsim |
+| Public transport **3.8%** | `pt` | scheduled, all four sub-modes |
+| Walk only **13.4%** | `walk` | teleported |
+| Other **3.2%** | `bike` | **approximate**: HTS "Other" also holds taxi, motorcycle and rideshare ([`fit.py`](src/calibrate/fit.py)) |
+
+Public transport is not a single mode in the model either. S2 x WEEKDAY carries
+**261 lines, 1,270 routes, 2,139 departures**:
+
+| sub-mode | lines | routes | weekday departures |
+|---|---:|---:|---:|
+| bus | 238 | 996 | 1,448 |
+| heavy rail | 21 | 270 | 332 |
+| light rail | 1 | 2 | **252** |
+| ferry (Stockton) | 1 | 2 | 107 |
+
+**Freight is not modelled, and the comparison accounts for it**: traffic counts
+are compared against the **light-vehicle** column, with the heavy share measured
+at **6.52%** (`B.counts.heavy_vehicle_share`) rather than assumed.
+
+## P4 stage 4 — a run replay, from the event stream (12 August 2026)
+
+`src/analyse/` gained three scripts that turn a completed run into an overhead
+animation of the simulated day. MATSim's own viewer (OTFVis) is a contrib and
+the pinned jar carries **no contribs at all**, so it is unavailable and adding it
+would be a toolchain change — a model change. Everything needed is in the
+outputs: `entered link` / `left link` events give the time a vehicle occupied
+each link, and the run's own network gives the endpoints.
+
+| script | what it does |
+|---|---|
+| [`replay_events.py`](src/analyse/replay_events.py) | streams an event file once, interpolating a position per vehicle per frame |
+| [`build_basemap.py`](src/analyse/build_basemap.py) | roads by class with lane counts, rail, light rail, water, green and the coastline |
+| [`build_replay_page.py`](src/analyse/build_replay_page.py) | assembles one self-contained page; geometry is centimetre-precise, so it holds up at a 10 m view |
+
+The lane-level geometry is **the SUMO corridor network's own** — netconvert
+resolves each edge into per-lane polylines with a width, which is what an HD map
+format carries. **17,188 lane centrelines**, corridor only. Two new Overpass
+layers were fetched for the basemap (`water`, `green`); both are ODbL like every
+other OSM-derived layer and **neither has a model consumer**.
+
+The output page is **not committed** — it carries megabytes of payload and this
+repo does not commit bulk data. The scripts are the committed artefacts. Every
+page states its run, sample fraction and iteration count, and carries a
+**"diagnostic, not a result"** flag.
 
 ---
 

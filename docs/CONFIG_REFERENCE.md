@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 152 fields are made of
+## What the 158 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 2 | read directly from a raw download |
 | `measured` | 15 | computed from observed data in this package |
-| `derived` | 9 | follows from another registry field by identity |
+| `derived` | 11 | follows from another registry field by identity |
 | `literature` | 18 | a published value, not specific to Newcastle |
-| `assumed` | 72 | chosen without direct empirical support |
-| `definition` | 36 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 74 | chosen without direct empirical support |
+| `definition` | 38 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 139 | usable point value |
+| `active` | 145 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 7 | the datum does not exist in the package; must be swept, never pinned |
@@ -283,21 +283,22 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`config/registry/B_demand.json` - 27 fields*
+*`config/registry/B_demand.json` - 31 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
 | Field | Value | Units | Provenance | Sweep |
 |---|---|---|---|---|
-| `B.activity.act_duration_min` | `{"HW": 465, "HE": 360, "HS": 45, "HO": 90, "WB": 60, "NHB": 20}` | minutes | `assumed` | plus/minus 25% |
+| `B.activity.act_duration_min` | `{"HW": 465, "HE": 360, "HS": 45, "HO": 90, "WB": 60, "NHB": 20, "HX": 5}` | minutes | `assumed` | plus/minus 25% |
 | `B.activity.child_tour_retention` | `0.4` | probability | `assumed` | 0.25 - 0.6 |
 | `B.activity.day_horizon_s` | `108000` | seconds | `definition` | - |
-| `B.activity.day_purpose_mix` | `{"WEEKDAY": {"HW": 1.0, "HE": 1.0, "HS": 0.9, "HO": 0.9, "WB": 1.0, "NHB": 1.0}, "SAT": {"HW": 0.25, "HE": ...` | multiplier_on_weekday | `assumed` | plus/minus 30% |
+| `B.activity.day_purpose_mix` | `{"WEEKDAY": {"HW": 1.0, "HE": 1.0, "HS": 0.9, "HO": 0.9, "WB": 1.0, "HX": 1.0}, "SAT": {"HW": 0.25, "HE": 0...` | multiplier_on_weekday | `assumed` | plus/minus 30% |
 | `B.activity.days_per_week` | `{"WEEKDAY": 5.0, "SAT": 1.0, "SUN": 1.0}` | days | `definition` | - |
 | `B.activity.detour_factor` | `1.3376` | ratio | `measured` | 1.25 - 1.423 |
 | `B.activity.duration_cv` | `0.3` | coefficient_of_variation | `assumed` | 0.2 - 0.45 |
+| `B.activity.escort_requires_licence` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
 | `B.activity.hts_rate_per_person_day` | `3.473` | trips_per_person_per_day | `measured` | 3.3 - 3.65 |
-| `B.activity.p_intermediate_stop` | `{"HW": 0.22, "HE": 0.12, "HS": 0.18, "HO": 0.2, "WB": 0.3}` | probability | `assumed` | 0.1 - 0.35 |
+| `B.activity.p_intermediate_stop` | `{"HW": 0.22, "HE": 0.12, "HS": 0.18, "HO": 0.2, "WB": 0.3, "HX": 0.15}` | probability | `assumed` | 0.1 - 0.35 |
 | `B.activity.p_mandatory` | `{"WEEKDAY": {"work": 0.78, "education": 0.85}, "SAT": {"work": 0.16, "education": 0.03}, "SUN": {"work": 0....` | probability | `assumed` | 0.6 - 0.95 |
 | `B.activity.p_second_stop` | `0.25` | probability | `assumed` | 0.12 - 0.4 |
 | `B.activity.sat_to_sun_rate` | `1.1875` | ratio | `assumed` | 1 - 1.45 |
@@ -307,6 +308,9 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.counts.station_match_radius_m` | `120.0` | metres | `assumed` | 60 - 120 |
 | `B.counts.vehicles_per_car_leg` | `1.0` | vehicles_per_leg | `derived` | derived: observed vehicle trips ARE driver trips at occupancy 1.3503, so a car  |
 | `B.counts.vehicles_per_ride_leg` | `0.0` | vehicles_per_leg | `derived` | derived: a passenger rides in a vehicle already counted, so a ride leg contribu |
+| `B.external.agent_profile` | `{"car_available": 1, "age": 40, "licence_holder": 1, "employment_status": "employed_full_time", "student_st...` | person_attributes | `definition` | - |
+| `B.external.agent_ride_available` | `false` | boolean | `derived` | derived: a person may be a car passenger only if their household holds a vehicl |
+| `B.external.cordon_road_classes` | `["motorway", "trunk", "primary", "secondary", "motorway_link", "trunk_link", "primary_link"]` | osm_highway_class | `definition` | - |
 | `B.external.day_factor` | `{"WEEKDAY": 1.0, "SAT": 0.4, "SUN": 0.3}` | multiplier | `assumed` | plus/minus 30% |
 | `B.external.interaction_rate` | `0.08` | probability | `assumed` | 0.04 - 0.15 |
 | `B.external.person_id_base` | `900000000` | integer_offset | `definition` | - |
@@ -319,7 +323,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 
 #### `B.activity.act_duration_min`
 
-Mean activity duration by purpose.
+Mean activity duration by purpose. HX (serve passenger) is a drop-off: the driver does not perform an activity at the destination, so its duration is the dwell, not a stay. No survey in the package measures a drop-off dwell, so it is assumed and carries the same proportional sweep as the rest.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
@@ -337,7 +341,7 @@ Simulation day horizon, 30 hours. Matches RUN.qsim.end_time_h. No leg may arrive
 
 #### `B.activity.day_purpose_mix`
 
-Weekend purpose mix relative to the weekday.
+Weekend purpose mix relative to the weekday. HX (serve passenger) is derived demand - it exists because somebody else has to be somewhere - so it falls at the weekend with the school run without vanishing, because weekend escorting is sport and social rather than education. Like every other entry here it is assumed and swept; the HTS extract in the package carries no day-type dimension to estimate it from. NHB is absent: it is a leg label, not a tour purpose, so it has no day-type mix to carry.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
@@ -361,6 +365,14 @@ Spread of activity duration around its mean.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
+#### `B.activity.escort_requires_licence`
+
+Whether a serve-passenger (HX) tour may only be drawn for a licence holder. Consumed where tours are allocated to persons.
+
+***derived** · status **active** · DECISIONS.md §9.15*
+
+> **Derived from** `B.population.licence_rate_by_age_band`: an escort trip is a trip made in order to convey another person, so the traveller is the driver, and a person without a licence cannot make one; the same identity as B.population.ride_requires_household_driver taken on the driver side rather than the passenger side
+
 #### `B.activity.hts_rate_per_person_day`
 
 Observed NSW HTS trip rate the synthesis is calibrated to reproduce. The realised rate is 3.397, 2.2% low.
@@ -369,7 +381,7 @@ Observed NSW HTS trip rate the synthesis is calibrated to reproduce. The realise
 
 #### `B.activity.p_intermediate_stop`
 
-Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values.
+Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values. HX (serve passenger) chains at the same rate as a discretionary tour: a driver who drops a passenger may link another stop before returning.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
@@ -439,6 +451,26 @@ A ride leg contributes NO vehicle: the passenger rides in a vehicle already coun
 
 > **Derived from** `C.constraint.vehicle_occupancy`, `C.asc.car_passenger`: a passenger rides in a vehicle already counted, so a ride leg contributes zero - valid only while the modelled ride:car ratio matches the observed passenger:driver ratio
 
+#### `B.external.agent_profile`
+
+Placeholder person attributes for an external boundary agent, which has no B1 household. Definitional placeholders for a tier that is a boundary treatment rather than a synthesised population, not estimates of anything. Ride availability is deliberately NOT among them: see B.external.agent_ride_available.
+
+***definition** · status **active** · DECISIONS.md §9.15*
+
+#### `B.external.agent_ride_available`
+
+Whether an external boundary agent may travel as a car passenger.
+
+***derived** · status **active** · DECISIONS.md §9.15*
+
+> **Derived from** `B.population.ride_requires_household_driver`: a person may be a car passenger only if their household holds a vehicle AND contains another licence holder; an external boundary agent is household-less by construction, so that condition cannot be satisfied and ride is unavailable. Resolving the same unknown the other way made 432 of 962 external trips car-passenger trips with no possible driver
+
+#### `B.external.cordon_road_classes`
+
+Road classes whose network nodes may serve as an external station, that is a cordon entry point. Defines what counts as a road capable of carrying boundary demand into the study area; a residential cul-de-sac is not one.
+
+***definition** · status **active** · DECISIONS.md §9.15*
+
 #### `B.external.day_factor`
 
 External boundary demand by day type, relative to the weekday.
@@ -497,7 +529,7 @@ The one seed everything synthetic derives from. CLAUDE.md forbids unseeded rando
 
 ## Behavioural parameters (C1)
 
-*`config/registry/C_behaviour.json` - 43 fields*
+*`config/registry/C_behaviour.json` - 45 fields*
 
 Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.
 
@@ -529,6 +561,8 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.nesting.active_coefficient` | `0.7` | dimensionless | `assumed` | 0.5 - 0.95 |
 | `C.nesting.private_coefficient` | `0.8` | dimensionless | `assumed` | 0.5 - 0.95 |
 | `C.nesting.pt_coefficient` | `0.65` | dimensionless | `assumed` | 0.5 - 0.95 |
+| `C.scoring.activity_minimal_duration_s` | `900` | seconds | `assumed` | 300 - 1800 |
+| `C.scoring.activity_typical_duration_s` | `{"home": 43200, "work": 28800, "education": 21600, "shopping": 3600, "other": 7200, "business": 3600, "esco...` | seconds | `assumed` | plus/minus 25% |
 | `C.scoring.marginal_utility_of_money` | `1.0` | utils_per_AUD | `definition` | - |
 | `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": 0.0, "pt": 0.0, "walk": 0.0, "bike": 0.0}` | AUD_per_metre | `derived` | -0.00025 - -0.00012 |
 | `C.scoring.performing_utils_per_h` | `6.0` | utils_per_hour | `literature` | 4 - 8 |
@@ -728,6 +762,18 @@ Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING
 Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING - MATSim scores plans, it does not evaluate a nested logit. DECISIONS.md 9.3 records this as lost in translation. Status is placeholder: the value is declared but nothing consumes it, and it must not be reported as if the model used it.
 
 ***assumed** · status **placeholder** · DECISIONS.md §8.6, 9.3*
+
+#### `C.scoring.activity_minimal_duration_s`
+
+MATSim minimalDuration for a scored activity. Applied as min(this, typical duration) so it can never exceed the typical duration of a short activity: an escort drop-off has a typical duration of 5 minutes and a 15-minute floor over it would be self-contradictory.
+
+***assumed** · status **active** · DECISIONS.md §9.15*
+
+#### `C.scoring.activity_typical_duration_s`
+
+MATSim typical activity duration per activity type. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.
+
+***assumed** · status **active** · DECISIONS.md §9.3, 9.15*
 
 #### `C.scoring.marginal_utility_of_money`
 

@@ -48,6 +48,11 @@ CFG = _registry.load()
 # Whether `ride` is withheld from a person with nobody to drive them. Derived
 # from B1 household composition; see DECISIONS.md 15 and src/java/wickham/.
 RIDE_REQUIRES_DRIVER = CFG.get('B.population.ride_requires_household_driver')
+# An external boundary agent is a household-less boundary treatment, not a
+# synthesised person: its attributes are placeholders, and its ride availability
+# follows from having no household at all rather than from an unknown one.
+EXTERNAL_PROFILE = CFG.get('B.external.agent_profile')
+EXTERNAL_RIDE_AVAILABLE = CFG.get('B.external.agent_ride_available')
 
 PLANS = 'demand/plans'
 POP = 'demand/population'
@@ -257,11 +262,22 @@ def write_day(day, attrs, rng, report, seed_table=None):
             rows.sort(key=lambda r: int(r['trip_seq']))
             external = rows[0]['agent_tier'] == 'external'
             if external:
-                # external boundary agents are not in B1, so household composition
-                # is unknown and ride stays available. 5,384 of 521,502 weekday
-                # agents; recorded rather than silently assumed.
-                car_av, age, lic, emp, stu, mob, ride_av = (
-                    1, 40, 1, 'employed_full_time', 'none', 0, 1)
+                # An external boundary agent has no B1 household, so its
+                # attributes are definitional placeholders (B.external
+                # .agent_profile). Ride availability is NOT one of them and is
+                # not "unknown": a car passenger needs a household vehicle AND
+                # another licence holder to drive them, and a household-less
+                # agent has neither, so ride is unavailable by the same identity
+                # that governs everyone else. Resolving it the other way, which
+                # is what this branch used to do, made 432 of 962 external trips
+                # car-passenger trips with no possible driver (DECISIONS.md 9.15).
+                car_av, age, lic, emp, stu, mob = (
+                    EXTERNAL_PROFILE['car_available'], EXTERNAL_PROFILE['age'],
+                    EXTERNAL_PROFILE['licence_holder'],
+                    EXTERNAL_PROFILE['employment_status'],
+                    EXTERNAL_PROFILE['student_status'],
+                    EXTERNAL_PROFILE['mobility_impairment_flag'])
+                ride_av = int(EXTERNAL_RIDE_AVAILABLE)
             else:
                 a = attrs.get(pid)
                 if a is None:

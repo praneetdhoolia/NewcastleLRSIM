@@ -25,7 +25,7 @@
       "HS": 0.9,
       "HO": 0.9,
       "WB": 1.0,
-      "NHB": 1.0
+      "HX": 1.0
     },
     "SAT": {
       "HW": 0.25,
@@ -33,7 +33,7 @@
       "HS": 1.6,
       "HO": 1.5,
       "WB": 0.15,
-      "NHB": 1.1
+      "HX": 0.7
     },
     "SUN": {
       "HW": 0.18,
@@ -41,7 +41,7 @@
       "HS": 1.0,
       "HO": 1.6,
       "WB": 0.1,
-      "NHB": 1.0
+      "HX": 0.5
     }
   },
   "day_purpose_mix_sweep": 0.3,
@@ -72,7 +72,8 @@
     "HE": 0.12,
     "HS": 0.18,
     "HO": 0.2,
-    "WB": 0.3
+    "WB": 0.3,
+    "HX": 0.15
   },
   "p_intermediate_sweep": [
     0.1,
@@ -94,7 +95,8 @@
     "HS": 45,
     "HO": 90,
     "WB": 60,
-    "NHB": 20
+    "NHB": 20,
+    "HX": 5
   },
   "act_duration_sweep": 0.25,
   "external_interaction_rate": 0.08,
@@ -138,8 +140,8 @@
       "hts_network_km": 23.02,
       "realised_network_km": 23.02
     },
-    "NHB": {
-      "beta": 0.34161,
+    "HX": {
+      "beta": 0.24516,
       "target_straight_km": 5.86,
       "realised_straight_km": 5.86,
       "hts_network_km": 7.84,
@@ -159,74 +161,78 @@
     "HS": 812,
     "HO": 992,
     "WB": 860,
-    "NHB": 1161
+    "HX": 221
   },
   "persons": 612668,
   "by_day": {
     "WEEKDAY": {
       "external_agents": 5632,
-      "external_legs": 10770,
-      "legs": 2226603,
-      "tours": 991947,
-      "travelling_persons": 516117,
-      "legs_per_person": 3.634,
-      "tours_per_traveller": 1.922,
-      "tours_dropped_over_horizon": 15231,
+      "external_legs": 10934,
+      "legs": 2244113,
+      "tours": 1004340,
+      "travelling_persons": 518658,
+      "legs_per_person": 3.663,
+      "tours_per_traveller": 1.936,
+      "tours_dropped_over_horizon": 12004,
       "by_purpose": {
-        "HW": 413548,
-        "NHB": 235463,
-        "HO": 1030070,
-        "HS": 353731,
-        "HE": 145635,
-        "WB": 48156
+        "HW": 414597,
+        "HX": 327611,
+        "HO": 728747,
+        "NHB": 228297,
+        "HS": 351089,
+        "HE": 146160,
+        "WB": 47612
       }
     },
     "SAT": {
       "external_agents": 2254,
-      "external_legs": 4214,
-      "legs": 1856803,
-      "tours": 827664,
-      "travelling_persons": 448666,
-      "legs_per_person": 3.031,
-      "tours_per_traveller": 1.845,
-      "tours_dropped_over_horizon": 5412,
+      "external_legs": 4292,
+      "legs": 1865670,
+      "tours": 834198,
+      "travelling_persons": 448173,
+      "legs_per_person": 3.045,
+      "tours_per_traveller": 1.861,
+      "tours_dropped_over_horizon": 4540,
       "by_purpose": {
-        "HO": 1122845,
-        "NHB": 200626,
-        "HS": 438371,
-        "HW": 83386,
-        "WB": 5576,
-        "HE": 5999
+        "HX": 185926,
+        "HO": 926724,
+        "HW": 83374,
+        "HS": 461634,
+        "NHB": 196395,
+        "HE": 5935,
+        "WB": 5682
       }
     },
     "SUN": {
       "external_agents": 1697,
-      "external_legs": 3210,
-      "legs": 1572779,
-      "tours": 700141,
-      "travelling_persons": 412408,
-      "legs_per_person": 2.567,
-      "tours_per_traveller": 1.698,
-      "tours_dropped_over_horizon": 2942,
+      "external_legs": 3244,
+      "legs": 1574021,
+      "tours": 702766,
+      "travelling_persons": 411657,
+      "legs_per_person": 2.569,
+      "tours_per_traveller": 1.707,
+      "tours_dropped_over_horizon": 2547,
       "by_purpose": {
-        "HO": 1075188,
-        "NHB": 171941,
-        "HS": 273572,
-        "HE": 1945,
-        "HW": 46575,
-        "WB": 3558
+        "HS": 293884,
+        "HO": 932384,
+        "NHB": 167902,
+        "HW": 47166,
+        "HX": 126983,
+        "WB": 3784,
+        "HE": 1918
       }
     }
   },
   "placement": {
-    "poi": 3052526,
-    "home": 2519752,
-    "jitter": 83907
+    "poi": 2867366,
+    "home": 2541304,
+    "jitter": 275134
   },
   "tours_dropped_over_horizon": 0,
   "rate_solution": {
     "WEEKDAY": {
       "day_rate_target": 3.7377,
+      "licence_frac": 0.7459,
       "mandatory_legs": 1.1527,
       "secondary_target_legs": 2.5851,
       "child_thinning_factor": 0.9443,
@@ -236,52 +242,57 @@
         "HS": 0.1645,
         "HO": 0.3645,
         "WB": 0.048,
-        "NHB": 0.178
+        "HX": 0.178
       },
       "tour_lambda": {
         "HS": 0.2666,
-        "HO": 0.8791,
-        "WB": 0.0777
+        "HO": 0.5906,
+        "WB": 0.0777,
+        "HX": 0.3867
       }
     },
     "SAT": {
       "day_rate_target": 3.0521,
+      "licence_frac": 0.7459,
       "mandatory_legs": 0.1925,
       "secondary_target_legs": 2.8596,
       "child_thinning_factor": 0.9443,
       "purpose_weights": {
-        "HW": 0.0325,
-        "HE": 0.0042,
-        "HS": 0.2554,
-        "HO": 0.5306,
-        "WB": 0.0063,
-        "NHB": 0.171
+        "HW": 0.0346,
+        "HE": 0.0045,
+        "HS": 0.2724,
+        "HO": 0.5658,
+        "WB": 0.0067,
+        "HX": 0.116
       },
       "tour_lambda": {
-        "HS": 0.3596,
-        "HO": 0.9876,
-        "WB": 0.0088
+        "HS": 0.3838,
+        "HO": 0.7973,
+        "WB": 0.0094,
+        "HX": 0.2192
       }
     },
     "SUN": {
       "day_rate_target": 2.5702,
+      "licence_frac": 0.7459,
       "mandatory_legs": 0.1062,
       "secondary_target_legs": 2.464,
       "child_thinning_factor": 0.9443,
       "purpose_weights": {
-        "HW": 0.0257,
-        "HE": 0.0019,
-        "HS": 0.1754,
-        "HO": 0.6217,
-        "WB": 0.0046,
-        "NHB": 0.1708
+        "HW": 0.0281,
+        "HE": 0.002,
+        "HS": 0.1917,
+        "HO": 0.6798,
+        "WB": 0.005,
+        "HX": 0.0934
       },
       "tour_lambda": {
-        "HS": 0.2105,
-        "HO": 0.9514,
-        "WB": 0.0055
+        "HS": 0.2303,
+        "HO": 0.8165,
+        "WB": 0.006,
+        "HX": 0.1503
       }
     }
   },
-  "realised_week_trip_rate": 3.395
+  "realised_week_trip_rate": 3.418
 }

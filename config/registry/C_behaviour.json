@@ -586,6 +586,43 @@
       "consumers": [
         "src/build/build_matsim_run_inputs.py"
       ]
+    },
+    "C.scoring.activity_typical_duration_s": {
+      "value": {
+        "home": 43200,
+        "work": 28800,
+        "education": 21600,
+        "shopping": 3600,
+        "other": 7200,
+        "business": 3600,
+        "escort": 300
+      },
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25
+      },
+      "status": "active",
+      "decisions_ref": "9.3, 9.15",
+      "description": "MATSim typical activity duration per activity type. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "C.scoring.activity_minimal_duration_s": {
+      "value": 900,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        300,
+        1800
+      ],
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "MATSim minimalDuration for a scored activity. Applied as min(this, typical duration) so it can never exceed the typical duration of a short activity: an escort drop-off has a typical duration of 5 minutes and a 15-minute floor over it would be self-contradictory.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     }
   }
 }

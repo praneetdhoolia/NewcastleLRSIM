@@ -64,7 +64,21 @@ POP = 'demand/population'
 OUT = 'demand/plans'
 
 SEED = CFG.get('B.seed.master')
-PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'NHB']
+# Purposes that choose a destination: each one has an HTS journey distance to
+# calibrate its gravity decay against, and an attractor set to draw from.
+#
+# HX is `serve passenger`: a tour made in order to carry someone else, which the
+# HTS puts at 15.7% of Newcastle journeys, level with commuting. It used to be
+# mapped onto NHB and then folded into the discretionary tours, which preserved
+# the trip *rate* but not the trip *type* - see DECISIONS.md 9.15.
+#
+# NHB is NOT here, and no longer is. It is a *leg* label, not a tour purpose: a
+# non-home-based leg arises only as an intermediate stop, whose destination is
+# drawn with the HS or HO decay. Serve passenger was the only HTS purpose ever
+# mapped to it, so with that moved to HX nothing observed maps to NHB at all,
+# and it has no journey distance to calibrate against. Carrying it here built an
+# attractor index and solved a decay that nothing then drew from.
+PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'HX']
 DAY_TYPES = CFG.get('E.matrix.day_types')
 DAYS_PER_WEEK = CFG.get('B.activity.days_per_week')
 
@@ -117,6 +131,11 @@ P_MANDATORY = CFG.get('B.activity.p_mandatory')
 P_INTERMEDIATE_STOP = CFG.get('B.activity.p_intermediate_stop')
 P_SECOND_STOP = CFG.get('B.activity.p_second_stop')
 P_SECOND_STOP_SWEEP = (0.12, 0.40)
+
+# An escort tour is made by the person doing the driving, so a non-licence
+# holder cannot make one. Derived from the same identity as the `ride` driver
+# requirement, taken on the driver side (DECISIONS.md 9.15).
+ESCORT_REQUIRES_LICENCE = CFG.get('B.activity.escort_requires_licence')
 # Share of an under-12's drawn secondary tours that are actually made alone.
 # Applied as per-tour thinning, not as a scaling of the count.
 CHILD_TOUR_RETENTION = CFG.get('B.activity.child_tour_retention')
@@ -159,6 +178,11 @@ DEPART = {
     'NHB': [.002, .001, .001, .002, .006, .020, .060, .110, .105, .070, .060, .060,
             .060, .070, .100, .095, .070, .050, .030, .018, .008, .004, .002, .001],
 }
+# An escort trip departs when the person being escorted has to be somewhere, so
+# HX inherits the education profile rather than carrying a new set of assumed
+# hourly shares. The HTS extract in the package has no time-of-day dimension, so
+# a separate profile could only have been invented.
+DEPART['HX'] = DEPART['HE']
 WEEKEND_DEPARTURE_SHIFT_H = CFG.get('B.activity.weekend_departure_shift_h')
 
 # POI categories that are street furniture rather than somewhere anyone travels
@@ -184,11 +208,20 @@ PURPOSE_GROUPS = {
     'HS': ('retail', 'food', 'landuse'),
     'HO': ('leisure', 'tourism', 'food', 'civic', 'health', 'amenity'),
     'WB': ('office', 'civic', 'landuse'),
-    'NHB': ('retail', 'food', 'leisure', 'tourism', 'civic', 'health', 'amenity',
-            'office', 'landuse'),
+    # An escort destination is wherever the escorted person was going. The
+    # dominant and by far the most sharply peaked component is the school run,
+    # so HX draws the same attractors as HE. Escorting to other destinations is
+    # folded into it and inherits its timing; the trip *length* is not inherited
+    # but calibrated to the HTS serve-passenger journey distance like every
+    # other purpose. Stated as a modelling choice in DECISIONS.md 9.15.
+    'HX': ('civic',),
 }
 EDUCATION_CATEGORIES = ('civic:school', 'civic:university', 'civic:college',
                         'civic:kindergarten', 'civic:childcare')
+# Purposes whose destinations are drawn from the education attractor set, and
+# whose zone-level attraction vector is shared rather than separately built.
+EDUCATION_ATTRACTOR_PURPOSES = ('HE', 'HX')
+ATTRACTION_ALIAS = {'HX': 'HE'}
 
 
 def norm(a):
@@ -204,9 +237,14 @@ def hts_rates():
     pur = pur[(pur.geography == 'lga')]
     yr = sorted(pur.FINANCIAL_YEAR.unique())[-1]
     pur = pur[pur.FINANCIAL_YEAR == yr]
+    # `Serve passenger` was mapped to NHB, and solve_secondary_rates then folded
+    # NHB's weight into HO because a non-home-based leg is not a tour purpose.
+    # That preserved the trip rate and lost the trip type: an escort became a
+    # two-hour discretionary stay made by anyone, rather than a drop-off made by
+    # a driver. It is its own tour purpose now (DECISIONS.md 9.15).
     pmap = {'Commute': 'HW', 'Education/childcare': 'HE', 'Shopping': 'HS',
             'Personal business': 'HO', 'Social/recreation': 'HO',
-            'Serve passenger': 'NHB', 'Work related business': 'WB', 'Other': 'HO'}
+            'Serve passenger': 'HX', 'Work related business': 'WB', 'Other': 'HO'}
     pur['p'] = pur.TRAVEL_PURPOSE.str.rstrip('*').map(pmap)
     pur = pur[pur.p.notna()]
     journeys = pur.groupby('p').JOURNEYS_BY_MODE.sum()
@@ -264,7 +302,7 @@ def load_poi_by_zone(zones):
         groups = PURPOSE_GROUPS[purpose]
         sub = allp[allp.category_group.isin(groups) |
                    (allp.category_group == 'building')]
-        if purpose == 'HE':
+        if purpose in EDUCATION_ATTRACTOR_PURPOSES:
             sub = allp[allp.category.isin(EDUCATION_CATEGORIES)]
         by = {}
         for sa1, grp in sub.groupby('SA1_CODE21', sort=True):
@@ -374,7 +412,7 @@ def legs_per_tour(purpose):
 
 
 def solve_secondary_rates(day, share, day_rate, employed_frac, student_frac,
-                          child_frac):
+                          child_frac, licence_frac):
     """Tour rates for the secondary purposes, given the mandatory tours.
 
     The target is a *trip* rate, but the model draws *tours*, and a tour is two
@@ -393,17 +431,24 @@ def solve_secondary_rates(day, share, day_rate, employed_frac, student_frac,
     mandatory = (P_MANDATORY[day]['work'] * employed_frac * legs_per_tour('HW')
                  + P_MANDATORY[day]['education'] * student_frac * legs_per_tour('HE'))
     secondary_target = max(0.0, day_rate - mandatory)
-    sec = ('HS', 'HO', 'WB', 'NHB')
+    sec = ('HS', 'HO', 'WB', 'HX')
     denom = sum(w[p] * legs_per_tour(p) for p in sec)
     # under-12 secondary tours are thinned after the Poisson draw, so the solve
     # has to expect fewer legs per unit of lambda than the raw tour rate implies
     thin = 1.0 - child_frac * (1.0 - CHILD_TOUR_RETENTION)
     k = secondary_target / (denom * thin) if denom > 0 and thin > 0 else 0.0
-    # NHB is not a tour purpose - a non-home-based leg only arises as an
-    # intermediate stop - so its weight is folded into the discretionary tours
-    lam = {p: k * w[p] for p in ('HS', 'HO', 'WB')}
-    lam['HO'] += k * w['NHB']
+    # No fold any more. NHB used to carry the serve-passenger share and have it
+    # added to HO, because NHB is not a tour purpose. HX *is* one, and draws its
+    # own tours against the same observed share (DECISIONS.md 9.15).
+    lam = {p: k * w[p] for p in sec}
+    # Only licence holders draw an escort tour, so the per-person rate has to be
+    # raised by that fraction for the *realised* escort legs to reach the
+    # observed serve-passenger share. Without this the tier lands short by the
+    # non-driving fraction of the population, children included.
+    if ESCORT_REQUIRES_LICENCE and licence_frac > 0:
+        lam['HX'] /= licence_frac
     return lam, dict(day_rate_target=round(day_rate, 4),
+                     licence_frac=round(licence_frac, 4),
                      mandatory_legs=round(mandatory, 4),
                      secondary_target_legs=round(secondary_target, 4),
                      child_thinning_factor=round(thin, 4),
@@ -434,7 +479,7 @@ class Uniforms:
 
 
 ACT_OF_PURPOSE = {'HW': 'work', 'HE': 'education', 'HS': 'shopping',
-                  'HO': 'other', 'WB': 'business'}
+                  'HO': 'other', 'WB': 'business', 'HX': 'escort'}
 PURPOSE_OF_ACT = {v: k for k, v in ACT_OF_PURPOSE.items()}
 
 
@@ -496,8 +541,12 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
         tours.append('HW')
     elif person['student'] and u() < P_MANDATORY[day]['education']:
         tours.append('HE')
-    for p in ('HS', 'HO', 'WB'):
+    for p in ('HS', 'HO', 'WB', 'HX'):
         if p == 'WB' and not person['employed']:
+            continue
+        # An escort tour is made *by the driver*: someone without a licence
+        # cannot make one. B.activity.escort_requires_licence.
+        if p == 'HX' and ESCORT_REQUIRES_LICENCE and not person['licence']:
             continue
         n = pre[p]
         if person['age'] < 12 and n:
@@ -616,14 +665,78 @@ EXTERNAL_INTERACTION_SWEEP = (0.04, 0.15)
 EXTERNAL_DAY_FACTOR = CFG.get('B.external.day_factor')
 EXTERNAL_PURPOSE_SPLIT = CFG.get('B.external.purpose_split')
 EXTERNAL_PERSON_ID_BASE = CFG.get('B.external.person_id_base')
+CORDON_ROAD_CLASSES = frozenset(CFG.get('B.external.cordon_road_classes'))
+ROADS = 'data/processed/network/A1_road_edges.csv'
 
 
-def external_agents(zones, core, decay, u, day, seq_base):
-    """One home-based tour per boundary agent, from an external SA1 into the core.
+def cordon_nodes(ext):
+    """External stations: where boundary demand enters the modelled network.
+
+    Every one of the 201 external SA1s lies OUTSIDE the five-LGA study area - a
+    median of 21.3 km beyond the boundary and up to 128.7 km - while the road
+    network is clipped to the study area. Placing a trip end at an external zone
+    centroid therefore places it where no modelled road exists, and MATSim's
+    `accessEgressModeToLink` then walks the agent to the edge of the network:
+    a median 2.7 km against the core population's 0.097 km, and 16-50 km in the
+    top three deciles. At 1.05 m/s that is most of a day, so 48% of external car
+    tours never completed and the modes that are teleported door to door - bike
+    and walk, which are charged no access leg at all - won on score. That is the
+    whole of the 96 km bicycle result (DECISIONS.md 9.14, 9.15).
+
+    The standard treatment is an external station: boundary demand enters at the
+    point where its corridor crosses the cordon, on a real link, and the journey
+    outside the study area is simply not modelled. The cordon set is derived, not
+    listed: a node is an external station if it is the nearest node on a road
+    capable of carrying boundary demand to at least one external zone, which by
+    construction puts it on the outward-facing edge of the network. Testing
+    distance to the study-area boundary instead would pick up the coastline,
+    which is a boundary but not a crossing.
+
+    Returns (node_x, node_y) for the cordon set, in EPSG:28356.
+    """
+    xs, ys = [], []
+    seen = set()
+    with open(ROADS, encoding='utf-8') as fh:
+        for r in csv.DictReader(fh):
+            if r['road_class'] not in CORDON_ROAD_CLASSES:
+                continue
+            for nd, la, lo in ((r['from_node'], r['start_lat'], r['start_lon']),
+                               (r['to_node'], r['end_lat'], r['end_lon'])):
+                if nd in seen:
+                    continue
+                seen.add(nd)
+                xs.append(float(lo))
+                ys.append(float(la))
+    import pyproj
+    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    nx, ny = tf.transform(np.asarray(xs), np.asarray(ys))
+    nx = np.asarray(nx, dtype=float)
+    ny = np.asarray(ny, dtype=float)
+    ex = ext['x_mga56'].to_numpy(dtype=float)
+    ey = ext['y_mga56'].to_numpy(dtype=float)
+    keep = set()
+    # chunked so the 201 x ~7,000 distance matrix never materialises whole
+    for i0 in range(0, ex.size, 64):
+        ex_c, ey_c = ex[i0:i0 + 64], ey[i0:i0 + 64]
+        d = np.hypot(nx[None, :] - ex_c[:, None], ny[None, :] - ey_c[:, None])
+        keep.update(int(j) for j in d.argmin(axis=1))
+    idx = np.array(sorted(keep), dtype=int)
+    return nx[idx], ny[idx]
+
+
+def external_agents(zones, core, decay, u, day, seq_base, store, cordon):
+    """One tour per boundary agent, entering the network at an external station.
 
     Destinations are drawn over the core zones only, with the same purpose decay
     the resident population uses, so a boundary trip is not systematically
-    longer or shorter than a resident one of the same purpose.
+    longer or shorter than a resident one of the same purpose, and they are
+    placed on an observed attractor by the same routine the core uses rather
+    than jittered inside the zone.
+
+    The agent's origin is the cordon crossing that minimises
+    d(external zone, cordon) + d(cordon, destination) - the entry that is on the
+    way - so the modelled trip is the in-network portion of the journey and
+    begins on a link. What lies beyond the cordon is outside the model.
     """
     ext = zones[zones.zone_tier == 'external'].reset_index(drop=True)
     if ext.empty:
@@ -644,8 +757,9 @@ def external_agents(zones, core, decay, u, day, seq_base):
         if n <= 0:
             continue
         ex, ey = float(row.x_mga56), float(row.y_mga56)
-        erad = math.sqrt(max(float(row.area_km2), 1e-4) * 1e6 / math.pi) * 0.6
         dkm = np.hypot(CX - ex, CY - ey) / 1000.0
+        # distance from every cordon crossing to this zone, fixed for the zone
+        d_zone_cordon = np.hypot(cordon[0] - ex, cordon[1] - ey)
         cum = {}
         for p in ('HW', 'HO'):
             w = attr[p] * np.exp(-decay[p]['beta'] * dkm)
@@ -658,16 +772,18 @@ def external_agents(zones, core, decay, u, day, seq_base):
             k = int(np.searchsorted(cum[purpose], u()))
             if k >= CX.size:
                 k = CX.size - 1
-            ang = 2.0 * math.pi * u()
-            rr = erad * math.sqrt(u())
-            hx, hy = ex + rr * math.cos(ang), ey + rr * math.sin(ang)
-            ang = 2.0 * math.pi * u()
-            rr = float(CRAD[k]) * math.sqrt(u())
-            dx, dy = float(CX[k]) + rr * math.cos(ang), float(CY[k]) + rr * math.sin(ang)
+            dx, dy, how = place_in_zone(store, purpose, k, float(CX[k]),
+                                        float(CY[k]), float(CRAD[k]), u)
+            # The external station this agent enters through: the crossing that
+            # is on the way, not merely the nearest one to home.
+            j = int((d_zone_cordon
+                     + np.hypot(cordon[0] - dx, cordon[1] - dy)).argmin())
+            hx, hy = float(cordon[0][j]), float(cordon[1][j])
             dist_km = math.hypot(dx - hx, dy - hy) / 1000.0
             t0 = draw_hour(DEPART[purpose], WEEKEND_DEPARTURE_SHIFT_H[day],
                            u) * 3600 + int(3600 * u())
-            tt = int(dist_km / 45.0 * 3600) + 240      # boundary trips are highway
+            # in-network now, so the same seed-plan speed the core tours use
+            tt = int(dist_km / 26.0 * 3600) + 240
             arr = t0 + tt
             dur = int(max(1800, ACT_DURATION[purpose] * 60
                           * (1.0 + DURATION_CV * (2.0 * u() - 1.0))))
@@ -686,7 +802,7 @@ def external_agents(zones, core, decay, u, day, seq_base):
                              dep_time_s=t0, arr_time_s=arr,
                              straight_dist_km=round(dist_km, 3),
                              activity_duration_s=dur, is_tour_anchor=1,
-                             dest_placement='jitter_external'))
+                             dest_placement=how))
             legs.append(dict(common, trip_seq=2, purpose=purpose,
                              dest_activity_type='home',
                              origin_sa1=CSA[k], dest_sa1=row.SA1_CODE21,
@@ -725,7 +841,12 @@ def main(seed=SEED, max_persons=None, day_types=None):
     RAD = np.sqrt(np.maximum(core['area_km2'].to_numpy(dtype=float), 1e-4)
                   * 1e6 / math.pi) * 0.6
     SA1 = core['SA1_CODE21'].to_numpy()
-    ATTR = {p: norm(core['attr_' + p].to_numpy()) for p in PURPOSES}
+    # HX shares HE's zone attraction vector rather than adding a column to the
+    # land-use layer: an escort destination is an education destination, and the
+    # gravity decay is calibrated separately per purpose against the HTS journey
+    # distance, so HX still lands on its own observed 6.4 km.
+    ATTR = {p: norm(core['attr_' + ATTRACTION_ALIAS.get(p, p)].to_numpy())
+            for p in PURPOSES}
     zone_arr = (X, Y, X, Y, RAD, SA1)
 
     day_shape, day_shape_source = load_network_factors()
@@ -743,6 +864,11 @@ def main(seed=SEED, max_persons=None, day_types=None):
     covered = {p: len(store[p]) for p in PURPOSES}
     print('   %d attractors; core zones with an attractor, by purpose: %s'
           % (n_attractors, covered), flush=True)
+
+    print('locating external stations (cordon crossings) ...', flush=True)
+    cordon = cordon_nodes(zones[zones.zone_tier == 'external'])
+    print('   %d cordon crossings on %s'
+          % (cordon[0].size, ','.join(sorted(CORDON_ROAD_CLASSES))), flush=True)
 
     print('calibrating gravity decay against HTS journey distances ...', flush=True)
     CUM, decay = calibrate_decay(X, Y, ATTR, meandist,
@@ -762,7 +888,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
                           dtype={'home_sa1': str},
                           usecols=['person_id', 'household_id', 'home_sa1', 'age',
                                    'employment_status', 'student_status',
-                                   'car_available'])
+                                   'car_available', 'licence_holder'])
     persons = persons.sort_values('person_id', kind='stable')
     if max_persons and max_persons < len(persons):
         # B1 writes persons zone by zone, so head() would draw the whole sample
@@ -782,6 +908,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
                              .to_numpy().astype('U24'), 'employed')
     stu = (persons.student_status.astype(str).to_numpy() == 'full_time')
     cav = (persons.car_available.to_numpy() == 1)
+    lic = (persons.licence_holder.to_numpy() == 1)
     del persons
 
     employed_frac = float(emp.mean())
@@ -790,6 +917,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
     # non-employed full-time students
     student_frac = float((stu & ~emp).mean())
     child_frac = float((age < 12).mean())
+    licence_frac = float(lic.mean())
     day_rate = solve_day_rates(HTS_RATE_PER_PERSON_DAY, day_shape)
     stats = dict(seed=seed, hts_year=yr,
                  hts_rate_per_person_day=HTS_RATE_PER_PERSON_DAY,
@@ -830,10 +958,11 @@ def main(seed=SEED, max_persons=None, day_types=None):
         w.writeheader()
 
         rates, rate_diag = solve_secondary_rates(
-            d, share, day_rate[d], employed_frac, student_frac, child_frac)
+            d, share, day_rate[d], employed_frac, student_frac, child_frac,
+            licence_frac)
         stats.setdefault('rate_solution', {})[d] = rate_diag
         counts = {p: rng.poisson(rates[p], size=n_persons)
-                  for p in ('HS', 'HO', 'WB')}
+                  for p in ('HS', 'HO', 'WB', 'HX')}
 
         n_legs = n_tours = n_travel = 0
         dropped = [0]
@@ -848,8 +977,9 @@ def main(seed=SEED, max_persons=None, day_types=None):
                 continue
             person = dict(hx=float(hxy[0]), hy=float(hxy[1]), hzi=hz,
                           age=int(age[i]), employed=bool(emp[i]),
-                          student=bool(stu[i]), cav=bool(cav[i]))
-            pre = {p: int(counts[p][i]) for p in ('HS', 'HO', 'WB')}
+                          student=bool(stu[i]), cav=bool(cav[i]),
+                          licence=bool(lic[i]))
+            pre = {p: int(counts[p][i]) for p in ('HS', 'HO', 'WB', 'HX')}
             legs = build_day(person, d, rates, CUM, store, zone_arr, u, pre,
                              dropped)
             if not legs:
@@ -875,7 +1005,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
             n_legs += len(legs)
             n_tours += legs[-1]['tour_id']
         ext_legs, n_ext = external_agents(zones, core, decay, u, d,
-                                          EXTERNAL_PERSON_ID_BASE)
+                                          EXTERNAL_PERSON_ID_BASE, store, cordon)
         for leg in ext_legs:
             w.writerow(leg)
         fh.close()

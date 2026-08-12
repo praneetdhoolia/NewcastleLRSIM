@@ -121,7 +121,8 @@
         "HS": 45,
         "HO": 90,
         "WB": 60,
-        "NHB": 20
+        "NHB": 20,
+        "HX": 5
       },
       "units": "minutes",
       "source": "assumed",
@@ -130,7 +131,7 @@
       },
       "status": "active",
       "decisions_ref": "9.2",
-      "description": "Mean activity duration by purpose.",
+      "description": "Mean activity duration by purpose. HX (serve passenger) is a drop-off: the driver does not perform an activity at the destination, so its duration is the dwell, not a stay. No survey in the package measures a drop-off dwell, so it is assumed and carries the same proportional sweep as the rest.",
       "consumers": [
         "src/build/build_activity_chains.py"
       ]
@@ -156,7 +157,8 @@
         "HE": 0.12,
         "HS": 0.18,
         "HO": 0.2,
-        "WB": 0.3
+        "WB": 0.3,
+        "HX": 0.15
       },
       "units": "probability",
       "source": "assumed",
@@ -166,7 +168,7 @@
       ],
       "status": "active",
       "decisions_ref": "9.2",
-      "description": "Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values.",
+      "description": "Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values. HX (serve passenger) chains at the same rate as a discretionary tour: a driver who drops a passenger may link another stop before returning.",
       "consumers": [
         "src/build/build_activity_chains.py"
       ]
@@ -238,7 +240,7 @@
           "HS": 0.9,
           "HO": 0.9,
           "WB": 1.0,
-          "NHB": 1.0
+          "HX": 1.0
         },
         "SAT": {
           "HW": 0.25,
@@ -246,7 +248,7 @@
           "HS": 1.6,
           "HO": 1.5,
           "WB": 0.15,
-          "NHB": 1.1
+          "HX": 0.7
         },
         "SUN": {
           "HW": 0.18,
@@ -254,7 +256,7 @@
           "HS": 1.0,
           "HO": 1.6,
           "WB": 0.1,
-          "NHB": 1.0
+          "HX": 0.5
         }
       },
       "units": "multiplier_on_weekday",
@@ -264,7 +266,7 @@
       },
       "status": "active",
       "decisions_ref": "9.2",
-      "description": "Weekend purpose mix relative to the weekday.",
+      "description": "Weekend purpose mix relative to the weekday. HX (serve passenger) is derived demand - it exists because somebody else has to be somewhere - so it falls at the weekend with the school run without vanishing, because weekend escorting is sport and social rather than education. Like every other entry here it is assumed and swept; the HTS extract in the package carries no day-type dimension to estimate it from. NHB is absent: it is a leg label, not a tour purpose, so it has no day-type mix to carry.",
       "consumers": [
         "src/build/build_activity_chains.py"
       ]
@@ -510,6 +512,81 @@
         "src/build/build_matsim_plans.py"
       ],
       "description": "Whether `ride` is withheld from a person with nobody to drive them. MATSim's standard treatment lets any agent be a car passenger on any trip; DECISIONS.md 9.10 measures the cost at 0.72 of legs against an observed 0.206, unmoved by a tenfold sample increase, i.e. 5.9 people per car. Core MATSim can restrict `car` per person via `carAvail` but has no equivalent for `ride`, and subtourModeChoice.modes is global, so the fix is a person attribute honoured by a custom PermissibleModesCalculator (src/java/wickham/). Setting this false restores the previous behaviour for comparison. RESIDUAL LIMITATION, stated not hidden: this makes ride available or not per person, it does NOT bind a passenger to a specific driver at a specific time - that is the socnetsim joint-plans contrib (Dubernet & Axhausen), absent from the pinned jar and out of scope."
+    },
+    "B.activity.escort_requires_licence": {
+      "value": true,
+      "units": "boolean",
+      "source": "derived",
+      "derived_from": {
+        "fields": [
+          "B.population.licence_rate_by_age_band"
+        ],
+        "identity": "an escort trip is a trip made in order to convey another person, so the traveller is the driver, and a person without a licence cannot make one; the same identity as B.population.ride_requires_household_driver taken on the driver side rather than the passenger side"
+      },
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Whether a serve-passenger (HX) tour may only be drawn for a licence holder. Consumed where tours are allocated to persons.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.cordon_road_classes": {
+      "value": [
+        "motorway",
+        "trunk",
+        "primary",
+        "secondary",
+        "motorway_link",
+        "trunk_link",
+        "primary_link"
+      ],
+      "units": "osm_highway_class",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Road classes whose network nodes may serve as an external station, that is a cordon entry point. Defines what counts as a road capable of carrying boundary demand into the study area; a residential cul-de-sac is not one.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.agent_profile": {
+      "value": {
+        "car_available": 1,
+        "age": 40,
+        "licence_holder": 1,
+        "employment_status": "employed_full_time",
+        "student_status": "none",
+        "mobility_impairment_flag": 0
+      },
+      "units": "person_attributes",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Placeholder person attributes for an external boundary agent, which has no B1 household. Definitional placeholders for a tier that is a boundary treatment rather than a synthesised population, not estimates of anything. Ride availability is deliberately NOT among them: see B.external.agent_ride_available.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "B.external.agent_ride_available": {
+      "value": false,
+      "units": "boolean",
+      "source": "derived",
+      "derived_from": {
+        "fields": [
+          "B.population.ride_requires_household_driver"
+        ],
+        "identity": "a person may be a car passenger only if their household holds a vehicle AND contains another licence holder; an external boundary agent is household-less by construction, so that condition cannot be satisfied and ride is unavailable. Resolving the same unknown the other way made 432 of 962 external trips car-passenger trips with no possible driver"
+      },
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Whether an external boundary agent may travel as a car passenger.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
     }
   }
 }

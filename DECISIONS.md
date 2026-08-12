@@ -1643,6 +1643,188 @@ should be attempted until §9.14 is resolved.**
 
 ---
 
+## 9.15 The external tier walks to the network, and the escort trip is typed wrong (P4 stage 4)
+
+§9.14 left the external tier's behaviour "recorded as open rather than guessed"
+after six hypotheses died. The seventh was measured rather than guessed, and it
+is structural: **the external tier is charged a walk that the modes it chooses
+instead are exempt from.**
+
+### The mechanism
+
+`routing.accessEgressType = accessEgressModeToLink` with
+`routing.networkModes = car,ride`. So `car` and `ride` are routed on the network
+and pay an access and egress walk from the activity coordinate to the link;
+`bike` and `walk` are teleported at a beeline speed and pay **nothing**.
+
+That is harmless for the core population, whose activities sit on observed POIs
+inside the network. It is not harmless for the external tier, because **all 201
+external zones lie outside the modelled area**: their centroids sit a median
+**21.3 km** beyond the five-LGA boundary, a top decile of 80.7 km and a maximum
+of **128.7 km**, while the road network is clipped to the study area. B2 placed
+the trip end by uniform area-jitter inside the external SA1, so it landed where
+no modelled road exists and MATSim walked the agent to the edge of the network.
+
+Access and egress walk per trip, iteration 0, from `0.legs.csv.gz`:
+
+| tier | mode | trips | median walk km | median walk h | median main km |
+|---|---|---:|---:|---:|---:|
+| core | car | 31,197 | **0.097** | 0.026 | 8.8 |
+| core | ride | 35,119 | 0.099 | 0.026 | 8.2 |
+| core | bike | 47,108 | 0.000 | 0.000 | 7.1 |
+| **external** | **car** | 134 | **2.656** | **0.703** | 46.9 |
+| external | ride | 151 | 1.054 | 0.279 | 47.5 |
+| external | bike | 188 | **0.000** | 0.000 | 72.0 |
+
+The external car access walk is **27x the core's**, and its top three deciles are
+**16.4 / 39.9 / 49.8 km — of walking**, at the 1.05 m/s teleport speed.
+
+### It is monotone in the score, so it is not a coincidence
+
+Iteration 0 is the clean test: the uninformed seed assigns modes uniformly, so
+mode is exogenous and every agent is equally unrelaxed.
+
+| mode | access-walk band | agents | median score | activities performed |
+|---|---|---:|---:|---:|
+| car | < 0.5 h | 24 | **+94.21** | 3 |
+| car | 0.5 - 2 h | 13 | +72.91 | 3 |
+| car | 2 - 6 h | 6 | -22.10 | 3 |
+| car | **> 6 h** | **39 (48%)** | **-1165.01** | **2** |
+| ride | < 0.5 h | 35 | **+111.67** | 3 |
+| ride | > 6 h | 44 (47%) | -1169.82 | 2 |
+| bike | < 0.5 h | **101 (all of them)** | -96.17 | 3 |
+
+A well-connected external car tour scores **+94**. A badly-connected one scores
+**-1165**, and **48%** of them are badly connected. The tour truncates - two
+activities instead of three - because the agent spends the day walking to the car
+and never gets home. Tours that never complete: **car 39.0%, ride 38.7%, pt
+66.7%, walk 85.3%, bike 13.9%**.
+
+Bike is the *worst* mode for a connected external agent and the *best* for a
+disconnected one, and it is the only mode that is never disconnected, because it
+is teleported door to door. Within-agent, over the 220 agents that realised both,
+bike beats car by a median **+118.93** utils, and the difference is **bimodal at
+plus or minus 1000** - the signature of a plan that does not complete, not of a
+cost. **Mode choice was behaving correctly.** The 478 agents cycling 96 km were
+choosing the only mode that did not require them to walk to a road.
+
+**Why six hypotheses died.** Permission, connectivity, the network, replanning,
+aborts and the seed all tested *the link*. Every one of them was sound. The
+defect is *the distance to the link*, which none of them measured. §9.14's
+utility arithmetic - "-140 by bike against -38 by car, so the choice inverts what
+the utilities imply" - omitted the access leg, which is the structural thing it
+correctly concluded must exist.
+
+### A second defect, independent of the first
+
+All 531 external agents carried `rideAvail=always`. `build_matsim_plans.py`
+resolved the unknown that way on the ground that "external boundary agents are
+not in B1, so household composition is unknown". But §9.11's rule is that a
+person may be a car passenger only if their household holds a vehicle **and**
+contains another licence holder, and an external agent is **household-less by
+construction** - the generator's own words. A person with no household cannot
+satisfy that condition, so the unknown was resolved in the wrong direction, and
+**432 of 962 external trips were car-passenger trips with no possible driver.**
+
+### A third, which is a scope consequence and not a defect
+
+The external tier is not a ring. Every one of its 201 zones is in a single SA4:
+
+| sector | N | NE | E | SE | S | SW | W | NW |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| zones | 18 | 23 | 17 | **0** | **0** | **0** | 3 | **140** |
+
+The southernmost external zone is at latitude -32.856; the M1 southern cordon is
+at -33.218. **There is no external zone anywhere in the Sydney direction**, so no
+interaction rate can put traffic on the M1 at Wyee. That is not an accident:
+`extract_zones.py` defines the tier as "the remainder of SA4 'Hunter Valley exc
+Newcastle' ... retained only as a boundary treatment for **Hunter Line**
+through-demand", which is scope decision 3 in §1. The M1 gap therefore lies
+**outside the tier's declared purpose**, and #20's framing of it as a tier-size
+problem is corrected: raising `B.external.interaction_rate` would not have
+touched it.
+
+### The repair
+
+The standard treatment of boundary demand is an **external station**: the trip
+enters at the point where its corridor crosses the cordon, on a real link, and
+the portion of the journey outside the study area is not modelled. That is what
+is now built, and it removes the mechanism by construction rather than by
+counterweight.
+
+1. **Cordon anchoring.** The cordon set is *derived, not listed*: a node is an
+   external station if it is the nearest node on a road capable of carrying
+   boundary demand (`B.external.cordon_road_classes`) to at least one external
+   zone, which by construction puts it on the outward-facing edge of the network.
+   **42 crossings.** Testing distance to the study-area boundary instead picks up
+   the **coastline**, which is a boundary but not a crossing. Each agent enters
+   through the crossing that minimises `d(zone, cordon) + d(cordon, destination)`
+   - the entry that is on the way, not merely the nearest to home.
+2. **Destinations on observed attractors.** The external tour's core end was
+   jittered inside the destination zone while the core population's was placed on
+   a POI. It now uses the same routine.
+3. **Ride withheld from the tier** (`B.external.agent_ride_available`, derived),
+   and the placeholder attributes it used to type in are declared
+   (`B.external.agent_profile`).
+4. **`Serve passenger` given its own tour purpose, HX.** It was mapped to NHB and
+   then folded into the discretionary tours, because NHB is not a tour purpose.
+   That preserved the trip **rate** and lost the trip **type**: an escort became a
+   two-hour discretionary stay made by anyone, rather than a five-minute drop-off
+   made by a driver. It now carries its own rate, its own gravity decay against
+   the observed serve-passenger journey distance, the education departure profile
+   and attractor set (the school run being the dominant and most peaked
+   component), a licence requirement on the traveller
+   (`B.activity.escort_requires_licence`, derived), and a MATSim `escort` activity
+   whose typical duration is minutes rather than hours - a longer one would hold
+   the vehicle at the destination and displace the return trip out of the peak.
+   **#11's premise is corrected: the demand was not absent, it was mistyped.**
+5. **NHB removed from the destination-choice purposes.** With serve passenger
+   moved out, nothing observed maps to NHB, so it had no journey distance to
+   calibrate against - the check caught this immediately. It is a *leg* label, not
+   a tour purpose, and carrying it built an attractor index and solved a decay
+   that nothing drew from.
+
+### What the repair does to the inputs
+
+| | before | after |
+|---|---:|---:|
+| External leg length, median | 54.2 km | **21.6 km** |
+| External leg length, top decile | 106.6 km | 43.0 km |
+| External destination placement | 5,385 `jitter_external` | **5,408 `poi`**, 59 jitter |
+| Serve-passenger share of weekday legs | **0** | **14.53%** (observed 15.7% of journeys) |
+| Week trip rate vs HTS 3.473 | 3.397 (-2.2%) | **3.418 (-1.6%)** |
+| Seed ride share | 0.1712 | 0.1620 |
+
+### What is deliberately NOT repaired
+
+- **The M1, and boundary through traffic generally.** Representing it needs an
+  external-station matrix seeded from cordon counts, which is a scope decision
+  about what the model is for, not a defect fix. **The §9.14 consequence stands
+  unchanged: no count-based calibration until it is resolved.**
+- **`B.external.interaction_rate` stays `assumed` and swept 0.04-0.15**, not
+  pinned. It still needs the ABS journey-to-work SA2 x SA2 table (§13).
+- **The escort trip is still only the driver's side.** No passenger is bound to
+  the escorting driver; that is the socnetsim limitation §9.11 already records.
+- **`WB` is not corrected for the employed fraction**, though `HX` is corrected
+  for the licence-holding fraction. Both are secondary purposes drawn only for a
+  subset of persons, and the rate solve accounts for neither. Logged rather than
+  changed: it is pre-existing, it is not what this change is about, and altering
+  it would move an existing calibration for no measured reason.
+
+### This is a planned comparability break
+
+B2 was regenerated, so the demand under every run to date has changed. **The
+three `ride_sufficiency_*` runs are historical** and no earlier run shares this
+demand. The re-measurement runs as `cordon_escort_10pct`, configured identically
+to `ride_sufficiency_10pct` so the comparison isolates the demand change.
+
+**Neither is a result.** 250 iterations remains measurably short of relaxation
+(§9.7), and the §8.5 ride departure (#16) is still unchosen - it must be re-taken
+on the repaired demand, because the ride share it was to be chosen against has
+moved.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

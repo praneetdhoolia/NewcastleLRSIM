@@ -68,6 +68,27 @@ QUERIES={
  "boundaries": f"""[out:xml][timeout:900];
  (relation["boundary"="administrative"]["admin_level"~"^(4|6|7)$"]({bb(STUDY)}););
  (._;>;); out body qt;""",
+
+ # --- water bodies, for the run replay basemap only ---
+ # NO MODEL CONSUMER. The harbour, the Hunter River and Lake Macquarie are what
+ # make an overhead view of this study area legible as Newcastle, and none of
+ # them is a polygon in any other extract: `poi` carries 7 natural=water ways in
+ # total. Nothing in src/build or src/run reads this; src/analyse/build_basemap.py
+ # does. ODbL 1.0 like every other OSM-derived layer.
+ "water": f"""[out:xml][timeout:1800];
+ (way["natural"="water"]({bb(STUDY)}); relation["natural"="water"]({bb(STUDY)});
+  way["waterway"="riverbank"]({bb(STUDY)}); relation["waterway"="riverbank"]({bb(STUDY)});
+  way["landuse"~"^(reservoir|basin)$"]({bb(STUDY)});
+  way["natural"="coastline"]({bb(STUDY)}););
+ (._;>;); out body qt;""",
+
+ # --- green and open space, for the run replay basemap only ---
+ # Same standing as `water`: cartography, not a model input.
+ "green": f"""[out:xml][timeout:1800];
+ (way["leisure"~"^(park|golf_course|nature_reserve|garden)$"]({bb(STUDY)});
+  way["natural"~"^(wood|scrub|heath|beach|sand|wetland)$"]({bb(STUDY)});
+  way["landuse"~"^(forest|grass|meadow|recreation_ground|cemetery|village_green)$"]({bb(STUDY)}););
+ (._;>;); out body qt;""",
 }
 
 def fetch(name,q,outdir="networks/osm"):
