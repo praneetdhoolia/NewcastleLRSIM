@@ -1825,6 +1825,145 @@ moved.
 
 ---
 
+## 9.16 The calibration loop, the report, and the outer-loop tolerance (P4 stage 5)
+
+P4 deliverables 4, 6 and 7. Deliverable 5, the calibrated base, needs the loop to
+have run and is **not** met by this section.
+
+### What the loop is allowed to move, and why almost nothing is
+
+`src/calibrate/calibrate.py` **derives its search space from the registry rather
+than listing one**. A field is movable only if it is `assumed`, carries a scalar
+sweep, is not `held_fixed`, and — the clause that does most of the work — can
+actually be *realised* by the pipeline the loop runs.
+
+Thirty-eight registry fields carry a scalar sweep. **Twenty-one are excluded,
+each with a stated reason**, and the exclusions are derived from the `consumers`
+declaration rather than hand-maintained:
+
+| excluded because | example | why it is not a calibration parameter |
+|---|---|---|
+| the loop's own controls | `CAL.search.max_rounds` | calibrating the search against itself |
+| run identity or compute | `RUN.sample.fraction` | a machine choice, not a property of Newcastle |
+| measurement apparatus | `B.counts.station_match_radius_m` | moving it changes what the fit can *see*, not what the model *does* — which is precisely the defect issue #19 was |
+| needs the mapper re-run | `A.transit.era1_line_speed_kmh` | §3.5: ~18% of route link sequences differ between identical builds, so a scenario mapped in one build cannot be compared with one mapped in another |
+| needs a demand rebuild | `B.activity.p_second_stop` | B2, the plans and the 30 run-input sets would have to be regenerated per candidate; possible, but not implemented, and therefore refused rather than silently skipped |
+| no declared consumer | — | nothing would read a change |
+
+That last mechanism matters more than it sounds. The loop runs
+`run_matsim.py -> extract_metrics.py -> fit.py` and rebuilds nothing else. Passing
+`--set` for a field that only a build script reads would change the **recorded
+configuration** without changing a single **input** — a run that reports a
+parameter it did not use. Refusing is the only honest option.
+
+**The mode constants are unreachable by construction.** They carry `held_fixed`
+under §8.5, so the filter removes them before any search begins. Proposal §9
+names ASC absorption as the primary threat to validity, and this is that rule
+made structural rather than remembered.
+
+### The objective is mode share, and that is not an oversight
+
+| block | targets scored | in the objective |
+|---|---:|---|
+| mode share | 5 | **yes** |
+| patronage | **0** | no — nothing to score |
+| counts | 33 | **no — forbidden by §9.14** |
+
+**Patronage scores zero in a single day-type run.** The contemporary monthly
+target needs WEEKDAY, SAT and SUN composed over a calendar month; the rest are a
+pre-pandemic PT market against a 2026 base (§12). So it contributes nothing.
+
+**Counts are scored and reported on every run but never optimised against**
+(`CAL.objective.include_counts = false`, and the loop refuses to start if it is
+set true without a recorded departure). §9.14 and §9.15: the external tier
+carries no boundary through traffic, so every boundary-adjacent count is biased
+low by construction and tuning the core network against them would compensate for
+demand the model does not contain.
+
+That leaves **five HTS mode shares, which sum to one — four independent
+numbers.** `CAL.objective.independent_targets` records it and **the loop refuses
+to move more than four free parameters**, printing the movable set instead of
+producing a fit of more parameters than data. §12.1 reached the same number from
+the other direction.
+
+### Constraints stay constraints
+
+The C4 occupancy and trip-length observables are **feasibility conditions, never
+objective terms**. A candidate that violates one is marked infeasible and
+reported; it is not penalised into the objective. Adding an observable to the
+objective would convert a constraint into a target, and the 67/143 split is
+pre-registered — new observables join as constraints or not at all.
+
+### Two independent guards against reading a holdout row
+
+`fit.py` filters to `split == 'calibration'` at read time and raises if anything
+else survives, so a holdout value is never in memory. The loop **never opens the
+targets file at all**; it reads the `_fit.json` that `fit` wrote, and
+`audit_no_holdout()` re-checks that the fit output reconciles scored against
+explained and that every block naming a count of targets also names the targets.
+A leak would have to defeat both.
+
+### Deliverable 7: the outer-loop tolerance is 5 seconds
+
+Proposal §5.2 defers this — run the loop *"until the corridor run time is stable
+within a tolerance to be defined at calibration"*. It is now defined, and
+**derived from the resolution of the target rather than chosen**:
+
+| quantity | value | source |
+|---|---:|---|
+| Corridor run-time target (V208/V209) | **720 s** | scheduled, not observed |
+| Timetable quantum | **60 s** | every segment of `A4_segment_runtime_decomposition.csv` is a whole multiple; direction 0 sums to exactly 720 s |
+| So the target is known to | **±30 s** | |
+| Smallest declared corridor sensitivity | **≈79 s** | charging dwell, 11% of end-to-end run time |
+| Largest | **≈274 s** | signal priority, S2 against S2b, 38% |
+| **Tolerance** | **5 s** | 0.69% of the run time |
+
+At 5 s the loop sits an order of magnitude inside the smallest declared
+sensitivity and well inside the resolution of the target it is judged against, so
+a converged loop cannot contribute materially to any reported difference. It is
+`held_fixed` rather than swept because a convergence tolerance decides how many
+outer iterations are *paid for*, not what the answer is.
+
+**It carries a self-policing bound.** If any reported scenario comparison ever
+turns on a corridor run-time difference smaller than **twice** the tolerance,
+that difference is not resolvable by the loop that produced it: the tolerance
+must be tightened and both scenarios re-run **before** the comparison is
+reported. `check_package.py`'s assertion is the **inversion** of the one it
+replaces — it used to assert the value was still null so that no loop could be
+built on an unexamined default; it now asserts the value exists, is held fixed
+with a rule, and carries that bound.
+
+The SUMO run harness and the loop itself remain **P5**. This is the number they
+must honour.
+
+### Deliverable 6: the report leads with what the fit cannot do
+
+`src/calibrate/report.py` computes nothing. Every number in it was produced by
+`fit.py`. It opens with how many targets were scored, how many could not be and
+why, and how much independent information the scored ones carry — because a
+report that opens with a headline error invites the reader to treat it as a
+score. Constraints are reported in their own section, apart from the targets, so
+they cannot be counted as evidence of fit. Where no calibration search has run,
+the provenance section **says so** rather than leaving it to inference.
+
+### A finding the loop turned up: the C-layer values have two homes
+
+Six behavioural fields resolve from the registry and are read by **nothing**:
+`C.transfer.beta_transfer_penalty_min`, `C.walk.*`, `C.gradient.*`,
+`C.crowding.*`, `C.nesting.*`. Two of those are documented as not surviving
+translation to MATSim scoring (§9.3 — crowding and nesting). The others are read,
+but from `params/C1_parameters.json`, which is what
+`build_matsim_run_inputs.py` actually opens — the transfer penalty reaches the
+model as `utilityOfLineSwitch = -2.2614`, which is 8 minutes at the trip-weighted
+16.96 AUD/h.
+
+So the registry copy is a **mirror**, and `check_legacy_drift.py` pins the
+registry to source *constants*, not to a params file. **The pair was unpinned.**
+All eleven comparable values agree today; a check now asserts it, because two
+copies of a number is the drift this package cannot absorb.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

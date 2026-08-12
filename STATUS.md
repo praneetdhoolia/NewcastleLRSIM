@@ -409,14 +409,16 @@ with honest reporting of where fit is poor"*. None of it exists yet.
 | 1 | ~~**Run harness**~~ **done** | `src/run/` | Nested subsample, transit seat capacity scaled with the fraction, deterministic, resumable, records its own parameters |
 | 2 | ~~**Metric extraction**~~ **done** | `src/analyse/` | Mode share by LGA of residence, PT boardings by line, link volumes at the mapped count stations |
 | 3 | ~~**Fit statistic**~~ **done** | [`src/calibrate/fit.py`](src/calibrate/fit.py) | Calibration rows only, and it raises if a holdout row survives the filter. **38 scored + 29 explained = 67**, asserted rather than assumed. A modelled zero is scored at −100%, not dropped — dropping it flattered the count fit by removing the stations where the model fails hardest (issue 19). The output contract now **fails a fit block that does not name its target ids** |
-| 4 | **Calibration loop** — deterministic, resumable, and structurally unable to read a holdout row | `src/calibrate/` | |
-| 5 | **Calibrated base** + parameter provenance | `params/` | |
-| 6 | **Calibration report** | `docs/` | |
-| 7 | **The outer-loop tolerance** — proposal §5.2 runs the MATSim↔SUMO loop *"until the corridor run time is stable within a tolerance **to be defined at calibration**"* | `DECISIONS.md` | **A P4 obligation that was not on any list until now.** It is a number P4 must define, not P5 |
+| 4 | ~~**Calibration loop**~~ **done** | [`src/calibrate/calibrate.py`](src/calibrate/calibrate.py) | Deterministic, resumable by candidate tag, and unable to read a holdout row through **two** independent guards. Derives its search space from the registry: of 38 fields carrying a sweep, **21 are excluded with a stated reason** and the mode constants are unreachable because they are `held_fixed` under §8.5. Refuses to move more than the **4** independent numbers the objective contains. Counts are scored but never optimised against (§9.14) |
+| 5 | **Calibrated base** + parameter provenance | `params/C5_calibration.json` | **Not met.** The loop exists; it has not been run. The report says so rather than leaving it to inference |
+| 6 | ~~**Calibration report**~~ **done** | [`src/calibrate/report.py`](src/calibrate/report.py) | Computes nothing — every number comes from `fit.py`. Leads with what could *not* be scored and how little independent information the rest carries; constraints reported apart from targets so they cannot be counted as fit |
+| 7 | ~~**The outer-loop tolerance**~~ **done: 5 s** | [`DECISIONS.md`](DECISIONS.md) §9.16 | Derived, not chosen: the target is a **scheduled** 720 s published in whole minutes, so it is known only to ±30 s, and the smallest declared corridor sensitivity is ≈79 s. Held fixed, and carries a **self-policing bound** — a comparison turning on less than twice it must be re-run |
 
-**Everything above is downstream of the §8.5 decision in §9.7.** Building a
-calibration loop before deciding which parameters it may move would be building
-the wrong loop.
+**Deliverables 4, 6 and 7 landed at P4 stage 5** ([`DECISIONS.md`](DECISIONS.md)
+§9.16). Deliverable 5 is the one that remains, and it is compute-bound rather
+than design-bound: the loop has to run. The §8.5 ride departure (#16) must still
+be taken, and must now be re-taken on the repaired demand, because the ride share
+it was to be chosen against has moved.
 
 ## P4 stage 2 — the input registry (11 August 2026)
 
