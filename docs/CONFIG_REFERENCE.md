@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 198 fields are made of
+## What the 200 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 3 | read directly from a raw download |
-| `measured` | 15 | computed from observed data in this package |
-| `derived` | 16 | follows from another registry field by identity |
-| `literature` | 29 | a published value, not specific to Newcastle |
-| `assumed` | 88 | chosen without direct empirical support |
+| `measured` | 21 | computed from observed data in this package |
+| `derived` | 17 | follows from another registry field by identity |
+| `literature` | 28 | a published value, not specific to Newcastle |
+| `assumed` | 84 | chosen without direct empirical support |
 | `definition` | 47 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 185 | usable point value |
+| `active` | 187 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -75,13 +75,13 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/newcastle/A_supply.json` - 48 fields*
+*`config/registry/newcastle/A_supply.json` - 49 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
 | Field | Value | Units | Provenance | Sweep |
 |---|---|---|---|---|
-| `A.active.footway_width_default` | `{"steps": 1.5, "pedestrian": 6.0, "footway": 1.8, "path": 1.5, "cycleway": 2.5, "track": 2.5, "corridor": 2...` | metres | `assumed` | 1 - 6 |
+| `A.active.footway_width_default` | `{"bridleway": 2.0, "corridor": 2.0, "cycleway": 2.0, "footway": 2.0, "path": 1.0, "pedestrian": 6.0, "steps...` | metres | `measured` | 0.5 - 3 |
 | `A.corridor.cross_buffer_m` | `40.0` | metres | `assumed` | 25 - 60 |
 | `A.corridor.extension_lane_take` | `1` | lanes | `assumed` | 0 - 1 |
 | `A.corridor.off_corridor_penalty` | `12.0` | dimensionless_cost_multiplier | `assumed` | 6 - 20 |
@@ -107,8 +107,9 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.parking.price_saturation_pctile` | `99.0` | percentile | `assumed` | 95 - 99.5 |
 | `A.parking.price_threshold_pctile` | `90.0` | percentile | `assumed` | 80 - 95 |
 | `A.road.capacity_default` | `{"motorway": 2000, "trunk": 1800, "primary": 1600, "secondary": 1400, "tertiary": 1200, "unclassified": 100...` | vehicles_per_hour_per_lane | `assumed` | 300 - 2200 |
-| `A.road.lanes_default` | `{"motorway": 2, "trunk": 2, "primary": 2, "secondary": 1, "tertiary": 1, "unclassified": 1, "residential": ...` | lanes_per_direction | `assumed` | 1 - 3 |
-| `A.road.speed_default` | `{"motorway": 100, "trunk": 80, "primary": 60, "secondary": 60, "tertiary": 50, "unclassified": 50, "residen...` | km_per_hour | `assumed` | 10 - 110 |
+| `A.road.lane_width_default_m` | `3.5` | metres | `measured` | 2.5 - 4.5 |
+| `A.road.lanes_default` | `{"busway": 1, "living_street": 1.0, "motorway": 2.0, "motorway_link": 1.0, "primary": 2.0, "primary_link": ...` | lanes_per_direction | `measured` | 1 - 3 |
+| `A.road.speed_default` | `{"busway": 50, "living_street": 10.0, "motorway": 110.0, "motorway_link": 80.0, "primary": 60.0, "primary_l...` | km_per_hour | `measured` | 10 - 110 |
 | `A.signals.delay_per_intersection_s` | `26.0` | seconds | `assumed` | 15 - 40 |
 | `A.signals.junction_match_m` | `60.0` | metres | `assumed` | 30 - 100 |
 | `A.signals.min_green_s` | `6.0` | seconds | `assumed` | 4 - 10 |
@@ -132,9 +133,11 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 
 #### `A.active.footway_width_default`
 
-Fallback footway width. Footway widths were not obtained for Newcastle.
+Fallback footway width. Footway widths were not obtained for Newcastle. MEASURED from the observed OSM width tag over this extract: 3 of 8 classes carry at least 30 tagged edges and take their own median; bridleway, corridor, pedestrian, steps, track keep the assumed value for want of coverage and say so in params/C2_osm_defaults.json, which carries the per-class counts and quantiles.
 
-***assumed** · status **active** · DECISIONS.md §3.1*
+***measured** · status **active** · DECISIONS.md §9.33*
+
+> **Sweep basis.** the union of the observed interquartile ranges across the 3 classes with at least 30 tagged edges - an observed spread, not a chosen interval
 
 #### `A.corridor.cross_buffer_m`
 
@@ -300,19 +303,29 @@ Saturation flow by road class. Never observed; a class-level convention.
 
 ***assumed** · status **active** · DECISIONS.md §3.2*
 
+#### `A.road.lane_width_default_m`
+
+Per-lane carriageway width where OSM carries no width, applied to 99.2% of road edges. It had NO registry field: build_network_layers.py carried a bare 3.2. Derived as width/lanes on the 265 edges carrying both tags. The width tag ALONE is the whole carriageway and stands at 6.5 m; writing that into a per-lane field would double every carriageway in the model.
+
+***measured** · status **active** · DECISIONS.md §9.33*
+
+> **Sweep basis.** the interquartile range of per-lane widths over 265 edges carrying both a width and a lanes tag - an observed spread
+
 #### `A.road.lanes_default`
 
-Fallback lane count where OSM carries no lanes tag. Applied only to edges with no observation - DECISIONS.md 2.5 corrected the proposal premise that the corridor is 75-98% imputed: as-built trunk lane counts are observed in OSM for 87.5% of corridor trunk edges. Full class table is in the build script; the registry overrides per class.
+Fallback lane count where OSM carries no lanes tag. Applied only to edges with no observation - DECISIONS.md 2.5 corrected the proposal premise that the corridor is 75-98% imputed: as-built trunk lane counts are observed in OSM for 87.5% of corridor trunk edges. Full class table is in the build script; the registry overrides per class. MEASURED from the observed OSM lanes tag, halved on two-way ways over this extract: 13 of 16 classes carry at least 30 tagged edges and take their own median; busway, road, tertiary_link keep the assumed value for want of coverage and say so in params/C2_osm_defaults.json, which carries the per-class counts and quantiles.
 
-***assumed** · status **active** · DECISIONS.md §3.1*
+***measured** · status **active** · DECISIONS.md §9.33*
 
-> **Sweep basis.** the plausible range for an unlabelled edge of each class
+> **Sweep basis.** the union of the observed interquartile ranges across the 13 classes with at least 30 tagged edges - an observed spread, not a chosen interval
 
 #### `A.road.speed_default`
 
-Fallback free-flow speed where OSM carries no maxspeed tag.
+Fallback free-flow speed where OSM carries no maxspeed tag. MEASURED from the observed OSM maxspeed tag over this extract: 13 of 16 classes carry at least 30 tagged edges and take their own median; busway, road, tertiary_link keep the assumed value for want of coverage and say so in params/C2_osm_defaults.json, which carries the per-class counts and quantiles.
 
-***assumed** · status **active** · DECISIONS.md §3.1*
+***measured** · status **active** · DECISIONS.md §9.33*
+
+> **Sweep basis.** the union of the observed interquartile ranges across the 13 classes with at least 30 tagged edges - an observed spread, not a chosen interval
 
 #### `A.signals.delay_per_intersection_s`
 
@@ -1260,7 +1273,7 @@ Seeded replications per scenario. One of the three things that can be cut to clo
 
 ## Execution control
 
-*`config/registry/newcastle/RUN_execution.json` - 34 fields*
+*`config/registry/newcastle/RUN_execution.json` - 35 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -1290,10 +1303,11 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.replanning.fraction_to_disable_innovation` | `0.8` | share_of_iterations | `literature` | 0.7 - 0.9 |
 | `RUN.replanning.max_agent_plan_memory` | `5` | plans | `literature` | 3 - 10 |
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
-| `RUN.routing.beeline_distance_factor` | `1.3` | ratio | `assumed` | 1.2 - 1.45 |
+| `RUN.routing.beeline_distance_factor_bike` | `1.5231` | ratio | `measured` | 1.207 - 1.456 |
+| `RUN.routing.beeline_distance_factor_walk` | `1.6902` | ratio | `measured` | 1.294 - 1.794 |
 | `RUN.routing.network_modes` | `["car", "ride"]` | enum | `definition` | - |
 | `RUN.routing.teleported_bike_speed_ms` | `4.2` | metres_per_second | `literature` | 3.1 - 5.5 |
-| `RUN.routing.teleported_walk_speed_ms` | `1.05` | metres_per_second | `literature` | 0.9 - 1.35 |
+| `RUN.routing.teleported_walk_speed_ms` | `1.25` | metres_per_second | `derived` | derived: the same physical walking speed. MATSim computes a teleported leg as t |
 | `RUN.sample.flow_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: flowCapacityFactor = RUN.sample.fraction, the standard MATSim scaling  |
 | `RUN.sample.fraction` | `0.01` | share_of_population | `assumed` | 0.01 - 0.4 |
 | `RUN.sample.storage_capacity_exponent` | `1.0` | exponent | `derived` | derived: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim e |
@@ -1449,11 +1463,21 @@ Replanning strategy weights, applied to both the person and external subpopulati
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `replanning.strategysettings[*].weight`*
 
-#### `RUN.routing.beeline_distance_factor`
+#### `RUN.routing.beeline_distance_factor_bike`
 
-Straight-line to path distance for teleported modes. Note B.activity.detour_factor is the MEASURED equivalent for the road graph, 1.3376; this one applies to walk and bike and has not been measured on the active network.
+Straight-line to path distance for teleported bike, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed bike trip length of 5200 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.2972, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.
 
-***assumed** · status **active** · DECISIONS.md §15 · MATSim `routing.teleportedModeParameters[*].beelineDistanceFactor`*
+***measured** · status **active** · DECISIONS.md §9.33 · MATSim `routing.teleportedModeParameters[bike].beelineDistanceFactor`*
+
+> **Sweep basis.** the interquartile range of the per-pair ratios over 549 routed pairs; an observed spread, not a chosen interval
+
+#### `RUN.routing.beeline_distance_factor_walk`
+
+Straight-line to path distance for teleported walk, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed walk trip length of 700 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.4562, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.
+
+***measured** · status **active** · DECISIONS.md §9.33 · MATSim `routing.teleportedModeParameters[walk].beelineDistanceFactor`*
+
+> **Sweep basis.** the interquartile range of the per-pair ratios over 531 routed pairs; an observed spread, not a chosen interval
 
 #### `RUN.routing.network_modes`
 
@@ -1471,9 +1495,11 @@ Teleported bike speed in MATSim. The point value is NOT repinned: the disagreeme
 
 #### `RUN.routing.teleported_walk_speed_ms`
 
-Teleported walk speed in MATSim. Distinct from A.transit.walk_speed_ms (1.25), which generates GTFS transfer times. Walk is immune to network conditions, which matters when diagnosing where agents flee to.
+Teleported walk speed in MATSim. IDENTICAL BY IDENTITY to A.transit.walk_speed_ms, which generates GTFS transfer times: both are the speed a person walks along a path. They were declared separately at 1.05 and 1.25, each labelled literature and each describing the other as a different quantity - and the bytecode says otherwise. The detour a walker makes is carried by RUN.routing.beeline_distance_factor_walk, which is now MEASURED at 1.6902 rather than sharing an assumed 1.30 with bike, so the speed no longer has to absorb it.
 
-***literature** · status **active** · DECISIONS.md §15 · MATSim `routing.teleportedModeParameters[walk].teleportedModeSpeed`*
+***derived** · status **active** · DECISIONS.md §15, 9.33 · MATSim `routing.teleportedModeParameters[walk].teleportedModeSpeed`*
+
+> **Derived from** `A.transit.walk_speed_ms`: the same physical walking speed. MATSim computes a teleported leg as travelTime = (beeline x beelineDistanceFactor) / teleportedModeSpeed, verified in the pinned jar bytecode (TeleportationRoutingModule: dmul then ddiv), so teleportedModeSpeed is the speed ALONG the walked path - exactly what A.transit.walk_speed_ms is. They are one quantity.
 
 #### `RUN.sample.flow_capacity_factor`
 

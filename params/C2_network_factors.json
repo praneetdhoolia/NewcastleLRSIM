@@ -30,5 +30,41 @@
     "did_not_go_pct": 15.72,
     "source": "measured - census 2021 G62, used as a sweep LOWER BOUND only",
     "note": "census night was August 2021 and 19.2% worked from home, so this carries the lockdown with it. DECISIONS.md 2.4 already rules G62 out as a behavioural rate; it bounds the P_MANDATORY sweep from below rather than setting it."
+  },
+  "active_beeline_factor": {
+    "walk": {
+      "value": 1.6902,
+      "sweep": [
+        1.294,
+        1.794
+      ],
+      "source": "measured - shortest path over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations",
+      "target_distance_m": 700.0,
+      "band": 0.25,
+      "pairs_routed": 531,
+      "pairs_unroutable": 21,
+      "pairs_without_destination": 48,
+      "sample_seed": 20260810,
+      "mean_of_ratios": 1.6877,
+      "median_of_ratios": 1.4562,
+      "note": "sampled at the observed walk trip length between population-weighted origins and observed POI destinations; the aggregate ratio of summed path to summed straight-line distance, with the sweep the interquartile range of the per-pair ratios"
+    },
+    "bike": {
+      "value": 1.5231,
+      "sweep": [
+        1.207,
+        1.456
+      ],
+      "source": "measured - shortest path over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations",
+      "target_distance_m": 5200.0,
+      "band": 0.25,
+      "pairs_routed": 549,
+      "pairs_unroutable": 32,
+      "pairs_without_destination": 19,
+      "sample_seed": 20260810,
+      "mean_of_ratios": 1.5147,
+      "median_of_ratios": 1.2972,
+      "note": "sampled at the observed bike trip length between population-weighted origins and observed POI destinations; the aggregate ratio of summed path to summed straight-line distance, with the sweep the interquartile range of the per-pair ratios"
+    }
   }
 }

@@ -3556,6 +3556,132 @@ field.
 
 ---
 
+## 9.33 Six defaults stop being guesses, and a suspected duplicate turns out to be two different numbers (P4 deliverable 0b, issue #23)
+
+Deliverable 0b asks how many of the registry's `assumed` fields the data can
+actually settle. **88 → 84 assumed**, **15 → 21 measured**, plus one field that
+existed nowhere and should have. The realistic target was 15–25 fields of tour
+structure and network defaults; what the data supports is the network half, and
+the reason the other half resists is recorded rather than worked around.
+
+### The suspected duplicate was not one, and both numbers were wrong
+
+`RUN.routing.beeline_distance_factor` (assumed 1.30) and `B.activity.detour_factor`
+(measured 1.3376) were flagged as "probably the same quantity declared twice". They
+are not. The detour factor is the **road graph at multi-kilometre zone spacing**;
+the beeline factor is the **active network at walk and bike trip lengths**, and
+circuity falls with distance. Measuring it settles the question instead of
+aliasing one to the other:
+
+| | value | sweep (observed IQR) | measured at |
+|---|---|---|---|
+| walk | **1.6902** | 1.294 – 1.794 | 700 m, the observed walk trip length |
+| bike | **1.5231** | 1.207 – 1.456 | 5.2 km, the observed bike trip length |
+| road (unchanged) | 1.3376 | 1.25 – 1.423 | population-weighted zone pairs |
+
+Walk and bike differ enough that one shared factor was wrong for both, so the
+field is **split in two**. The network routed over is the A6 active layer
+**unioned with every road class a pedestrian may use**: A6 alone is 23,808
+footway edges, and OSM maps a footway beside a residential street only where
+somebody drew one, so routing on it alone would report the mapping's circuity
+rather than the city's.
+
+**A first attempt was rejected on its own evidence.** Drawing a random bearing
+from each origin gave walk 1.96 against a median of 1.52 — the gap being
+destinations across the harbour and the motorway that nobody walks to. Sampling
+observed **POI** destinations instead, which is where B2 places activities, gives
+1.69 against a median of 1.46. The tail is smaller because the destinations are
+real.
+
+### The walk speed was one quantity declared twice, and that one WAS a duplicate
+
+`A.transit.walk_speed_ms` (1.25, generating GTFS transfer times) and
+`RUN.routing.teleported_walk_speed_ms` (1.05) each carried `literature` and each
+described the other as a different quantity. The pinned jar disagrees.
+`TeleportationRoutingModule` computes
+
+    travelDistance = beelineDistance x beelineDistanceFactor    // dmul
+    travelTime     = travelDistance / teleportedModeSpeed       // ddiv
+
+so `teleportedModeSpeed` is the speed **along the walked path** — exactly what
+the GTFS figure is. Verified in the bytecode, not from memory. The MATSim field
+is now `derived` with that identity, at 1.25. The detour a walker makes is
+carried by the measured beeline factor, which the speed no longer has to absorb.
+
+Net effect on a walk leg: 1.6902/1.30 × 1.05/1.25 = **1.09**, about 9% slower,
+with every component now measured or physically grounded rather than chosen.
+
+### Defaults measured from the city's own OSM tags
+
+The imputation is not a rounding error — `lane_width_m` is imputed on **99.2%**
+of road edges, `num_lanes` on 75.4%, `speed_limit_kmh` on 53.7% — but the
+complement is real data: 10,613 edges carry a `lanes` tag and 19,961 a
+`maxspeed`. `measure_osm_defaults.py` takes each class's own median where at
+least 30 edges are tagged, and its own interquartile range as the sweep.
+
+| field | classes measured | notable corrections |
+|---|---|---|
+| `A.road.speed_default` | 13 of 16 | **trunk 80 → 60** (n=1,702), **motorway 100 → 110** (n=432), motorway_link 60 → 80, service 20 → 25 |
+| `A.road.lanes_default` | 13 of 16 | every measured class confirmed its assumed value |
+| `A.active.footway_width_default` | 3 of 8 | footway 1.8 → 2.0, cycleway 2.5 → 2.0, path 1.5 → 1.0 |
+
+`busway`, `road` and `tertiary_link` keep their assumed values for want of
+coverage and say so; `A.road.capacity_default` is **not** measured at all —
+saturation flow is an engineering convention OSM does not record and this
+package has no per-class count data to estimate it from.
+
+**A field that existed nowhere.** `build_network_layers.py` carried a bare
+`lw = 3.2` for lane width, applied to 99.2% of edges, in no registry at all.
+It is now `A.road.lane_width_default_m`, **measured at 3.5 m** (IQR 2.5–4.5).
+
+It could not be read off the `width` tag. On a road, OSM `width` is the whole
+**carriageway**: measured straight it is 6.5 m, which is two lanes, and writing
+that into a per-lane field would have doubled every carriageway in the model.
+Per-lane width is derived as width ÷ lanes on the 265 edges carrying both tags.
+The build script now divides a tagged width by its lane count for the same
+reason.
+
+### Three things the data looked able to settle and could not
+
+Each is the same trap: **the available number looks like the answer and is a
+different quantity.** Three instances in one session is a pattern worth naming.
+
+1. **Parking capacity.** 4,861 of 7,710 facilities carry an observed
+   `capacity`, which looks like ample coverage — and **4,623 of them are `1`.**
+   They are individual bays, not car parks. Only 162 facilities carry a capacity
+   of 5 or more. `A.parking.capacity_default` **stays assumed**; a measured
+   default of 1.0 would have said every car park in Newcastle holds one car.
+2. **The transfer penalty** (§9.32): a published interchange *time* is not a
+   behavioural *penalty*.
+3. **Parking price** (§9.31): `fee=yes` is 452 University car parks.
+
+### The reclassification the issue proposed, reviewed and mostly declined
+
+#23 suggests several `assumed` fields are really methodological choices
+mislabelled, and that reclassifying them to `definition` would stop them
+inflating the count. Reviewed one by one, that is **not** what they are. The
+SUMO booleans each change a result — `junctions_join` moves a junction centroid
+and interacts with `A.signals.junction_match_m`; `tls_join` changes how many
+signal programs the corridor carries; `tls_default_type` is, in its own words,
+"a real modelling choice standing in for information the project does not have".
+The corridor buffers carry documented empirical consequences and would lose
+their sweeps. Relabelling a real assumption to make a percentage look better is
+the opposite of what deliverable 0b is for, so the count stays honest at 84.
+
+### Guarded
+
+`check_package.py` gains a pin from the registry to
+`params/C2_osm_defaults.json`, class for class — the same two-copies-of-a-number
+hazard §9.32 found in C1 — plus an assertion that the per-lane width is a lane
+and not a carriageway.
+
+**The measured speed defaults are in `A1_road_edges.csv` as of this change; the
+MATSim network still carries the old ones and is rebuilt at #32, which
+re-harvests the extent anyway. No scenario was run, no target value changed, the
+67/143 split is untouched and nothing here is a result.**
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -4054,6 +4180,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-13 | **P4 deliverable 0b - six defaults stop being guesses, and a suspected duplicate turns out to be two different numbers (§9.33, issue #23).** **88 → 84 assumed, 15 → 21 measured**, plus one field that existed nowhere. `RUN.routing.beeline_distance_factor` and `B.activity.detour_factor` were flagged as probably the same quantity declared twice; they are not - one is the road graph at zone spacing, the other the ACTIVE network at walk and bike trip lengths, and circuity falls with distance. Measured: **walk 1.6902, bike 1.5231** against a shared assumed 1.30, so the field is **split in two**. A first sampling by random bearing gave 1.96 and was **rejected on its own evidence** - it sent walk trips across the harbour; sampling observed POI destinations, which is where B2 puts activities, gives 1.69. The walk SPEED, though, WAS a genuine duplicate: `A.transit.walk_speed_ms` 1.25 and `RUN.routing.teleported_walk_speed_ms` 1.05, both `literature`, each describing the other as a different quantity - and the pinned jar's bytecode shows `travelTime = (beeline x factor) / teleportedModeSpeed`, so the speed is ALONG the path and they are one number. Now `derived` by identity at 1.25. Per-class defaults measured from the city's own OSM tags where at least 30 edges are tagged: **trunk speed 80 → 60** over 1,702 tagged edges, **motorway 100 → 110**, and a **lane width that was a bare 3.2 in no registry at all**, now measured at **3.5 m** - and NOT from the `width` tag, which on a road is the whole carriageway at 6.5 m and would have doubled every carriageway in the model. Three things the data looked able to settle and could not, all the same trap: parking capacity has 4,861 observed values of which **4,623 are 1** because they are individual bays, not car parks. The reclassification #23 proposed was reviewed and **mostly declined** - the SUMO booleans and corridor buffers each change a result, and relabelling a real assumption to make a percentage look better is the opposite of what 0b is for. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-13 | **P4 deliverable 8 - the transfer penalty cannot be estimated from this package, and the parameter was reaching nothing anyway (§9.32, issues #25, #35).** Proposal §7.2's fallback asks for tap-on/tap-off **timing** at the Interchange plus a matching model. **Every Opal source held is a monthly aggregate** - no timestamp, no tap-off paired to a tap-on, nothing for a matching model to match. The stop-level tap data that would substitute is **holdout**, and the 67 calibration rows contain nothing bearing on interchange, so the constrain-to-an-observable route (§9.8) has no observable either. No published interchange percentage for Newcastle could be located; and published interchange **times** are the wrong quantity - MATSim already simulates the walk and scores the wait at 2.0x in-vehicle time, and this parameter is the premium **on top of** the measured 112 s Interchange walk, so substituting one would double-count. Per the deliverable's own bar the reason is recorded and **the sweep stands** at 3-15 minutes across seven points. Tracing where the parameter goes found that it went nowhere: `build_params.py` read **one** registry field and typed the other **26** in as literals, so setting the value through the resolver's own override path left `C1_parameters.json` **byte-identical**. Seventh instance of the class. Two consequences sharper than usual - the **mode constants are `held_fixed` under §8.5** and the model was not reading the value being protected, so deliverable 5 (#14) would have estimated seven ASCs, written them to the registry, changed nothing and reported success; and the **sweep grid was a literal too**, making #25's own bar unmeetable by construction. The prior check compared **bases only** and its comment conceded *"the registry copy is a mirror"* - three RANGES had already drifted apart unnoticed. C1 is now **generated from** the registry rather than checked against it, with five missing declarations added; declaring a sampling grid for the charging dwell did **not** pin it, which stays unobtained and null. **Value-neutral and proved so** - no base moved and all 30 run-input sets regenerated unchanged - and **reach proved by changing a value**: the override now moves `utilityOfLineSwitch` -2.2613 to -3.3922, exactly the VOT conversion. `check_package.py` 1,435 -> **1,440**. **No scenario was run, no target value changed, no holdout row was opened and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 13 - a car stops parking for free, and the price stops being a drawn rectangle (§9.31, issue #33).** Parking price is the prime competitive lever between car and PT for a city-centre trip, and this study is about city-centre access. `A5_parking_facilities.csv` has declared `is_priced`, `price_aud_hr` and a sweep on both since P1 and **no script read any of it** - the "declared value that reaches nothing" class on its **sixth** instance. Its spatial basis was four hand-drawn lat/lon rectangles with place names, literal prices and hand-typed occupancy profiles, and **one of the four, `honeysuckle`, was fully contained in the box tested before it and could never match a facility** - dead for three phases, because a typed rectangle cannot be wrong in a way anyone notices. Price is now derived from **the city's own core-zone job-density distribution** (p90 = 1,500.9 and p99 = 8,710.5 jobs/km², pricing 150 of 1,500 core zones and 22,353 of 143,891 car links), so a new city computes its own thresholds and no extent is typed. OSM `fee=yes` was reproduced and rejected as the basis: **452 of its 472 facilities are University of Newcastle car parks**. The charge reaches the model through `ParkingChargeHandler`, which bills a car from arrival to the next car departure as a `PersonMoneyEvent`; roadpricing is **not** in the pinned jar, so its deferred-emission pattern is reproduced rather than reused, and Java does no spatial work. **Reach was established by changing values, not by reading `consumers`** - halving `price_aud_hr_max` halved the charges (−721.42 → −361.62 AUD), Sunday charges nothing, and the largest single charge is exactly the max-stay cap. **That test caught a real defect**: `accessEgressType` inserts a `car interaction` activity after every car arrival, so the `home` exemption matched nothing and **267 of the first 641 charges were levied at people's own homes** - a nightly penalty on living in a dense zone that no observation supports. What the formula still gets wrong is measured rather than supposed: it prices Kotara, Glendale and Charlestown at or near the maximum where parking is free, and a contiguity refinement that would separate the centre cleanly (one 80-zone cluster against 49 of 1–5) was **built and rejected** because it also excludes the University and John Hunter Hospital, the two places outside the centre that verifiably do charge. Price is common to all scenarios, so it largely differences out of the S-vs-S comparison and bites on the base calibration instead. `check_package.py` 1,248 → **1,435** passing, the key check re-deriving every zone price from the registry so a typed price cannot survive. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 10 - the passenger stops outrunning the driver (§9.26, issue #28).** `ride` was routed over the network on **free-flow** times because it is in `routing.networkModes` but is not the qsim `mainMode`. `WickhamControler` now binds its travel time to `networkTravelTime()` and its disutility to the car factory. Verified against a like-for-like 10% baseline differing only in the controler: **car 32.54 -> 52.30%, ride 50.03 -> 29.45%**, total absolute gap to target **84.2 -> 44.6 pp** - the largest single correction this model has had, and it came from a defect rather than a constant. It confirms §9.25's claim that the symptom was **two** inversions: car↔ride moved ±20 points while walk↔bike moved -0.03/+0.81, untouched. **The defect is reduced, not eliminated** - ride is still 1.01-1.11x faster at matched distance, worst on short trips, so #28 stays open. The audit's headline was also corrected: the original 13% was an aggregate confounded by trip-length composition; stratified it is 4-8%, present in every bin. A first verification at 1% was **discarded as uninterpretable** - §15's storage floor produces spurious spillback that inflates car delay while teleported ride is immune, so a cross-fraction comparison is invalid. Two reproducibility defects exposed and closed: **nothing compiled the committed Java**, so a fresh clone could not run; and a run record could not say which controler produced it, so re-running would have served pre-fix results silently - records now carry `controler_sha256` and the harness refuses to resume across a change. `prune_run.py` drops MATSim's per-iteration scratch, **95% of a run's bytes** and read by nothing, reclaiming 36.6 GiB. **Not a result:** 250 iterations is short of relaxation, demand still lacks through traffic and freight, no target was fitted, the 67/143 split is untouched and no holdout row was opened. |

@@ -78,6 +78,21 @@ BETA_BIKE_MODE = CFG.get('C.time_weights.beta_bike_mode')
 # matsim_param binding, and the config template wrote LITERALS instead - so
 # seven declared, swept values reached nothing, the issue #12 / #21 defect class
 # again. Resolved here and substituted into the template (DECISIONS.md 9.28).
+MC_MODES = ','.join(CFG.get('RUN.mode_choice.modes'))
+MC_CHAIN_BASED = ','.join(CFG.get('RUN.mode_choice.chain_based_modes'))
+MC_CAR_AVAIL = 'true' if CFG.get('RUN.mode_choice.consider_car_availability') else 'false'
+MC_BEHAVIOR = CFG.get('RUN.mode_choice.subtour_behavior')
+MC_PROBA_SINGLE = CFG.get('RUN.mode_choice.proba_random_single_trip_mode')
+MC_COORD_DIST = CFG.get('RUN.mode_choice.coord_distance_m')
+RT_NETWORK_MODES = ','.join(CFG.get('RUN.routing.network_modes'))
+RT_WALK_SPEED = CFG.get('RUN.routing.teleported_walk_speed_ms')
+RT_BIKE_SPEED = CFG.get('RUN.routing.teleported_bike_speed_ms')
+# Measured per mode on the ACTIVE network, not shared and not assumed:
+# walk 1.6902 at 700 m, bike 1.5231 at 5.2 km (DECISIONS.md 9.33).
+RT_BEELINE_WALK = CFG.get('RUN.routing.beeline_distance_factor_walk')
+RT_BEELINE_BIKE = CFG.get('RUN.routing.beeline_distance_factor_bike')
+TR_MAX_BEELINE_WALK = CFG.get('RUN.transit_router.max_beeline_walk_connection_m')
+
 # Parking. The package has declared a price per facility since P1 and no script
 # read it, so a car has always parked for free (issue #33, DECISIONS.md 9.31).
 # The price of a ZONE is set in build_landuse_parking.py from the city's own job
@@ -89,18 +104,6 @@ PARK_MAX_STAY_MIN = CFG.get('A.parking.max_stay_min')
 PARK_CHARGED_HOURS = CFG.get('A.parking.charged_hours_by_day_type')
 PARK_CHARGED_MODES = ','.join(CFG.get('A.parking.charged_modes'))
 PARK_EXEMPT_ACTS = ','.join(CFG.get('A.parking.exempt_activity_types'))
-
-MC_MODES = ','.join(CFG.get('RUN.mode_choice.modes'))
-MC_CHAIN_BASED = ','.join(CFG.get('RUN.mode_choice.chain_based_modes'))
-MC_CAR_AVAIL = 'true' if CFG.get('RUN.mode_choice.consider_car_availability') else 'false'
-MC_BEHAVIOR = CFG.get('RUN.mode_choice.subtour_behavior')
-MC_PROBA_SINGLE = CFG.get('RUN.mode_choice.proba_random_single_trip_mode')
-MC_COORD_DIST = CFG.get('RUN.mode_choice.coord_distance_m')
-RT_NETWORK_MODES = ','.join(CFG.get('RUN.routing.network_modes'))
-RT_WALK_SPEED = CFG.get('RUN.routing.teleported_walk_speed_ms')
-RT_BIKE_SPEED = CFG.get('RUN.routing.teleported_bike_speed_ms')
-RT_BEELINE = CFG.get('RUN.routing.beeline_distance_factor')
-TR_MAX_BEELINE_WALK = CFG.get('RUN.transit_router.max_beeline_walk_connection_m')
 if BETA_BIKE_MODE < BETA_WALK_MODE:
     raise SystemExit('C.time_weights.beta_bike_mode (%s) must be >= '
                      'beta_walk_mode (%s): cycling time is dearer per hour than '
@@ -639,12 +642,12 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<parameterset type="teleportedModeParameters">
 \t\t\t<param name="mode" value="walk" />
 \t\t\t<param name="teleportedModeSpeed" value="{rt_walk_speed}" />
-\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline}" />
+\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline_walk}" />
 \t\t</parameterset>
 \t\t<parameterset type="teleportedModeParameters">
 \t\t\t<param name="mode" value="bike" />
 \t\t\t<param name="teleportedModeSpeed" value="{rt_bike_speed}" />
-\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline}" />
+\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline_bike}" />
 \t\t</parameterset>
 \t</module>
 </config>
@@ -807,7 +810,9 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
                 mc_car_avail=MC_CAR_AVAIL, mc_behavior=MC_BEHAVIOR,
                 mc_proba_single=MC_PROBA_SINGLE, mc_coord_dist=MC_COORD_DIST,
                 rt_network_modes=RT_NETWORK_MODES, rt_walk_speed=RT_WALK_SPEED,
-                rt_bike_speed=RT_BIKE_SPEED, rt_beeline=RT_BEELINE,
+                rt_bike_speed=RT_BIKE_SPEED,
+                rt_beeline_walk=RT_BEELINE_WALK,
+                rt_beeline_bike=RT_BEELINE_BIKE,
                 tr_max_beeline_walk=TR_MAX_BEELINE_WALK,
                 park_price_file=os.path.relpath(price_dst, dst).replace('\\', '/'),
                 park_max_stay_min=PARK_MAX_STAY_MIN,

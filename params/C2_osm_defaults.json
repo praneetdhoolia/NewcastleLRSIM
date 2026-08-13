@@ -1,0 +1,409 @@
+{
+  "min_tagged": 30,
+  "lanes_per_direction": {
+    "unit": "lanes_per_direction",
+    "note": "OSM lanes tag, halved on two-way ways exactly as build_network_layers.py halves it when the tag is present",
+    "by_class": {
+      "busway": {
+        "value": 1,
+        "sweep": null,
+        "n_tagged": 0,
+        "assumed_was": 1,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "living_street": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 40,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "motorway": {
+        "value": 2.0,
+        "sweep": [
+          2.0,
+          2.0
+        ],
+        "n_tagged": 434,
+        "assumed_was": 2,
+        "source": "measured"
+      },
+      "motorway_link": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 260,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "primary": {
+        "value": 2.0,
+        "sweep": [
+          1.0,
+          2.0
+        ],
+        "n_tagged": 1530,
+        "assumed_was": 2,
+        "source": "measured"
+      },
+      "primary_link": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 64,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "residential": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 2446,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "road": {
+        "value": 1,
+        "sweep": null,
+        "n_tagged": 0,
+        "assumed_was": 1,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "secondary": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          2.0
+        ],
+        "n_tagged": 1773,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "secondary_link": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 38,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "service": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 346,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "tertiary": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 1361,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "tertiary_link": {
+        "value": 1,
+        "sweep": null,
+        "n_tagged": 13,
+        "assumed_was": 1,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "trunk": {
+        "value": 2.0,
+        "sweep": [
+          2.0,
+          3.0
+        ],
+        "n_tagged": 1685,
+        "assumed_was": 2,
+        "source": "measured"
+      },
+      "trunk_link": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 188,
+        "assumed_was": 1,
+        "source": "measured"
+      },
+      "unclassified": {
+        "value": 1.0,
+        "sweep": [
+          1.0,
+          1.0
+        ],
+        "n_tagged": 435,
+        "assumed_was": 1,
+        "source": "measured"
+      }
+    }
+  },
+  "speed_limit_kmh": {
+    "unit": "km_per_hour",
+    "note": "OSM maxspeed tag",
+    "by_class": {
+      "busway": {
+        "value": 50,
+        "sweep": null,
+        "n_tagged": 0,
+        "assumed_was": 50,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "living_street": {
+        "value": 10.0,
+        "sweep": [
+          10.0,
+          10.0
+        ],
+        "n_tagged": 68,
+        "assumed_was": 10,
+        "source": "measured"
+      },
+      "motorway": {
+        "value": 110.0,
+        "sweep": [
+          97.5,
+          110.0
+        ],
+        "n_tagged": 432,
+        "assumed_was": 100,
+        "source": "measured"
+      },
+      "motorway_link": {
+        "value": 80.0,
+        "sweep": [
+          60.0,
+          110.0
+        ],
+        "n_tagged": 247,
+        "assumed_was": 60,
+        "source": "measured"
+      },
+      "primary": {
+        "value": 60.0,
+        "sweep": [
+          60.0,
+          70.0
+        ],
+        "n_tagged": 1993,
+        "assumed_was": 60,
+        "source": "measured"
+      },
+      "primary_link": {
+        "value": 60.0,
+        "sweep": [
+          60.0,
+          80.0
+        ],
+        "n_tagged": 52,
+        "assumed_was": 50,
+        "source": "measured"
+      },
+      "residential": {
+        "value": 50.0,
+        "sweep": [
+          50.0,
+          50.0
+        ],
+        "n_tagged": 8984,
+        "assumed_was": 50,
+        "source": "measured"
+      },
+      "road": {
+        "value": 50,
+        "sweep": null,
+        "n_tagged": 0,
+        "assumed_was": 50,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "secondary": {
+        "value": 60.0,
+        "sweep": [
+          50.0,
+          60.0
+        ],
+        "n_tagged": 2732,
+        "assumed_was": 60,
+        "source": "measured"
+      },
+      "secondary_link": {
+        "value": 60.0,
+        "sweep": [
+          50.0,
+          60.0
+        ],
+        "n_tagged": 32,
+        "assumed_was": 50,
+        "source": "measured"
+      },
+      "service": {
+        "value": 25.0,
+        "sweep": [
+          10.0,
+          50.0
+        ],
+        "n_tagged": 847,
+        "assumed_was": 20,
+        "source": "measured"
+      },
+      "tertiary": {
+        "value": 50.0,
+        "sweep": [
+          50.0,
+          50.0
+        ],
+        "n_tagged": 2253,
+        "assumed_was": 50,
+        "source": "measured"
+      },
+      "tertiary_link": {
+        "value": 40,
+        "sweep": null,
+        "n_tagged": 20,
+        "assumed_was": 40,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "trunk": {
+        "value": 60.0,
+        "sweep": [
+          60.0,
+          80.0
+        ],
+        "n_tagged": 1702,
+        "assumed_was": 80,
+        "source": "measured"
+      },
+      "trunk_link": {
+        "value": 60.0,
+        "sweep": [
+          60.0,
+          80.0
+        ],
+        "n_tagged": 120,
+        "assumed_was": 60,
+        "source": "measured"
+      },
+      "unclassified": {
+        "value": 50.0,
+        "sweep": [
+          40.0,
+          50.0
+        ],
+        "n_tagged": 479,
+        "assumed_was": 50,
+        "source": "measured"
+      }
+    }
+  },
+  "footway_width_m": {
+    "unit": "metres",
+    "note": "OSM width tag on the active layer",
+    "by_class": {
+      "bridleway": {
+        "value": 2.0,
+        "sweep": null,
+        "n_tagged": 0,
+        "assumed_was": 2.0,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "corridor": {
+        "value": 2.0,
+        "sweep": null,
+        "n_tagged": 0,
+        "assumed_was": 2.0,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "cycleway": {
+        "value": 2.0,
+        "sweep": [
+          2.0,
+          2.5
+        ],
+        "n_tagged": 131,
+        "assumed_was": 2.5,
+        "source": "measured"
+      },
+      "footway": {
+        "value": 2.0,
+        "sweep": [
+          1.0,
+          3.0
+        ],
+        "n_tagged": 211,
+        "assumed_was": 1.8,
+        "source": "measured"
+      },
+      "path": {
+        "value": 1.0,
+        "sweep": [
+          0.5,
+          1.0
+        ],
+        "n_tagged": 191,
+        "assumed_was": 1.5,
+        "source": "measured"
+      },
+      "pedestrian": {
+        "value": 6.0,
+        "sweep": null,
+        "n_tagged": 5,
+        "assumed_was": 6.0,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "steps": {
+        "value": 1.5,
+        "sweep": null,
+        "n_tagged": 17,
+        "assumed_was": 1.5,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      },
+      "track": {
+        "value": 2.5,
+        "sweep": null,
+        "n_tagged": 22,
+        "assumed_was": 2.5,
+        "source": "assumed",
+        "reason": "fewer than 30 tagged edges of this class"
+      }
+    }
+  },
+  "road_lane_width_m": {
+    "value": 3.5,
+    "sweep": [
+      2.5,
+      4.5
+    ],
+    "n_tagged": 265,
+    "source": "measured",
+    "note": "OSM width divided by OSM lanes on edges carrying BOTH tags. The width tag alone is the carriageway, not a lane, and stands at 6.5 m; it stood in for a bare 3.2 that was in no registry at all"
+  }
+}

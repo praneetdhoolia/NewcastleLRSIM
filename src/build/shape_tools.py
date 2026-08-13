@@ -123,7 +123,16 @@ class RoadGraph:
                 if pts and len(pts) >= 2:
                     ways.append((r['edge_id'], (r['name'] or '').strip(), pts))
         ways.sort(key=lambda w: w[0])
+        self._build(ways)
 
+    def _build(self, ways):
+        """Adjacency, node index and lookup grid from [(id, name, points)].
+
+        Split out of __init__ so a subclass can assemble `ways` from a
+        different set of layers - measure_network_factors.ActiveGraph unions
+        the A6 active edges with the roads a pedestrian may use - without
+        duplicating the graph construction or changing it.
+        """
         self.adj = collections.defaultdict(list)
         self.node_xy = {}
         for eid, name, pts in ways:

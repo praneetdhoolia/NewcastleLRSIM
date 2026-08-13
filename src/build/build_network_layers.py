@@ -40,6 +40,9 @@ LANES = CFG.get('A.road.lanes_default')
 # mid-block capacity veh/hr/lane, Austroads-style
 CAP = CFG.get('A.road.capacity_default')
 FOOT_WIDTH = CFG.get('A.active.footway_width_default')
+# Per-lane width where OSM carries none, which is 99.2% of edges. Was a bare
+# 3.2 in this file and in no registry at all (DECISIONS.md 9.33).
+LANE_WIDTH = CFG.get('A.road.lane_width_default_m')
 
 
 def _write(name, rows):
@@ -95,10 +98,15 @@ def build_roads():
             imp['num_lanes'] += 1
         elif not oneway:
             ln = max(1.0, ln / 2.0)   # OSM lanes=total both directions
+        # OSM `width` on a road is the whole CARRIAGEWAY, not one lane, so it
+        # is divided by the lane count before it can stand in for a lane width.
         lw = fnum(t.get('width'))
         if lw is None:
-            lw = 3.2
+            lw = LANE_WIDTH
             imp['lane_width_m'] += 1
+        else:
+            raw_lanes = fnum(t.get('lanes'))
+            lw = (lw / raw_lanes) if (raw_lanes and raw_lanes > 0) else LANE_WIDTH
         kerb = _kerbside(t)
         if kerb == 'unknown':
             imp['kerbside_use'] += 1

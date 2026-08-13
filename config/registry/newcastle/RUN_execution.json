@@ -314,17 +314,20 @@
       "description": "Modes routed on the road graph. Ride must be here AND permitted on the links (143,891 of them): declaring it a network mode that no link permits gives 'checking 0 nodes and 0 links' and a throw in PrepareForSim."
     },
     "RUN.routing.teleported_walk_speed_ms": {
-      "value": 1.05,
+      "value": 1.25,
       "units": "metres_per_second",
-      "source": "literature",
-      "sweep": [
-        0.9,
-        1.35
-      ],
+      "source": "derived",
+      "sweep": null,
       "status": "active",
-      "decisions_ref": "15",
+      "decisions_ref": "15, 9.33",
       "matsim_param": "routing.teleportedModeParameters[walk].teleportedModeSpeed",
-      "description": "Teleported walk speed in MATSim. Distinct from A.transit.walk_speed_ms (1.25), which generates GTFS transfer times. Walk is immune to network conditions, which matters when diagnosing where agents flee to."
+      "description": "Teleported walk speed in MATSim. IDENTICAL BY IDENTITY to A.transit.walk_speed_ms, which generates GTFS transfer times: both are the speed a person walks along a path. They were declared separately at 1.05 and 1.25, each labelled literature and each describing the other as a different quantity - and the bytecode says otherwise. The detour a walker makes is carried by RUN.routing.beeline_distance_factor_walk, which is now MEASURED at 1.6902 rather than sharing an assumed 1.30 with bike, so the speed no longer has to absorb it.",
+      "derived_from": {
+        "fields": [
+          "A.transit.walk_speed_ms"
+        ],
+        "identity": "the same physical walking speed. MATSim computes a teleported leg as travelTime = (beeline x beelineDistanceFactor) / teleportedModeSpeed, verified in the pinned jar bytecode (TeleportationRoutingModule: dmul then ddiv), so teleportedModeSpeed is the speed ALONG the walked path - exactly what A.transit.walk_speed_ms is. They are one quantity."
+      }
     },
     "RUN.routing.teleported_bike_speed_ms": {
       "value": 4.2,
@@ -340,18 +343,39 @@
       "matsim_param": "routing.teleportedModeParameters[bike].teleportedModeSpeed",
       "description": "Teleported bike speed in MATSim. The point value is NOT repinned: the disagreement between published MATSim practice and ATAP is unresolved and is carried by the sweep. Note the MATSim User Guide advises mode SPEED as the better lever than the time coefficient when a modal split is right but its distance distribution is wrong."
     },
-    "RUN.routing.beeline_distance_factor": {
-      "value": 1.3,
+    "RUN.routing.beeline_distance_factor_walk": {
+      "value": 1.6902,
       "units": "ratio",
-      "source": "assumed",
+      "source": "measured",
       "sweep": [
-        1.2,
-        1.45
+        1.294,
+        1.794
       ],
+      "sweep_basis": "the interquartile range of the per-pair ratios over 531 routed pairs; an observed spread, not a chosen interval",
       "status": "active",
-      "decisions_ref": "15",
-      "matsim_param": "routing.teleportedModeParameters[*].beelineDistanceFactor",
-      "description": "Straight-line to path distance for teleported modes. Note B.activity.detour_factor is the MEASURED equivalent for the road graph, 1.3376; this one applies to walk and bike and has not been measured on the active network."
+      "decisions_ref": "9.33",
+      "matsim_param": "routing.teleportedModeParameters[walk].beelineDistanceFactor",
+      "description": "Straight-line to path distance for teleported walk, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed walk trip length of 700 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.4562, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "RUN.routing.beeline_distance_factor_bike": {
+      "value": 1.5231,
+      "units": "ratio",
+      "source": "measured",
+      "sweep": [
+        1.207,
+        1.456
+      ],
+      "sweep_basis": "the interquartile range of the per-pair ratios over 549 routed pairs; an observed spread, not a chosen interval",
+      "status": "active",
+      "decisions_ref": "9.33",
+      "matsim_param": "routing.teleportedModeParameters[bike].beelineDistanceFactor",
+      "description": "Straight-line to path distance for teleported bike, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed bike trip length of 5200 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.2972, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     },
     "RUN.machine.threads": {
       "value": 10,
