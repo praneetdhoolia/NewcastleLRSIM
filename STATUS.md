@@ -1097,10 +1097,6 @@ remembered. **All checks pass, 1 standing warning** — `lastIteration`, which i
 
 ## How to resume
 
-**Starting a fresh session?** [`docs/NEXT_SESSION_PROMPT.md`](docs/NEXT_SESSION_PROMPT.md)
-is a ready-to-paste brief that orients an agent in one message and points back
-here. It is kept in step with this file and the checkpoint.
-
 **For P4 specifically, read [`docs/P4_CHECKPOINT.md`](docs/P4_CHECKPOINT.md)** —
 the long-form handoff: what has been measured and is true, the traps, the errors
 already made and how to drive the harness. **This file stays the source of truth
