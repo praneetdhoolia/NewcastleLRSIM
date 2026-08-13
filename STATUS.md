@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 12 August 2026 (P4 stage 9 - own realtime collection dropped for an assessment of the 230 published datasets, and the corridor signals given the SCATS identity the A2 layer had always declared and left empty)
+**Last updated:** 13 August 2026 (P4 stage 11 - walking was being priced with the parameter for walking to a bus stop, which collapsed walk and public transport together; the mode-choice and PT-router settings are declared rather than left on MATSim defaults)
 **Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -1092,6 +1092,77 @@ space.
 in the new module on its first run, which is the rule working rather than being
 remembered. **All checks pass, 1 standing warning** — `lastIteration`, which is
 #5 and is supposed to be there.
+
+---
+
+## P4 stage 11 — walking was priced with the parameter for walking to a bus stop (13 August 2026)
+
+The walk↔bike inversion §9.27 confirmed as structural turns out to be **one
+mistranslated parameter**, and it took public transport down with it. Full
+detail in [`DECISIONS.md`](DECISIONS.md) §9.28.
+
+`build_matsim_run_inputs.py` set walk's mode-scoring rate from
+`C.time_weights.beta_walk_access` — the appraisal weight on walking to a stop
+**inside** a PT journey, not the value of time for a walking trip. Effect,
+computed from the shipped config:
+
+| | walk | bike | car |
+|---|---:|---:|---:|
+| weight applied | **2.00** | **1.30**, a bare literal | 1.00 |
+| effective util/hr | 33.92 | 22.05 | 16.96 |
+| **util per beeline-km** | **11.666** | **1.896** | 0.61 |
+
+**Walk beat bike only below 174 m**, against an observed mean walk trip of
+**700 m** — so the 0.13% share was arithmetic, not behaviour. No published
+calibrated MATSim scenario prices walking above ~1.15× car; Melbourne AToM,
+estimated on Australian revealed preference, uses **1.04×** and prices *cycling*
+dearer per hour than walking. Newcastle had that ordering inverted.
+
+**It was half the PT collapse too.** MATSim scores PT access, egress and
+transfer walk legs with the **`walk` mode params**, in scoring and again in the
+raptor router. A 5 km PT trip cost **−18.29 utils before any in-vehicle time**,
+**−9.33 of it (51%) the walk at each end**. Walk and PT were one failure.
+
+### What changed
+
+| | was | now |
+|---|---|---|
+| walk mode time weight | `beta_walk_access` = 2.00 | **`C.time_weights.beta_walk_mode` = 1.04**, swept 1.0–1.3 |
+| bike mode time weight | literal `1.3`, no registry field at all | **`C.time_weights.beta_bike_mode` = 1.21**, swept 1.0–1.3 |
+| `subtourModeChoice.behavior` | MATSim default — **an agent with an open subtour could not change mode at all** | `betweenAllAndFewerConstraints` |
+| `probaForRandomSingleTripMode` | MATSim default 0.0 — no single-trip escape from a bike subtour | 0.5 |
+| `coordDistance` | MATSim default 0.0 | 100 m |
+| `maxBeelineWalkConnectionDistance` | MATSim default 100 m | **300 m** |
+| `C.asc.cycle` | held fixed at the §8.5 prior | **departure logged**, status `placeholder`, to be *constrained* against measured trip lengths — **point value deliberately not moved** |
+
+**The PT transfer radius matters more than its size suggests.** No raw TfNSW
+feed carries a `transfers.txt`, so the schedule holds **zero**
+`minimalTransferTimes` and that one parameter creates *every* interchange in the
+model. At the unset 100 m default the light rail at Newcastle Interchange
+reached Stand A (49.0 m), Stand B (95.1 m) and the heavy rail platforms
+(53.9–57.8 m) but **not Stand C at 119.2–139.0 m** — the regional bus and NSW
+TrainLink connection. **Hypothesis A3 falsifies on generalised journey time
+rising for external-origin OD pairs, and that is the external-origin
+connection.**
+
+**Seven declared, swept values were reaching nothing.** The config template
+wrote literals for `subtourModeChoice.modes`, `chainBasedModes`,
+`considerCarAvailability`, `routing.networkModes`, both teleported speeds and
+the beeline factor, while every one had a registry field carrying a
+`matsim_param` binding. The #12 / #21 defect class again, and the drift check
+could not see it because these were template strings rather than module
+constants. All now resolve from the registry.
+
+**Registry 172 → 178 fields.** 30 run-input sets rebuilt with route and
+departure counts unchanged; `check_package.py` **1,107 checks**, 1 standing
+warning. The five new checks were verified by reintroducing the defect — **5
+fail, and pass again on restore.**
+
+**Not done, deliberately:** the bike teleport speed is left at 4.2 m/s with its
+sweep widened to 3.1–5.5 rather than repinned, because published MATSim practice
+(3.14 m/s) and ATAP M4 (~15 km/h) disagree and neither was dismissed. Car still
+pays **no parking charge anywhere in the scoring** and carries no daily cost —
+recorded, not fixed. **Nothing has been run on the changed specification.**
 
 ---
 

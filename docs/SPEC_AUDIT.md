@@ -147,8 +147,18 @@ asymmetry is currently undeclared and unlabelled.
 
 ## A4 — walk is 18× under-represented, and trip lengths are why · **high**
 
-**RESOLVED since this register was written — cause 2 confirmed, and sufficient
-on its own.** Observed walk trips average **0.7 km** and are 13.4% of all trips;
+**CORRECTED AT §9.28 — CAUSE 1 IS THE LARGER TERM, AND THIS ENTRY HAD THE
+RANKING BACKWARDS.** Cause 2 is real and bounds walk's ceiling near 5%, but it
+does not explain a **0.13%** share. Walk's scoring rate was taken from
+`beta_walk_access` — the weight on walking to a stop *inside* a PT journey — so
+walk cost 11.67 utils/beeline-km against bike's 1.90 and **beat bike only below
+174 m**, against an observed mean walk trip of 700 m. Fixing destination
+placement first would have handed every recovered short trip to **bike**. The
+scoring is repaired first and #30 second; the same parameter was also 51% of
+every PT trip's fixed cost, so A4 and the unexamined PT gap were one defect.
+Cause 2's evidence, which stands, follows.
+
+Observed walk trips average **0.7 km** and are 13.4% of all trips;
 the model carries only **4.9% of trips under 1 km**. Walk cannot reach its
 observed share because the trips are not there to be won, which caps it near 5%
 before mode choice is consulted. It is destination *placement*, not a uniform

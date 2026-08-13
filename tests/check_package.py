@@ -699,6 +699,60 @@ else:
             check(param('separateModes') == 'false',
                   '%s/%s: ride reads the car travel times, since no ride vehicle '
                   'is ever observed to generate its own' % (sid, d))
+
+            # DECISIONS.md 9.28. Walking was priced with beta_walk_access, the
+            # appraisal weight on walking to a stop INSIDE a PT journey. That
+            # put the walk-bike indifference distance at 174 m against an
+            # observed mean walk trip of 700 m, and because MATSim scores PT
+            # access, egress and transfer legs with the SAME walk params, it
+            # took PT down with it. These checks fix the relationships, not the
+            # values, so the sweep stays free to move them.
+            def mode_param(mode, name, t=ctext):
+                blk = [b for b in re.findall(
+                    r'<parameterset type="modeParams">.*?</parameterset>', t, re.S)
+                    if re.search(r'name="mode" value="%s"' % mode, b)]
+                if not blk:
+                    return None
+                m = re.search(r'<param name="%s" value="([^"]*)"' % name, blk[0])
+                return float(m.group(1)) if m else None
+
+            walk_mut = mode_param('walk', 'marginalUtilityOfTraveling_util_hr')
+            bike_mut = mode_param('bike', 'marginalUtilityOfTraveling_util_hr')
+            car_mut = mode_param('car', 'marginalUtilityOfTraveling_util_hr')
+            if walk_mut is not None and bike_mut is not None and car_mut is not None:
+                # traveling = performing - vot*weight, so a HEAVIER weight is a
+                # MORE NEGATIVE number. Cycling time is dearer per hour than
+                # walking time in every calibrated model; this model had it
+                # inverted, and that inversion conceded every short trip to bike.
+                check(bike_mut <= walk_mut,
+                      '%s/%s: bike time is priced at or above walk time per hour '
+                      '(bike %.4f <= walk %.4f) - the ordering every calibrated '
+                      'scenario uses, and the one 9.28 found inverted'
+                      % (sid, d, bike_mut, walk_mut))
+                # 2.0 x car was the defect. AToM, the calibrated Australian
+                # model, uses 1.04; no published scenario exceeds ~1.15.
+                perf = float(param('performing') or 0)
+                if perf:
+                    check(abs(walk_mut - perf) <= 1.60 * abs(car_mut - perf) + 1e-6,
+                          '%s/%s: walk time is not priced above ~1.6x car time '
+                          '- it was priced at 2.0x by beta_walk_access, which is '
+                          'the PT-access weight and not a walking trip (9.28)'
+                          % (sid, d))
+            check(param('maxBeelineWalkConnectionDistance') is not None,
+                  '%s/%s: the PT transfer radius is DECLARED, not left on '
+                  "MATSim's 100 m default - no feed carries a transfers.txt so "
+                  'this parameter alone creates every interchange, and at 100 m '
+                  'the light rail could not reach Newcastle Interchange Stand C '
+                  'at 119-139 m, the regional bus and TrainLink connection '
+                  'hypothesis A3 falsifies on (9.28)' % (sid, d))
+            check(param('behavior', smc) == 'betweenAllAndFewerConstraints',
+                  '%s/%s: an agent with an open subtour can still change mode - '
+                  "under MATSim's default it is frozen at its seeded mode for the "
+                  'whole run (9.28)' % (sid, d))
+            check(float(param('probaForRandomSingleTripMode', smc) or 0) > 0,
+                  '%s/%s: a single trip can change mode without its whole '
+                  'subtour, so a bike subtour is not an absorbing state (9.28)'
+                  % (sid, d))
     # the E1 road variant means the same on the run network as on the base
     base_touch = mrep2.get('road_variants', {})
     for sid, v in sorted(sc.items()):

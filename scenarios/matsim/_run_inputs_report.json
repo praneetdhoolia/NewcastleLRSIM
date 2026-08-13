@@ -70,11 +70,11 @@
       },
       "walk": {
         "constant": 0.35,
-        "marginalUtilityOfTraveling": -27.9216
+        "marginalUtilityOfTraveling": -11.6392
       },
       "bike": {
         "constant": -1.35,
-        "marginalUtilityOfTraveling": -16.049
+        "marginalUtilityOfTraveling": -14.5226
       }
     },
     "not_representable": [

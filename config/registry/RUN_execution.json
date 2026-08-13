@@ -242,6 +242,64 @@
       "matsim_param": "subtourModeChoice.considerCarAvailability",
       "description": "MATSim defaults this to FALSE, which made mode choice ignore the car availability B1 synthesised. Must stay true."
     },
+    "RUN.mode_choice.subtour_behavior": {
+      "value": "betweenAllAndFewerConstraints",
+      "units": "enum",
+      "source": "literature",
+      "sweep": {
+        "categorical": [
+          "betweenAllAndFewerConstraints",
+          "fromSpecifiedModesToSpecifiedModes"
+        ],
+        "basis": "the two values MATSim offers. Open Berlin, Leipzig and Kelheim all set the former; the latter is the MATSim default and was live here unset."
+      },
+      "status": "active",
+      "decisions_ref": "9.28",
+      "matsim_param": "subtourModeChoice.behavior",
+      "description": "How subtour mode choice treats tours it cannot close. Under the MATSim default fromSpecifiedModesToSpecifiedModes, AN AGENT WITH AN OPEN OR UNCLOSED SUBTOUR CANNOT CHANGE MODE AT ALL and is frozen at its seeded mode for the whole run - MATSim's own javadoc says to use betweenAllAndFewerConstraints if open subtours exist in the data (9.28)."
+    },
+    "RUN.mode_choice.proba_random_single_trip_mode": {
+      "value": 0.5,
+      "units": "probability",
+      "source": "literature",
+      "sweep": [
+        0.0,
+        0.5
+      ],
+      "sweep_basis": "0.0 is the MATSim default, which its own source annotates as a backwards-compatibility setting that should be changed; 0.5 is the value Open Berlin, Leipzig and Kelheim all use.",
+      "status": "active",
+      "decisions_ref": "9.28",
+      "matsim_param": "subtourModeChoice.probaForRandomSingleTripMode",
+      "description": "Probability that mode choice reassigns a SINGLE trip rather than a whole subtour. At the MATSim default of 0.0 every trip in a subtour must share one mode, so with chainBasedModes = car,bike there is no single-trip escape from a bike subtour and agents lock into bike once it wins (9.28)."
+    },
+    "RUN.mode_choice.coord_distance_m": {
+      "value": 100.0,
+      "units": "metres",
+      "source": "literature",
+      "sweep": [
+        0.0,
+        100.0
+      ],
+      "sweep_basis": "0 is the MATSim default and was live here unset; 100 is Open Berlin's value.",
+      "status": "active",
+      "decisions_ref": "9.28",
+      "matsim_param": "subtourModeChoice.coordDistance",
+      "description": "Distance within which two activity coordinates count as the same subtour location. At the default 0 two activities metres apart open a subtour that can never close."
+    },
+    "RUN.transit_router.max_beeline_walk_connection_m": {
+      "value": 300.0,
+      "units": "metres",
+      "source": "literature",
+      "sweep": [
+        100.0,
+        500.0
+      ],
+      "sweep_basis": "100 m is the MATSim default that was live here unset; 300 m is the value Open Berlin, Leipzig and Kelheim all set. The upper bound spans Leipzig and Kelheim's 500 m extensionRadius.",
+      "status": "active",
+      "decisions_ref": "9.28",
+      "matsim_param": "transitRouter.maxBeelineWalkConnectionDistance",
+      "description": "Maximum stop-to-stop distance at which the PT router will create a transfer. THIS PARAMETER ALONE CREATES EVERY INTERCHANGE IN THE MODEL: none of the five raw TfNSW feeds carries a transfers.txt, so the schedule holds zero minimalTransferTimes and nothing backstops it. At the unset default of 100 m the light rail at Newcastle Interchange reached Stand A (49.0 m), Stand B (95.1 m) and the heavy rail platforms (53.9-57.8 m) but NOT Stand C at 119.2-139.0 m, which carries the regional buses and NSW TrainLink - the external-origin connection hypothesis A3 falsifies on (9.28)."
+    },
     "RUN.routing.network_modes": {
       "value": [
         "car",
@@ -273,13 +331,14 @@
       "units": "metres_per_second",
       "source": "literature",
       "sweep": [
-        3.5,
+        3.1,
         5.5
       ],
+      "sweep_basis": "widened at 9.28 to span two sources that disagree rather than choosing between them: published MATSim practice is 3.1389 m/s (Kelheim, Duesseldorf, eqasim Corsica) while ATAP M4 gives average cycling at ~15 km/h, which is what 4.2 m/s encodes. The old lower bound of 3.5 excluded every published MATSim value.",
       "status": "active",
-      "decisions_ref": "15",
+      "decisions_ref": "15, 9.28",
       "matsim_param": "routing.teleportedModeParameters[bike].teleportedModeSpeed",
-      "description": "Teleported bike speed in MATSim."
+      "description": "Teleported bike speed in MATSim. The point value is NOT repinned: the disagreement between published MATSim practice and ATAP is unresolved and is carried by the sweep. Note the MATSim User Guide advises mode SPEED as the better lever than the time coefficient when a modal split is right but its distance distribution is wrong."
     },
     "RUN.routing.beeline_distance_factor": {
       "value": 1.3,

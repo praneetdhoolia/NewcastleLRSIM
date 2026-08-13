@@ -2894,6 +2894,177 @@ means anything, including every run in `results/` and both arms of §9.26.
 
 ---
 
+## 9.28 Walking was priced with the parameter for walking to a bus stop (P4 stage 11, issues #29, #30)
+
+**This section is written before the change it authorises and before any run on
+the changed specification**, because it logs a departure from §8.5 and §8.5's own
+rule is that a departure must be recorded before results are seen.
+
+### The defect: one parameter, three broken mode shares
+
+`src/build/build_matsim_run_inputs.py` translates C1 into MATSim scoring through
+`traveling(weight) = performing − vot_avg × weight`. Two of its five calls are
+wrong.
+
+```python
+'walk': marginalUtilityOfTraveling=traveling(w['beta_walk_access']['base'])   # 2.0
+'bike': marginalUtilityOfTraveling=traveling(1.3)                             # a literal
+```
+
+**`C.time_weights.beta_walk_access` is the appraisal weight on walk access time
+*inside a public transport journey*** — the penalty for walking to a stop, where
+walking is an unwanted addition to a PT trip. It is not the value of time for a
+walking trip. Applying it to the `walk` *mode* prices an entire walking journey
+at twice in-vehicle time. This is the hazard §9.3 recorded as *"what C1 loses in
+translation to MATSim scoring"*, realised.
+
+MATSim's effective travel disutility is `performing + |marginalUtilityOfTraveling|`:
+
+| mode | weight | effective util/hr | speed | **util per beeline-km** |
+|---|---:|---:|---:|---:|
+| car / ride / pt | 1.0 | 16.96 | measured | 0.61 (car) |
+| bike | **1.3, a literal** | 22.05 | 15.12 km/h | **1.896** |
+| walk | **2.0, the PT-access weight** | 33.92 | 3.78 km/h | **11.666** |
+
+With `C.asc.walk = +0.35` and `C.asc.cycle = −1.35`, walk and bike are
+indifferent at **174 m beeline (226 m network)**. `C.constraint.trip_length_km.walk`
+records the observed mean walk trip as **0.7 km**. **Essentially no observed
+walking trip falls inside the window where this model would choose to walk**, and
+the resulting 0.13% share is arithmetic rather than behaviour.
+
+### It is also half the PT collapse
+
+MATSim scores access, egress and transfer walk legs with the **`walk` mode
+parameters**, in the scoring function and again in the router's generalised cost.
+A 5 km PT trip with 400 m access and egress, 10 min wait and one transfer costs
+**−18.29 utils before any in-vehicle time**, of which **−9.33 (51%) is the walk
+at each end**. That fixed cost equals 57 minutes of car driving. **Walk and PT
+are one failure, not two**, which corrects §9.25's note that PT was "plausibly
+downstream of A1–A3".
+
+### The benchmark, from committed configs of calibrated scenarios
+
+Effective travel disutility relative to car:
+
+| scenario | car | pt | bike | walk |
+|---|---:|---:|---:|---:|
+| Open Berlin v6.4 | 1.00 | 1.00 | 1.00 | 1.00 |
+| Leipzig v1.3.1 | 1.00 | 1.58 | 1.92 | 0.94 |
+| Kelheim v3.1 | 1.00 | 1.00 | 1.50 | 1.00 |
+| Düsseldorf v1.0 | 1.00 | 1.23 | 1.15 | 1.15 |
+| **Melbourne AToM** (estimated on VISTA, n = 14,959) | 1.00 | 1.01 | **1.21** | **1.04** |
+| **Newcastle, as built** | 1.00 | 1.00 | **1.30** | **2.00** |
+
+**No published calibrated MATSim scenario prices walking above ~1.15× car.** The
+Australian model estimated on Australian revealed preference uses 1.04×, and has
+**cycling time dearer per hour than walking** — Newcastle has that ordering
+inverted. Australian appraisal guidance is independently consistent: ATAP M1 and
+the TfNSW Economic Parameter Values both put the walk *access* weight at **1.5**,
+and Wardman's meta-analysis of 3,109 valuations at **1.45**. Even for the
+quantity it was meant for, 2.0 sits at the top of the range.
+
+### Why fixing destination placement first would have made it worse
+
+Issue #30 is real — the model carries **4.9%** of trips under 1 km where national
+travel surveys report 14–23% (US 2009 NHTS 19% under 1 mile; MiD 2023 ~23% under
+1 km; ODiN 2024 14.4%). But at a 174 m crossover the recovered short trips would
+go to **bike**, not walk. In every observed system walking takes the shortest
+band — 61% of US sub-0.8 km trips, 81% of German sub-0.5 km trips, 62% of Dutch
+sub-1 km trips, and NSW HTS puts walk at 71% of sub-1 km trips. **The scoring is
+repaired first and #30 second.** This reverses the order §9.25 implied.
+
+Recorded so it is not mistaken for a target error: roughly a quarter of sub-km
+NSW trips *are* driven, and that behaviour is already inside the 13.4% walk
+target. The target is not misread.
+
+### Live MATSim defaults that no one set
+
+`output_config.xml` from a completed run — MATSim's own fully resolved config,
+which is the only place a live default is visible — shows the mode-choice and PT
+router running entirely on defaults that every comparator scenario overrides:
+
+| parameter | Newcastle | comparators | consequence |
+|---|---|---|---|
+| `maxBeelineWalkConnectionDistance` | **100 m** (default) | 300 m (Berlin, Leipzig, Kelheim) | see below |
+| `probaForRandomSingleTripMode` | **0.0** (default) | 0.5 | no single-trip escape from a bike subtour |
+| `subtourModeChoice.behavior` | `fromSpecifiedModesToSpecifiedModes` | `betweenAllAndFewerConstraints` | **an agent with an open subtour cannot change mode at all** |
+| `coordDistance` | **0.0** (default) | 100 | two activities metres apart are not one subtour location |
+
+**Measured consequence of the first, at Newcastle Interchange**, from the
+S2 × WEEKDAY schedule:
+
+| from light rail | to | distance | reachable |
+|---|---|---:|---|
+| Newcastle Interchange LR | Stand A, local bus | 49.0 m | yes |
+| Newcastle Interchange LR | heavy rail platforms 1–3 | 53.9–57.8 m | yes |
+| Newcastle Interchange LR | Stand B, local bus | 95.1 m | yes, by 4.9 m |
+| **Newcastle Interchange LR** | **Stand C — `regionbuses`, `nswtrains`** | **119.2–139.0 m** | **no** |
+
+Nothing backstops it: the schedule carries **zero** `minimalTransferTimes`, and
+**none of the five raw TfNSW feeds contains a `transfers.txt`** — so this is a
+source-data gap, and every interchange in the model is created by that one unset
+parameter. **Claim A's hypothesis A3 falsifies on generalised journey time rising
+for external-origin OD pairs, and Stand C is the external-origin connection.**
+The Auditor-General's finding concerned travellers originating outside the city
+centre specifically. `C.transfer.beta_transfer_penalty_min`, swept 3–15 as the
+parameter the policy question turns on, has been priced against a transfer set
+missing that connection.
+
+### The §8.5 departure, logged before results
+
+**Departed from:** §8.5 holds `C.asc.cycle` fixed at the prior −1.35.
+
+**Departure:** `C.asc.cycle` opens a sweep of **[−4.0, −1.35]** and its status
+becomes `placeholder`, to be **constrained** — not calibrated — against the
+observed walk:bike split by distance band, on the pattern §9.8 established for
+`C.asc.car_passenger`. The constraining quantity is an observed distributional
+fact about which mode wins at which distance, not a patronage level and not a
+mode share the hypotheses turn on.
+
+**Why this is not ASC absorption.** The constant being opened is *cycle*.
+`asc_light_rail`, `asc_bus` and `asc_rail` stay at their §8.5 priors and are
+untouched, so no hypothesis in proposal §3 turns on it. The point value is **not
+moved in this change** — only the sweep is opened and the departure recorded —
+because a hand-set −3.0 would be substituting one unjustified number for another,
+which is what §8.5 exists to prevent. The constrained solve is built after the
+scoring repair, not before, since calibrating a constant against a known
+structural error is exactly the failure proposal §9 names as the primary threat
+to validity.
+
+**Not departed from:** the 67/143 split is untouched, no holdout row was opened,
+no target value changed and no falsification condition was altered.
+
+### One research claim falsified during checking, and one of my own withdrawn
+
+`accessEgressType` **is** active (`accessEgressModeToLink`), confirmed from the
+resolved config, against a research finding that it defaulted to `none`. §9.15
+stands and car does pay a walk to the network.
+
+The claim that the teleported walk speed was set too slow is **withdrawn**. ATAP
+M4 gives average walking at 4 km/h; `RUN.routing.teleported_walk_speed_ms` = 1.05
+(3.78 km/h) is consistent with it. **The speeds are not the defect; the
+coefficients are.** What survives is an internal inconsistency worth closing
+separately: `A.transit.walk_speed_ms` is 1.25 while
+`RUN.routing.teleported_walk_speed_ms` is 1.05, both labelled `literature`.
+
+The teleported *bike* speed is left at 4.2 m/s with its sweep widened rather than
+repinned, because the two sources disagree and neither was dismissed: published
+MATSim practice is 3.14 m/s (Kelheim, Düsseldorf, eqasim) while ATAP M4 gives
+average cycling at ~15 km/h, which is what 4.2 m/s encodes. The sweep is widened
+to reach both rather than a value being chosen between them.
+
+### Still open, and stated so
+
+Car pays **no parking charge anywhere in the scoring** and carries no
+`dailyMonetaryConstant`; its 0.18 utils/km is roughly half the Australian
+estimate. In a study whose subject is city-centre access this is a real omission,
+recorded here and not fixed in this change.
+
+**Nothing in this section is a result.** No scenario has been run on the changed
+specification.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

@@ -27,22 +27,22 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 172 fields are made of
+## What the 178 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 3 | read directly from a raw download |
 | `measured` | 15 | computed from observed data in this package |
 | `derived` | 14 | follows from another registry field by identity |
-| `literature` | 18 | a published value, not specific to Newcastle |
+| `literature` | 24 | a published value, not specific to Newcastle |
 | `assumed` | 79 | chosen without direct empirical support |
 | `definition` | 43 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 160 | usable point value |
+| `active` | 165 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
-| `placeholder` | 4 | a structural stand-in; the model runs but the field is not defensible |
+| `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
 
 ### The 6 fields with no value
@@ -65,7 +65,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 - `A.signals.scats_match_radius_m` - A data-join tolerance, not a model parameter. It decides which observed TfNSW signal is the same physical intersection as a clustered OSM one, and no behaviour, run time or score r
 - `C.asc.bus` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.car_passenger` - Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the seco
-- `C.asc.cycle` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
+- `C.asc.cycle` - Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as t
 - `C.asc.light_rail` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.rail` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.walk` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
@@ -619,7 +619,7 @@ Points evaluated along each parameter's declared sweep interval in one coordinat
 
 ## Behavioural parameters (C1)
 
-*`config/registry/C_behaviour.json` - 45 fields*
+*`config/registry/C_behaviour.json` - 47 fields*
 
 Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.
 
@@ -656,12 +656,14 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.scoring.marginal_utility_of_money` | `1.0` | utils_per_AUD | `definition` | - |
 | `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
 | `C.scoring.performing_utils_per_h` | `6.0` | utils_per_hour | `literature` | 4 - 8 |
+| `C.time_weights.beta_bike_mode` | `1.21` | ratio_to_ivt | `literature` | 1 - 1.3 |
 | `C.time_weights.beta_headway` | `0.5` | ratio_to_ivt | `literature` | 0.35 - 0.65 |
 | `C.time_weights.beta_ivt` | `1.0` | ratio_to_ivt | `definition` | - |
 | `C.time_weights.beta_reliability` | `1.3` | ratio_to_ivt | `literature` | 0.8 - 1.8 |
 | `C.time_weights.beta_wait` | `2.0` | ratio_to_ivt | `literature` | 1.5 - 2.5 |
 | `C.time_weights.beta_walk_access` | `2.0` | ratio_to_ivt | `literature` | 1.5 - 2.5 |
 | `C.time_weights.beta_walk_egress` | `2.0` | ratio_to_ivt | `literature` | 1.5 - 2.5 |
+| `C.time_weights.beta_walk_mode` | `1.04` | ratio_to_ivt | `literature` | 1 - 1.3 |
 | `C.transfer.beta_transfer_penalty_min` | `8.0` | minutes_equivalent | `assumed` | 3 - 15 |
 | `C.vot.by_purpose` | `{"HW": 18.6, "HE": 9.3, "HS": 15.2, "HO": 15.2, "WB": 55.4, "NHB": 15.2}` | AUD_2026_per_hour | `literature` | plus/minus 30% |
 | `C.vot.concession_factor` | `0.75` | ratio | `literature` | 0.6 - 0.9 |
@@ -699,13 +701,13 @@ Car-passenger constant. The shipped -0.85 is the 8.5 prior; the solved value is 
 
 #### `C.asc.cycle`
 
-Alternative-specific constant relative to car driver = 0.
+Cycle alternative-specific constant relative to car driver = 0. Status is placeholder because the 8.5 prior is known too weak - AToM's estimated walk-to-bike ASC gap is 3.418 against this model's 1.70 - and the constrained solve has not been built. The point value is deliberately NOT hand-moved: substituting one unjustified number for another is exactly what 8.5 exists to prevent.
 
-***assumed** · status **active** · DECISIONS.md §8.5*
+***assumed** · status **placeholder** · DECISIONS.md §8.5, 9.28*
 
-> **Held fixed.** DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.
+> **Held fixed.** Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as the 8.5 prior; a solve over [-4.0, -1.35] is to be constrained against the OBSERVED walk and bike trip lengths already measured into C.constraint.trip_length_km.*, never against a mode share and never against a patronage level. This is not ASC absorption: the constant opened is CYCLE, asc_light_rail, asc_bus and asc_rail stay at their 8.5 priors, and no hypothesis in proposal 3 turns on it.
 >
-> *Departure requires: a departure logged in DECISIONS.md BEFORE results are seen*
+> *Departure requires: the constrained solve must run AFTER the 9.28 scoring repair, never before - calibrating a constant against a known structural error is the failure proposal 9 names as the primary threat to validity*
 
 #### `C.asc.light_rail`
 
@@ -887,6 +889,14 @@ Marginal utility of performing an activity. A property of the MATSim scoring for
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `scoring.performing`*
 
+#### `C.time_weights.beta_bike_mode`
+
+Weight on BIKE travel time relative to in-vehicle time. Value from Melbourne AToM, estimated on VISTA n=14,959. MUST BE >= C.time_weights.beta_walk_mode: cycling time being dearer per hour than walking time is the finding of 9.28, not an incidental ordering - the model had it inverted (walk 2.0, bike 1.3) and that inversion conceded every short trip to bike. Replaces a bare literal 1.3 typed into src/build/build_matsim_run_inputs.py that carried no registry field, no source, no sweep and no consumer while governing bike's mode share.
+
+***literature** · status **active** · DECISIONS.md §8.4, 9.28 · MATSim `scoring.modeParams[bike].marginalUtilityOfTraveling_util_hr`*
+
+> **Sweep basis.** same bracket as beta_walk_mode. AToM estimates 1.21 for cycling; Kelheim uses 1.50 and Leipzig 1.92, so 1.0-1.3 is the conservative end of published practice.
+
 #### `C.time_weights.beta_headway`
 
 Weight on service headway.
@@ -922,6 +932,14 @@ Weight on walk access time relative to in-vehicle time.
 Weight on walk egress time relative to in-vehicle time.
 
 ***literature** · status **active** · DECISIONS.md §8.4*
+
+#### `C.time_weights.beta_walk_mode`
+
+Weight on WALK-AS-A-MODE travel time relative to in-vehicle time. DISTINCT FROM beta_walk_access, which is the appraisal weight on walking to a PT stop INSIDE a PT journey and must never be used here: doing so priced a whole walking trip at 2x car time, put the walk-bike indifference distance at 174 m against an observed mean walk trip of 700 m, and produced a 0.13% walk share against 13.4% (9.28). Value from Melbourne AToM, estimated on VISTA n=14,959, the only calibrated Australian agent-based model.
+
+***literature** · status **active** · DECISIONS.md §8.4, 9.28 · MATSim `scoring.modeParams[walk].marginalUtilityOfTraveling_util_hr`*
+
+> **Sweep basis.** bracketed by the two conventions actually in use: Open Berlin, Kelheim and Hamburg price walk time equal to car (1.00) and Duesseldorf at 1.15, while Melbourne AToM estimates 1.04 on Australian revealed preference. No published calibrated MATSim scenario exceeds 1.15.
 
 #### `C.transfer.beta_transfer_penalty_min`
 
@@ -1076,7 +1094,7 @@ Seeded replications per scenario. One of the three things that can be cut to clo
 
 ## Execution control
 
-*`config/registry/RUN_execution.json` - 30 fields*
+*`config/registry/RUN_execution.json` - 34 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -1092,7 +1110,10 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.machine.xmx` | `14g` | jvm_heap | `definition` | - |
 | `RUN.mode_choice.chain_based_modes` | `["car", "bike"]` | enum | `definition` | - |
 | `RUN.mode_choice.consider_car_availability` | `true` | boolean | `definition` | - |
+| `RUN.mode_choice.coord_distance_m` | `100.0` | metres | `literature` | 0 - 100 |
 | `RUN.mode_choice.modes` | `["car", "ride", "pt", "bike", "walk"]` | enum | `definition` | - |
+| `RUN.mode_choice.proba_random_single_trip_mode` | `0.5` | probability | `literature` | 0 - 0.5 |
+| `RUN.mode_choice.subtour_behavior` | `betweenAllAndFewerConstraints` | enum | `literature` | `betweenAllAndFewerConstraints`, `fromSpecifiedModesToSpecifiedModes` |
 | `RUN.monitor.enabled` | `true` | boolean | `definition` | - |
 | `RUN.monitor.poll_s` | `3` | seconds | `definition` | - |
 | `RUN.monitor.port` | `8731` | tcp_port | `definition` | - |
@@ -1105,13 +1126,14 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
 | `RUN.routing.beeline_distance_factor` | `1.3` | ratio | `assumed` | 1.2 - 1.45 |
 | `RUN.routing.network_modes` | `["car", "ride"]` | enum | `definition` | - |
-| `RUN.routing.teleported_bike_speed_ms` | `4.2` | metres_per_second | `literature` | 3.5 - 5.5 |
+| `RUN.routing.teleported_bike_speed_ms` | `4.2` | metres_per_second | `literature` | 3.1 - 5.5 |
 | `RUN.routing.teleported_walk_speed_ms` | `1.05` | metres_per_second | `literature` | 0.9 - 1.35 |
 | `RUN.sample.flow_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: flowCapacityFactor = RUN.sample.fraction, the standard MATSim scaling  |
 | `RUN.sample.fraction` | `0.01` | share_of_population | `assumed` | 0.01 - 0.4 |
 | `RUN.sample.storage_capacity_exponent` | `1.0` | exponent | `derived` | derived: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim e |
 | `RUN.sample.transit_capacity_floor` | `1` | seats | `assumed` | 1 - 4 |
 | `RUN.sample.transit_capacity_scaling` | `true` | boolean | `derived` | derived: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it |
+| `RUN.transit_router.max_beeline_walk_connection_m` | `300.0` | metres | `literature` | 100 - 500 |
 
 #### `RUN.controler.compression_type`
 
@@ -1173,11 +1195,33 @@ MATSim defaults this to FALSE, which made mode choice ignore the car availabilit
 
 ***definition** · status **active** · DECISIONS.md §9.6 · MATSim `subtourModeChoice.considerCarAvailability`*
 
+#### `RUN.mode_choice.coord_distance_m`
+
+Distance within which two activity coordinates count as the same subtour location. At the default 0 two activities metres apart open a subtour that can never close.
+
+***literature** · status **active** · DECISIONS.md §9.28 · MATSim `subtourModeChoice.coordDistance`*
+
+> **Sweep basis.** 0 is the MATSim default and was live here unset; 100 is Open Berlin's value.
+
 #### `RUN.mode_choice.modes`
 
 Modes subtour mode choice may switch between. IF RIDE IS OMITTED, MATSim defaults to car,pt,bike,walk and a ride subtour becomes an ABSORBING STATE - ride sat at 0.18311 in every iteration to five decimals, and 18.6% of legs were an input wearing the costume of a result.
 
 ***definition** · status **active** · DECISIONS.md §9.6 · MATSim `subtourModeChoice.modes`*
+
+#### `RUN.mode_choice.proba_random_single_trip_mode`
+
+Probability that mode choice reassigns a SINGLE trip rather than a whole subtour. At the MATSim default of 0.0 every trip in a subtour must share one mode, so with chainBasedModes = car,bike there is no single-trip escape from a bike subtour and agents lock into bike once it wins (9.28).
+
+***literature** · status **active** · DECISIONS.md §9.28 · MATSim `subtourModeChoice.probaForRandomSingleTripMode`*
+
+> **Sweep basis.** 0.0 is the MATSim default, which its own source annotates as a backwards-compatibility setting that should be changed; 0.5 is the value Open Berlin, Leipzig and Kelheim all use.
+
+#### `RUN.mode_choice.subtour_behavior`
+
+How subtour mode choice treats tours it cannot close. Under the MATSim default fromSpecifiedModesToSpecifiedModes, AN AGENT WITH AN OPEN OR UNCLOSED SUBTOUR CANNOT CHANGE MODE AT ALL and is frozen at its seeded mode for the whole run - MATSim's own javadoc says to use betweenAllAndFewerConstraints if open subtours exist in the data (9.28).
+
+***literature** · status **active** · DECISIONS.md §9.28 · MATSim `subtourModeChoice.behavior`*
 
 #### `RUN.monitor.enabled`
 
@@ -1253,9 +1297,11 @@ Modes routed on the road graph. Ride must be here AND permitted on the links (14
 
 #### `RUN.routing.teleported_bike_speed_ms`
 
-Teleported bike speed in MATSim.
+Teleported bike speed in MATSim. The point value is NOT repinned: the disagreement between published MATSim practice and ATAP is unresolved and is carried by the sweep. Note the MATSim User Guide advises mode SPEED as the better lever than the time coefficient when a modal split is right but its distance distribution is wrong.
 
-***literature** · status **active** · DECISIONS.md §15 · MATSim `routing.teleportedModeParameters[bike].teleportedModeSpeed`*
+***literature** · status **active** · DECISIONS.md §15, 9.28 · MATSim `routing.teleportedModeParameters[bike].teleportedModeSpeed`*
+
+> **Sweep basis.** widened at 9.28 to span two sources that disagree rather than choosing between them: published MATSim practice is 3.1389 m/s (Kelheim, Duesseldorf, eqasim Corsica) while ATAP M4 gives average cycling at ~15 km/h, which is what 4.2 m/s encodes. The old lower bound of 3.5 excluded every published MATSim value.
 
 #### `RUN.routing.teleported_walk_speed_ms`
 
@@ -1300,6 +1346,14 @@ Scale transit vehicle seats by the sample fraction. NOT OPTIONAL in practice: at
 ***derived** · status **active** · DECISIONS.md §15*
 
 > **Derived from** `RUN.sample.fraction`: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it would give every vehicle 1/fraction times its real capacity
+
+#### `RUN.transit_router.max_beeline_walk_connection_m`
+
+Maximum stop-to-stop distance at which the PT router will create a transfer. THIS PARAMETER ALONE CREATES EVERY INTERCHANGE IN THE MODEL: none of the five raw TfNSW feeds carries a transfers.txt, so the schedule holds zero minimalTransferTimes and nothing backstops it. At the unset default of 100 m the light rail at Newcastle Interchange reached Stand A (49.0 m), Stand B (95.1 m) and the heavy rail platforms (53.9-57.8 m) but NOT Stand C at 119.2-139.0 m, which carries the regional buses and NSW TrainLink - the external-origin connection hypothesis A3 falsifies on (9.28).
+
+***literature** · status **active** · DECISIONS.md §9.28 · MATSim `transitRouter.maxBeelineWalkConnectionDistance`*
+
+> **Sweep basis.** 100 m is the MATSim default that was live here unset; 300 m is the value Open Berlin, Leipzig and Kelheim all set. The upper bound spans Leipzig and Kelheim's 500 m extensionRadius.
 
 ## SUMO corridor (build and microsimulation)
 

@@ -142,6 +142,34 @@
       "decisions_ref": "8.4",
       "description": "Weight on walk egress time relative to in-vehicle time."
     },
+    "C.time_weights.beta_walk_mode": {
+      "value": 1.04,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.0,
+        1.3
+      ],
+      "sweep_basis": "bracketed by the two conventions actually in use: Open Berlin, Kelheim and Hamburg price walk time equal to car (1.00) and Duesseldorf at 1.15, while Melbourne AToM estimates 1.04 on Australian revealed preference. No published calibrated MATSim scenario exceeds 1.15.",
+      "status": "active",
+      "decisions_ref": "8.4, 9.28",
+      "matsim_param": "scoring.modeParams[walk].marginalUtilityOfTraveling_util_hr",
+      "description": "Weight on WALK-AS-A-MODE travel time relative to in-vehicle time. DISTINCT FROM beta_walk_access, which is the appraisal weight on walking to a PT stop INSIDE a PT journey and must never be used here: doing so priced a whole walking trip at 2x car time, put the walk-bike indifference distance at 174 m against an observed mean walk trip of 700 m, and produced a 0.13% walk share against 13.4% (9.28). Value from Melbourne AToM, estimated on VISTA n=14,959, the only calibrated Australian agent-based model."
+    },
+    "C.time_weights.beta_bike_mode": {
+      "value": 1.21,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.0,
+        1.3
+      ],
+      "sweep_basis": "same bracket as beta_walk_mode. AToM estimates 1.21 for cycling; Kelheim uses 1.50 and Leipzig 1.92, so 1.0-1.3 is the conservative end of published practice.",
+      "status": "active",
+      "decisions_ref": "8.4, 9.28",
+      "matsim_param": "scoring.modeParams[bike].marginalUtilityOfTraveling_util_hr",
+      "description": "Weight on BIKE travel time relative to in-vehicle time. Value from Melbourne AToM, estimated on VISTA n=14,959. MUST BE >= C.time_weights.beta_walk_mode: cycling time being dearer per hour than walking time is the finding of 9.28, not an incidental ordering - the model had it inverted (walk 2.0, bike 1.3) and that inversion conceded every short trip to bike. Replaces a bare literal 1.3 typed into src/build/build_matsim_run_inputs.py that carried no registry field, no source, no sweep and no consumer while governing bike's mode share."
+    },
     "C.time_weights.beta_wait": {
       "value": 2.0,
       "units": "ratio_to_ivt",
@@ -302,13 +330,14 @@
       "units": "utils",
       "source": "assumed",
       "held_fixed": {
-        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
-        "decisions_ref": "8.5",
-        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+        "rule": "Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as the 8.5 prior; a solve over [-4.0, -1.35] is to be constrained against the OBSERVED walk and bike trip lengths already measured into C.constraint.trip_length_km.*, never against a mode share and never against a patronage level. This is not ASC absorption: the constant opened is CYCLE, asc_light_rail, asc_bus and asc_rail stay at their 8.5 priors, and no hypothesis in proposal 3 turns on it.",
+        "decisions_ref": "8.5, 9.28",
+        "departure_requires": "the constrained solve must run AFTER the 9.28 scoring repair, never before - calibrating a constant against a known structural error is the failure proposal 9 names as the primary threat to validity"
       },
-      "status": "active",
-      "decisions_ref": "8.5",
-      "description": "Alternative-specific constant relative to car driver = 0."
+      "status": "placeholder",
+      "decisions_ref": "8.5, 9.28",
+      "targets": "C.constraint.trip_length_km.bike",
+      "description": "Cycle alternative-specific constant relative to car driver = 0. Status is placeholder because the 8.5 prior is known too weak - AToM's estimated walk-to-bike ASC gap is 3.418 against this model's 1.70 - and the constrained solve has not been built. The point value is deliberately NOT hand-moved: substituting one unjustified number for another is exactly what 8.5 exists to prevent."
     },
     "C.asc.car_passenger": {
       "value": -0.85,

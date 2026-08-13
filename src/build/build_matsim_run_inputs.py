@@ -67,6 +67,35 @@ PERFORMING_UTILS_PER_H = CFG.get('C.scoring.performing_utils_per_h')
 PERFORMING_SWEEP = (4.0, 8.0)
 MARGINAL_UTILITY_OF_MONEY = CFG.get('C.scoring.marginal_utility_of_money')
 
+# Mode-time weights for walk and bike scored AS MODES. Distinct from the C1
+# beta_walk_access / beta_walk_egress weights, which apply to walking to a stop
+# within a PT journey. See DECISIONS.md 9.28 for why conflating them collapsed
+# walk and PT together. The ordering bike >= walk is the finding, not incidental.
+BETA_WALK_MODE = CFG.get('C.time_weights.beta_walk_mode')
+BETA_BIKE_MODE = CFG.get('C.time_weights.beta_bike_mode')
+
+# Mode-choice and routing settings. These all had registry fields carrying a
+# matsim_param binding, and the config template wrote LITERALS instead - so
+# seven declared, swept values reached nothing, the issue #12 / #21 defect class
+# again. Resolved here and substituted into the template (DECISIONS.md 9.28).
+MC_MODES = ','.join(CFG.get('RUN.mode_choice.modes'))
+MC_CHAIN_BASED = ','.join(CFG.get('RUN.mode_choice.chain_based_modes'))
+MC_CAR_AVAIL = 'true' if CFG.get('RUN.mode_choice.consider_car_availability') else 'false'
+MC_BEHAVIOR = CFG.get('RUN.mode_choice.subtour_behavior')
+MC_PROBA_SINGLE = CFG.get('RUN.mode_choice.proba_random_single_trip_mode')
+MC_COORD_DIST = CFG.get('RUN.mode_choice.coord_distance_m')
+RT_NETWORK_MODES = ','.join(CFG.get('RUN.routing.network_modes'))
+RT_WALK_SPEED = CFG.get('RUN.routing.teleported_walk_speed_ms')
+RT_BIKE_SPEED = CFG.get('RUN.routing.teleported_bike_speed_ms')
+RT_BEELINE = CFG.get('RUN.routing.beeline_distance_factor')
+TR_MAX_BEELINE_WALK = CFG.get('RUN.transit_router.max_beeline_walk_connection_m')
+if BETA_BIKE_MODE < BETA_WALK_MODE:
+    raise SystemExit('C.time_weights.beta_bike_mode (%s) must be >= '
+                     'beta_walk_mode (%s): cycling time is dearer per hour than '
+                     'walking time in every calibrated model, and inverting that '
+                     'ordering is the DECISIONS.md 9.28 defect'
+                     % (BETA_BIKE_MODE, BETA_WALK_MODE))
+
 LINK_BLOCK_RE = re.compile(r'<link\b.*?(?:/>|</link>)', re.S)
 WAY_ID_RE = re.compile(r'name="osm:way:id"[^>]*>(\d+)<')
 ATTR_RE = re.compile(r'(\w[\w:]*)="([^"]*)"')
@@ -370,10 +399,19 @@ def scoring_from_c1(c1, purpose_share):
                      marginalUtilityOfTraveling=traveling(1.0)),
         'pt': dict(constant=asc['asc_bus'][0],
                    marginalUtilityOfTraveling=traveling(w['beta_ivt']['base'])),
+        # walk and bike are scored as MODES here, so they take their own
+        # mode-time weights - NOT beta_walk_access, which is the appraisal
+        # weight on walking to a stop INSIDE a PT journey. Using the access
+        # weight priced a whole walking trip at 2x car time and put the
+        # walk-bike indifference distance at 174 m against an observed mean
+        # walk trip of 700 m (DECISIONS.md 9.28). MATSim also scores PT
+        # access, egress and transfer legs with these same walk params, in the
+        # scoring function and again in the raptor router, so this one value
+        # governs walk AND half the cost of every PT trip.
         'walk': dict(constant=asc['asc_walk'][0],
-                     marginalUtilityOfTraveling=traveling(w['beta_walk_access']['base'])),
+                     marginalUtilityOfTraveling=traveling(BETA_WALK_MODE)),
         'bike': dict(constant=asc['asc_cycle'][0],
-                     marginalUtilityOfTraveling=traveling(1.3)),
+                     marginalUtilityOfTraveling=traveling(BETA_BIKE_MODE)),
     }
     tp = c1['transfer_penalty']['base']
     return dict(
@@ -480,26 +518,31 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 {strategies}
 \t</module>
 \t<module name="subtourModeChoice">
-\t\t<param name="modes" value="car,ride,pt,bike,walk" />
-\t\t<param name="chainBasedModes" value="car,bike" />
-\t\t<param name="considerCarAvailability" value="true" />
-\t\t<param name="behavior" value="fromSpecifiedModesToSpecifiedModes" />
+\t\t<param name="modes" value="{mc_modes}" />
+\t\t<param name="chainBasedModes" value="{mc_chain_based}" />
+\t\t<param name="considerCarAvailability" value="{mc_car_avail}" />
+\t\t<param name="behavior" value="{mc_behavior}" />
+\t\t<param name="probaForRandomSingleTripMode" value="{mc_proba_single}" />
+\t\t<param name="coordDistance" value="{mc_coord_dist}" />
 \t</module>
 \t<module name="travelTimeCalculator">
 \t\t<param name="separateModes" value="false" />
 \t\t<param name="analyzedModes" value="car" />
 \t</module>
+\t<module name="transitRouter">
+\t\t<param name="maxBeelineWalkConnectionDistance" value="{tr_max_beeline_walk}" />
+\t</module>
 \t<module name="routing">
-\t\t<param name="networkModes" value="car,ride" />
+\t\t<param name="networkModes" value="{rt_network_modes}" />
 \t\t<parameterset type="teleportedModeParameters">
 \t\t\t<param name="mode" value="walk" />
-\t\t\t<param name="teleportedModeSpeed" value="1.05" />
-\t\t\t<param name="beelineDistanceFactor" value="1.3" />
+\t\t\t<param name="teleportedModeSpeed" value="{rt_walk_speed}" />
+\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline}" />
 \t\t</parameterset>
 \t\t<parameterset type="teleportedModeParameters">
 \t\t\t<param name="mode" value="bike" />
-\t\t\t<param name="teleportedModeSpeed" value="4.2" />
-\t\t\t<param name="beelineDistanceFactor" value="1.3" />
+\t\t\t<param name="teleportedModeSpeed" value="{rt_bike_speed}" />
+\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline}" />
 \t\t</parameterset>
 \t</module>
 </config>
@@ -654,7 +697,13 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
                 waiting_pt=scoring['waiting_pt'],
                 line_switch=scoring['utility_of_line_switch'],
                 activities=activities, modes=modes,
-                plan_memory=plan_memory, strategies=strategies)
+                plan_memory=plan_memory, strategies=strategies,
+                mc_modes=MC_MODES, mc_chain_based=MC_CHAIN_BASED,
+                mc_car_avail=MC_CAR_AVAIL, mc_behavior=MC_BEHAVIOR,
+                mc_proba_single=MC_PROBA_SINGLE, mc_coord_dist=MC_COORD_DIST,
+                rt_network_modes=RT_NETWORK_MODES, rt_walk_speed=RT_WALK_SPEED,
+                rt_bike_speed=RT_BIKE_SPEED, rt_beeline=RT_BEELINE,
+                tr_max_beeline_walk=TR_MAX_BEELINE_WALK)
             with open(os.path.join(dst, 'config.xml'), 'w', encoding='utf-8',
                       newline='\n') as f:
                 f.write(cfg)
