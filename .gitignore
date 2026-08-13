@@ -75,3 +75,6 @@ data/raw/speedzones/*.dbf
 data/raw/speedzones/*.shx
 data/raw/speedzones/*.prj
 data/raw/speedzones/*.zip
+
+# --- pre-#32 OSM extracts, kept only until the re-harvest is verified
+networks/osm_pre_issue32/

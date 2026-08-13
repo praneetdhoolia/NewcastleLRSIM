@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 203 fields are made of
+## What the 207 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
-| `observed` | 3 | read directly from a raw download |
+| `observed` | 4 | read directly from a raw download |
 | `measured` | 21 | computed from observed data in this package |
 | `derived` | 17 | follows from another registry field by identity |
 | `literature` | 28 | a published value, not specific to Newcastle |
-| `assumed` | 86 | chosen without direct empirical support |
+| `assumed` | 89 | chosen without direct empirical support |
 | `definition` | 48 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 190 | usable point value |
+| `active` | 194 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -75,7 +75,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/newcastle/A_supply.json` - 52 fields*
+*`config/registry/newcastle/A_supply.json` - 56 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -97,6 +97,9 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.lightrail.dwell_sweep_grid` | `[0.0, 10.0, 20.0, 35.0]` | seconds_per_intermediate_stop | `definition` | - |
 | `A.lightrail.line_speed_kmh` | `40.0` | km_per_hour | `assumed` | 30 - 50 |
 | `A.lightrail.tsp_enabled` | `false` | boolean | `assumed` | `False`, `True` |
+| `A.osm.buildings_margin_m` | `3500.0` | metres | `assumed` | 2000 - 6000 |
+| `A.osm.harvest_margin_m` | `5000.0` | metres | `assumed` | 2000 - 15000 |
+| `A.osm.harvest_tile_deg` | `0.4` | degrees | `assumed` | 0.2 - 0.8 |
 | `A.parking.capacity_default` | `{"onstreet": 12, "offstreet_public": 60, "offstreet_private": 40}` | spaces_per_facility | `assumed` | 5 - 100 |
 | `A.parking.charged_hours_by_day_type` | `{"WEEKDAY": [8.0, 18.0], "SAT": [8.0, 13.0], "SUN": null}` | hour_of_day | `assumed` | plus/minus 25% |
 | `A.parking.charged_modes` | `["car"]` | enum | `definition` | - |
@@ -121,6 +124,7 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.signals.scats_phasing` | *(null - unobtained)* | phase_plan | `assumed` | `proxy_no_priority`, `proxy_partial_priority`, `proxy_full_priority` |
 | `A.transit.bus_capacity_seated` | `44` | persons_per_vehicle | `literature` | 40 - 51 |
 | `A.transit.bus_capacity_standing` | `18` | persons_per_vehicle | `literature` | 14 - 22 |
+| `A.transit.corridor_mode_label` | `lr` | enum | `observed` | - |
 | `A.transit.era1_line_speed_kmh` | `60.0` | km_per_hour | `assumed` | 45 - 75 |
 | `A.transit.era1_station_dwell_s` | `30.0` | seconds | `assumed` | 20 - 45 |
 | `A.transit.ferry_capacity_seated` | `149` | persons_per_vehicle | `literature` | **held fixed** |
@@ -237,6 +241,30 @@ Light rail running speed between stops, used in the run-time decomposition.
 Transit signal priority on the corridor. Downstream of A.signals.scats_phasing.
 
 ***assumed** · status **active** · DECISIONS.md §5 · proposal §3.4 S-b*
+
+#### `A.osm.buildings_margin_m`
+
+Margin around the observed light rail STOP SET for the CBD building harvest, which feeds the D1 frontage segments hypothesis B1 is measured on. Anchored on the stops in the GTFS feed rather than a drawn rectangle - the stops are observed, available before any OSM harvest, and exist for any city with a corridor. Issue #34.
+
+***assumed** · status **active** · DECISIONS.md §9.35*
+
+> **Sweep basis.** chosen. At 3,500 m the derived extent CONTAINS the rectangle it replaced, which needed 3,217 m, so no building previously harvested is lost; all seven pre-registered frontage comparators lie within 1,161 m of a light rail stop.
+
+#### `A.osm.harvest_margin_m`
+
+Margin around the DISSOLVED LGA boundary for the OSM harvest. The extent is derived from zones_LGA.gpkg, never typed: the rectangle this replaced cut 0.30 degrees off the west and 0.26 off the east of the declared study area, putting 87 of 1,500 core SA1s and 31,940 agents outside the road network for three phases (issue #32).
+
+***assumed** · status **active** · DECISIONS.md §9.35*
+
+> **Sweep basis.** chosen. Wide enough that a trip leaving the study area still has road to leave on, narrow enough that the harvest stays a study area rather than a state.
+
+#### `A.osm.harvest_tile_deg`
+
+Maximum side of an Overpass harvest tile. The corrected study extent is 2.02x the rectangle it replaced and will not fetch in one request, so each layer is tiled and merged, de-duplicating by element id because Overpass returns a whole way when any part of it matches.
+
+***assumed** · status **active** · DECISIONS.md §9.35*
+
+> **Sweep basis.** MEASURED as a ceiling, not chosen: the whole corrected extent in one query returns 504 Gateway Timeout from the endpoint, twice on the roads layer, while the 0.85 x 0.65 degree rectangle it replaced always succeeded. 0.4 keeps every tile well inside what is known to work.
 
 #### `A.parking.capacity_default`
 
@@ -403,6 +431,12 @@ Seats on a Newcastle bus. Published Volvo B12BLE figure. The mapped fleet carrie
 Standing room on a Newcastle bus. Published B12BLE figure, 44 + 18 = 62 total. Before issue 18 NO vehicle in the fleet had standing room, so the C1 crowding multipliers were inert by construction.
 
 ***literature** · status **active** · DECISIONS.md §9.21, 9.30*
+
+#### `A.transit.corridor_mode_label`
+
+The modes_served label the corridor under study carries in A3_stop_extras.csv, read from the GTFS feed. Declared rather than typed into the harvester so the corridor extent is derived from an observed stop set; a city whose feed labels its corridor differently changes this one value.
+
+***observed** · status **active** · DECISIONS.md §9.35*
 
 #### `A.transit.era1_line_speed_kmh`
 

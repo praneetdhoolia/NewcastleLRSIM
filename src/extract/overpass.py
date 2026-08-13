@@ -1,72 +1,147 @@
 #!/usr/bin/env python
-"""Overpass harvester for the Greater Newcastle study area."""
-import sys,os,time,urllib.request,urllib.parse
+"""Overpass harvester for the study area, on an extent DERIVED from the package.
 
-EP="https://overpass.kumi.systems/api/interpreter"
-# Greater Newcastle: Newcastle + Lake Macquarie + Maitland + Cessnock + Hunter Line
-STUDY=(-33.20,151.10,-32.55,151.95)          # S,W,N,E
-CORRIDOR=(-32.9450,151.7250,-32.9050,151.8050)
+Both extents used to be typed rectangles. The study one did not cover the study
+area: it cut 0.30 degrees off the west and 0.26 off the east of the five
+declared LGAs, leaving **87 of 1,500 core SA1s and 31,940 agents - 5.2% of the
+population - outside the road network**, where they made 3.2x longer trips and
+cycled at 36.5% against 14.8%. It survived three phases, because a typed
+rectangle cannot be wrong in a way anyone notices (issue #32).
+
+So neither is typed now:
+
+  STUDY      the dissolved LGA boundary from data/processed/zones/zones_LGA.gpkg,
+             plus A.osm.harvest_margin_m.
+  BUILDINGS  the observed light rail STOP SET from the GTFS-derived
+             A3_stop_extras.csv, plus A.osm.buildings_margin_m. The stops are
+             observed, they exist before any OSM harvest, and every city with a
+             corridor has them. At the declared margin this extent CONTAINS the
+             rectangle it replaced, so no building previously harvested is lost
+             (issue #34).
+
+Both inputs are produced from raw downloads that do not depend on OSM, so a cold
+start still works: ABS boundaries for the first, the GTFS feed for the second.
+
+**Tiled.** The corrected study extent is 2.02x the rectangle it replaced, and a
+single Overpass query over it returns 504 Gateway Timeout - measured, twice, on
+the roads layer. Each layer is therefore fetched over a grid of tiles no larger
+than A.osm.harvest_tile_deg on a side and merged, de-duplicating elements by id:
+Overpass returns a whole way when any part of it matches, so a way crossing a
+tile boundary arrives in both.
+"""
+import sys, os, re, math, time, urllib.request, urllib.parse
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import osm_tiles  # noqa: E402
+CFG = _registry.load()
+
+EP = "https://overpass.kumi.systems/api/interpreter"
+
+LGA = 'data/processed/zones/zones_LGA.gpkg'
+STOPS = 'data/processed/schedule_extras/A3_stop_extras.csv'
+CRS_M = 'EPSG:28356'
+
+
+def _bbox_from_lga(margin_m):
+    """S,W,N,E of the dissolved LGA boundary, buffered."""
+    import geopandas as gpd
+    g = gpd.read_file(LGA).to_crs(CRS_M)
+    w, s, e, n = g.geometry.union_all().buffer(margin_m).bounds
+    import shapely.geometry as sg
+    ll = gpd.GeoSeries([sg.box(w, s, e, n)], crs=CRS_M).to_crs('EPSG:4326').total_bounds
+    return (round(float(ll[1]), 4), round(float(ll[0]), 4),
+            round(float(ll[3]), 4), round(float(ll[2]), 4))
+
+
+def _bbox_from_corridor_stops(margin_m):
+    """S,W,N,E of the observed light rail stop set, buffered."""
+    import csv as _csv
+    import geopandas as gpd
+    import shapely.geometry as sg
+    pts = []
+    with open(STOPS, encoding='utf-8') as f:
+        for r in _csv.DictReader(f):
+            if r.get('modes_served') == CORRIDOR_MODE:
+                pts.append(sg.Point(float(r['stop_lon']), float(r['stop_lat'])))
+    if not pts:
+        raise SystemExit('no %r stop found in %s - the corridor extent is derived '
+                         'from the stop set and cannot be guessed'
+                         % (CORRIDOR_MODE, STOPS))
+    g = gpd.GeoSeries(pts, crs='EPSG:4326').to_crs(CRS_M)
+    w, s, e, n = g.union_all().buffer(margin_m).bounds
+    ll = gpd.GeoSeries([sg.box(w, s, e, n)], crs=CRS_M).to_crs('EPSG:4326').total_bounds
+    return (round(float(ll[1]), 4), round(float(ll[0]), 4),
+            round(float(ll[3]), 4), round(float(ll[2]), 4))
+
+
+#: The GTFS mode label the corridor under study runs under.
+CORRIDOR_MODE = CFG.get('A.transit.corridor_mode_label')
+
+STUDY = _bbox_from_lga(CFG.get('A.osm.harvest_margin_m'))
+CORRIDOR = _bbox_from_corridor_stops(CFG.get('A.osm.buildings_margin_m'))
 
 def bb(b): return f"{b[0]},{b[1]},{b[2]},{b[3]}"
 
-QUERIES={
+QUERY_TEMPLATES = {
  # --- A1 road network (drivable + service) ---
- "roads": f"""[out:xml][timeout:1800];
- (way["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street|service|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|road|busway)$"]({bb(STUDY)}););
+ "roads": """[out:xml][timeout:1800];
+ (way["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street|service|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|road|busway)$"]({bb}););
  (._;>;); out body qt;""",
 
  # --- A6 active transport network ---
- "footways": f"""[out:xml][timeout:1800];
- (way["highway"~"^(footway|path|pedestrian|steps|cycleway|track|bridleway|corridor)$"]({bb(STUDY)});
-  way["footway"]({bb(STUDY)});
-  way["sidewalk"]({bb(STUDY)}););
+ "footways": """[out:xml][timeout:1800];
+ (way["highway"~"^(footway|path|pedestrian|steps|cycleway|track|bridleway|corridor)$"]({bb});
+  way["footway"]({bb});
+  way["sidewalk"]({bb}););
  (._;>;); out body qt;""",
 
  # --- rail / tram / PT infrastructure ---
- "railways": f"""[out:xml][timeout:1800];
- (way["railway"]({bb(STUDY)}); node["railway"]({bb(STUDY)});
-  relation["route"~"^(train|tram|light_rail|subway|bus|ferry)$"]({bb(STUDY)}););
+ "railways": """[out:xml][timeout:1800];
+ (way["railway"]({bb}); node["railway"]({bb});
+  relation["route"~"^(train|tram|light_rail|subway|bus|ferry)$"]({bb}););
  (._;>;); out body qt;""",
 
  # --- A2 signals / crossings / turn restrictions ---
- "signals": f"""[out:xml][timeout:900];
- (node["highway"="traffic_signals"]({bb(STUDY)});
-  node["highway"="crossing"]({bb(STUDY)});
-  node["crossing"]({bb(STUDY)});
-  node["highway"="stop"]({bb(STUDY)});
-  node["highway"="give_way"]({bb(STUDY)});
-  node["traffic_calming"]({bb(STUDY)});
-  relation["type"="restriction"]({bb(STUDY)}););
+ "signals": """[out:xml][timeout:900];
+ (node["highway"="traffic_signals"]({bb});
+  node["highway"="crossing"]({bb});
+  node["crossing"]({bb});
+  node["highway"="stop"]({bb});
+  node["highway"="give_way"]({bb});
+  node["traffic_calming"]({bb});
+  relation["type"="restriction"]({bb}););
  out body qt;""",
 
  # --- A5 parking ---
- "parking": f"""[out:xml][timeout:900];
- (nwr["amenity"="parking"]({bb(STUDY)});
-  nwr["amenity"="parking_space"]({bb(STUDY)});
-  nwr["amenity"="motorcycle_parking"]({bb(STUDY)});
-  way["parking:lane:both"]({bb(STUDY)});
-  way["parking:lane:left"]({bb(STUDY)});
-  way["parking:lane:right"]({bb(STUDY)});
-  way["parking:both"]({bb(STUDY)});
-  way["parking:left"]({bb(STUDY)});
-  way["parking:right"]({bb(STUDY)}););
+ "parking": """[out:xml][timeout:900];
+ (nwr["amenity"="parking"]({bb});
+  nwr["amenity"="parking_space"]({bb});
+  nwr["amenity"="motorcycle_parking"]({bb});
+  way["parking:lane:both"]({bb});
+  way["parking:lane:left"]({bb});
+  way["parking:lane:right"]({bb});
+  way["parking:both"]({bb});
+  way["parking:left"]({bb});
+  way["parking:right"]({bb}););
  (._;>;); out body qt;""",
 
  # --- D1 land use / POI ---
- "poi": f"""[out:xml][timeout:1800];
- (nwr["shop"]({bb(STUDY)}); nwr["amenity"]({bb(STUDY)}); nwr["office"]({bb(STUDY)});
-  nwr["tourism"]({bb(STUDY)}); nwr["leisure"]({bb(STUDY)}); nwr["healthcare"]({bb(STUDY)});
-  nwr["landuse"~"^(retail|commercial|industrial|residential|education)$"]({bb(STUDY)}););
+ "poi": """[out:xml][timeout:1800];
+ (nwr["shop"]({bb}); nwr["amenity"]({bb}); nwr["office"]({bb});
+  nwr["tourism"]({bb}); nwr["leisure"]({bb}); nwr["healthcare"]({bb});
+  nwr["landuse"~"^(retail|commercial|industrial|residential|education)$"]({bb}););
  (._;>;); out body qt;""",
 
  # --- D1 CBD buildings for frontage/floorspace ---
- "buildings_cbd": f"""[out:xml][timeout:1800];
- (way["building"]({bb(CORRIDOR)}); relation["building"]({bb(CORRIDOR)}););
+ "buildings_cbd": """[out:xml][timeout:1800];
+ (way["building"]({bb}); relation["building"]({bb}););
  (._;>;); out body qt;""",
 
  # --- admin boundaries ---
- "boundaries": f"""[out:xml][timeout:900];
- (relation["boundary"="administrative"]["admin_level"~"^(4|6|7)$"]({bb(STUDY)}););
+ "boundaries": """[out:xml][timeout:900];
+ (relation["boundary"="administrative"]["admin_level"~"^(4|6|7)$"]({bb}););
  (._;>;); out body qt;""",
 
  # --- water bodies, for the run replay basemap only ---
@@ -75,44 +150,109 @@ QUERIES={
  # them is a polygon in any other extract: `poi` carries 7 natural=water ways in
  # total. Nothing in src/build or src/run reads this; src/analyse/build_basemap.py
  # does. ODbL 1.0 like every other OSM-derived layer.
- "water": f"""[out:xml][timeout:1800];
- (way["natural"="water"]({bb(STUDY)}); relation["natural"="water"]({bb(STUDY)});
-  way["waterway"="riverbank"]({bb(STUDY)}); relation["waterway"="riverbank"]({bb(STUDY)});
-  way["landuse"~"^(reservoir|basin)$"]({bb(STUDY)});
-  way["natural"="coastline"]({bb(STUDY)}););
+ "water": """[out:xml][timeout:1800];
+ (way["natural"="water"]({bb}); relation["natural"="water"]({bb});
+  way["waterway"="riverbank"]({bb}); relation["waterway"="riverbank"]({bb});
+  way["landuse"~"^(reservoir|basin)$"]({bb});
+  way["natural"="coastline"]({bb}););
  (._;>;); out body qt;""",
 
  # --- green and open space, for the run replay basemap only ---
  # Same standing as `water`: cartography, not a model input.
- "green": f"""[out:xml][timeout:1800];
- (way["leisure"~"^(park|golf_course|nature_reserve|garden)$"]({bb(STUDY)});
-  way["natural"~"^(wood|scrub|heath|beach|sand|wetland)$"]({bb(STUDY)});
-  way["landuse"~"^(forest|grass|meadow|recreation_ground|cemetery|village_green)$"]({bb(STUDY)}););
+ "green": """[out:xml][timeout:1800];
+ (way["leisure"~"^(park|golf_course|nature_reserve|garden)$"]({bb});
+  way["natural"~"^(wood|scrub|heath|beach|sand|wetland)$"]({bb});
+  way["landuse"~"^(forest|grass|meadow|recreation_ground|cemetery|village_green)$"]({bb}););
  (._;>;); out body qt;""",
 }
 
-def fetch(name,q,outdir="networks/osm"):
-    os.makedirs(outdir,exist_ok=True)
-    path=f"{outdir}/newcastle_{name}.osm"
-    if os.path.exists(path) and os.path.getsize(path)>20000:
-        print(f"SKIP {name} ({os.path.getsize(path):,} B)"); return path
-    for attempt in range(4):
-        t0=time.time()
-        try:
-            req=urllib.request.Request(EP,data=urllib.parse.urlencode({"data":q}).encode(),
-                                       headers={"User-Agent":"newcastle-lr-sim/0.1 (research)"})
-            with urllib.request.urlopen(req,timeout=1900) as r, open(path,"wb") as f:
-                n=0
-                while True:
-                    c=r.read(1<<20)
-                    if not c: break
-                    f.write(c); n+=len(c)
-            print(f"OK   {name}: {n:,} B in {time.time()-t0:.0f}s -> {path}",flush=True)
-            return path
-        except Exception as e:
-            print(f"RETRY {name} attempt {attempt+1}: {e}",flush=True); time.sleep(20*(attempt+1))
-    print(f"FAIL {name}",flush=True); return None
 
-if __name__=="__main__":
-    names=sys.argv[1:] or list(QUERIES)
-    for n in names: fetch(n,QUERIES[n])
+
+#: Which derived extent each layer is harvested over.
+QUERY_EXTENT = {
+    'roads': STUDY,
+    'footways': STUDY,
+    'railways': STUDY,
+    'signals': STUDY,
+    'parking': STUDY,
+    'poi': STUDY,
+    'buildings_cbd': CORRIDOR,
+    'boundaries': STUDY,
+    'water': STUDY,
+    'green': STUDY,
+}
+
+TILE_DEG = CFG.get('A.osm.harvest_tile_deg')
+TILE_DIR = 'networks/osm/_tiles'
+
+
+def _get(query, dest, label):
+    """One Overpass request, with the retry the endpoint occasionally needs."""
+    for attempt in range(4):
+        t0 = time.time()
+        try:
+            req = urllib.request.Request(
+                EP, data=urllib.parse.urlencode({"data": query}).encode(),
+                headers={"User-Agent": "newcastle-lr-sim/0.1 (research)"})
+            with urllib.request.urlopen(req, timeout=1900) as r, open(dest, "wb") as f:
+                n = 0
+                while True:
+                    c = r.read(1 << 20)
+                    if not c:
+                        break
+                    f.write(c)
+                    n += len(c)
+            print("    OK    %s: %s B in %.0fs" % (label, format(n, ","), time.time() - t0),
+                  flush=True)
+            return True
+        except Exception as e:
+            print("    RETRY %s attempt %d: %s" % (label, attempt + 1, e), flush=True)
+            time.sleep(20 * (attempt + 1))
+    return False
+
+
+def fetch(name, outdir="networks/osm"):
+    """Harvest one layer over its derived extent, tile by tile, and merge.
+
+    A layer already present and non-trivial is skipped, so an interrupted
+    harvest resumes rather than re-downloading what it already has.
+    """
+    os.makedirs(outdir, exist_ok=True)
+    os.makedirs(TILE_DIR, exist_ok=True)
+    path = os.path.join(outdir, "newcastle_%s.osm" % name)
+    if os.path.exists(path) and os.path.getsize(path) > 20000:
+        print("SKIP %s (%s B)" % (name, format(os.path.getsize(path), ",")))
+        return path
+    extent = QUERY_EXTENT[name]
+    grid = osm_tiles.tiles(extent, TILE_DEG)
+    print("%s: %d tile(s) over %s" % (name, len(grid), extent), flush=True)
+    parts = []
+    for i, tb in enumerate(grid):
+        part = os.path.join(TILE_DIR, "%s_%02d.osm" % (name, i))
+        if os.path.exists(part) and os.path.getsize(part) > 200:
+            print("    have  tile %d/%d" % (i + 1, len(grid)), flush=True)
+            parts.append(part)
+            continue
+        q = QUERY_TEMPLATES[name].format(bb=bb(tb))
+        if not _get(q, part, "tile %d/%d" % (i + 1, len(grid))):
+            print("FAIL %s: tile %d could not be fetched" % (name, i + 1), flush=True)
+            return None
+        parts.append(part)
+    kept, dup = osm_tiles.merge(parts, path)
+    print("OK   %s: %s elements (%s duplicates across tiles) -> %s"
+          % (name, format(kept, ","), format(dup, ","), path), flush=True)
+    for part in parts:
+        os.remove(part)
+    return path
+
+
+if __name__ == "__main__":
+    print("STUDY     S,W,N,E = %s" % (STUDY,), flush=True)
+    print("BUILDINGS S,W,N,E = %s" % (CORRIDOR,), flush=True)
+    names = sys.argv[1:] or list(QUERY_TEMPLATES)
+    unknown = [n for n in names if n not in QUERY_TEMPLATES]
+    if unknown:
+        raise SystemExit("no such layer %s. Available: %s"
+                         % (unknown, ", ".join(sorted(QUERY_TEMPLATES))))
+    for n in names:
+        fetch(n)
