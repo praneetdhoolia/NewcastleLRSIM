@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 13 August 2026 (P4 stage 17 - the OSM harvest extent is derived from the study area; the re-harvest and network rebuild are in flight. Issues #33, #25, #23, #27 closed)
+**Last updated:** 13 August 2026 (P4 stage 17 - the OSM harvest extent is derived from the study area. The re-harvest is NOT done: the first attempt produced four corrupt layers, the merge defect is fixed and guarded, and the harvest must be re-run from scratch. Issues #33, #25, #23, #27 closed)
 **Stage:** **P4 stages 0–3.** **Eight** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not

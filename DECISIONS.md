@@ -3809,10 +3809,34 @@ does arrive is cached so an interrupted harvest resumes rather than restarting.
 The tile size is declared as a **ceiling measured against what fails**, not a
 chosen number.
 
+### The merge was wrong, and arithmetic caught it rather than an error
+
+The first tiled harvest completed four layers and **all four were corrupt**. The
+merge resolved an element's end by taking the earlier of `/>` and `</way>`,
+which looks equivalent and is not: a way with children contains
+`<nd ref="..."/>`, whose `/>` comes long before `</way>`, so **every way was cut
+off at its opening tag and lost all of its node references**.
+
+Nothing would have complained. The files were well formed, every way id was
+present, and only the geometry was missing; `build_network_layers.py` would have
+accepted them and produced a road network with no shape. What exposed it was a
+size comparison, not an exception: the merged roads layer came out at **21.2 MB
+against the previous 35.8 MB, on an extent 2.02x larger**. A layer that shrinks
+when its extent doubles is arithmetic that does not work, and that is the only
+reason it was caught.
+
+Fixed by resolving the opening tag first and only then the closing one.
+`osm_tiles.verify()` now refuses a merged layer where fewer than 90% of sampled
+ways carry a node reference, and the fetch calls it before discarding anything.
+**Tiles are deleted only after the merge verifies** - deleting them first is what
+made this expensive, because the merged files were corrupt and the inputs were
+already gone, so four layers must be fetched again.
+
 ### Status
 
-The extent derivation, the tiling and the mirror rotation have landed. **The
-re-harvest, the network rebuild and the pt2matsim re-run have not**, and until
+The extent derivation, the tiling, the mirror rotation and the merge fix have
+landed. **The re-harvest, the network rebuild and the pt2matsim re-run have
+not**, and until
 they do the shipped network is still the one built inside the old rectangle.
 Issue #32 stays open until that batch completes, because #32 is the defect in the
 DATA, not in the code that acquires it.
