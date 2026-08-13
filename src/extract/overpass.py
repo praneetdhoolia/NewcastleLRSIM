@@ -44,7 +44,7 @@ CFG = _registry.load()
 #: completes and one that needs babysitting.
 ENDPOINTS = ("https://overpass.kumi.systems/api/interpreter",
              "https://overpass-api.de/api/interpreter",
-             "https://overpass.osm.jp/api/interpreter")
+             "https://overpass.private.coffee/api/interpreter")
 
 LGA = 'data/processed/zones/zones_LGA.gpkg'
 STOPS = 'data/processed/schedule_extras/A3_stop_extras.csv'
