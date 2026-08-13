@@ -3111,9 +3111,43 @@ activities over ground that has no modelled road. That is the §9.15 pathology �
 agents with no road to reach — and §9.15 was diagnosed as an *external-tier*
 problem because nobody checked whether core zones had the same exposure.
 
-**The behavioural consequence is unmeasured and is not claimed here.** What is
-established is the geometry: the harvest extent does not cover the declared
-study area, and it has not since P1.
+### The behavioural consequence, now measured
+
+Measured on `results/ride_fix_10pct` (10%, post-#28), comparing agents homed in
+the 87 unreached SA1s against every other core agent. **31,940 agents live
+there, 5.21% of 612,668.**
+
+| | other core | **unreached** | ratio |
+|---|---:|---:|---:|
+| trips observed (10% sample) | 213,634 | 10,480 | |
+| median trip length | 7.69 km | **24.86 km** | **3.2×** |
+| mean trip length | 10.72 km | 27.05 km | 2.5× |
+| access + egress walk on a car/ride trip, median | 0.095 km | **0.364 km** | **3.8×** |
+| …mean | 0.131 km | 0.698 km | 5.3× |
+| …90th percentile | 0.225 km | **1.454 km** | **6.5×** |
+
+Mode split, same two groups:
+
+| | car | ride | walk | bike | pt |
+|---|---:|---:|---:|---:|---:|
+| other core | 52.8% | 30.9% | 1.0% | **14.8%** | 0.5% |
+| **unreached** | 33.6% | 26.7% | 3.1% | **36.5%** | 0.1% |
+
+**This is the §9.15 signature exactly.** An agent with no road near home pays a
+large access walk to reach one, and flees to the mode that is teleported and
+therefore immune to the penalty. Bike at **36.5%** against 14.8% is that flight,
+and car is depressed 19 points to pay for it.
+
+**Blast radius, stated so it is not overstated.** None of the 87 zones is in
+Newcastle LGA — 86 are Port Stephens, 1 Cessnock — so `newcastle_lga_pct`, the
+reportable mode-share metric, is **untouched**. The contamination is on the
+five-LGA aggregate, which §9.13 already says must not be reported, worth roughly
+**+1 percentage point of bike**; and on network-wide count fit, since 60% of
+these trips are car or ride and do load the network, at a median 24.86 km. The
+corridor is ~50 km away and is not measurably affected.
+
+So the defect is **real, confirmed and bounded**. It is not a reason to pull the
+extent fix ahead of the demand batch, which was the condition set for doing so.
 
 ### Why a typed rectangle is worse than a wrong number
 
