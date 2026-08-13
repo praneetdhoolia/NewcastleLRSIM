@@ -2704,6 +2704,14 @@ a register and four issues; the fixes are separate work, and #28 must land befor
 
 ## 9.26 The passenger stops outrunning the driver, and the car–ride inversion mostly closes (P4 stage 10, issue #28)
 
+> **CORRECTED BY §9.27.** The mode-share figures below were measured with both
+> arms at 250 iterations, and that protocol is now known to sit ~13 percentage
+> points of car share short of relaxation. The pre-fix model run to 1000
+> iterations reaches a **better** fit (33.8 pp) than the post-fix model at 250
+> (44.6 pp), so **most of the movement claimed here was the absence of
+> relaxation, not the fix**. The physics defect and the fix stand; the claim that
+> this was "the largest single correction" does not. Read §9.27 first.
+
 §9.25 A1 found that `ride` sits in `routing.networkModes` but is not the qsim
 `mainMode`, so MATSim routed it over the network on **free-flow** link times: a
 car passenger never queued, never waited, and never met the congestion the
@@ -2797,6 +2805,92 @@ demand still lacks boundary through traffic and freight, and no count-based
 calibration may be read from it (§9.14). **No target was fitted**: the mode share
 moved because a defect was removed, not because anything was tuned. No parameter
 value changed, the 67/143 split is untouched, and no holdout row was opened.
+
+---
+
+## 9.27 The model needs a thousand iterations, and most of §9.26 was measuring their absence (P4 stage 10, issue #5)
+
+The 1000-iteration pilot at 10% finished: 41,860 s wall, median 34.2 s/iteration,
+rc=0. It answers issue #5 and it **overturns the headline of §9.26**, which was
+written before it landed.
+
+### 250 iterations is not near relaxation, and every result to date used it
+
+Largest single-mode change in the chosen-mode series across a window:
+
+| window | max change | |
+|---|---:|---|
+| 100 → 250 | 0.1316 | |
+| 250 → 500 | 0.0682 | |
+| 500 → 800 | 0.0297 | |
+| 800 → 900 | 0.0339 | innovation switches off at 800 |
+| 900 → 950 | **0.00026** | flat |
+| 950 → 1000 | **0.00032** | flat |
+| 990 → 1000 | **0.00008** | flat |
+
+The model relaxes about **100 iterations after innovation is disabled**, and is
+flat from 900. Between the 250-iteration protocol and relaxation, chosen car
+share moves **+0.1324** — thirteen percentage points.
+
+**Every run this project has produced used 250 iterations.** DECISIONS.md §9.7
+called that short; this measures how short.
+
+### The correction to §9.26
+
+§9.26 reported the #28 controler fix as *"the largest single correction this model
+has had"*, on a 44.6 pp total gap against an 84.2 pp baseline. **Both figures were
+taken at 250 iterations, and that baseline was broken.** Newcastle LGA, linked
+trips:
+
+| run | car | ride | walk | bike | pt | total gap |
+|---|---:|---:|---:|---:|---:|---:|
+| pre-fix, 250 iter | 32.54% | 50.03% | 0.75% | 15.86% | 0.83% | 84.2 |
+| **pre-fix, 1000 iter** | **65.01%** | **22.25%** | 0.13% | 12.41% | 0.19% | **33.8** |
+| post-fix, 250 iter | 52.30% | 29.45% | 0.71% | 16.67% | 0.88% | 44.6 |
+| *target* | *59.0%* | *20.6%* | *13.4%* | *3.2%* | *3.8%* | |
+
+**The pre-fix model, simply run to relaxation, fits better than the post-fix
+model at 250 iterations.** So most of the ±20 point movement attributed to the
+controler fix was the absence of relaxation, not the fix. The car↔ride inversion
+was largely an artefact of reading an unconverged run.
+
+This is the failure mode the specification audit exists to catch, produced by the
+audit's own follow-up: a controlled comparison, correctly executed, at a protocol
+that was itself invalid. **A comparison is only as good as the state both arms
+are in.**
+
+### What survives, and what changes
+
+**The physics defect is not in question.** `ride` outran `car` at *every* matched
+distance band, which is impossible for a passenger travelling in that car, and
+the binding demonstrably narrows it (1.08→1.05 at 5–10 km, 1.04→1.01 above
+40 km). The fix is correct and stays. What is withdrawn is the claim about how
+much of the mode-share gap it closes; that is now being measured properly, by a
+post-fix run at the same 1000 iterations, under its own tag so the pre-fix
+relaxed baseline survives.
+
+**The walk↔bike inversion is confirmed structural.** At relaxation it does not
+improve — walk **0.13%** against 13.4% and bike **12.41%** against 3.2%, if
+anything worse. Iterations do not touch it. §9.25's two-inversion reading holds,
+but the two have different natures: car↔ride was mostly protocol, walk↔bike is
+mechanism, and it is issues #30 and #29.
+
+### Issue #5, and why it is not closed
+
+The measured answer is **~1000 iterations**, with the caveat that
+`fraction_to_disable_innovation` is a *fraction*, so a 900-iteration run would
+disable innovation at 720 rather than 800 — this run shows that 1000 works, not
+that 900 would.
+
+`RUN.controler.last_iteration` **stays `unobtained`**. This measurement is on the
+**pre-#28** model, and #29 and #30 will change the mode-choice landscape again.
+Pinning a value measured on a specification that is being repaired would be
+substituting one unjustified number for another, which is the whole reason the
+field refuses a point value. It is re-measured once the mode-choice defects are
+settled.
+
+**The practical consequence is immediate regardless:** no run at 250 iterations
+means anything, including every run in `results/` and both arms of §9.26.
 
 ---
 

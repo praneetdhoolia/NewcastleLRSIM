@@ -1,0 +1,10 @@
+{
+  "overlay": "ride_fix_10pct_i1000",
+  "description": "The decisive measurement of what issue #28 is actually worth. The fix was first verified at 250 iterations against a 250-iteration baseline, and that comparison is confounded: the 1000-iteration convergence pilot then showed the model is roughly 13 percentage points of car share short of relaxation at 250, and that the PRE-FIX model run to 1000 iterations reaches a BETTER fit (33.8 pp total gap) than the POST-FIX model at 250 (44.6 pp). So most of what was attributed to the controler fix was non-relaxation. This run is the post-fix model at the same 1000 iterations as the pre-fix pilot S2_WEEKDAY_f01_i1000_s20260810 - same fraction, threads, seed - so the pair isolates the fix at relaxation instead of at an arbitrary unrelaxed horizon. IT MUST RUN UNDER A --tag: the untagged name collides with the pre-fix pilot, and because the controler hash now differs the harness would re-run and delete the only pre-fix relaxed baseline in existence. The physics defect is not in question either way - ride outran car at every matched distance, which is impossible - but its contribution to mode share is, and this settles it. NOT A RESULT: the demand still lacks boundary through traffic and freight, no count-based calibration may be read from it, and walk and bike remain structurally wrong (issues #30, #29) at any iteration count.",
+  "set": {
+    "RUN.sample.fraction": 0.10,
+    "RUN.controler.last_iteration": 1000,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "26g"
+  }
+}

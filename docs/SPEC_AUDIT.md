@@ -78,7 +78,16 @@ configuration, three modules away.
 exactly where car is most congested — the peak, and the corridor. So the defect
 biases the corridor result, which is the study's subject.
 
-**VERIFIED AND LARGELY FIXED (§9.26).** Binding `ride` to the congested car
+**VERIFIED AS A DEFECT; ITS MODE-SHARE EFFECT WITHDRAWN PENDING RE-MEASUREMENT
+(§9.27).** The speed defect is real and the fix narrows it. But the mode-share
+gain first reported was measured with both arms at 250 iterations, and the
+convergence pilot then showed the model is ~13 pp of car share short of
+relaxation there — the **pre-fix** model at 1000 iterations fits better (33.8 pp)
+than the **post-fix** model at 250 (44.6 pp). So car↔ride was largely a protocol
+artefact. **Walk↔bike is not** — it does not improve at relaxation, confirming it
+as the structural inversion. Superseded text follows.
+
+**(withdrawn) §9.26.** Binding `ride` to the congested car
 travel time moved **car 32.54 → 52.30%** and **ride 50.03 → 29.45%** against a
 like-for-like baseline, closing the gap to target from 84.2 to 44.6 pp — and it
 left walk↔bike untouched (−0.03 / +0.81), confirming these are two independent
