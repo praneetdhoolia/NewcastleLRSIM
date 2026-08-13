@@ -3394,7 +3394,8 @@ it before deliverable 5, not after.
 `build_landuse_parking.py` carries a **fifth** hand-drawn rectangle,
 `CBD = dict(s=-32.9450, w=151.7250, n=-32.9050, e=151.8050)`, driving the D1
 frontage segments that hypothesis B1 rests on. Different blast radius, its own
-decision. Noted for calibration: car still carries **no**
+decision: **issue #34**, which also records that the damage must be measured
+before it is fixed. Noted for calibration: car still carries **no**
 `dailyMonetaryConstant` and pays 0.18 utils/km against Melbourne AToM's
 estimated 0.365.
 
