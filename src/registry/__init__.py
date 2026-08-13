@@ -2,7 +2,7 @@
 """The Wickham input registry: one resolved surface for every controllable value.
 
 Every value the model consumes that is not read from an immutable raw download
-is declared in `config/registry/*.json` with its units, its provenance and
+is declared in `config/registry/<city>/*.json` with its units, its provenance and
 either a sweep range or an explicit rule holding it fixed. This module resolves
 those declarations into the values a script actually runs with, and refuses the
 three things that would let the package drift:
@@ -24,7 +24,7 @@ tests, never for routine runs.
 
 Resolution order, lowest precedence first:
 
-    config/registry/*.json      the declared values
+    config/registry/<city>/*.json   the declared values for one city
     config/scenarios/<S>.json   per-scenario overlay
     config/day/<DAY>.json       per-day-type overlay
     config/runs/<tag>.json      per-run overlay
@@ -48,7 +48,15 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
-REGISTRY_DIR = os.path.join(REPO, 'config', 'registry')
+
+# The registry holds VALUES, and every one of them is a value for one city.
+# `config/schema/` is the portable half - what any city must supply and what
+# shape it must be in - and `config/registry/<city>/` is an instance of it.
+# Naming the instance is the point: a field key like A.road.speed_default is
+# generic, but 50 km/h residential, 16.96 AUD/h and a 0.50 bicycle ownership
+# rate are Newcastle's, and a directory called `registry` hid that.
+CITY = os.environ.get('WICKHAM_CITY', 'newcastle')
+REGISTRY_DIR = os.path.join(REPO, 'config', 'registry', CITY)
 SCHEMA_DIR = os.path.join(REPO, 'config', 'schema')
 OVERLAY_DIRS = {'scenario': os.path.join(REPO, 'config', 'scenarios'),
                 'day': os.path.join(REPO, 'config', 'day'),

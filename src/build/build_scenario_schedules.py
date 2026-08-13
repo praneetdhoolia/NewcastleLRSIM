@@ -35,7 +35,7 @@ from shape_tools import (RoadGraph, harbourside_corridor, project_onto,
                          resolve_anchor, shape_rows, densify, dedupe,
                          polyline_length_m)
 
-# Model inputs come from config/registry/, not from literals in this file. Every
+# Model inputs come from config/registry/<city>/, not from literals here. Every
 # value below carries its units, provenance and either a sweep, a held-fixed rule
 # or a derived-from identity there. See DECISIONS.md 15.
 import sys as _sys

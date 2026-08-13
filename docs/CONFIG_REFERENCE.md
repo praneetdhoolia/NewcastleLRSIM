@@ -1,6 +1,6 @@
 # Configuration reference
 
-**Generated from `config/registry/` by `src/registry/render_docs.py`. Do not edit by hand** - edit the registry and regenerate, or the two will disagree and `check_package.py` will say so.
+**Generated from `config/registry/<city>/` by `src/registry/render_docs.py`. Do not edit by hand** - edit the registry and regenerate, or the two will disagree and `check_package.py` will say so.
 
 Every value the model consumes that is not read from an immutable raw download is declared here with its units, its provenance, and either a sweep range or an explicit rule holding it fixed. That is proposal 8.1 - *"every parameter chosen without direct empirical support must be recorded with its rationale and its sweep range"* - enforced as a schema constraint rather than a convention.
 
@@ -19,7 +19,7 @@ python src/run/run_matsim.py --scenario S2 --day WEEKDAY \
 WICKHAM_RUN_SAMPLE_FRACTION=0.10 python src/run/run_matsim.py --scenario S2 ...
 ```
 
-Resolution order, lowest precedence first: `config/registry/*.json` -> `config/scenarios/<S>.json` -> `config/day/<DAY>.json` -> `config/runs/<tag>.json` -> `WICKHAM_*` environment -> `--set`. The resolved snapshot is written into every run directory as `_config.json`, so a result always carries the exact inputs that produced it.
+Resolution order, lowest precedence first: `config/registry/<city>/*.json` -> `config/scenarios/<S>.json` -> `config/day/<DAY>.json` -> `config/runs/<tag>.json` -> `WICKHAM_*` environment -> `--set`. The resolved snapshot is written into every run directory as `_config.json`, so a result always carries the exact inputs that produced it.
 
 Three things are refused at every layer:
 
@@ -73,7 +73,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/A_supply.json` - 32 fields*
+*`config/registry/newcastle/A_supply.json` - 32 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -318,7 +318,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`config/registry/B_demand.json` - 31 fields*
+*`config/registry/newcastle/B_demand.json` - 31 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -564,7 +564,7 @@ The one seed everything synthetic derives from. CLAUDE.md forbids unseeded rando
 
 ## Calibration (P4 deliverables 4-6)
 
-*`config/registry/CAL_calibration.json` - 6 fields*
+*`config/registry/newcastle/CAL_calibration.json` - 6 fields*
 
 What the calibration loop is allowed to move, what it scores itself against, and the guards that stop it fitting more parameters than the data can identify. The objective deliberately excludes traffic counts: DECISIONS.md 9.14 forbids count-based calibration while boundary through traffic is unrepresented, and the loop enforces that rather than remembering it.
 
@@ -619,7 +619,7 @@ Points evaluated along each parameter's declared sweep interval in one coordinat
 
 ## Behavioural parameters (C1)
 
-*`config/registry/C_behaviour.json` - 47 fields*
+*`config/registry/newcastle/C_behaviour.json` - 47 fields*
 
 Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.
 
@@ -993,7 +993,7 @@ Alternative-form parameter, used only when decay_form is cumulative_gaussian.
 
 ## Land use (D1)
 
-*`config/registry/D_landuse.json` - 5 fields*
+*`config/registry/newcastle/D_landuse.json` - 5 fields*
 
 Frontage geometry, attraction weights and the unobtained retail vacancy. Land use is HELD FIXED BY DESIGN across all scenarios (proposal 4.2): endogenous land-use feedback would reintroduce the confounding the identification strategy exists to remove.
 
@@ -1037,7 +1037,7 @@ Frontage-level retail vacancy. NOT OBTAINED and not currently consumed by any me
 
 ## Scenario configuration (E1)
 
-*`config/registry/E_scenario.json` - 6 fields*
+*`config/registry/newcastle/E_scenario.json` - 6 fields*
 
 The scenario matrix and the coupling controls. Per-scenario variant references stay in scenarios/S*.json, which bind a scenario to its network, schedule, land use, parking, signals, demand and parameter sets; this layer holds the values those configs share.
 
@@ -1094,7 +1094,7 @@ Seeded replications per scenario. One of the three things that can be cut to clo
 
 ## Execution control
 
-*`config/registry/RUN_execution.json` - 34 fields*
+*`config/registry/newcastle/RUN_execution.json` - 34 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -1357,7 +1357,7 @@ Maximum stop-to-stop distance at which the PT router will create a transfer. THI
 
 ## SUMO corridor (build and microsimulation)
 
-*`config/registry/RUN_sumo.json` - 17 fields*
+*`config/registry/newcastle/RUN_sumo.json` - 17 fields*
 
 The corridor half of proposal 5.1: SUMO answers what the system physically does given riders, and what it costs other road users. Two things are declared here that the package does not have. The netconvert options that are MODELLING CHOICES are separated from those that are geometry handling, so a choice cannot hide inside a flag list - `tls_default_type` in particular stands in for the unobtained SCATS phasing. And the fields a SUMO RUN would need are declared even though no SUMO run harness exists: the corridor nets are built and have never been simulated.
 

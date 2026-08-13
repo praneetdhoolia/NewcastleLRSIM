@@ -3065,6 +3065,86 @@ specification.
 
 ---
 
+## 9.29 The registry is named for the city it describes, and the harvest box was clipping the study area
+
+### The naming
+
+`config/registry/` held eight files of values, every one of them Newcastle's,
+under a name that said nothing about that. `config/schema/` is the portable
+half — what any city must supply and in what shape — so the instance is now
+`config/registry/<city>/`, selected by `WICKHAM_CITY` and defaulting to
+`newcastle`. `load_registry()` already took a directory override, so the seam
+existed; only the name was missing.
+
+The distinction matters because it is easy to mistake a generic *key* for a
+generic *value*. `A.road.speed_default` is a portable field name. 50 km/h
+residential, 16.96 AUD/h and a 0.50 bicycle ownership rate are not portable
+values, and a directory called `registry` invited exactly that confusion.
+
+### The defect the naming exposed
+
+Asked to declare parking prices "via schema inputs", the first attempt wrote
+**four hand-drawn Newcastle lat/lon rectangles into the registry** and called it
+a schema. That is not an input schema, it is a hardcoded constant that has moved
+house. It was reverted, and the question — *where else is there a hand-drawn
+rectangle?* — found one that matters.
+
+`src/extract/overpass.py` harvests OSM inside a typed-in extent,
+`STUDY = (-33.20, 151.10, -32.55, 151.95)`. Against the actual boundaries in
+`data/processed/zones/zones_LGA.gpkg`:
+
+| | study area, 5 LGAs | harvest box | |
+|---|---:|---:|---|
+| West | 150.8013 | **151.1000** | ~28 km cut off |
+| East | 152.2055 | **151.9500** | ~24 km cut off |
+| South | −33.2028 | −33.2000 | marginal |
+| North | −32.5788 | −32.5500 | box larger, harmless |
+
+The road layer reaches 151.0316–152.0118 because OSM returns whole ways that
+cross the boundary. Measured against that true extent rather than the box:
+
+**87 of 1,500 core SA1s (5.8%) lie outside the road network — 86 in Port
+Stephens, 1 in Lower Hunter.** Core SA1 centroids span 150.9683 to 152.1766.
+
+Core tier means full demand generation, so those zones synthesise population and
+activities over ground that has no modelled road. That is the §9.15 pathology —
+agents with no road to reach — and §9.15 was diagnosed as an *external-tier*
+problem because nobody checked whether core zones had the same exposure.
+
+**The behavioural consequence is unmeasured and is not claimed here.** What is
+established is the geometry: the harvest extent does not cover the declared
+study area, and it has not since P1.
+
+### Why a typed rectangle is worse than a wrong number
+
+A wrong parameter is caught by a sweep, a drift check or a reviewer reading the
+registry. **A typed-in rectangle is caught by nobody**, because it looks like
+scope rather than like an input. The rule added to `CLAUDE.md` is therefore
+about derivation, not declaration: an extent should come from a boundary file or
+a tag that any city also has. `zones_LGA.gpkg` is already in the package, so the
+harvest extent is `boundaries ∪ margin` and can be computed.
+
+The same applies to parking. The reverted rectangles priced 646 facilities;
+OSM's own `fee` tag observes **472 `yes` and 640 `no`** across the 7,710
+facilities, so priced-ness moves from `assumed` to `observed` for 1,112 of them
+and works in any city. The price *level* stays assumed and swept — `charge` is
+tagged on **1** facility — but that is a smaller assumption than drawing the
+zones by hand.
+
+### Not fixed here
+
+Deriving the harvest extent means **re-harvesting OSM and rebuilding the
+network**, and §3.5 makes every existing run incomparable across a re-map. That
+is a scope decision, not a defect fix, and it is recorded rather than taken. The
+cost is at its lowest now — every run on disk is already invalidated by the
+250-iteration protocol (§9.27) — and rises once the repaired-model run programme
+starts.
+
+**No value changed in this section.** The registry files moved; their contents
+are byte-identical. `check_package.py` and the drift check pass unchanged.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

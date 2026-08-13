@@ -90,7 +90,7 @@ def render(fields, origin):
     A = L.append
     A('# Configuration reference')
     A('')
-    A('**Generated from `config/registry/` by `src/registry/render_docs.py`. Do not edit '
+    A('**Generated from `config/registry/<city>/` by `src/registry/render_docs.py`. Do not edit '
       'by hand** - edit the registry and regenerate, or the two will disagree and '
       '`check_package.py` will say so.')
     A('')
@@ -115,7 +115,7 @@ def render(fields, origin):
     A('WICKHAM_RUN_SAMPLE_FRACTION=0.10 python src/run/run_matsim.py --scenario S2 ...')
     A('```')
     A('')
-    A('Resolution order, lowest precedence first: `config/registry/*.json` -> '
+    A('Resolution order, lowest precedence first: `config/registry/<city>/*.json` -> '
       '`config/scenarios/<S>.json` -> `config/day/<DAY>.json` -> `config/runs/<tag>.json` '
       '-> `WICKHAM_*` environment -> `--set`. The resolved snapshot is written into every '
       'run directory as `_config.json`, so a result always carries the exact inputs that '

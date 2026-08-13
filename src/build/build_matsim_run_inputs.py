@@ -43,7 +43,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from det_io import gzip_writer
 
-# Model inputs come from config/registry/, not from literals in this file. Every
+# Model inputs come from config/registry/<city>/, not from literals here. Every
 # value below carries its units, provenance and either a sweep, a held-fixed rule
 # or a derived-from identity there. See DECISIONS.md 15.
 import sys as _sys

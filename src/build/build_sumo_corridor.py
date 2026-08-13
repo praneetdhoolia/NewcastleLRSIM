@@ -52,7 +52,7 @@ import bootstrap_toolchain as tc      # noqa: E402
 from osm_parse import parse, haversine  # noqa: E402
 import registry                         # noqa: E402
 
-# Every value below comes from config/registry/, not from a literal in this
+# Every value below comes from config/registry/<city>/, not a literal in this
 # file. The netconvert options that are MODELLING CHOICES - left-hand traffic,
 # the signal controller type, junction joining, turnarounds, crossings - are
 # separate registry fields rather than entries in a flag list, so a choice

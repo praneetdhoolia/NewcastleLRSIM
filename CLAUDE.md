@@ -37,7 +37,16 @@ more transparent about its assumptions than the business case it examines.
 
 ## Hard constraints (do not violate)
 
-- **Every controllable value is declared in `config/registry/`, not typed into a
+- **`config/schema/` is portable; `config/registry/<city>/` is one city's values.**
+  That split is the point of the naming: a field key like `A.road.speed_default` is
+  generic, but 50 km/h residential, 16.96 AUD/h and a 0.50 bicycle ownership rate are
+  Newcastle's. The city is selected by `WICKHAM_CITY` (default `newcastle`). **Never
+  put a place name, a coordinate or a hand-drawn extent in a script** — derive it from
+  a boundary or a tag that any city also has, and if it genuinely must be declared, it
+  belongs under `config/registry/<city>/`. A typed-in rectangle cannot be wrong in a
+  way anyone notices: the OSM harvest box in `src/extract/overpass.py` clipped **87 of
+  1,500 core SA1s** out of the road network and nobody saw it for three phases.
+- **Every controllable value is declared in `config/registry/<city>/`, not typed into a
   script.** A value whose `source` is `assumed`, `literature`, `measured` or `derived`
   must carry a sweep, a `held_fixed` rule or a `derived_from` identity — the schema
   rejects anything else, and `check_package.py` tests it. Regenerate

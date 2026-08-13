@@ -49,7 +49,7 @@ import collections
 import numpy as np
 import pandas as pd
 
-# Model inputs come from config/registry/, not from literals in this file. Every
+# Model inputs come from config/registry/<city>/, not from literals here. Every
 # value below carries its units, provenance and either a sweep, a held-fixed rule
 # or a derived-from identity there. See DECISIONS.md 15.
 import sys as _sys
