@@ -1,18 +1,18 @@
 {
   "project": "Newcastle Light Rail counterfactual microsimulation (Project Wickham)",
-  "generated": "2026-08-13T17:36:59",
+  "generated": "2026-08-13T17:53:54",
   "base_year": 2026,
   "crs": "EPSG:28356 (GDA2020 / MGA Zone 56)",
-  "n_files": 378,
-  "total_bytes": 3492132548,
-  "total_gib": 3.25,
+  "n_files": 386,
+  "total_bytes": 4107265597,
+  "total_gib": 3.83,
   "by_stage": {
-    "raw": 65,
-    "processed": 313
+    "raw": 71,
+    "processed": 315
   },
   "bytes_by_stage": {
-    "raw": 1980867116,
-    "processed": 1511265432
+    "raw": 2581379416,
+    "processed": 1525886181
   },
   "files": [
     {
@@ -482,6 +482,78 @@
       "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/93ba5c23-f46c-45d7-98ed-96022b7ea626/resource/b8e2dd7c-c136-4cfd-9d67-fd6107d2a583/download/traffic-lights-location-v1.pdf",
       "licence": "CC-BY 4.0",
       "retrieved": "2026-08-12"
+    },
+    {
+      "path": "data/raw/speedzones/Speed_Zones.dbf",
+      "bytes": 436688066,
+      "rows": null,
+      "sha256": "skipped_large",
+      "stage": "raw",
+      "produced_by": "",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "data/raw/speedzones/Speed_Zones.prj",
+      "bytes": 425,
+      "rows": null,
+      "sha256": "f2e7fb14d55bdd8d6a3bc2c272a48729d8f9d0ad72936e20eae6a9a81c2fccd0",
+      "stage": "raw",
+      "produced_by": "",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "data/raw/speedzones/Speed_Zones.shp",
+      "bytes": 97790172,
+      "rows": null,
+      "sha256": "2b0e7cb628b8f28a43ef95b862bd07e6eca45e49a4ae4119b0e926e551d301c3",
+      "stage": "raw",
+      "produced_by": "",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "data/raw/speedzones/Speed_Zones.shx",
+      "bytes": 3579508,
+      "rows": null,
+      "sha256": "028fd0255666eeb8643f305e4e3f8b523f3b44086ae5222e02a161e3dc6dd377",
+      "stage": "raw",
+      "produced_by": "",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "data/raw/speedzones/provenance_speed_zones.json",
+      "bytes": 805,
+      "rows": null,
+      "sha256": "e0b39fd288507766a7c42a092f8b27749e331756f9973179f402ab69edef1e28",
+      "stage": "raw",
+      "produced_by": "",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "data/raw/speedzones/speedzones.zip",
+      "bytes": 62453324,
+      "rows": 4,
+      "sha256": "7b86d6ddb3523a3c1bbd4bdacbefd86feba971f177a2a6884cde4312ed91f950",
+      "stage": "raw",
+      "produced_by": "",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
     },
     {
       "path": "data/processed/census/_census_report.json",
@@ -1013,9 +1085,9 @@
     },
     {
       "path": "data/processed/network/A1_corridor_road_edges.csv",
-      "bytes": 144212,
+      "bytes": 149282,
       "rows": 714,
-      "sha256": "bb628c13b54e6082914422c2bcb547e246165f0a6204992d4cecb9793d3cab38",
+      "sha256": "7efc63aa3bb374a17f139b14048af6016effceb46fd49fd3d3a09a07c331f2cb",
       "stage": "processed",
       "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
       "source": "",
@@ -1025,9 +1097,9 @@
     },
     {
       "path": "data/processed/network/A1_road_edges.csv",
-      "bytes": 6933056,
+      "bytes": 9363254,
       "rows": 43112,
-      "sha256": "6d3aef0f921e367f3958ffb85b46ec3529bfceec8505d4eaf1fe3b33f835bb50",
+      "sha256": "0fed6c4f99bdb748e46422f7564457b809997c1e418face807de593651a3d2f6",
       "stage": "processed",
       "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
       "source": "",
@@ -1052,6 +1124,18 @@
       "bytes": 124060,
       "rows": 414,
       "sha256": "7b62d3ff2e803c54f06831bf57b4972039dbbd9c6b2e623b4ff9c3319841090f",
+      "stage": "processed",
+      "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "data/processed/network/A1_speed_zones.gpkg",
+      "bytes": 10280960,
+      "rows": null,
+      "sha256": "0781baf1826bbb4266449b983eb385b26fd0263eee5244d3cce55e6f7cdc52a3",
       "stage": "processed",
       "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
       "source": "",
@@ -1121,9 +1205,9 @@
     },
     {
       "path": "data/processed/network/A6_footway_edges.csv",
-      "bytes": 5054856,
+      "bytes": 6957914,
       "rows": 35653,
-      "sha256": "a22880b743e75163fd2b0f5cfa01016184ca40a5b31cd86277d42c3d63361d92",
+      "sha256": "5df8b84426f7c541103364ab4e46cdb3e73ce9e26515ee5a05e2ef3c84344ee5",
       "stage": "processed",
       "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
       "source": "",
@@ -1157,9 +1241,9 @@
     },
     {
       "path": "data/processed/network/_corridor_attributes_report.json",
-      "bytes": 4277,
+      "bytes": 4273,
       "rows": null,
-      "sha256": "d0a7d264936020406f8ff472131bdca9327f4ab360baf560dd28c9ba24dad1f3",
+      "sha256": "0b840be5438aac1175a6e42c0e035f495beb1fe88362f2c894f4d8b34278c676",
       "stage": "processed",
       "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
       "source": "",
@@ -1172,6 +1256,18 @@
       "bytes": 406,
       "rows": null,
       "sha256": "7ec6abac4d20cd85e9e0883fb9566ad180be23422cc6279a109e4855e8fecb58",
+      "stage": "processed",
+      "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
+      "source": "",
+      "source_url": "",
+      "licence": "",
+      "retrieved": ""
+    },
+    {
+      "path": "data/processed/network/_speed_zone_report.json",
+      "bytes": 1467,
+      "rows": null,
+      "sha256": "f1799854619d9c44a38d47ca9b8e579a71d1a501b1531bb5b63f42e8d43dcffc",
       "stage": "processed",
       "produced_by": "src/build/build_network_layers.py + attach_gradient.py",
       "source": "",

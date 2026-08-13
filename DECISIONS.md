@@ -3682,6 +3682,88 @@ re-harvests the extent anyway. No scenario was run, no target value changed, the
 
 ---
 
+## 9.34 The speed limit becomes the regulated one, and the rest of the corridor stays imputed and says so (P4, issue #27)
+
+Issue #27 grades the corridor attributes hypothesis B3 rests on. One of them an
+open dataset can settle; the others cannot, and the difference is now visible in
+the artefact rather than only in the issue.
+
+### What closed
+
+TfNSW publishes **Speed Zones**: the regulated speed for every road in NSW, as
+statewide linework. It is a stronger source than the OSM `maxspeed` tag - the
+legal instrument rather than a mapper's transcription of a sign - and it covers
+the whole network, not only the 714 corridor edges.
+
+62 MB shapefile, 447,426 segments statewide, clipped to the dissolved LGA
+boundary plus a declared margin - **the extent is derived, never typed** - which
+leaves 35,688 segments in the study area.
+
+| | before | after |
+|---|---|---|
+| corridor edges on a regulated speed | 0 | **669 of 714** |
+| corridor edges on an imputed default | 75 | **41** |
+| whole network on a regulated speed | 0 | 25,109 of 43,112 |
+| whole network on an imputed default | 23,151 (53.7%) | 16,515 (38.3%) |
+
+Of the 16,515 still on a class default, **15,804 are `service`** - driveways,
+car-park aisles and alleys. Excluding those, imputation on the roads anyone
+drives is 711 of 27,308, or **2.6%**.
+
+### The join is validated, and the validation changed it
+
+Where an edge carries both an OSM tag and a matched zone the two are compared.
+The first attempt matched within 20 m and agreed only 73.5%, which is too low to
+adopt blind. Two things came out of looking:
+
+**Agreement collapses with distance** - 73-77% out to 5 m, 72% to 10 m, then
+**30% at 10-20 m and 15% at 20-40 m**. Beyond 10 m the nearest line is a
+different road. The match radius is now 10 m, and its sweep basis is that
+measurement rather than a chosen interval.
+
+**Service roads match the arterial beside them** - 37% agreement against 83% on
+residential. TfNSW does not speed-zone a driveway, so the nearest zone line
+belongs to the road it runs alongside. `service` is excluded by OSM class, which
+is portable; excluding by measured agreement would be fitting the join to its own
+validation.
+
+After both, agreement is 74.9% over 18,473 validated edges. The residual is the
+regulated zone disagreeing with an OSM tag on a well-matched road, and the
+regulated zone is the one to believe.
+
+### What did not close, and must be reported rather than assumed away
+
+| attribute | corridor edges imputed | why it stays |
+|---|---|---|
+| kerbside use | 678 of 714 | TfNSW publishes **Sydney CBD loading zones** only - verified against the catalogue |
+| lane width | 704 of 714 | no statewide inventory exists |
+| capacity | 714 of 714 | saturation flow is an engineering convention nobody publishes per road |
+| turn lanes | 644 absent | OSM `turn:lanes` is simply not mapped here |
+
+These need street-level and aerial imagery, which is a survey and not a
+download. Proposal §3.3 calls B3 *"the decisive test of Claim B"* and rests it on
+lane loss, banned turns and kerbside parking removal - so **B3 must carry this
+as a stated uncertainty**, and `check_package.py` now asserts each gap is still
+labelled `imputed_rule` so it cannot be mistaken for something already closed.
+
+### Two more copies of a number, found on the way
+
+`build_corridor_road_attributes.py` kept its **own** `SPEED_DEFAULT`,
+`LANES_DEFAULT` and `CAP_DEFAULT` dictionaries, "repeated here so a value that
+came from a rule can be identified as such". Once §9.33 measured those defaults
+the two copies **diverged** - the corridor file still said trunk 80 where the
+measurement says 60 over 1,702 tagged edges. Both now resolve from the registry.
+
+It also carried a second bare `3.2` lane width with the same carriageway-versus-lane
+error §9.33 found in the road builder: it read the OSM `width` tag straight into
+a per-lane field, and on a road that tag is the whole carriageway. Both now
+divide by the lane count.
+
+**No scenario was run, no target value changed, the 67/143 split is untouched
+and nothing here is a result.**
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -4180,6 +4262,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-13 | **The corridor speed limit becomes the REGULATED one, and the rest stays imputed and says so (§9.34, issue #27).** TfNSW's statewide **Speed Zones** layer - the legal instrument, not a mapper's transcription of a sign - clipped to the dissolved LGA boundary plus a declared margin, never a typed extent. Corridor edges on a regulated speed **0 → 669 of 714**; imputed **75 → 41**. Network-wide, imputation falls **53.7% → 38.3%**, and 15,804 of the 16,515 still imputed are `service` roads, so on the roads anyone drives it is **2.6%**. **The join was validated and the validation changed it**: at 20 m it agreed with OSM only 73.5%, and looking showed agreement collapsing from 72% at 10 m to **30% at 10-20 m and 15% at 20-40 m**, plus service roads matching the arterial beside them at 37% against residential's 83%. Radius tightened to 10 m on that measurement and `service` excluded by class - excluding by measured agreement would be fitting the join to its own validation. **What did not close is asserted as still open**: kerbside 678 of 714 imputed, lane width 704, capacity 714, turn lanes 644 absent. TfNSW publishes kerbside for the **Sydney CBD only** and no statewide lane or capacity inventory exists, so B3 - proposal §3.3's *decisive test of Claim B* - must report them as uncertainty, and check_package now fails if the gap is quietly relabelled. Two more copies of a number found on the way: the corridor builder kept its OWN speed, lanes and capacity defaults, which had **diverged** from the measured ones (trunk 80 vs 60), and a second bare 3.2 lane width with the same carriageway-versus-lane error. **No scenario was run, no target value changed and nothing here is a result.** |
 | 2026-08-13 | **P4 deliverable 0b - six defaults stop being guesses, and a suspected duplicate turns out to be two different numbers (§9.33, issue #23).** **88 → 84 assumed, 15 → 21 measured**, plus one field that existed nowhere. `RUN.routing.beeline_distance_factor` and `B.activity.detour_factor` were flagged as probably the same quantity declared twice; they are not - one is the road graph at zone spacing, the other the ACTIVE network at walk and bike trip lengths, and circuity falls with distance. Measured: **walk 1.6902, bike 1.5231** against a shared assumed 1.30, so the field is **split in two**. A first sampling by random bearing gave 1.96 and was **rejected on its own evidence** - it sent walk trips across the harbour; sampling observed POI destinations, which is where B2 puts activities, gives 1.69. The walk SPEED, though, WAS a genuine duplicate: `A.transit.walk_speed_ms` 1.25 and `RUN.routing.teleported_walk_speed_ms` 1.05, both `literature`, each describing the other as a different quantity - and the pinned jar's bytecode shows `travelTime = (beeline x factor) / teleportedModeSpeed`, so the speed is ALONG the path and they are one number. Now `derived` by identity at 1.25. Per-class defaults measured from the city's own OSM tags where at least 30 edges are tagged: **trunk speed 80 → 60** over 1,702 tagged edges, **motorway 100 → 110**, and a **lane width that was a bare 3.2 in no registry at all**, now measured at **3.5 m** - and NOT from the `width` tag, which on a road is the whole carriageway at 6.5 m and would have doubled every carriageway in the model. Three things the data looked able to settle and could not, all the same trap: parking capacity has 4,861 observed values of which **4,623 are 1** because they are individual bays, not car parks. The reclassification #23 proposed was reviewed and **mostly declined** - the SUMO booleans and corridor buffers each change a result, and relabelling a real assumption to make a percentage look better is the opposite of what 0b is for. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-13 | **P4 deliverable 8 - the transfer penalty cannot be estimated from this package, and the parameter was reaching nothing anyway (§9.32, issues #25, #35).** Proposal §7.2's fallback asks for tap-on/tap-off **timing** at the Interchange plus a matching model. **Every Opal source held is a monthly aggregate** - no timestamp, no tap-off paired to a tap-on, nothing for a matching model to match. The stop-level tap data that would substitute is **holdout**, and the 67 calibration rows contain nothing bearing on interchange, so the constrain-to-an-observable route (§9.8) has no observable either. No published interchange percentage for Newcastle could be located; and published interchange **times** are the wrong quantity - MATSim already simulates the walk and scores the wait at 2.0x in-vehicle time, and this parameter is the premium **on top of** the measured 112 s Interchange walk, so substituting one would double-count. Per the deliverable's own bar the reason is recorded and **the sweep stands** at 3-15 minutes across seven points. Tracing where the parameter goes found that it went nowhere: `build_params.py` read **one** registry field and typed the other **26** in as literals, so setting the value through the resolver's own override path left `C1_parameters.json` **byte-identical**. Seventh instance of the class. Two consequences sharper than usual - the **mode constants are `held_fixed` under §8.5** and the model was not reading the value being protected, so deliverable 5 (#14) would have estimated seven ASCs, written them to the registry, changed nothing and reported success; and the **sweep grid was a literal too**, making #25's own bar unmeetable by construction. The prior check compared **bases only** and its comment conceded *"the registry copy is a mirror"* - three RANGES had already drifted apart unnoticed. C1 is now **generated from** the registry rather than checked against it, with five missing declarations added; declaring a sampling grid for the charging dwell did **not** pin it, which stays unobtained and null. **Value-neutral and proved so** - no base moved and all 30 run-input sets regenerated unchanged - and **reach proved by changing a value**: the override now moves `utilityOfLineSwitch` -2.2613 to -3.3922, exactly the VOT conversion. `check_package.py` 1,435 -> **1,440**. **No scenario was run, no target value changed, no holdout row was opened and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 13 - a car stops parking for free, and the price stops being a drawn rectangle (§9.31, issue #33).** Parking price is the prime competitive lever between car and PT for a city-centre trip, and this study is about city-centre access. `A5_parking_facilities.csv` has declared `is_priced`, `price_aud_hr` and a sweep on both since P1 and **no script read any of it** - the "declared value that reaches nothing" class on its **sixth** instance. Its spatial basis was four hand-drawn lat/lon rectangles with place names, literal prices and hand-typed occupancy profiles, and **one of the four, `honeysuckle`, was fully contained in the box tested before it and could never match a facility** - dead for three phases, because a typed rectangle cannot be wrong in a way anyone notices. Price is now derived from **the city's own core-zone job-density distribution** (p90 = 1,500.9 and p99 = 8,710.5 jobs/km², pricing 150 of 1,500 core zones and 22,353 of 143,891 car links), so a new city computes its own thresholds and no extent is typed. OSM `fee=yes` was reproduced and rejected as the basis: **452 of its 472 facilities are University of Newcastle car parks**. The charge reaches the model through `ParkingChargeHandler`, which bills a car from arrival to the next car departure as a `PersonMoneyEvent`; roadpricing is **not** in the pinned jar, so its deferred-emission pattern is reproduced rather than reused, and Java does no spatial work. **Reach was established by changing values, not by reading `consumers`** - halving `price_aud_hr_max` halved the charges (−721.42 → −361.62 AUD), Sunday charges nothing, and the largest single charge is exactly the max-stay cap. **That test caught a real defect**: `accessEgressType` inserts a `car interaction` activity after every car arrival, so the `home` exemption matched nothing and **267 of the first 641 charges were levied at people's own homes** - a nightly penalty on living in a dense zone that no observation supports. What the formula still gets wrong is measured rather than supposed: it prices Kotara, Glendale and Charlestown at or near the maximum where parking is free, and a contiguity refinement that would separate the centre cleanly (one 80-zone cluster against 49 of 1–5) was **built and rejected** because it also excludes the University and John Hunter Hospital, the two places outside the centre that verifiably do charge. Price is common to all scenarios, so it largely differences out of the S-vs-S comparison and bites on the base calibration instead. `check_package.py` 1,248 → **1,435** passing, the key check re-deriving every zone price from the registry so a typed price cannot survive. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |

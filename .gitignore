@@ -66,3 +66,12 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# --- TfNSW Speed Zones raw download (62 MB zip + a 436 MB dbf, regenerate with
+#     src/extract/extract_speed_zones.py). The clipped study-area layer IS
+#     committed; the statewide source is not.
+data/raw/speedzones/*.shp
+data/raw/speedzones/*.dbf
+data/raw/speedzones/*.shx
+data/raw/speedzones/*.prj
+data/raw/speedzones/*.zip

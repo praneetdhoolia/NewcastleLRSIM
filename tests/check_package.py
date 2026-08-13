@@ -406,9 +406,29 @@ SRC_FIELDS = ('num_lanes_source', 'speed_limit_source', 'oneway_source',
               'lane_width_source', 'kerbside_source', 'capacity_source')
 check(all(all(r.get(f) for f in SRC_FIELDS) for r in corridor),
       'every corridor edge carries a per-field provenance flag')
-check(all(r[f] in ('osm', 'imputed_rule', 'assumed', 'absent')
-          for r in corridor for f in SRC_FIELDS),
+# `speed_zones` joined the vocabulary at DECISIONS.md 9.34: the TfNSW regulated
+# zone outranks an OSM maxspeed tag, being the legal instrument rather than a
+# transcription of a sign. The grading only means something if it is ordered, so
+# the order is asserted rather than left implied.
+CORRIDOR_SRC = ('speed_zones', 'osm', 'imputed_rule', 'assumed', 'absent')
+check(all(r[f] in CORRIDOR_SRC for r in corridor for f in SRC_FIELDS),
       'corridor provenance flags use the declared vocabulary')
+_reg = sum(1 for r in corridor if r['speed_limit_source'] == 'speed_zones')
+check(_reg > len(corridor) * 0.5,
+      'the corridor speed limit is mostly REGULATED rather than transcribed or '
+      'imputed (%d of %d edges) - issue #27 listed 75 imputed and B3 rests on the '
+      'corridor cross-section' % (_reg, len(corridor)))
+# What #27 asked for and the open catalogue cannot supply. Asserted so the gap
+# stays visible rather than being mistaken for something already closed.
+for _f, _label in (('kerbside_source', 'kerbside use'),
+                   ('capacity_source', 'capacity'),
+                   ('lane_width_source', 'lane width')):
+    _imp = sum(1 for r in corridor if r[_f] == 'imputed_rule')
+    check(_imp > 0,
+          '%s on the corridor is still mostly imputed (%d of %d) and says so - '
+          'TfNSW publishes kerbside for the Sydney CBD only and no statewide lane '
+          'or capacity inventory exists, so B3 must report it (issue #27)'
+          % (_label, _imp, len(corridor)))
 # The as-built corridor and the extension corridors are graded separately. The
 # as-built lane counts are the ones the B3 net-arrivals test rests on and they
 # are overwhelmingly observed; the S4/S5 extension corridors are derived from

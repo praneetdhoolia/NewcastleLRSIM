@@ -38,6 +38,12 @@ data/raw/opal/tap_time_loc_20160725-31.csv,raw,8603209,215630,src/extract/fetch_
 data/raw/opal/tap_time_loc_20160808-14.csv,raw,9013406,225080,src/extract/fetch_open_data.py,"Opal tap on/off by time and location, 8-14 Aug 2016 (era 2)",https://opendata.transport.nsw.gov.au/data/dataset/4789edda-acb9-4eba-acc1-327db1a13843/resource/91a8e531-b2f8-4d0f-9d82-79e45c56ce27/download/time-loc_20160808-14.csv,CC-BY 4.0,2026-08-12,58429edc78c3266ee5830ac623280c3acecc88b6efff393ca72912cd3a9c7a7f
 data/raw/signals/tfnsw_traffic_lights_location.xlsx,raw,366965,,,"TfNSW Traffic Lights Location (statewide signal inventory: SCATS Equipment_ID, cross streets, suburb, install date, coordinates; June 2026)",https://opendata.transport.nsw.gov.au/data/dataset/93ba5c23-f46c-45d7-98ed-96022b7ea626/resource/406ac670-b3ad-4474-9284-c03d444a1aec/download/traffic-lights-location-data-june-2026.xlsx,CC-BY 4.0,2026-08-12,00c8913f1fcb6f790843dd37464c8e609ad1f5475a753ac7739a8dc16d5ec99f
 data/raw/signals/tfnsw_traffic_lights_location_documentation.pdf,raw,225687,,,TfNSW Traffic Lights Location field documentation,https://opendata.transport.nsw.gov.au/data/dataset/93ba5c23-f46c-45d7-98ed-96022b7ea626/resource/b8e2dd7c-c136-4cfd-9d67-fd6107d2a583/download/traffic-lights-location-v1.pdf,CC-BY 4.0,2026-08-12,dde5ac68e28781c3574e68555a8bb2e31698a4ec38800bf4b7d4353f4178ac32
+data/raw/speedzones/Speed_Zones.dbf,raw,436688066,,,,,,,skipped_large
+data/raw/speedzones/Speed_Zones.prj,raw,425,,,,,,,f2e7fb14d55bdd8d6a3bc2c272a48729d8f9d0ad72936e20eae6a9a81c2fccd0
+data/raw/speedzones/Speed_Zones.shp,raw,97790172,,,,,,,2b0e7cb628b8f28a43ef95b862bd07e6eca45e49a4ae4119b0e926e551d301c3
+data/raw/speedzones/Speed_Zones.shx,raw,3579508,,,,,,,028fd0255666eeb8643f305e4e3f8b523f3b44086ae5222e02a161e3dc6dd377
+data/raw/speedzones/provenance_speed_zones.json,raw,805,,,,,,,e0b39fd288507766a7c42a092f8b27749e331756f9973179f402ab69edef1e28
+data/raw/speedzones/speedzones.zip,raw,62453324,4,,,,,,7b86d6ddb3523a3c1bbd4bdacbefd86feba971f177a2a6884cde4312ed91f950
 data/processed/census/_census_report.json,processed,4309,,src/extract/extract_census.py,,,,,d17cc8959dfe2d708ad8a60ec4c4b445ce986ee9c0f4405472b34bf932a99a34
 data/processed/census/census2021_G01_SA1.csv,processed,549841,1701,src/extract/extract_census.py,,,,,36c8fb6e9a70043bf928997de949ec8fd9167372fe7ae8da98fdffbe8b9e6106
 data/processed/census/census2021_G02_SA1.csv,processed,87023,1701,src/extract/extract_census.py,,,,,0f4f31fc0787b92bfd7299052783dc94fad7ba9c796b115d81df0cd81ad0423a
@@ -82,20 +88,22 @@ data/processed/landuse/D1_poi.csv,processed,2117780,23697,src/build/build_landus
 data/processed/landuse/D1_zone_attractions_SA1.csv,processed,355873,1701,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,63a6dbd284e3765df328d598812f779d0f82397eef8ee9fb4cd48486fad0e436
 data/processed/landuse/_attractions_report.json,processed,1352,,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,cd7f994e8c07a1e39a460bf9a9e5f45ffc590a6541c0d9f8cfbf22f2d116d663
 data/processed/landuse/_landuse_report.json,processed,1399,,src/build/build_landuse_parking.py + build_zone_attractions.py,,,,,6eaa4a4b1889f86a90651a93c1bec30e644dcb6c2effef5e1a9cb6e998e758c1
-data/processed/network/A1_corridor_road_edges.csv,processed,144212,714,src/build/build_network_layers.py + attach_gradient.py,,,,,bb628c13b54e6082914422c2bcb547e246165f0a6204992d4cecb9793d3cab38
-data/processed/network/A1_road_edges.csv,processed,6933056,43112,src/build/build_network_layers.py + attach_gradient.py,,,,,6d3aef0f921e367f3958ffb85b46ec3529bfceec8505d4eaf1fe3b33f835bb50
+data/processed/network/A1_corridor_road_edges.csv,processed,149282,714,src/build/build_network_layers.py + attach_gradient.py,,,,,7efc63aa3bb374a17f139b14048af6016effceb46fd49fd3d3a09a07c331f2cb
+data/processed/network/A1_road_edges.csv,processed,9363254,43112,src/build/build_network_layers.py + attach_gradient.py,,,,,0fed6c4f99bdb748e46422f7564457b809997c1e418face807de593651a3d2f6
 data/processed/network/A1_road_geometry.jsonl,processed,10419138,43112,src/build/build_network_layers.py + attach_gradient.py,,,,,27f9412ba71c33568f6e5090229a02942402428bc5f682400325ebade96abcf3
 data/processed/network/A1_road_variant_patches.csv,processed,124060,414,src/build/build_network_layers.py + attach_gradient.py,,,,,7b62d3ff2e803c54f06831bf57b4972039dbbd9c6b2e623b4ff9c3319841090f
+data/processed/network/A1_speed_zones.gpkg,processed,10280960,,src/build/build_network_layers.py + attach_gradient.py,,,,,0781baf1826bbb4266449b983eb385b26fd0263eee5244d3cce55e6f7cdc52a3
 data/processed/network/A2_crossings_osm.csv,processed,498568,9981,src/build/build_network_layers.py + attach_gradient.py,,,,,b7a14284dd1d88793596f7398335430713ece644e066a001148af4ca87a045fe
 data/processed/network/A2_signal_nodes_osm.csv,processed,68034,1265,src/build/build_network_layers.py + attach_gradient.py,,,,,790a1f17e5fa5106508461ce4b34ca7574bf3428a71e2588ecc3bb917f420d1a
 data/processed/network/A2_turn_restrictions_osm.csv,processed,105236,1386,src/build/build_network_layers.py + attach_gradient.py,,,,,ec5f751dca8a4dd04564b0b67e6bde49e30d469ab686e7ee5c271b00d5591772
 data/processed/network/A2_turn_restrictions_resolved.csv,processed,149087,1385,src/build/build_network_layers.py + attach_gradient.py,,,,,c40f7013830ec0826b9fae7abc392a2cb3cdfd83edc1044751cb9c11cdf2d4cf
 data/processed/network/A5_parking_osm.csv,processed,654563,7710,src/build/build_network_layers.py + attach_gradient.py,,,,,e8215d5973c7a0d21d12d6aad4fcfb167b5d4c4f69bd2ef09495dad258ee0a43
-data/processed/network/A6_footway_edges.csv,processed,5054856,35653,src/build/build_network_layers.py + attach_gradient.py,,,,,a22880b743e75163fd2b0f5cfa01016184ca40a5b31cd86277d42c3d63361d92
+data/processed/network/A6_footway_edges.csv,processed,6957914,35653,src/build/build_network_layers.py + attach_gradient.py,,,,,5df8b84426f7c541103364ab4e46cdb3e73ce9e26515ee5a05e2ef3c84344ee5
 data/processed/network/A6_footway_geometry.jsonl,processed,10179430,35653,src/build/build_network_layers.py + attach_gradient.py,,,,,332d12d1b79d0629ea39f6bed5dea403c48b0d844a62eff3d10fd6ac7d250985
 data/processed/network/_build_report.json,processed,436,,src/build/build_network_layers.py + attach_gradient.py,,,,,a68ebf64c1f7ded43406de8df6459239678f88a7307edf4bf4822b392b530d2b
-data/processed/network/_corridor_attributes_report.json,processed,4277,,src/build/build_network_layers.py + attach_gradient.py,,,,,d0a7d264936020406f8ff472131bdca9327f4ab360baf560dd28c9ba24dad1f3
+data/processed/network/_corridor_attributes_report.json,processed,4273,,src/build/build_network_layers.py + attach_gradient.py,,,,,0b840be5438aac1175a6e42c0e035f495beb1fe88362f2c894f4d8b34278c676
 data/processed/network/_gradient_report.json,processed,406,,src/build/build_network_layers.py + attach_gradient.py,,,,,7ec6abac4d20cd85e9e0883fb9566ad180be23422cc6279a109e4855e8fecb58
+data/processed/network/_speed_zone_report.json,processed,1467,,src/build/build_network_layers.py + attach_gradient.py,,,,,f1799854619d9c44a38d47ca9b8e579a71d1a501b1531bb5b63f42e8d43dcffc
 data/processed/observed/_slice_report.json,processed,3736,,src/extract/slice_newcastle.py,,,,,21b6f091b57bf9142b72f5eb08d070ae28c61ea2df8a7f8708be09046c184867
 data/processed/observed/opal_bus_newcastle_hunter.csv,processed,49156,1363,src/extract/slice_newcastle.py,,,,,59cccc3a1c98ddf8b0643d1ae445d6ae37f7a810a145f5de4eac1260c341ecb2
 data/processed/observed/opal_lr_newcastle_by_month_cardtype.csv,processed,725066,16604,src/extract/slice_newcastle.py,,,,,7b79e2c59740cded85b721c195106f35d5efc065923da6c7803de8a052b6aa88

@@ -52,7 +52,7 @@
     "corridor_trunk": {
       "n": 40,
       "num_lanes": 87.5,
-      "speed_limit": 97.5,
+      "speed_limit": 0.0,
       "oneway": 87.5,
       "lane_width": 0.0,
       "kerbside": 27.5
@@ -60,7 +60,7 @@
     "corridor_cross": {
       "n": 84,
       "num_lanes": 23.8,
-      "speed_limit": 47.6,
+      "speed_limit": 2.4,
       "oneway": 54.8,
       "lane_width": 0.0,
       "kerbside": 7.1
@@ -68,7 +68,7 @@
     "parallel": {
       "n": 375,
       "num_lanes": 51.2,
-      "speed_limit": 95.5,
+      "speed_limit": 0.5,
       "oneway": 57.6,
       "lane_width": 1.9,
       "kerbside": 5.1
@@ -76,7 +76,7 @@
     "all": {
       "n": 714,
       "num_lanes": 60.9,
-      "speed_limit": 89.5,
+      "speed_limit": 0.6,
       "oneway": 66.5,
       "lane_width": 1.4,
       "kerbside": 5.0

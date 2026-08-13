@@ -117,22 +117,34 @@ CORRIDOR_TRUNK_M = CFG.get('A.corridor.trunk_buffer_m')
 CORRIDOR_CROSS_M = CFG.get('A.corridor.cross_buffer_m')
 PARALLEL_M = CFG.get('A.corridor.parallel_buffer_m')
 
-# Defaults from build_network_layers.py, repeated here so a value that came from
-# a rule can be identified as such rather than re-derived.
-SPEED_DEFAULT = {'motorway': 100, 'trunk': 80, 'primary': 60, 'secondary': 60,
-                 'tertiary': 50, 'unclassified': 50, 'residential': 50,
-                 'living_street': 10, 'service': 20, 'motorway_link': 60,
-                 'trunk_link': 60, 'primary_link': 50, 'secondary_link': 50,
-                 'tertiary_link': 40, 'road': 50, 'busway': 50}
-LANES_DEFAULT = {'motorway': 2, 'trunk': 2, 'primary': 2, 'secondary': 1, 'tertiary': 1,
-                 'unclassified': 1, 'residential': 1, 'living_street': 1, 'service': 1,
-                 'motorway_link': 1, 'trunk_link': 1, 'primary_link': 1,
-                 'secondary_link': 1, 'tertiary_link': 1, 'road': 1, 'busway': 1}
-CAP_DEFAULT = {'motorway': 2000, 'trunk': 1800, 'primary': 1600, 'secondary': 1400,
-               'tertiary': 1200, 'unclassified': 1000, 'residential': 800,
-               'living_street': 300, 'service': 400, 'motorway_link': 1500,
-               'trunk_link': 1400, 'primary_link': 1200, 'secondary_link': 1100,
-               'tertiary_link': 1000, 'road': 1000, 'busway': 1200}
+# Defaults, resolved from the registry rather than repeated here. They WERE
+# repeated, and once build_network_layers.py started measuring them from the
+# city's own OSM tags (DECISIONS.md 9.33) the two copies diverged - this file
+# still said trunk 80 where the measurement says 60 over 1,702 tagged edges.
+# Two copies of a number is the drift this package cannot absorb.
+SPEED_DEFAULT = CFG.get('A.road.speed_default')
+LANES_DEFAULT = CFG.get('A.road.lanes_default')
+CAP_DEFAULT = CFG.get('A.road.capacity_default')
+LANE_WIDTH_DEFAULT = CFG.get('A.road.lane_width_default_m')
+
+# The regulated speed zone, adopted onto A1 by attach_speed_zones.py. It is a
+# stronger source than the OSM maxspeed tag - the legal instrument rather than a
+# transcription of a sign - so the corridor takes it where one matched.
+ROAD_EDGES_CSV = 'data/processed/network/A1_road_edges.csv'
+
+
+def _regulated_speeds():
+    out = {}
+    if not os.path.exists(ROAD_EDGES_CSV):
+        return out
+    with io.open(ROAD_EDGES_CSV, encoding='utf-8') as f:
+        for r in csv.DictReader(f):
+            if r.get('speed_limit_source') == 'speed_zones':
+                out[r['edge_id']] = float(r['speed_limit_kmh'])
+    return out
+
+
+REGULATED_SPEED = _regulated_speeds()
 
 # --------------------------------------------------------------------------
 # The counterfactual. Hunter/Scott before the tram cannot be observed in a 2026
@@ -288,7 +300,7 @@ def sample(pts, n=12):
 # --------------------------------------------------------------------------
 # per-field provenance
 # --------------------------------------------------------------------------
-def grade(tags):
+def grade(tags, wid):
     """Resolve each attribute and say where the value came from.
 
     Returns a dict of value/source pairs. `osm` means the tag was present on the
@@ -310,13 +322,29 @@ def grade(tags):
         out['num_lanes_per_dir'] = ln if oneway else max(1.0, ln / 2.0)
         out['num_lanes_source'] = 'osm'
 
+    reg = REGULATED_SPEED.get('w' + str(wid))
     sl = fnum(tags.get('maxspeed'))
-    out['speed_limit_kmh'] = float(sl) if sl is not None else float(SPEED_DEFAULT.get(hw, 50))
-    out['speed_limit_source'] = 'osm' if sl is not None else 'imputed_rule'
+    if reg is not None:
+        out['speed_limit_kmh'] = float(reg)
+        out['speed_limit_source'] = 'speed_zones'
+    elif sl is not None:
+        out['speed_limit_kmh'] = float(sl)
+        out['speed_limit_source'] = 'osm'
+    else:
+        out['speed_limit_kmh'] = float(SPEED_DEFAULT.get(hw, 50))
+        out['speed_limit_source'] = 'imputed_rule'
 
+    # OSM `width` on a road is the whole CARRIAGEWAY, not one lane: measured over
+    # this extract it is 6.5 m, which is two lanes. Divide by the lane count
+    # before it can stand in for a lane width (DECISIONS.md 9.33).
     w = fnum(tags.get('width'))
-    out['lane_width_m'] = float(w) if w is not None else 3.2
-    out['lane_width_source'] = 'osm' if w is not None else 'imputed_rule'
+    raw_lanes = fnum(tags.get('lanes'))
+    if w is not None and raw_lanes and raw_lanes > 0:
+        out['lane_width_m'] = float(w) / float(raw_lanes)
+        out['lane_width_source'] = 'osm'
+    else:
+        out['lane_width_m'] = float(LANE_WIDTH_DEFAULT)
+        out['lane_width_source'] = 'imputed_rule'
 
     out['turn_lanes'] = tags.get('turn:lanes', '')
     out['turn_lanes_source'] = 'osm' if 'turn:lanes' in tags else 'absent'
@@ -447,7 +475,7 @@ def build():
         if not classes:
             continue
 
-        g = grade(tags)
+        g = grade(tags, wid)
         r = dict(edge_id='w' + wid, osm_way_id=wid, name=name,
                  road_class=tags['highway'], length_m=round(L, 1),
                  corridor_class=';'.join(classes),

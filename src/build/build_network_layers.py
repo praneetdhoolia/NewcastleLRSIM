@@ -90,7 +90,10 @@ def build_roads():
         sl = fnum(t.get('maxspeed'))
         if sl is None:
             sl = SPEED.get(hw, 50)
+            sl_src = 'imputed_rule'
             imp['speed_limit_kmh'] += 1
+        else:
+            sl_src = 'osm'
         oneway = t.get('oneway') in ('yes', '1', '-1', 'true')
         ln = fnum(t.get('lanes'))
         if ln is None:
@@ -113,7 +116,7 @@ def build_roads():
         rows.append(dict(
             edge_id='w' + wid, from_node=refs[0], to_node=refs[-1], n_nodes=len(refs),
             length_m=round(L, 1), road_class=hw, num_lanes=ln, lane_width_m=lw,
-            speed_limit_kmh=sl, oneway_flag=int(oneway),
+            speed_limit_kmh=sl, speed_limit_source=sl_src, oneway_flag=int(oneway),
             oneway_dir=(-1 if t.get('oneway') == '-1' else 1),
             capacity_veh_hr_lane=CAP.get(hw, 1000), kerbside_use=kerb,
             gradient_pct='', bridge=int('bridge' in t), tunnel=int('tunnel' in t),

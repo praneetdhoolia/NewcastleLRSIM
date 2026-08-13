@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 200 fields are made of
+## What the 203 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -35,12 +35,12 @@ Three things are refused at every layer:
 | `measured` | 21 | computed from observed data in this package |
 | `derived` | 17 | follows from another registry field by identity |
 | `literature` | 28 | a published value, not specific to Newcastle |
-| `assumed` | 84 | chosen without direct empirical support |
-| `definition` | 47 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 86 | chosen without direct empirical support |
+| `definition` | 48 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 187 | usable point value |
+| `active` | 190 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -75,7 +75,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/newcastle/A_supply.json` - 49 fields*
+*`config/registry/newcastle/A_supply.json` - 52 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -110,6 +110,9 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.road.lane_width_default_m` | `3.5` | metres | `measured` | 2.5 - 4.5 |
 | `A.road.lanes_default` | `{"busway": 1, "living_street": 1.0, "motorway": 2.0, "motorway_link": 1.0, "primary": 2.0, "primary_link": ...` | lanes_per_direction | `measured` | 1 - 3 |
 | `A.road.speed_default` | `{"busway": 50, "living_street": 10.0, "motorway": 110.0, "motorway_link": 80.0, "primary": 60.0, "primary_l...` | km_per_hour | `measured` | 10 - 110 |
+| `A.road.speed_zone_clip_margin_m` | `2000.0` | metres | `assumed` | 500 - 5000 |
+| `A.road.speed_zone_excluded_classes` | `["service"]` | enum | `definition` | - |
+| `A.road.speed_zone_match_m` | `10.0` | metres | `assumed` | 5 - 20 |
 | `A.signals.delay_per_intersection_s` | `26.0` | seconds | `assumed` | 15 - 40 |
 | `A.signals.junction_match_m` | `60.0` | metres | `assumed` | 30 - 100 |
 | `A.signals.min_green_s` | `6.0` | seconds | `assumed` | 4 - 10 |
@@ -326,6 +329,28 @@ Fallback free-flow speed where OSM carries no maxspeed tag. MEASURED from the ob
 ***measured** · status **active** · DECISIONS.md §9.33*
 
 > **Sweep basis.** the union of the observed interquartile ranges across the 13 classes with at least 30 tagged edges - an observed spread, not a chosen interval
+
+#### `A.road.speed_zone_clip_margin_m`
+
+Margin around the dissolved LGA boundary when clipping the statewide Speed Zones layer. A MARGIN on a derived boundary, not an extent: the boundary comes from zones_LGA.gpkg, so a new city clips to its own.
+
+***assumed** · status **active** · DECISIONS.md §9.34*
+
+> **Sweep basis.** chosen. Wide enough that a road crossing the LGA boundary keeps its zone, narrow enough not to carry the rest of the state.
+
+#### `A.road.speed_zone_excluded_classes`
+
+Road classes that do NOT take a regulated speed zone. `service` is driveways, car-park aisles and alleys: TfNSW does not speed-zone them, so the nearest zone line belongs to the arterial they run beside. Measured agreement with OSM on service roads is 37% against 83% on residential - the join is not wrong there, it is matching a different road. Excluding by OSM class is portable; excluding by measured agreement would be fitting the join to its own validation.
+
+***definition** · status **active** · DECISIONS.md §9.34*
+
+#### `A.road.speed_zone_match_m`
+
+Maximum distance from a road edge to a Speed Zone line for the regulated speed to be adopted. Output DOES vary across it - unlike the SCATS join radius, which is held fixed because nothing varies - so it is swept.
+
+***assumed** · status **active** · DECISIONS.md §9.34*
+
+> **Sweep basis.** MEASURED, not chosen: agreement with the OSM maxspeed tag where both exist holds at 73-77% out to 5 m and 72% to 10 m, then collapses to 30% at 10-20 m and 15% at 20-40 m. Beyond 10 m the nearest line is a different road.
 
 #### `A.signals.delay_per_intersection_s`
 

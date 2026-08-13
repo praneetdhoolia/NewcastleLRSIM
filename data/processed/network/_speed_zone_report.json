@@ -1,0 +1,76 @@
+{
+  "match_radius_m": 10.0,
+  "excluded_classes": [
+    "service"
+  ],
+  "edges": 43112,
+  "zone_segments": 35688,
+  "matched_to_zone": 25109,
+  "kept_osm": 1488,
+  "kept_class_default": 16515,
+  "validated_against_osm": 18473,
+  "agreement_rate": 0.749,
+  "disagreements": 4637,
+  "example_disagreements": [
+    {
+      "edge_id": "w196838798",
+      "road_class": "secondary",
+      "osm": 100.0,
+      "zone": 80.0
+    },
+    {
+      "edge_id": "w411885020",
+      "road_class": "residential",
+      "osm": 80.0,
+      "zone": 100.0
+    },
+    {
+      "edge_id": "w733442104",
+      "road_class": "tertiary",
+      "osm": 80.0,
+      "zone": 60.0
+    },
+    {
+      "edge_id": "w733442105",
+      "road_class": "tertiary",
+      "osm": 80.0,
+      "zone": 60.0
+    },
+    {
+      "edge_id": "w1163537589",
+      "road_class": "tertiary",
+      "osm": 80.0,
+      "zone": 60.0
+    },
+    {
+      "edge_id": "w1163537590",
+      "road_class": "tertiary",
+      "osm": 80.0,
+      "zone": 60.0
+    },
+    {
+      "edge_id": "w1163537767",
+      "road_class": "tertiary",
+      "osm": 80.0,
+      "zone": 60.0
+    },
+    {
+      "edge_id": "w302901180",
+      "road_class": "motorway",
+      "osm": 110.0,
+      "zone": 80.0
+    },
+    {
+      "edge_id": "w824019024",
+      "road_class": "motorway",
+      "osm": 110.0,
+      "zone": 80.0
+    },
+    {
+      "edge_id": "w1253785975",
+      "road_class": "secondary",
+      "osm": 90.0,
+      "zone": 80.0
+    }
+  ]
+}

@@ -70,6 +70,52 @@
       ],
       "sweep_basis": "the union of the observed interquartile ranges across the 13 classes with at least 30 tagged edges - an observed spread, not a chosen interval"
     },
+    "A.road.speed_zone_clip_margin_m": {
+      "value": 2000.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        500.0,
+        5000.0
+      ],
+      "sweep_basis": "chosen. Wide enough that a road crossing the LGA boundary keeps its zone, narrow enough not to carry the rest of the state.",
+      "status": "active",
+      "decisions_ref": "9.34",
+      "description": "Margin around the dissolved LGA boundary when clipping the statewide Speed Zones layer. A MARGIN on a derived boundary, not an extent: the boundary comes from zones_LGA.gpkg, so a new city clips to its own.",
+      "consumers": [
+        "src/extract/extract_speed_zones.py"
+      ]
+    },
+    "A.road.speed_zone_match_m": {
+      "value": 10.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        5.0,
+        20.0
+      ],
+      "sweep_basis": "MEASURED, not chosen: agreement with the OSM maxspeed tag where both exist holds at 73-77% out to 5 m and 72% to 10 m, then collapses to 30% at 10-20 m and 15% at 20-40 m. Beyond 10 m the nearest line is a different road.",
+      "status": "active",
+      "decisions_ref": "9.34",
+      "description": "Maximum distance from a road edge to a Speed Zone line for the regulated speed to be adopted. Output DOES vary across it - unlike the SCATS join radius, which is held fixed because nothing varies - so it is swept.",
+      "consumers": [
+        "src/build/attach_speed_zones.py"
+      ]
+    },
+    "A.road.speed_zone_excluded_classes": {
+      "value": [
+        "service"
+      ],
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34",
+      "description": "Road classes that do NOT take a regulated speed zone. `service` is driveways, car-park aisles and alleys: TfNSW does not speed-zone them, so the nearest zone line belongs to the arterial they run beside. Measured agreement with OSM on service roads is 37% against 83% on residential - the join is not wrong there, it is matching a different road. Excluding by OSM class is portable; excluding by measured agreement would be fitting the join to its own validation.",
+      "consumers": [
+        "src/build/attach_speed_zones.py"
+      ]
+    },
     "A.road.capacity_default": {
       "value": {
         "motorway": 2000,
