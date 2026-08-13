@@ -1139,12 +1139,17 @@ if _registry is not None:
               % (os.path.basename(os.path.dirname(_rec)),
                  '' if not _problems else ': ' + _problems[0][:80]))
 
-    # The C-layer behavioural values live in TWO places: config/registry/ declares
-    # them, and params/C1_parameters.json is what build_matsim_run_inputs.py
-    # actually reads. check_legacy_drift.py pins the registry to source
-    # CONSTANTS, not to a params file, so this pair was unpinned and could drift
-    # apart silently - two copies of a number is the drift this package cannot
-    # absorb. The registry copy is a mirror; C1 is what reaches the model.
+    # C1 is now GENERATED from the registry rather than mirrored against it
+    # (DECISIONS.md 9.32). Until then these checks passed while the registry
+    # reached nothing: `build_params.py` typed the same numbers in, so setting
+    # C.transfer.beta_transfer_penalty_min - the parameter proposal 6.2 says the
+    # whole policy question turns on - left C1 byte-identical. Agreement was
+    # being maintained by hand, which is exactly what a check cannot detect.
+    #
+    # These now assert a generated identity, not a coincidence, and they cover
+    # the SWEEP ENDS and the ASCs as well as the bases: the three ranges that had
+    # already drifted apart (crowding seated and standing, gradient uphill) were
+    # invisible to a base-only comparison.
     _C1_PAIRS = {
         'C.transfer.beta_transfer_penalty_min': ('transfer_penalty', 'base'),
         'C.gradient.uphill_penalty_per_pct': ('weights', 'beta_gradient_uphill', 'base'),
@@ -1176,6 +1181,100 @@ if _registry is not None:
               'the C-layer behavioural values agree between config/registry/ and '
               'params/C1_parameters.json, which is the copy build_matsim_run_inputs.py '
               'actually reads%s' % ('' if not _bad else ': ' + '; '.join(_bad[:3])))
+
+        # The ASCs reach the model the same way and were NOT covered. They are
+        # held_fixed under DECISIONS.md 8.5, and a held_fixed rule protecting a
+        # value the model does not read protects nothing - which is what
+        # deliverable 5 would have discovered after estimating them (#14).
+        _ASC_PAIRS = {'C.asc.car_driver': 'asc_car_driver',
+                      'C.asc.car_passenger': 'asc_car_passenger',
+                      'C.asc.bus': 'asc_bus', 'C.asc.light_rail': 'asc_lr',
+                      'C.asc.rail': 'asc_rail', 'C.asc.walk': 'asc_walk',
+                      'C.asc.cycle': 'asc_cycle'}
+        _abad = []
+        for _k, _name in sorted(_ASC_PAIRS.items()):
+            _node = _c1.get('asc', {}).get(_name)
+            _cv = _node[0] if isinstance(_node, list) and _node else None
+            _rv = _fields.get(_k, {}).get('value')
+            if _cv is None or not isinstance(_rv, (int, float)):
+                _abad.append('%s: no comparable C1 value' % _k)
+            elif abs(float(_rv) - float(_cv)) > 1e-9:
+                _abad.append('%s: registry %s vs C1 %s' % (_k, _rv, _cv))
+        check(not _abad,
+              'every mode constant agrees between the registry and C1, so the '
+              'DECISIONS.md 8.5 held_fixed rule protects the value the model '
+              'actually scores with%s'
+              % ('' if not _abad else ': ' + '; '.join(_abad[:3])))
+
+        # The declared SWEEP must reach C1 too. A narrowed range - which is
+        # exactly what an estimate for #25 would produce - has to move the
+        # parameter set, or the estimate would be recorded and change nothing.
+        _SWEEP_PAIRS = {
+            'C.transfer.beta_transfer_penalty_min': ('transfer_penalty', 'low', 'high'),
+            'C.crowding.seated_multiplier': ('weights', 'beta_crowding_seated'),
+            'C.crowding.standing_multiplier': ('weights', 'beta_crowding_standing'),
+            'C.gradient.uphill_penalty_per_pct': ('weights', 'beta_gradient_uphill'),
+            'C.gradient.downhill_penalty_per_pct': ('weights', 'beta_gradient_downhill'),
+            'C.time_weights.beta_wait': ('weights', 'beta_wait'),
+            'C.time_weights.beta_walk_access': ('weights', 'beta_walk_access'),
+            'C.time_weights.beta_walk_egress': ('weights', 'beta_walk_egress'),
+            'C.time_weights.beta_headway': ('weights', 'beta_headway'),
+            'C.time_weights.beta_reliability': ('weights', 'beta_reliability'),
+        }
+        _sbad = []
+        for _k, _path in sorted(_SWEEP_PAIRS.items()):
+            _sw = _fields.get(_k, {}).get('sweep')
+            if not (isinstance(_sw, list) and len(_sw) == 2):
+                continue
+            if _path[0] == 'transfer_penalty':
+                _node = _c1['transfer_penalty']
+                _got = (_node.get('low'), _node.get('high'))
+            else:
+                _node = _c1.get('weights', {}).get(_path[1], {})
+                _got = (_node.get('low'), _node.get('high'))
+            if None in _got:
+                _sbad.append('%s: no C1 range' % _k)
+            elif (abs(float(_sw[0]) - float(_got[0])) > 1e-9
+                  or abs(float(_sw[1]) - float(_got[1])) > 1e-9):
+                _sbad.append('%s: registry %s vs C1 %s' % (_k, list(_sw), list(_got)))
+        check(not _sbad,
+              'every declared sweep RANGE reaches C1, not just the base - three had '
+              'silently drifted apart while the bases agreed, so a base-only check '
+              'read as green%s' % ('' if not _sbad else ': ' + '; '.join(_sbad[:3])))
+
+        # The mandatory sensitivity grid has to span the range it samples, or a
+        # headline reported "as a curve across the plausible range" would not be
+        # (proposal 3.4 S-d).
+        _grid = _fields.get('C.transfer.penalty_sweep_grid', {}).get('value') or []
+        _tpsw = _fields.get('C.transfer.beta_transfer_penalty_min', {}).get('sweep')
+        _tpbase = _fields.get('C.transfer.beta_transfer_penalty_min', {}).get('value')
+        check(bool(_grid) and isinstance(_tpsw, list)
+              and abs(_grid[0] - _tpsw[0]) < 1e-9 and abs(_grid[-1] - _tpsw[1]) < 1e-9,
+              'the transfer-penalty sweep grid spans its declared range exactly '
+              '(%s vs %s) - proposal 3.4 S-d requires every headline as a curve '
+              'across it' % (_grid[:1] + _grid[-1:], _tpsw))
+        check(_tpbase in _grid,
+              'the transfer-penalty base is a member of its own grid, so exactly one '
+              'grid row can be the baseline')
+        _dgrid = _fields.get('A.lightrail.dwell_sweep_grid', {}).get('value') or []
+        _dsw = _fields.get('A.lightrail.dwell_charging_s', {}).get('sweep')
+        check(bool(_dgrid) and isinstance(_dsw, list)
+              and all(_dsw[0] <= _p <= _dsw[1] for _p in _dgrid if _p > 0),
+              'every non-zero charging-dwell grid point lies inside the declared '
+              'sweep %s - the 0 s member is the disabled arm, not a sweep point of '
+              'an unobtained quantity' % (_dsw,))
+        check(_fields.get('A.lightrail.dwell_charging_s', {}).get('value') is None,
+              'declaring a sampling grid for the charging dwell did NOT pin the '
+              'field: it stays unobtained with a null value (DECISIONS.md 0, 13)')
+
+        if os.path.exists('params/C1_sensitivity_sweep_grid.csv'):
+            _sg = rows('params/C1_sensitivity_sweep_grid.csv')
+            _tps = sorted({float(_r['beta_transfer_penalty_min']) for _r in _sg})
+            check(_tps == sorted(float(_g) for _g in _grid),
+                  'the shipped sweep grid crosses exactly the declared transfer-penalty '
+                  'points (%d of them)' % len(_tps))
+            check(sum(int(_r['is_baseline']) for _r in _sg) == 1,
+                  'exactly one row of the sensitivity grid is the baseline')
 
     # the two capacity factors that were previously set in code with no rationale
     _sce = _fields['RUN.sample.storage_capacity_exponent']

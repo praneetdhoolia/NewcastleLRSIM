@@ -1,10 +1,10 @@
 {
   "project": "Newcastle Light Rail counterfactual microsimulation (Project Wickham)",
-  "generated": "2026-08-13T16:27:47",
+  "generated": "2026-08-13T17:07:05",
   "base_year": 2026,
   "crs": "EPSG:28356 (GDA2020 / MGA Zone 56)",
   "n_files": 377,
-  "total_bytes": 3495696077,
+  "total_bytes": 3495696183,
   "total_gib": 3.26,
   "by_stage": {
     "raw": 65,
@@ -12,7 +12,7 @@
   },
   "bytes_by_stage": {
     "raw": 1980867116,
-    "processed": 1514828961
+    "processed": 1514829067
   },
   "files": [
     {
@@ -2105,9 +2105,9 @@
     },
     {
       "path": "params/C1_behavioural_parameters.csv",
-      "bytes": 16566,
+      "bytes": 16536,
       "rows": 30,
-      "sha256": "c8d14c4fa74a62c46f033a3fd7558343a39c26cdfc5ad7957da916c9c739ca12",
+      "sha256": "480edf46705b7380d63053bca39bc22558e730eba023cc83f71941a30b3d0d2a",
       "stage": "processed",
       "produced_by": "src/build/build_params.py",
       "source": "",
@@ -2117,9 +2117,9 @@
     },
     {
       "path": "params/C1_parameters.json",
-      "bytes": 3769,
+      "bytes": 3905,
       "rows": null,
-      "sha256": "49014a0fe3b6092477e979412f64c2ef8c90d27ebaf73d44d4af8cb72660d53e",
+      "sha256": "32d3219a2978b4ac0b273f388ec9aa81621fac42b5fa36e5e0267552832726da",
       "stage": "processed",
       "produced_by": "src/build/build_params.py",
       "source": "",

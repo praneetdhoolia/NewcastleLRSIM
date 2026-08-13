@@ -25,6 +25,18 @@
       "proposal_ref": "4.3",
       "description": "The scenario matrix, fixed at P0. S2 vs S0 is the headline test, S2 vs S3 the value-for-money test, S2 vs S4/S5 the trunk-length test."
     },
+    "E.matrix.reference_scenario": {
+      "value": "S2",
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.32",
+      "description": "The scenario every comparison is made against - light rail as built. Declared here because the sweep grid's baseline row needs to know which scenario overlay carries the baseline point for an unobtained input, and reading a scenario id out of a script is the same defect as reading a value out of one.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
     "E.matrix.day_types": {
       "value": [
         "WEEKDAY",

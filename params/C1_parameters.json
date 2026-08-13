@@ -47,19 +47,19 @@
     "beta_crowding_seated": {
       "base": 1.0,
       "low": 1.0,
-      "high": 1.1,
+      "high": 1.15,
       "source": "literature"
     },
     "beta_crowding_standing": {
       "base": 1.45,
-      "low": 1.15,
-      "high": 1.85,
+      "low": 1.2,
+      "high": 1.8,
       "source": "literature"
     },
     "beta_gradient_uphill": {
       "base": 0.09,
-      "low": 0.04,
-      "high": 0.15,
+      "low": 0.05,
+      "high": 0.14,
       "source": "assumed"
     },
     "beta_gradient_downhill": {
@@ -83,7 +83,7 @@
       15.0
     ],
     "source": "assumed",
-    "estimation_route": "NSW HTS interchange rates + Opal tap sequence at Newcastle Interchange"
+    "estimation_route": "NOT ESTIMABLE FROM THIS PACKAGE - see DECISIONS.md 9.32. Proposal 7.2 asks for tap-on/tap-off TIMING and every Opal source held is a monthly aggregate; the stop-level tap data is holdout; no calibration target bears on interchange. The sweep stands."
   },
   "asc": {
     "asc_car_driver": [
@@ -123,18 +123,15 @@
     "sweep": {
       "beta_per_m": [
         0.001,
-        0.0014,
-        0.0018,
-        0.0024,
         0.003
       ]
     },
     "alternative": "cumulative_gaussian",
     "alternative_params": {
-      "mu_m": 700,
-      "sigma_m": 420
+      "mu_m": 700.0,
+      "sigma_m": 420.0
     },
-    "max_considered_m": 2500,
+    "max_considered_m": 2500.0,
     "source": "assumed",
     "note": "At beta=0.0018 the weight is 0.49 at 400 m, 0.24 at 800 m and 0.12 at 1200 m. Never truncate at 400 m."
   },

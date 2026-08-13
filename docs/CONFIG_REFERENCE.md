@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 193 fields are made of
+## What the 198 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -35,12 +35,12 @@ Three things are refused at every layer:
 | `measured` | 15 | computed from observed data in this package |
 | `derived` | 16 | follows from another registry field by identity |
 | `literature` | 29 | a published value, not specific to Newcastle |
-| `assumed` | 86 | chosen without direct empirical support |
-| `definition` | 44 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 88 | chosen without direct empirical support |
+| `definition` | 47 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 180 | usable point value |
+| `active` | 185 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -75,7 +75,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/newcastle/A_supply.json` - 47 fields*
+*`config/registry/newcastle/A_supply.json` - 48 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -94,6 +94,7 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.lightrail.corridor_speed_kmh` | `60.0` | km_per_hour | `assumed` | 40 - 70 |
 | `A.lightrail.dwell_charging_s` | *(null - unobtained)* | seconds_per_intermediate_stop | `assumed` | 10 - 35 |
 | `A.lightrail.dwell_fixed_s` | `8.0` | seconds_per_stop | `assumed` | 5 - 15 |
+| `A.lightrail.dwell_sweep_grid` | `[0.0, 10.0, 20.0, 35.0]` | seconds_per_intermediate_stop | `definition` | - |
 | `A.lightrail.line_speed_kmh` | `40.0` | km_per_hour | `assumed` | 30 - 50 |
 | `A.lightrail.tsp_enabled` | `false` | boolean | `assumed` | `False`, `True` |
 | `A.parking.capacity_default` | `{"onstreet": 12, "offstreet_public": 60, "offstreet_private": 40}` | spaces_per_facility | `assumed` | 5 - 100 |
@@ -212,6 +213,12 @@ Supercapacitor charging dwell added at each intermediate stop. NOT MEASURED - a 
 Boarding and alighting dwell, separate from charging dwell.
 
 ***assumed** · status **active** · DECISIONS.md §4.4*
+
+#### `A.lightrail.dwell_sweep_grid`
+
+The points at which the UNOBTAINED A.lightrail.dwell_charging_s is sampled for the sensitivity grid. A sampling design, not a value for the field, which stays null and unpinned. The 0 s member is NOT a sweep point of the unobtained quantity - it is the charging-dwell-disabled arm, the S2 vs S2a toggle that makes the wire-free decision's marginal cost separable. The remaining members lie inside the declared sweep, and check_package.py asserts it.
+
+***definition** · status **active** · DECISIONS.md §9.32 · proposal §3.4 S-a*
 
 #### `A.lightrail.line_speed_kmh`
 
@@ -746,7 +753,7 @@ Points evaluated along each parameter's declared sweep interval in one coordinat
 
 ## Behavioural parameters (C1)
 
-*`config/registry/newcastle/C_behaviour.json` - 47 fields*
+*`config/registry/newcastle/C_behaviour.json` - 50 fields*
 
 Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.
 
@@ -792,13 +799,16 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.time_weights.beta_walk_egress` | `2.0` | ratio_to_ivt | `literature` | 1.5 - 2.5 |
 | `C.time_weights.beta_walk_mode` | `1.04` | ratio_to_ivt | `literature` | 1 - 1.3 |
 | `C.transfer.beta_transfer_penalty_min` | `8.0` | minutes_equivalent | `assumed` | 3 - 15 |
+| `C.transfer.penalty_sweep_grid` | `[3.0, 5.0, 6.5, 8.0, 10.0, 12.0, 15.0]` | minutes_equivalent | `definition` | - |
 | `C.vot.by_purpose` | `{"HW": 18.6, "HE": 9.3, "HS": 15.2, "HO": 15.2, "WB": 55.4, "NHB": 15.2}` | AUD_2026_per_hour | `literature` | plus/minus 30% |
+| `C.vot.car_unavailable_walk_factor` | `1.15` | ratio | `assumed` | 1 - 1.3 |
 | `C.vot.concession_factor` | `0.75` | ratio | `literature` | 0.6 - 0.9 |
 | `C.vot.trip_weighted` | `16.96` | AUD_2026_per_hour | `derived` | plus/minus 30% |
 | `C.walk.decay_beta_per_m` | `0.0018` | per_metre | `assumed` | 0.001 - 0.003 |
 | `C.walk.decay_form` | `negative_exponential` | enum | `assumed` | `negative_exponential`, `cumulative_gaussian` |
 | `C.walk.gaussian_mu_m` | `700.0` | metres | `assumed` | 500 - 900 |
 | `C.walk.gaussian_sigma_m` | `420.0` | metres | `assumed` | 300 - 550 |
+| `C.walk.max_considered_m` | `2500.0` | metres | `assumed` | 1500 - 4000 |
 
 #### `C.asc.bus`
 
@@ -1076,11 +1086,25 @@ Behavioural penalty for an interchange, ON TOP of the measured Newcastle Interch
 
 > **Sweep basis.** proposal 6.2 forbids a literature default and requires every finding to be reported as a curve across this range; the grid crosses 3, 5, 6.5, 8, 10, 12, 15
 
+#### `C.transfer.penalty_sweep_grid`
+
+The points at which C.transfer.beta_transfer_penalty_min is sampled for the mandatory sensitivity grid. A sampling design, not an empirical quantity - which is why it is a definition rather than a swept value. Denser near the base than at the ends because the policy answer turns over in the middle of the range. check_package.py asserts the endpoints match the declared sweep and that the base is a member, so the grid cannot drift away from the range it is supposed to cover.
+
+***definition** · status **active** · DECISIONS.md §9.32 · proposal §3.4 S-d*
+
 #### `C.vot.by_purpose`
 
 Value of travel time by trip purpose, ATAP PV2 / TfNSW Economic Parameter Values conventions. NOT a Newcastle measurement. MATSim scoring cannot carry per-purpose VOT, so the run inputs collapse this to a trip-weighted 16.96 AUD/h - see C.vot.trip_weighted and DECISIONS.md 9.3.
 
 ***literature** · status **active** · DECISIONS.md §8.3 · proposal §A/C1, 6.2*
+
+#### `C.vot.car_unavailable_walk_factor`
+
+Multiplier on the walk and wait time weights for the car-unavailable segment, who face them without an alternative. Applied to every weight whose name carries `walk`.
+
+***assumed** · status **active** · DECISIONS.md §8.3, 9.32*
+
+> **Sweep basis.** chosen. 1.0 is the arm in which car availability does not change how walking is valued.
 
 #### `C.vot.concession_factor`
 
@@ -1117,6 +1141,14 @@ Alternative-form parameter, used only when decay_form is cumulative_gaussian.
 Alternative-form parameter, used only when decay_form is cumulative_gaussian.
 
 ***assumed** · status **active** · DECISIONS.md §8.2*
+
+#### `C.walk.max_considered_m`
+
+Outer distance over which the walk-access decay curve is evaluated. NOT a catchment threshold: proposal 6.3 forbids one, because a 400 m cut-off treats a person at 401 m as identical to one at 2 km and flatters fixed-route modes.
+
+***assumed** · status **active** · DECISIONS.md §8.4, 9.32 · proposal §6.3*
+
+> **Sweep basis.** chosen. Proposal 6.3 forbids a THRESHOLD on the decay curve; this is the outer distance at which the curve is still evaluated, not a cut-off applied to behaviour.
 
 ## Land use (D1)
 
@@ -1164,7 +1196,7 @@ Frontage-level retail vacancy. NOT OBTAINED and not currently consumed by any me
 
 ## Scenario configuration (E1)
 
-*`config/registry/newcastle/E_scenario.json` - 6 fields*
+*`config/registry/newcastle/E_scenario.json` - 7 fields*
 
 The scenario matrix and the coupling controls. Per-scenario variant references stay in scenarios/S*.json, which bind a scenario to its network, schedule, land use, parking, signals, demand and parameter sets; this layer holds the values those configs share.
 
@@ -1174,6 +1206,7 @@ The scenario matrix and the coupling controls. Per-scenario variant references s
 | `E.matrix.base_year` | `2026` | year | `definition` | - |
 | `E.matrix.crs` | `EPSG:28356` | enum | `definition` | - |
 | `E.matrix.day_types` | `["WEEKDAY", "SAT", "SUN"]` | enum | `definition` | - |
+| `E.matrix.reference_scenario` | `S2` | enum | `definition` | - |
 | `E.matrix.scenario_ids` | `["S0", "S1", "S2", "S2a", "S2b", "S2c", "S3", "S4", "S5", "S6"]` | enum | `definition` | - |
 | `E.replication.n_replications` | `30` | count | `definition` | 5 - 30 |
 
@@ -1204,6 +1237,12 @@ GDA94 / MGA Zone 56, metres. The proposal label GDA2020 was corrected.
 Full weekend day types are built, not a weekday-only model with a note. Beach and event demand is arguably this system strongest use case and excluding it would bias against the light rail (DECISIONS.md 1 item 5).
 
 ***definition** · status **active** · DECISIONS.md §1*
+
+#### `E.matrix.reference_scenario`
+
+The scenario every comparison is made against - light rail as built. Declared here because the sweep grid's baseline row needs to know which scenario overlay carries the baseline point for an unobtained input, and reading a scenario id out of a script is the same defect as reading a value out of one.
+
+***definition** · status **active** · DECISIONS.md §9.32*
 
 #### `E.matrix.scenario_ids`
 

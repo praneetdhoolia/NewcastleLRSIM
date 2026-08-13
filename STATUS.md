@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 13 August 2026 (P4 stage 13 - a car stops parking for free, and the parking price stops being a hand-drawn rectangle; issue #33 closed)
+**Last updated:** 13 August 2026 (P4 stage 14 - the transfer penalty is established as NOT estimable from this package, and C1 stops being a hand-kept mirror of the registry; issues #33, #25 closed)
 **Stage:** **P4 stages 0–3.** **Eight** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -12,7 +12,7 @@ choosing, and the day-type filter left **the with-tram scenario with no tram on 
 weekday** (§9.9). Run cost, seed dependence and convergence are measured rather
 than assumed, and the ride constant is constrained to observed vehicle occupancy
 (§9.8). Every controllable value is now **declared** rather than typed into a script:
-`config/registry/<city>/` holds 193 fields with units, provenance and a sweep or a
+`config/registry/<city>/` holds 198 fields with units, provenance and a sweep or a
 held-fixed rule, and the resolver refuses to hand back a point value for
 anything unobtained (§15). **Parking is priced for the first time** — the price
 layer had been declared since P1 and read by nothing, and rested on four
@@ -65,7 +65,7 @@ calibrate the wrong model.
 | **5** | **Calibrated base + parameter provenance** | ❌ **NOT MET** — blocked by a modelling decision **and** now by deliverable 0 | `params/C5_calibration.json` |
 | 6 | Calibration report | ✅ done | [`src/calibrate/report.py`](src/calibrate/report.py) |
 | 7 | MATSim↔SUMO outer-loop tolerance | ✅ done — **5 s** | [`DECISIONS.md`](DECISIONS.md) §9.16 |
-| **8** | **Transfer-penalty estimate** — **NEW: proposal §7.2's own fallback, never built** | ⬜ **not started** | §9.21 |
+| **8** | **Transfer-penalty estimate** — proposal §7.2's own fallback | ✅ **met by its own fallback clause (§9.32)**: the estimate is **not possible** from this package and the reason is recorded, so the 3–15 min sweep stands and every headline stays bound to a curve across it. §7.2 needs tap-on/tap-off **timing**; every Opal source held is a monthly aggregate, the stop-level tap data is **holdout**, and no calibration row bears on interchange. Published interchange **times** are the wrong quantity — they would double-count the walk and wait MATSim already simulates. Settled only by a TfNSW unit-record request. | §9.32, §9.21 |
 | 9 | Live run view | ✅ done | [`src/analyse/run_monitor.py`](src/analyse/run_monitor.py) |
 
 ### Deliverable 0, broken down — the work that must precede a calibrated base

@@ -3414,6 +3414,148 @@ and nothing here is a result.**
 
 ---
 
+## 9.32 The transfer penalty cannot be estimated from this package, and the parameter it names was reaching nothing anyway (P4 deliverable 8, issues #25, #35)
+
+Deliverable 8 asks for the estimate proposal §7.2 specified as its fallback when
+journey-linked Opal is refused. Two findings, and the second was found while
+establishing the first.
+
+### The estimate cannot be made, on three independent grounds
+
+§7.2's exact words: *"estimate transfer rates from tap-on/tap-off timing at the
+Interchange using aggregate stop-level data plus a matching model; validate
+against the published interchange percentages."*
+
+**1. The timing does not exist.** Every Opal source in the package is a monthly
+aggregate:
+
+| file | columns | resolution |
+|---|---|---|
+| `opal_lr_newcastle_by_stop.csv` | Year_Month, Location, Card_type, Trip | month × stop |
+| `opal_lr_newcastle_by_month_cardtype.csv` | Year_Month, Card_type, Line, Trip | month × line |
+| `opal_bus_newcastle_hunter.csv` | Year_Month, Card_type, Contract_region, Trip | month × region |
+| `station_entries_exits_newcastle.csv` | MonthYear, Station, Station_Type, Entry_Exit, Trip | month × station |
+
+There is no timestamp, no tap-off paired to a tap-on, and no sub-monthly
+resolution anywhere. A matching model matches a tap-off at one stop to a tap-on
+at another **within a time window**. With monthly totals there is no window. The
+method is not hard here; it is undefined.
+
+**2. The data that would substitute is holdout.** `lr_tapon_share_by_stop` (6
+rows) and `station_entry_monthly_mean` / `station_exit_monthly_mean` (26 + 26)
+are all `split=holdout`. The 67 calibration rows contain **nothing** bearing on
+interchange — the non-count calibration rows are light rail and bus boardings,
+the light rail share of local PT boardings, scheduled run time and alignment
+length. So the alternative route — constrain the penalty so the model reproduces
+an observed transfer rate, the §9.8 / §9.13 pattern — has no non-holdout
+observable to constrain against either. The HTS held is aggregate mode × purpose
+with no interchange table, and its trips-to-journeys ratio cannot be split by
+mode, so PT transfers cannot be isolated from it.
+
+**3. The published validation source could not be located**, and the figures
+that might have substituted are the wrong quantity. Three searches found no
+published interchange percentage for Newcastle. More important: interchange
+**times** — the kind of figure TfNSW does publish — are not the transfer
+**penalty**. MATSim already simulates the interchange walk from the schedule and
+scores the wait at `beta_wait` = 2.0 × in-vehicle time.
+`C.transfer.beta_transfer_penalty_min` is explicitly the behavioural premium *on
+top of* the measured Newcastle Interchange walk (mean 112 s over 51 stop pairs).
+Substituting a published transfer time for it would double-count what the model
+already computes. **This is the trap worth recording**: the available figure
+looks like the answer and is a different quantity.
+
+The issue's own bar anticipates this: *"If the estimate cannot be made, the
+reason is recorded and the sweep stands, which is a better outcome than an
+unexamined assumption."* The sweep stands, at 3–15 minutes, crossed at seven
+points, and every headline remains bound to report as a curve across it
+(proposal §3.4 S-d). `estimation_route` in `C1_parameters.json` now records the
+impossibility rather than naming a route that does not exist.
+
+**What would settle it:** journey-linked or timestamped Opal, which is a TfNSW
+unit-record request, not a published dataset. Nothing in the open catalogue
+closes it (§9.23).
+
+### The parameter was reaching nothing, so the estimate could not have mattered
+
+Establishing the above meant tracing where the parameter goes, which found that
+it does not go anywhere. `build_params.py` read **one** registry field
+(`C.vot.by_purpose`) and typed the other 26 behavioural values in as literals.
+`params/C1_parameters.json` is what `build_matsim_run_inputs.py` reads, so the
+registry declarations reached nothing.
+
+Reproduced before attributing it — setting the value through the resolver's own
+override path left C1 **byte-identical** at 8.0:
+
+    WICKHAM_C_TRANSFER_BETA_TRANSFER_PENALTY_MIN=12.0 python src/build/build_params.py
+
+Seventh instance of the class, after #12, #21, the walk decay, the gradient, the
+seven config-template literals at §9.28 and the parking price at §9.31.
+
+Two consequences sharper than the general case. **The ASCs are `held_fixed`
+under §8.5** — the resolver refuses every overlay, environment variable and flag
+— and the model was not reading the value being protected. Deliverable 5 (#14)
+is "estimate the ASCs on era 3 and freeze them"; that work would have written
+seven estimated constants into the registry and changed nothing, reporting
+success. **And the sweep grid was a literal too**, so #25's own bar — move the
+field to `measured` "with the sweep set from the estimate's own spread" — was
+unmeetable by construction: a narrowed range would not have moved the 28-point
+grid.
+
+The existing check compared **bases only**, and its own comment conceded the
+arrangement: *"The registry copy is a mirror; C1 is what reaches the model."*
+Agreement was maintained by hand, which is what a check cannot detect. Three
+ranges had already drifted apart unnoticed:
+
+| field | C1 literal | registry |
+|---|---|---|
+| `beta_crowding_seated` | 1.00 – 1.10 | 1.00 – **1.15** |
+| `beta_crowding_standing` | **1.15** – **1.85** | 1.20 – 1.80 |
+| `beta_gradient_uphill` | **0.04** – **0.15** | 0.05 – 0.14 |
+
+### The fix, and the proof it changed no result
+
+The direction is inverted: **C1 is generated from the registry** rather than
+checked against it. Every base comes from the field's `value`, every range from
+its own `sweep`, every label from its `source`. Five declarations were missing
+and are added, because a value absent from the registry cannot be generated from
+it: `C.transfer.penalty_sweep_grid`, `A.lightrail.dwell_sweep_grid`,
+`C.vot.car_unavailable_walk_factor` (1.15), `C.walk.max_considered_m` (2500) and
+`E.matrix.reference_scenario`. The two grids are `definition` — a sampling design
+is not an empirical quantity — and **declaring where to sample the charging dwell
+did not pin it**: the field stays `unobtained` with a null value. The dwell
+baseline is read by resolving the reference scenario's own overlay, which is
+where §4.3 already said it lives.
+
+**Value-neutral, and demonstrated.** Diffing all 30 rows of
+`C1_behavioural_parameters.csv` column by column, the only columns that moved are
+the five belonging to the three drifted ranges. No base changed, and regenerating
+all 30 run-input sets produced no change at all.
+
+**Reach demonstrated by changing a value**, not by reading `consumers`:
+
+| | before | after |
+|---|---|---|
+| override → `transfer_penalty.base` | 8.0 (unchanged) | **12.0** |
+| override → the 30 C1 rows | 8.0 | **12.0** |
+| override → baseline grid row | 8.0 | **12.0** |
+| override → `utilityOfLineSwitch` | −2.2613 | **−3.3922** |
+
+−3.3922 is −(12/60) × 16.96, the VOT conversion, so the chain holds end to end.
+
+### Guarded
+
+`check_package.py` 1,435 → **1,440** passing. The new checks assert that the ASCs
+agree, that every declared **range** reaches C1 (a base-only comparison read as
+green while three ranges were wrong), that the sensitivity grid spans its declared
+sweep exactly and contains its own base, that every non-zero dwell grid point lies
+inside the declared sweep, and that declaring the grid did not pin the unobtained
+field.
+
+**No scenario was run, no target value changed, no holdout row was opened, the
+67/143 split is untouched and nothing here is a result.**
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -3912,6 +4054,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-13 | **P4 deliverable 8 - the transfer penalty cannot be estimated from this package, and the parameter was reaching nothing anyway (§9.32, issues #25, #35).** Proposal §7.2's fallback asks for tap-on/tap-off **timing** at the Interchange plus a matching model. **Every Opal source held is a monthly aggregate** - no timestamp, no tap-off paired to a tap-on, nothing for a matching model to match. The stop-level tap data that would substitute is **holdout**, and the 67 calibration rows contain nothing bearing on interchange, so the constrain-to-an-observable route (§9.8) has no observable either. No published interchange percentage for Newcastle could be located; and published interchange **times** are the wrong quantity - MATSim already simulates the walk and scores the wait at 2.0x in-vehicle time, and this parameter is the premium **on top of** the measured 112 s Interchange walk, so substituting one would double-count. Per the deliverable's own bar the reason is recorded and **the sweep stands** at 3-15 minutes across seven points. Tracing where the parameter goes found that it went nowhere: `build_params.py` read **one** registry field and typed the other **26** in as literals, so setting the value through the resolver's own override path left `C1_parameters.json` **byte-identical**. Seventh instance of the class. Two consequences sharper than usual - the **mode constants are `held_fixed` under §8.5** and the model was not reading the value being protected, so deliverable 5 (#14) would have estimated seven ASCs, written them to the registry, changed nothing and reported success; and the **sweep grid was a literal too**, making #25's own bar unmeetable by construction. The prior check compared **bases only** and its comment conceded *"the registry copy is a mirror"* - three RANGES had already drifted apart unnoticed. C1 is now **generated from** the registry rather than checked against it, with five missing declarations added; declaring a sampling grid for the charging dwell did **not** pin it, which stays unobtained and null. **Value-neutral and proved so** - no base moved and all 30 run-input sets regenerated unchanged - and **reach proved by changing a value**: the override now moves `utilityOfLineSwitch` -2.2613 to -3.3922, exactly the VOT conversion. `check_package.py` 1,435 -> **1,440**. **No scenario was run, no target value changed, no holdout row was opened and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 13 - a car stops parking for free, and the price stops being a drawn rectangle (§9.31, issue #33).** Parking price is the prime competitive lever between car and PT for a city-centre trip, and this study is about city-centre access. `A5_parking_facilities.csv` has declared `is_priced`, `price_aud_hr` and a sweep on both since P1 and **no script read any of it** - the "declared value that reaches nothing" class on its **sixth** instance. Its spatial basis was four hand-drawn lat/lon rectangles with place names, literal prices and hand-typed occupancy profiles, and **one of the four, `honeysuckle`, was fully contained in the box tested before it and could never match a facility** - dead for three phases, because a typed rectangle cannot be wrong in a way anyone notices. Price is now derived from **the city's own core-zone job-density distribution** (p90 = 1,500.9 and p99 = 8,710.5 jobs/km², pricing 150 of 1,500 core zones and 22,353 of 143,891 car links), so a new city computes its own thresholds and no extent is typed. OSM `fee=yes` was reproduced and rejected as the basis: **452 of its 472 facilities are University of Newcastle car parks**. The charge reaches the model through `ParkingChargeHandler`, which bills a car from arrival to the next car departure as a `PersonMoneyEvent`; roadpricing is **not** in the pinned jar, so its deferred-emission pattern is reproduced rather than reused, and Java does no spatial work. **Reach was established by changing values, not by reading `consumers`** - halving `price_aud_hr_max` halved the charges (−721.42 → −361.62 AUD), Sunday charges nothing, and the largest single charge is exactly the max-stay cap. **That test caught a real defect**: `accessEgressType` inserts a `car interaction` activity after every car arrival, so the `home` exemption matched nothing and **267 of the first 641 charges were levied at people's own homes** - a nightly penalty on living in a dense zone that no observation supports. What the formula still gets wrong is measured rather than supposed: it prices Kotara, Glendale and Charlestown at or near the maximum where parking is free, and a contiguity refinement that would separate the centre cleanly (one 80-zone cluster against 49 of 1–5) was **built and rejected** because it also excludes the University and John Hunter Hospital, the two places outside the centre that verifiably do charge. Price is common to all scenarios, so it largely differences out of the S-vs-S comparison and bites on the base calibration instead. `check_package.py` 1,248 → **1,435** passing, the key check re-deriving every zone price from the registry so a typed price cannot survive. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 10 - the passenger stops outrunning the driver (§9.26, issue #28).** `ride` was routed over the network on **free-flow** times because it is in `routing.networkModes` but is not the qsim `mainMode`. `WickhamControler` now binds its travel time to `networkTravelTime()` and its disutility to the car factory. Verified against a like-for-like 10% baseline differing only in the controler: **car 32.54 -> 52.30%, ride 50.03 -> 29.45%**, total absolute gap to target **84.2 -> 44.6 pp** - the largest single correction this model has had, and it came from a defect rather than a constant. It confirms §9.25's claim that the symptom was **two** inversions: car↔ride moved ±20 points while walk↔bike moved -0.03/+0.81, untouched. **The defect is reduced, not eliminated** - ride is still 1.01-1.11x faster at matched distance, worst on short trips, so #28 stays open. The audit's headline was also corrected: the original 13% was an aggregate confounded by trip-length composition; stratified it is 4-8%, present in every bin. A first verification at 1% was **discarded as uninterpretable** - §15's storage floor produces spurious spillback that inflates car delay while teleported ride is immune, so a cross-fraction comparison is invalid. Two reproducibility defects exposed and closed: **nothing compiled the committed Java**, so a fresh clone could not run; and a run record could not say which controler produced it, so re-running would have served pre-fix results silently - records now carry `controler_sha256` and the harness refuses to resume across a change. `prune_run.py` drops MATSim's per-iteration scratch, **95% of a run's bytes** and read by nothing, reclaiming 36.6 GiB. **Not a result:** 250 iterations is short of relaxation, demand still lacks through traffic and freight, no target was fitted, the 67/143 split is untouched and no holdout row was opened. |
 | 2026-08-12 | **P4 stage 8 - own realtime collection dropped, and the published catalogue assessed instead (§9.23).** A GTFS-Realtime collector was built and **reverted in full** once an Open Data Hub API key made the 230-dataset catalogue assessable. TfNSW's own **Historical GTFS Realtime** archive was verified against the live API and carries **Metro and Ferry only** - controls return files, every light rail and bus naming returns none - so it cannot backfill Newcastle, and §7.2's contingency for the SCATS refusal is recorded as an **open gap**. What the catalogue does settle, verified against the data rather than the titles: **Traffic Lights Location** matches **all 14 corridor intersections within 60 m**, supplies the `scats_site_id` that `A2_signal_control_corridor.csv` declares but leaves empty, and dates **8 of the 14 as 2018 light-rail installations** - so the pre-intervention corridor had 6 signals, not 14, which is an observed basis for a counterfactual now assumed; **SFM22** gives origin-destination freight for issue #24; the **GTFS reference tables** carry Hunter Line running times bearing on the assumed era-1 constants; **school and public holiday** dates stratify the dated RMS counts. Recorded as *not* settled: no SCATS phasing exists in the catalogue, the kerbside and lane-width datasets are **Sydney-only** so issue #27 is untouched, JTW 2016 is withdrawn by TfNSW, and Opal tap data is **not journey-linked** so deliverable 8 keeps its fallback. **No value was acquired, changed or registered** - this is an assessment. No parameter value changed, no target value changed, the 67/143 split is untouched and no scenario was run. |

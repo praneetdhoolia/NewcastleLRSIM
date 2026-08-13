@@ -283,6 +283,24 @@
       "baseline_ref": "params/C1_sensitivity_sweep_grid.csv:is_baseline",
       "description": "Supercapacitor charging dwell added at each intermediate stop. NOT MEASURED - a few hours of field observation at Civic or Crown Street would resolve it (DECISIONS.md 13 priority 2). Worth about 11% of end-to-end run time, and it is the subject of secondary question S-a: the marginal cost of the wire-free decision, taken with a late 35m urban amenity package. Modelled as a SEPARATE ADDITIVE TERM so it can be toggled independently of boarding dwell (S2 vs S2a). THIS FIELD HAS NO POINT VALUE."
     },
+    "A.lightrail.dwell_sweep_grid": {
+      "value": [
+        0.0,
+        10.0,
+        20.0,
+        35.0
+      ],
+      "units": "seconds_per_intermediate_stop",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.32",
+      "proposal_ref": "3.4 S-a",
+      "description": "The points at which the UNOBTAINED A.lightrail.dwell_charging_s is sampled for the sensitivity grid. A sampling design, not a value for the field, which stays null and unpinned. The 0 s member is NOT a sweep point of the unobtained quantity - it is the charging-dwell-disabled arm, the S2 vs S2a toggle that makes the wire-free decision's marginal cost separable. The remaining members lie inside the declared sweep, and check_package.py asserts it.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
     "A.lightrail.dwell_fixed_s": {
       "value": 8.0,
       "units": "seconds_per_stop",
