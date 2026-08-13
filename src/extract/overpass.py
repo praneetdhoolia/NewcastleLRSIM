@@ -37,7 +37,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import osm_tiles  # noqa: E402
 CFG = _registry.load()
 
-EP = "https://overpass.kumi.systems/api/interpreter"
+#: Overpass mirrors, tried in order. One endpoint returning 504 on a tile that
+#: another serves in seconds is normal load-shedding, not a fault in the query -
+#: measured here on the roads layer, where the same tile failed four times on
+#: the first mirror. Having a second is the difference between a harvest that
+#: completes and one that needs babysitting.
+ENDPOINTS = ("https://overpass.kumi.systems/api/interpreter",
+             "https://overpass-api.de/api/interpreter",
+             "https://overpass.osm.jp/api/interpreter")
 
 LGA = 'data/processed/zones/zones_LGA.gpkg'
 STOPS = 'data/processed/schedule_extras/A3_stop_extras.csv'
@@ -187,12 +194,19 @@ TILE_DIR = 'networks/osm/_tiles'
 
 
 def _get(query, dest, label):
-    """One Overpass request, with the retry the endpoint occasionally needs."""
-    for attempt in range(4):
+    """One Overpass request, rotating mirrors and backing off between attempts.
+
+    A tile is only given up on after every mirror has refused it repeatedly; the
+    caller caches whatever did arrive, so a resumed harvest retries just the
+    stragglers.
+    """
+    attempts = CFG.get('A.osm.harvest_attempts')
+    for attempt in range(attempts):
+        ep = ENDPOINTS[attempt % len(ENDPOINTS)]
         t0 = time.time()
         try:
             req = urllib.request.Request(
-                EP, data=urllib.parse.urlencode({"data": query}).encode(),
+                ep, data=urllib.parse.urlencode({"data": query}).encode(),
                 headers={"User-Agent": "newcastle-lr-sim/0.1 (research)"})
             with urllib.request.urlopen(req, timeout=1900) as r, open(dest, "wb") as f:
                 n = 0
@@ -206,8 +220,11 @@ def _get(query, dest, label):
                   flush=True)
             return True
         except Exception as e:
-            print("    RETRY %s attempt %d: %s" % (label, attempt + 1, e), flush=True)
-            time.sleep(20 * (attempt + 1))
+            if os.path.exists(dest):
+                os.remove(dest)      # never leave a truncated tile to be cached
+            print("    RETRY %s attempt %d on %s: %s"
+                  % (label, attempt + 1, ep.split("/")[2], e), flush=True)
+            time.sleep(min(120, 15 * (attempt + 1)))
     return False
 
 

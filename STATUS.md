@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 13 August 2026 (P4 stage 16 - the corridor speed limit becomes the regulated one; issues #33, #25, #23, #27 closed)
+**Last updated:** 13 August 2026 (P4 stage 17 - the OSM harvest extent is derived from the study area; the re-harvest and network rebuild are in flight. Issues #33, #25, #23, #27 closed)
 **Stage:** **P4 stages 0–3.** **Eight** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
@@ -12,7 +12,7 @@ choosing, and the day-type filter left **the with-tram scenario with no tram on 
 weekday** (§9.9). Run cost, seed dependence and convergence are measured rather
 than assumed, and the ride constant is constrained to observed vehicle occupancy
 (§9.8). Every controllable value is now **declared** rather than typed into a script:
-`config/registry/<city>/` holds 203 fields with units, provenance and a sweep or a
+`config/registry/<city>/` holds 208 fields with units, provenance and a sweep or a
 held-fixed rule, and the resolver refuses to hand back a point value for
 anything unobtained (§15). **Parking is priced for the first time** — the price
 layer had been declared since P1 and read by nothing, and rested on four

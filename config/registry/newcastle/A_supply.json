@@ -954,6 +954,18 @@
       "consumers": [
         "src/extract/overpass.py"
       ]
+    },
+    "A.osm.harvest_attempts": {
+      "value": 12,
+      "units": "count",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.35",
+      "description": "Attempts per harvest tile before it is given up on, rotating across the Overpass mirrors. An acquisition retry budget, not a model input - it cannot change a result, only whether the download finishes. 12 gives each of the three mirrors four tries, which is what the roads layer needed.",
+      "consumers": [
+        "src/extract/overpass.py"
+      ]
     }
   }
 }

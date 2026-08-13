@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 207 fields are made of
+## What the 208 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 17 | follows from another registry field by identity |
 | `literature` | 28 | a published value, not specific to Newcastle |
 | `assumed` | 89 | chosen without direct empirical support |
-| `definition` | 48 | fixed by the formulation, not an empirical quantity |
+| `definition` | 49 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 194 | usable point value |
+| `active` | 195 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -75,7 +75,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/newcastle/A_supply.json` - 56 fields*
+*`config/registry/newcastle/A_supply.json` - 57 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -98,6 +98,7 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.lightrail.line_speed_kmh` | `40.0` | km_per_hour | `assumed` | 30 - 50 |
 | `A.lightrail.tsp_enabled` | `false` | boolean | `assumed` | `False`, `True` |
 | `A.osm.buildings_margin_m` | `3500.0` | metres | `assumed` | 2000 - 6000 |
+| `A.osm.harvest_attempts` | `12` | count | `definition` | - |
 | `A.osm.harvest_margin_m` | `5000.0` | metres | `assumed` | 2000 - 15000 |
 | `A.osm.harvest_tile_deg` | `0.4` | degrees | `assumed` | 0.2 - 0.8 |
 | `A.parking.capacity_default` | `{"onstreet": 12, "offstreet_public": 60, "offstreet_private": 40}` | spaces_per_facility | `assumed` | 5 - 100 |
@@ -249,6 +250,12 @@ Margin around the observed light rail STOP SET for the CBD building harvest, whi
 ***assumed** · status **active** · DECISIONS.md §9.35*
 
 > **Sweep basis.** chosen. At 3,500 m the derived extent CONTAINS the rectangle it replaced, which needed 3,217 m, so no building previously harvested is lost; all seven pre-registered frontage comparators lie within 1,161 m of a light rail stop.
+
+#### `A.osm.harvest_attempts`
+
+Attempts per harvest tile before it is given up on, rotating across the Overpass mirrors. An acquisition retry budget, not a model input - it cannot change a result, only whether the download finishes. 12 gives each of the three mirrors four tries, which is what the roads layer needed.
+
+***definition** · status **active** · DECISIONS.md §9.35*
 
 #### `A.osm.harvest_margin_m`
 

@@ -3764,6 +3764,69 @@ and nothing here is a result.**
 
 ---
 
+## 9.35 The harvest extent is derived from the study area instead of drawn around it (P4, issue #32)
+
+`src/extract/overpass.py` harvested OSM inside a typed rectangle, and the
+rectangle did not cover the study area. Against `zones_LGA.gpkg` it cut **0.30
+degrees off the west and 0.26 off the east** of the five declared LGAs, leaving
+**87 of 1,500 core SA1s and 31,940 agents - 5.2% of the population - outside the
+road network**. Measured on `results/ride_fix_10pct`, those agents made 3.2x
+longer trips, walked 3.8x further to access a car, and cycled at **36.5% against
+14.8%** - the DECISIONS.md 9.15 signature of no road near home. It survived
+three phases, because a typed rectangle cannot be wrong in a way anyone notices.
+
+### Both extents are now derived
+
+| | derived from | margin |
+|---|---|---|
+| study area | the dissolved LGA boundary in `zones_LGA.gpkg` | `A.osm.harvest_margin_m` |
+| CBD buildings | the observed light rail **stop set** in `A3_stop_extras.csv` | `A.osm.buildings_margin_m` |
+
+The building extent feeds the D1 frontage segments hypothesis B1 is measured on,
+and was the same rectangle issue #34 was filed against. Anchoring it on the stop
+set works because the stops are **observed**, they come from the GTFS feed rather
+than from OSM so they exist before any harvest, and every city with a corridor
+has them. At the declared margin the derived extent **contains** the rectangle it
+replaced - which needed 3,217 m - so no building previously harvested is lost,
+and all seven pre-registered frontage comparators lie within 1,161 m of a stop.
+
+Both derived extents strictly contain their predecessors. The study extent grows
+**2.02x**.
+
+### The growth broke the harvest, and that is now handled rather than worked around
+
+A single Overpass query over the corrected extent returns **504 Gateway Timeout**
+- measured twice on the roads layer, where the smaller rectangle had always
+succeeded. Each layer is now fetched over a grid of tiles no larger than
+`A.osm.harvest_tile_deg` and merged, **de-duplicating by element id**: Overpass
+returns a whole way when any part of it matches a bbox, so a way crossing a tile
+boundary arrives in both tiles and would otherwise be counted twice.
+
+The endpoint also load-sheds unpredictably - one tile failed four consecutive
+times on one mirror and was served in seconds by another - so a request rotates
+across three Overpass mirrors with a declared attempt budget, and a tile that
+does arrive is cached so an interrupted harvest resumes rather than restarting.
+The tile size is declared as a **ceiling measured against what fails**, not a
+chosen number.
+
+### Status
+
+The extent derivation, the tiling and the mirror rotation have landed. **The
+re-harvest, the network rebuild and the pt2matsim re-run have not**, and until
+they do the shipped network is still the one built inside the old rectangle.
+Issue #32 stays open until that batch completes, because #32 is the defect in the
+DATA, not in the code that acquires it.
+
+Sequencing is deliberate: the re-harvest rebuilds the network, which re-runs
+pt2matsim and makes every existing run incomparable (§3.5), and it regenerates
+B2, which #30, #20 and #24 also require. It is done inside that one demand
+rebuild, not standalone, or B2 is rebuilt twice.
+
+**No scenario was run, no target value changed, the 67/143 split is untouched
+and nothing here is a result.**
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
