@@ -35,16 +35,26 @@
   },
   "parking_facilities": 7710,
   "parking_capacity_imputed": 2849,
-  "parking_by_zone": {
-    "outer_free": 7038,
-    "cbd_fringe": 465,
-    "cbd_core": 203,
-    "beach_east": 4
+  "parking_by_price_band": {
+    "free": 2474,
+    "priced_1_to_2": 162,
+    "priced_under_1": 3626,
+    "priced_2_plus": 1448
   },
-  "parking_spaces_by_zone": {
-    "outer_free": 157018,
-    "cbd_fringe": 3584,
-    "cbd_core": 7069,
-    "beach_east": 240
+  "parking_spaces_by_price_band": {
+    "free": 95999,
+    "priced_1_to_2": 7581,
+    "priced_under_1": 40978,
+    "priced_2_plus": 23353
+  },
+  "parking_price": {
+    "threshold_pctile": 90.0,
+    "saturation_pctile": 99.0,
+    "threshold_jobs_km2": 1500.9,
+    "saturation_jobs_km2": 8710.5,
+    "core_zones": 1500,
+    "zones_priced": 162,
+    "core_zones_priced": 150,
+    "price_aud_hr_max": 3.2
   }
 }

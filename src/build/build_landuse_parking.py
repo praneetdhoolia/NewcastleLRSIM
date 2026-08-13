@@ -269,41 +269,137 @@ def build_frontages(poi_rows, bld_rows):
 
 
 # -------------------------------------------------------------- A5 parking
-# City of Newcastle does not publish meter transactions or occupancy. Price and
-# occupancy are therefore constructed by parking zone and flagged as assumed.
-PARK_ZONES = [
-    ('cbd_core',      dict(s=-32.9320, w=151.7680, n=-32.9200, e=151.7880),
-     3.20, 120, [0.20, 0.15, 0.12, 0.10, 0.12, 0.22, 0.45, 0.70, 0.85, 0.90, 0.92,
-                 0.93, 0.94, 0.93, 0.90, 0.85, 0.75, 0.60, 0.48, 0.42, 0.38, 0.33, 0.28, 0.23]),
-    ('cbd_fringe',    dict(s=-32.9380, w=151.7550, n=-32.9180, e=151.7950),
-     2.40, 180, [0.15, 0.12, 0.10, 0.09, 0.10, 0.18, 0.38, 0.62, 0.78, 0.84, 0.86,
-                 0.87, 0.88, 0.87, 0.84, 0.79, 0.68, 0.52, 0.40, 0.34, 0.30, 0.26, 0.22, 0.18]),
-    ('honeysuckle',   dict(s=-32.9300, w=151.7550, n=-32.9200, e=151.7750),
-     2.40, 240, [0.12, 0.10, 0.08, 0.07, 0.08, 0.14, 0.30, 0.52, 0.70, 0.78, 0.82,
-                 0.85, 0.86, 0.84, 0.80, 0.76, 0.70, 0.62, 0.58, 0.55, 0.50, 0.42, 0.32, 0.20]),
-    ('beach_east',    dict(s=-32.9350, w=151.7800, n=-32.9150, e=151.8000),
-     2.00, 240, [0.10, 0.08, 0.07, 0.06, 0.08, 0.16, 0.30, 0.45, 0.58, 0.68, 0.76,
-                 0.82, 0.85, 0.84, 0.80, 0.74, 0.66, 0.56, 0.48, 0.42, 0.36, 0.28, 0.20, 0.14]),
-]
-FREE_OCC = CFG.get('A.parking.free_occupancy_profile')
+# City of Newcastle does not publish meter transactions, tariffs or occupancy,
+# and the OSM `fee=yes` tag cannot stand in for them: 452 of its 472 facilities
+# are University of Newcastle car parks at Callaghan, a median 7.8 km from the
+# centre, while the CBD's own paid parking is untagged (DECISIONS.md §9.31).
+#
+# Price is therefore derived from the CITY'S OWN job-density distribution. This
+# replaced four hand-drawn lat/lon rectangles carrying literal prices, max-stays
+# and occupancy profiles - one of which, `honeysuckle`, was fully contained in
+# the box tested before it and so could never match a facility. A typed
+# rectangle cannot be wrong in a way anyone notices (issue #33, and #32 before
+# it), so there is no extent here: `thr` and `sat` are percentiles of whatever
+# distribution the city's own zones present, and `zone_tier` is a tag any city's
+# zone build produces.
+#
+#     price(zone) = price_aud_hr_max x clamp((dens - thr) / (sat - thr), 0, 1)
+#
+PRICE_THRESHOLD_PCTILE = CFG.get('A.parking.price_threshold_pctile')
+PRICE_SATURATION_PCTILE = CFG.get('A.parking.price_saturation_pctile')
+PRICE_AUD_HR_MAX = CFG.get('A.parking.price_aud_hr_max')
+PRICE_SWEEP = CFG.sweep('A.parking.price_aud_hr_max')
+MAX_STAY_MIN = CFG.get('A.parking.max_stay_min')
+CHARGED_HOURS = CFG.get('A.parking.charged_hours_by_day_type')
+# One assumed profile for every facility. The four priced-zone profiles this
+# replaced were hand-typed per hand-drawn box, reached no consumer and rested on
+# no observation; one assumed profile that says so is worth more than four that
+# imply a measurement nobody made.
+OCC_PROFILE = CFG.get('A.parking.occupancy_profile')
 
 CAP_DEFAULT = CFG.get('A.parking.capacity_default')
 
+ZONES_SA1 = 'data/processed/zones/zones_SA1.gpkg'
+ATTRACTIONS = os.path.join(OUT, 'D1_zone_attractions_SA1.csv')
+
+
+def _pctile(sorted_values, q):
+    """Linear-interpolated percentile over an already-sorted list.
+
+    Written out rather than imported so the price ramp has no dependency on a
+    library's default interpolation method changing under it.
+    """
+    if not sorted_values:
+        raise SystemExit('no zones to take a job-density percentile over')
+    pos = (len(sorted_values) - 1) * (q / 100.0)
+    lo = int(math.floor(pos))
+    hi = min(lo + 1, len(sorted_values) - 1)
+    return sorted_values[lo] + (sorted_values[hi] - sorted_values[lo]) * (pos - lo)
+
+
+def zone_prices():
+    """Price every zone from the city's own core-zone job-density spread.
+
+    Returns (by_sa1, stats). `by_sa1` maps SA1 code -> price in AUD/h; every
+    zone appears, most at 0.00.
+    """
+    rows = list(csv.DictReader(open(ATTRACTIONS, encoding='utf-8')))
+    dens = {}
+    for r in rows:
+        area = float(r['area_km2'])
+        dens[r['SA1_CODE21']] = (float(r['jobs']) / area) if area > 0 else 0.0
+    core = sorted(dens[r['SA1_CODE21']] for r in rows if r['zone_tier'] == 'core')
+    thr = _pctile(core, PRICE_THRESHOLD_PCTILE)
+    sat = _pctile(core, PRICE_SATURATION_PCTILE)
+    if sat <= thr:
+        raise SystemExit(
+            'A.parking.price_saturation_pctile (%g -> %.1f jobs/km2) must exceed '
+            'price_threshold_pctile (%g -> %.1f): the price ramp would divide by a '
+            'non-positive span' % (PRICE_SATURATION_PCTILE, sat,
+                                   PRICE_THRESHOLD_PCTILE, thr))
+    by_sa1, weights = {}, {}
+    for code, d in dens.items():
+        w = min(1.0, max(0.0, (d - thr) / (sat - thr)))
+        weights[code] = w
+        by_sa1[code] = round(PRICE_AUD_HR_MAX * w, 4)
+    out = []
+    for r in rows:
+        code = r['SA1_CODE21']
+        out.append(dict(
+            SA1_CODE21=code, zone_tier=r['zone_tier'], jobs=r['jobs'],
+            area_km2=r['area_km2'], jobs_per_km2=round(dens[code], 2),
+            density_weight=round(weights[code], 6),
+            price_aud_hr=by_sa1[code],
+            price_sweep_low=round(PRICE_SWEEP[0] * weights[code], 4),
+            price_sweep_high=round(PRICE_SWEEP[1] * weights[code], 4),
+            price_source='modelled_from_job_density'))
+    out.sort(key=lambda x: x['SA1_CODE21'])
+    _w('A5_parking_price_zones.csv', out)
+    stats = dict(threshold_pctile=PRICE_THRESHOLD_PCTILE,
+                 saturation_pctile=PRICE_SATURATION_PCTILE,
+                 threshold_jobs_km2=round(thr, 1), saturation_jobs_km2=round(sat, 1),
+                 core_zones=len(core),
+                 zones_priced=sum(1 for v in by_sa1.values() if v > 0),
+                 core_zones_priced=sum(1 for r in rows if r['zone_tier'] == 'core'
+                                       and by_sa1[r['SA1_CODE21']] > 0),
+                 price_aud_hr_max=PRICE_AUD_HR_MAX)
+    return by_sa1, stats
+
+
+def _schedule_text(price):
+    """The charged window, per day type, exactly as the model will apply it."""
+    parts = []
+    for day in ('WEEKDAY', 'SAT', 'SUN'):
+        win = CHARGED_HOURS.get(day)
+        if win:
+            parts.append('%s %02d:00-%02d:00 @ %.2f AUD/hr'
+                         % (day, int(win[0]), int(win[1]), price))
+        else:
+            parts.append('%s free' % day)
+    return '; '.join(parts)
+
+
+def facility_zones(rows):
+    """SA1 of every parking facility, by point in polygon. '' if outside."""
+    import geopandas as gpd
+    z = gpd.read_file(ZONES_SA1).to_crs(CRS_M)[['SA1_CODE21', 'geometry']]
+    xs, ys = zip(*(TO_M(float(r['lon']), float(r['lat'])) for r in rows))
+    pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(xs, ys), crs=CRS_M)
+    j = gpd.sjoin(pts, z, how='left', predicate='within')
+    j = j[~j.index.duplicated(keep='first')].sort_index()
+    return ['' if v != v or v is None else str(v) for v in j['SA1_CODE21']]
+
 
 def build_parking():
+    by_sa1, price_stats = zone_prices()
     src = os.path.join(NET, 'A5_parking_osm.csv')
     rows = list(csv.DictReader(open(src, encoding='utf-8')))
+    sa1 = facility_zones(rows)
+    occ = ';'.join('%.2f' % x for x in OCC_PROFILE)
     out = []
     n_imputed_cap = 0
-    for r in rows:
-        lat, lon = float(r['lat']), float(r['lon'])
-        zone = None
-        for name, bb, price, stay, occ in PARK_ZONES:
-            if bb['s'] <= lat <= bb['n'] and bb['w'] <= lon <= bb['e']:
-                zone, p_rate, p_stay, p_occ = name, price, stay, occ
-                break
-        if zone is None:
-            zone, p_rate, p_stay, p_occ = 'outer_free', 0.0, 0, FREE_OCC
+    for r, code in zip(rows, sa1):
+        p_rate = by_sa1.get(code, 0.0)
         cap = r['capacity_spaces']
         if cap == '':
             cap = CAP_DEFAULT.get(r['type'], 30)
@@ -314,26 +410,32 @@ def build_parking():
             cap_src = 'osm'
         priced = 1 if (p_rate > 0 and r['type'] != 'offstreet_private') else 0
         rec = dict(r)
-        rec.update(parking_zone=zone, capacity_spaces=cap, capacity_source=cap_src,
+        rec.update(parking_zone=code or 'outside_zone_system',
+                   capacity_spaces=cap, capacity_source=cap_src,
                    is_priced=priced,
                    price_aud_hr=p_rate if priced else 0.0,
-                   price_source='assumed' if priced else 'assumed_free',
-                   price_sweep_low=round(p_rate * 0.5, 2), price_sweep_high=round(p_rate * 1.5, 2),
-                   max_stay_min_modelled=p_stay if priced else 0,
-                   price_schedule='Mon-Fri 08:00-18:00 @ %.2f AUD/hr; Sat 08:00-13:00 @ %.2f; else free'
-                                  % (p_rate, p_rate) if priced else 'free',
-                   occupancy_by_hour=';'.join('%.2f' % x for x in p_occ),
+                   price_source='modelled_from_job_density' if priced else 'modelled_free',
+                   price_sweep_low=round(PRICE_SWEEP[0] * p_rate / PRICE_AUD_HR_MAX, 4)
+                                   if priced else 0.0,
+                   price_sweep_high=round(PRICE_SWEEP[1] * p_rate / PRICE_AUD_HR_MAX, 4)
+                                    if priced else 0.0,
+                   max_stay_min_modelled=MAX_STAY_MIN if priced else 0,
+                   price_schedule=_schedule_text(p_rate) if priced else 'free',
+                   occupancy_by_hour=occ,
                    occupancy_source='assumed',
                    walk_time_to_frontages_s='',
                    year=2026)
         out.append(rec)
     _w('A5_parking_facilities.csv', out)
-    tot = collections.Counter()
     capsum = collections.Counter()
+    banded = collections.Counter()
     for r in out:
-        tot[r['parking_zone']] += 1
-        capsum[r['parking_zone']] += int(r['capacity_spaces'])
-    return len(out), n_imputed_cap, dict(tot), dict(capsum)
+        band = 'free' if not r['is_priced'] else (
+            'priced_under_1' if r['price_aud_hr'] < 1.0 else
+            'priced_1_to_2' if r['price_aud_hr'] < 2.0 else 'priced_2_plus')
+        banded[band] += 1
+        capsum[band] += int(r['capacity_spaces'])
+    return len(out), n_imputed_cap, dict(banded), dict(capsum), price_stats
 
 
 def _w(name, rows):
@@ -373,6 +475,7 @@ if __name__ == '__main__':
             # (DECISIONS.md §9.2). CLAUDE.md forbids it outright.
             for k in sorted(set(f['street_name'] for f in fr))},
         'parking_facilities': pk[0], 'parking_capacity_imputed': pk[1],
-        'parking_by_zone': pk[2], 'parking_spaces_by_zone': pk[3]}
+        'parking_by_price_band': pk[2], 'parking_spaces_by_price_band': pk[3],
+        'parking_price': pk[4]}
     json.dump(rep, open(os.path.join(OUT, '_landuse_report.json'), 'w'), indent=2)
     print(json.dumps(rep, indent=2))

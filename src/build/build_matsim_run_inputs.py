@@ -78,6 +78,18 @@ BETA_BIKE_MODE = CFG.get('C.time_weights.beta_bike_mode')
 # matsim_param binding, and the config template wrote LITERALS instead - so
 # seven declared, swept values reached nothing, the issue #12 / #21 defect class
 # again. Resolved here and substituted into the template (DECISIONS.md 9.28).
+# Parking. The package has declared a price per facility since P1 and no script
+# read it, so a car has always parked for free (issue #33, DECISIONS.md 9.31).
+# The price of a ZONE is set in build_landuse_parking.py from the city's own job
+# density; what happens here is the join from that to the run network's links,
+# done once per scenario so Java never does spatial work.
+PARK_PRICE_ZONES = 'data/processed/landuse/A5_parking_price_zones.csv'
+PARK_PRICE_FILE = 'parking_prices.tsv'
+PARK_MAX_STAY_MIN = CFG.get('A.parking.max_stay_min')
+PARK_CHARGED_HOURS = CFG.get('A.parking.charged_hours_by_day_type')
+PARK_CHARGED_MODES = ','.join(CFG.get('A.parking.charged_modes'))
+PARK_EXEMPT_ACTS = ','.join(CFG.get('A.parking.exempt_activity_types'))
+
 MC_MODES = ','.join(CFG.get('RUN.mode_choice.modes'))
 MC_CHAIN_BASED = ','.join(CFG.get('RUN.mode_choice.chain_based_modes'))
 MC_CAR_AVAIL = 'true' if CFG.get('RUN.mode_choice.consider_car_availability') else 'false'
@@ -372,6 +384,77 @@ def patch_network(src_net, dst_net, patches, drop_turns):
     return dict(applied)
 
 
+ZONES_SA1 = 'data/processed/zones/zones_SA1.gpkg'
+
+
+def write_parking_prices(net_path, dst_path):
+    """Join the run network's car links to the zone parking price.
+
+    A link is priced by the zone its midpoint falls in. Only PRICED links are
+    written - roughly 22k of the run network's ~144k car links - because a link
+    absent from the table is free, and writing 144k rows to say so 30 times over
+    is bytes for nothing.
+
+    The join happens here rather than in Java for the reason CLAUDE.md gives:
+    the price of a place has to be derived from a boundary, and a boundary is a
+    build-time object. Java gets two columns.
+    """
+    import geopandas as gpd
+
+    prices = {}
+    for r in csv.DictReader(open(PARK_PRICE_ZONES, encoding='utf-8')):
+        p = float(r['price_aud_hr'])
+        if p > 0:
+            prices[r['SA1_CODE21']] = p
+    nodes, links = {}, []
+    with gzip.open(net_path, 'rb') as fh:
+        for _, el in ET.iterparse(fh, events=('end',)):
+            if el.tag == 'node':
+                nodes[el.get('id')] = (float(el.get('x')), float(el.get('y')))
+                el.clear()
+            elif el.tag == 'link':
+                if 'car' in el.get('modes', '').split(','):
+                    links.append((el.get('id'), el.get('from'), el.get('to')))
+                el.clear()
+    if not links:
+        raise SystemExit('%s carries no car links' % net_path)
+    xs = [(nodes[a][0] + nodes[b][0]) / 2.0 for _, a, b in links]
+    ys = [(nodes[a][1] + nodes[b][1]) / 2.0 for _, a, b in links]
+    zones = gpd.read_file(ZONES_SA1).to_crs('EPSG:28356')[['SA1_CODE21', 'geometry']]
+    pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(xs, ys), crs='EPSG:28356')
+    j = gpd.sjoin(pts, zones, how='left', predicate='within')
+    j = j[~j.index.duplicated(keep='first')].sort_index()
+    codes = list(j['SA1_CODE21'])
+
+    rows = []
+    for (link_id, _, _), code in zip(links, codes):
+        # NaN for a link outside the zone system - beyond the study area, and
+        # free, which is what an absent row already means.
+        price = prices.get('' if code != code or code is None else str(code))
+        if price:
+            rows.append((link_id, price))
+    rows.sort(key=lambda r: r[0])
+    with open(dst_path, 'w', encoding='utf-8', newline='\n') as fh:
+        fh.write('link_id\tprice_aud_hr\n')
+        for link_id, price in rows:
+            fh.write('%s\t%.4f\n' % (link_id, price))
+    return dict(car_links=len(links), priced_links=len(rows),
+                priced_zones=len(prices))
+
+
+def parking_window(day):
+    """The charged window for one day type, as (start_h, end_h).
+
+    A day type with no window - Sunday - resolves to (0, 0), and the handler
+    reads an end at or before the start as `charge nothing`. Expressing a free
+    day that way rather than with a separate flag keeps one code path.
+    """
+    win = PARK_CHARGED_HOURS.get(day)
+    if not win:
+        return 0.0, 0.0
+    return float(win[0]), float(win[1])
+
+
 def scoring_from_c1(c1, purpose_share):
     """Translate the C1 nested-logit parameters into MATSim scoring.
 
@@ -543,6 +626,14 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t<module name="transitRouter">
 \t\t<param name="maxBeelineWalkConnectionDistance" value="{tr_max_beeline_walk}" />
 \t</module>
+\t<module name="parking">
+\t\t<param name="priceFile" value="{park_price_file}" />
+\t\t<param name="maxStayMinutes" value="{park_max_stay_min}" />
+\t\t<param name="chargedStartHour" value="{park_start_h}" />
+\t\t<param name="chargedEndHour" value="{park_end_h}" />
+\t\t<param name="chargedModes" value="{park_charged_modes}" />
+\t\t<param name="exemptActivityTypes" value="{park_exempt_acts}" />
+\t</module>
 \t<module name="routing">
 \t\t<param name="networkModes" value="{rt_network_modes}" />
 \t\t<parameterset type="teleportedModeParameters">
@@ -688,11 +779,14 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
         net_dst = os.path.join(OUT, sid, 'network.xml.gz')
         touched = patch_network(os.path.join(sched_dir, 'network.xml.gz'),
                                 net_dst, pat, drop)
+        price_dst = os.path.join(OUT, sid, PARK_PRICE_FILE)
+        parking = write_parking_prices(net_dst, price_dst)
         entry = dict(road_variant=ref, patch_rows=len(pat),
-                     links_touched=touched, days={})
+                     links_touched=touched, parking=parking, days={})
         for d in day_types:
             dst = os.path.join(OUT, sid, d)
             counts = split_schedule(sched_dir, dst, d)
+            start_h, end_h = parking_window(d)
             cfg = CONFIG.format(
                 seed=seed, threads=threads,
                 network=os.path.relpath(net_dst, dst).replace('\\', '/'),
@@ -714,15 +808,21 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
                 mc_proba_single=MC_PROBA_SINGLE, mc_coord_dist=MC_COORD_DIST,
                 rt_network_modes=RT_NETWORK_MODES, rt_walk_speed=RT_WALK_SPEED,
                 rt_bike_speed=RT_BIKE_SPEED, rt_beeline=RT_BEELINE,
-                tr_max_beeline_walk=TR_MAX_BEELINE_WALK)
+                tr_max_beeline_walk=TR_MAX_BEELINE_WALK,
+                park_price_file=os.path.relpath(price_dst, dst).replace('\\', '/'),
+                park_max_stay_min=PARK_MAX_STAY_MIN,
+                park_start_h=start_h, park_end_h=end_h,
+                park_charged_modes=PARK_CHARGED_MODES,
+                park_exempt_acts=PARK_EXEMPT_ACTS)
             with open(os.path.join(dst, 'config.xml'), 'w', encoding='utf-8',
                       newline='\n') as f:
                 f.write(cfg)
             entry['days'][d] = counts
         report['scenarios'][sid] = entry
-        print('   %-5s %-38s %s' % (sid, ref,
+        print('   %-5s %-38s %s | parking %d/%d links priced' % (sid, ref,
               ' '.join('%s:%d routes/%d dep' % (d, v['routes_kept'], v['departures'])
-                       for d, v in sorted(entry['days'].items()))), flush=True)
+                       for d, v in sorted(entry['days'].items())),
+              parking['priced_links'], parking['car_links']), flush=True)
 
     json.dump(report, open(os.path.join(OUT, '_run_inputs_report.json'), 'w'),
               indent=2)

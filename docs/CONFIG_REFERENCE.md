@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 186 fields are made of
+## What the 193 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -35,12 +35,12 @@ Three things are refused at every layer:
 | `measured` | 15 | computed from observed data in this package |
 | `derived` | 16 | follows from another registry field by identity |
 | `literature` | 29 | a published value, not specific to Newcastle |
-| `assumed` | 80 | chosen without direct empirical support |
-| `definition` | 43 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 86 | chosen without direct empirical support |
+| `definition` | 44 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 173 | usable point value |
+| `active` | 180 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -75,7 +75,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/newcastle/A_supply.json` - 40 fields*
+*`config/registry/newcastle/A_supply.json` - 47 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -97,7 +97,14 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.lightrail.line_speed_kmh` | `40.0` | km_per_hour | `assumed` | 30 - 50 |
 | `A.lightrail.tsp_enabled` | `false` | boolean | `assumed` | `False`, `True` |
 | `A.parking.capacity_default` | `{"onstreet": 12, "offstreet_public": 60, "offstreet_private": 40}` | spaces_per_facility | `assumed` | 5 - 100 |
-| `A.parking.free_occupancy_profile` | `[0.1, 0.08, 0.07, 0.06, 0.08, 0.14, 0.28, 0.46, 0.6, 0.66, 0.7, 0.72, 0.73, 0.72, 0.7, 0.66, 0.58, 0.46, 0....` | occupancy_ratio_by_hour | `assumed` | plus/minus 25% |
+| `A.parking.charged_hours_by_day_type` | `{"WEEKDAY": [8.0, 18.0], "SAT": [8.0, 13.0], "SUN": null}` | hour_of_day | `assumed` | plus/minus 25% |
+| `A.parking.charged_modes` | `["car"]` | enum | `definition` | - |
+| `A.parking.exempt_activity_types` | `["home"]` | enum | `assumed` | `['home']`, `[]` |
+| `A.parking.max_stay_min` | `120.0` | minutes | `assumed` | 60 - 180 |
+| `A.parking.occupancy_profile` | `[0.1, 0.08, 0.07, 0.06, 0.08, 0.14, 0.28, 0.46, 0.6, 0.66, 0.7, 0.72, 0.73, 0.72, 0.7, 0.66, 0.58, 0.46, 0....` | occupancy_ratio_by_hour | `assumed` | plus/minus 25% |
+| `A.parking.price_aud_hr_max` | `3.2` | AUD_per_hour | `assumed` | 1.6 - 4.8 |
+| `A.parking.price_saturation_pctile` | `99.0` | percentile | `assumed` | 95 - 99.5 |
+| `A.parking.price_threshold_pctile` | `90.0` | percentile | `assumed` | 80 - 95 |
 | `A.road.capacity_default` | `{"motorway": 2000, "trunk": 1800, "primary": 1600, "secondary": 1400, "tertiary": 1200, "unclassified": 100...` | vehicles_per_hour_per_lane | `assumed` | 300 - 2200 |
 | `A.road.lanes_default` | `{"motorway": 2, "trunk": 2, "primary": 2, "secondary": 1, "tertiary": 1, "unclassified": 1, "residential": ...` | lanes_per_direction | `assumed` | 1 - 3 |
 | `A.road.speed_default` | `{"motorway": 100, "trunk": 80, "primary": 60, "secondary": 60, "tertiary": 50, "unclassified": 50, "residen...` | km_per_hour | `assumed` | 10 - 110 |
@@ -224,11 +231,61 @@ Fallback capacity where a parking facility carries none. 4,861 of 7,710 faciliti
 
 ***assumed** · status **active** · DECISIONS.md §6*
 
-#### `A.parking.free_occupancy_profile`
+#### `A.parking.charged_hours_by_day_type`
 
-Hourly occupancy profile for free parking. Assumed: parking meter transactions were not obtained (DECISIONS.md 13 priority 6-adjacent).
+The window in which parking is charged, per day type. Assumed, and stated rather than left implicit: A5_parking_facilities.csv already asserted 'Mon-Fri 08:00-18:00; Sat 08:00-13:00; else free' in its price_schedule string, where it reached nothing. Without a window, SUN - one of the three day types - would be charged at weekday meter rates.
+
+***assumed** · status **active** · DECISIONS.md §9.31 · MATSim `parking.chargedStartHour, parking.chargedEndHour`*
+
+#### `A.parking.charged_modes`
+
+Leg modes that occupy a parking space and are charged for it. Fixed by the formulation, not an empirical quantity: only the driver parks the vehicle. Charging `ride` as well would bill one car twice - the same double-count DECISIONS.md 9.17 removed from the per-km rate.
+
+***definition** · status **active** · DECISIONS.md §9.31 · MATSim `parking.chargedModes`*
+
+#### `A.parking.exempt_activity_types`
+
+Activity types at which a parked car is not charged. Home is exempt because residential parking is off-street private or permit, and because charging it would levy the max-stay cap on every agent who drives home each night - a standing penalty on living in a dense zone rather than a price on a travel choice. Activity types are generic to any city's chain builder, so this carries no place name.
+
+***assumed** · status **active** · DECISIONS.md §9.31 · MATSim `parking.exemptActivityTypes`*
+
+#### `A.parking.max_stay_min`
+
+Maximum charged parking duration. DOUBLES AS THE CHARGE CAP: the charge is price x min(duration, max_stay), so a stay longer than this is UNDER-charged rather than penalised. That is a declared modelling choice, not an oversight - modelling over-stay enforcement would need an infringement rate nobody has measured here.
+
+***assumed** · status **active** · DECISIONS.md §9.31 · MATSim `parking.maxStayMinutes`*
+
+> **Sweep basis.** +/-50% of the point value.
+
+#### `A.parking.occupancy_profile`
+
+Hourly occupancy profile, applied to EVERY parking facility. Assumed: parking meter transactions and occupancy counts were not obtained (DECISIONS.md 13 priority 6-adjacent). It replaced four hand-typed per-zone profiles that rested on no observation and reached no consumer (DECISIONS.md 9.31).
 
 ***assumed** · status **active** · DECISIONS.md §6*
+
+#### `A.parking.price_aud_hr_max`
+
+Parking price in the densest employment zone, in 2026 AUD per hour. The ceiling of the density ramp, not a citywide rate.
+
+***assumed** · status **active** · DECISIONS.md §9.31*
+
+> **Sweep basis.** +/-50% of the point value. Assumed, NOT observed: City of Newcastle publishes no meter tariff in this package, and the OSM fee=yes tag is unusable - 452 of its 472 facilities are University of Newcastle car parks (DECISIONS.md 9.31).
+
+#### `A.parking.price_saturation_pctile`
+
+Job-density percentile at which the parking price reaches price_aud_hr_max. Newcastle p99 = 8,710.5 jobs/km2. Between threshold and saturation the price rises linearly; above saturation it is clamped.
+
+***assumed** · status **active** · DECISIONS.md §9.31*
+
+> **Sweep basis.** chosen. Must exceed price_threshold_pctile; the builder rejects an inversion rather than dividing by a negative span.
+
+#### `A.parking.price_threshold_pctile`
+
+Job-density percentile at which paid parking begins. Read against the CITY'S OWN core-zone job-density distribution, so a new city computes its own threshold and no extent is ever typed. Newcastle p90 = 1,500.9 jobs/km2, which prices 150 of 1,500 core zones.
+
+***assumed** · status **active** · DECISIONS.md §9.31*
+
+> **Sweep basis.** chosen, not observed: no Newcastle meter-transaction or paid-zone boundary dataset exists to fit the threshold against. The range spans the top quintile to the top twentieth of zones.
 
 #### `A.road.capacity_default`
 

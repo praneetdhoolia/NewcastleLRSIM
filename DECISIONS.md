@@ -3232,6 +3232,187 @@ free to move. **Nothing was run.**
 
 ---
 
+## 9.31 A car stops parking for free, and the price stops being a drawn rectangle (P4 stage 13, issue #33)
+
+Parking price is the prime competitive lever between car and public transport
+for a city-centre trip, and this study is about city-centre access. The model
+did not have one. Two defects met in the same file.
+
+### The price was declared and reached nothing
+
+`data/processed/landuse/A5_parking_facilities.csv` has carried `is_priced`
+(646 of 7,710 facilities), `price_aud_hr`, `price_sweep_low`/`_high`,
+`max_stay_min_modelled` and a `price_schedule` string since P1. **No script read
+any of them.** `check_package.py` asserted only that the file existed. This is
+the "declared, swept value that reaches nothing" class on its **sixth** instance
+— after #12, #21, the walk decay, the gradient, and the seven config-template
+literals at §9.28.
+
+### The spatial basis was four hand-drawn rectangles, and one could never match
+
+`build_landuse_parking.py` defined `PARK_ZONES`: four lat/lon boxes with place
+names, each carrying a literal price, a literal max-stay and a hand-typed
+24-value occupancy profile.
+
+| zone | box (s, w, n, e) | AUD/h | max stay | facilities matched |
+|---|---|---|---|---|
+| `cbd_core` | -32.9320, 151.7680, -32.9200, 151.7880 | 3.20 | 120 | 203 |
+| `cbd_fringe` | -32.9380, 151.7550, -32.9180, 151.7950 | 2.40 | 180 | 465 |
+| `honeysuckle` | -32.9300, 151.7550, -32.9200, 151.7750 | 2.40 | 240 | **0** |
+| `beach_east` | -32.9350, 151.7800, -32.9150, 151.8000 | 2.00 | 240 | 4 |
+
+`honeysuckle` is **fully contained in `cbd_fringe` on all four edges**, and
+`cbd_fringe` is tested first in the same first-match-wins loop. It could never
+match a facility and never did. A declared parking zone with its own price,
+max-stay and occupancy profile, geometrically dead, unnoticed for three phases —
+because a typed rectangle cannot be wrong in a way anyone notices. That is the
+#32 lesson and the CLAUDE.md hard constraint, both restated by the same file.
+
+### What was not used
+
+OSM `fee=yes` looks like observed pricing. **452 of the 472 tagged facilities
+are University of Newcastle car parks** at Callaghan, a median 7.8 km from the
+centre; the CBD's own paid parking is untagged. Reproduced on
+`data/processed/network/A5_parking_osm.csv` before anything was built on it,
+per the rule that a defect is reproduced before it is attributed.
+
+### The replacement: the city's own job-density distribution
+
+    price(zone) = A.parking.price_aud_hr_max
+                  x clamp((dens - thr) / (sat - thr), 0, 1)
+
+`dens` is jobs per km² from `data/processed/landuse/D1_zone_attractions_SA1.csv`;
+`thr` and `sat` are percentiles of **that city's own core-zone distribution**, so
+a new city computes its own thresholds and no extent is ever typed. `zone_tier`
+is a tag any city's zone build produces.
+
+| quantity | value |
+|---|---|
+| core-zone job density p50 | 103.0 jobs/km² |
+| p90 → `thr` | 1,500.9 jobs/km² |
+| p99 → `sat` | 8,710.5 jobs/km² |
+| core zones priced | 150 of 1,500 |
+| all zones priced | 162 of 1,701 |
+| car links priced (per scenario) | 22,353 of 143,891 |
+| car links inside any SA1 | 95.7% — the rest are outside the zone system and free |
+
+New fields, all `assumed` and swept, in `config/registry/newcastle/A_supply.json`:
+`A.parking.price_threshold_pctile` 90 [80, 95], `A.parking.price_saturation_pctile`
+99 [95, 99.5], `A.parking.price_aud_hr_max` 3.20 [1.60, 4.80],
+`A.parking.max_stay_min` 120 [60, 180], `A.parking.charged_hours_by_day_type`
+(WEEKDAY 08–18, SAT 08–13, SUN none) and `A.parking.exempt_activity_types`
+`["home"]`. `A.parking.charged_modes` is `definition` — only the driver parks.
+`A.parking.free_occupancy_profile` became `A.parking.occupancy_profile`: it now
+applies to every facility, because the four per-zone profiles it replaced were
+hand-typed per drawn box, rested on no observation and reached no consumer.
+
+**The charge cap.** `max_stay_min` doubles as the cap — `price × min(duration,
+max_stay)`. This **under-charges** a long stay. Declared, not hidden: modelling
+over-stay properly needs an infringement rate nobody has measured here.
+
+### Two additions beyond the formula, both deliberate
+
+**Charged hours.** SUN is one of three day types and charging Sunday at weekday
+meter rates would be wrong. The assumption already existed — A5's own
+`price_schedule` string asserted "Mon-Fri 08:00-18:00; Sat 08:00-13:00; else
+free" where it reached nothing. It is now a swept registry field, and the
+handler charges the overlap of the parking spell with that window.
+
+**Home is exempt.** A car is parked from arrival until the *next car departure*,
+so without an exemption every agent who drives home is charged the max-stay cap
+every night for living in a dense zone — a standing levy on city-centre
+residence rather than a price on a travel choice. Swept against the empty set.
+
+### How it reaches the model
+
+`ParkingChargeHandler` (`src/java/wickham/`) emits a `PersonMoneyEvent` per
+parking spell, on the precedent of `RideAvailabilityModesCalculator`. A spell
+runs from a **car arrival to the next car departure**, not merely for the
+following activity, so an agent who parks and walks onward is charged for the
+whole spell. Charges accumulate during the mobsim and are emitted in
+`notifyAfterMobsim` — the pattern MATSim's roadpricing contrib uses, because
+emitting from inside a handler re-enters the events manager. **roadpricing is
+not in the pinned jar** (only its DTD ships), so the pattern is reproduced, not
+reused. `ParkingConfigGroup` makes `parking` a real typed module, so an
+unrecognised parameter fails the run and the module appears in the output config
+dump. The link→price table is built once per scenario by
+`build_matsim_run_inputs.py`; **Java does no spatial work at all**.
+
+### Reach established by changing values, not by reading `consumers`
+
+`consumers` is a read log and cannot prove reach. Four smoke arms on S0
+(2 iterations at 1% — plumbing tests, **not results**, and no mode share from
+them is quoted anywhere):
+
+| arm | parking charges | total AUD | largest single |
+|---|---|---|---|
+| WEEKDAY, `price_aud_hr_max` 3.20 | 526 | −721.42 | −6.40 |
+| WEEKDAY, `price_aud_hr_max` 1.60 | 527 | −361.62 | −3.20 |
+| SUN, 3.20 | **0** | 0.00 | — |
+
+Halving the price halved the total (ratio 0.5013; the residual is one extra
+charged agent from replanning). The largest single charge is exactly
+`price_max × 2 h`, the cap. Sunday charges nothing. Charges are 1:1 with car
+arrivals at the charged link.
+
+**The reach test caught a real defect.** The first arm charged 641 spells, **267
+of them at links where the person's real activity was home** — the exemption was
+matching nothing. `routing.accessEgressType` is `accessEgressModeToLink` by
+MATSim's own default, so the activity immediately following a car arrival is the
+synthetic `car interaction`, not the destination. The handler now skips stage
+activities via `TripStructureUtils.isStageActivityType` and waits for the real
+one. Charges fell 641 → 526 and `home` disappeared from the charged set. Had
+this shipped, every agent living in a dense zone would have paid a nightly levy
+that no observation supports.
+
+### What this formula gets wrong, measured rather than supposed
+
+Job density alone does not distinguish a city centre from a suburban shopping
+centre. The ramp prices **Westfield Kotara (8,709 jobs/km²), Stockland Glendale
+(13,338) and Charlestown** at or near the 3.20 maximum, and parking at all three
+is free in reality.
+
+A contiguity refinement was built and **rejected on the evidence**. Taking the
+zones above `thr` and joining those that share a boundary gives a strikingly
+bimodal result — one cluster of **80 zones / 62,770 jobs** centred on Newcastle –
+Cooks Hill, and 49 clusters of **1 to 5 zones**, with nothing in between. A
+minimum-cluster-size rule would therefore separate the centre cleanly. It was
+not adopted because it also excludes **the University of Newcastle (a singleton,
+3,015 mapped facilities) and John Hunter Hospital**, the two places outside the
+centre that verifiably *do* charge. It trades one error for another, so it buys
+complexity rather than correctness. The diagnostic is recorded here so a future
+decision starts from the measurement.
+
+**Bearing on the study.** Parking price is identical across S0–S6 — E1's parking
+variants change corridor kerbside *supply*, not price — so a mispriced zone
+largely differences out of the scenario comparison. It does affect the **base
+calibration**, where the ASCs would absorb part of it. That is the reason to fix
+it before deliverable 5, not after.
+
+### Not fixed here, filed instead
+
+`build_landuse_parking.py` carries a **fifth** hand-drawn rectangle,
+`CBD = dict(s=-32.9450, w=151.7250, n=-32.9050, e=151.8050)`, driving the D1
+frontage segments that hypothesis B1 rests on. Different blast radius, its own
+decision. Noted for calibration: car still carries **no**
+`dailyMonetaryConstant` and pays 0.18 utils/km against Melbourne AToM's
+estimated 0.365.
+
+### Guarded structurally, not by memory
+
+`check_package.py` gains **187 checks** (1,248 → 1,435 passing, 1 standing
+warning). The one that matters re-derives **every zone price from the registry
+and the city's own job-density percentiles** and compares it to the shipped
+artefact: a typed price, a re-drawn extent or a hand-edited artefact all fail it.
+The four dead zone names are asserted absent from *code* — comments are stripped
+first, deliberately, because a defect that stays explained does not come back by
+accident.
+
+**No scenario was run, no target value changed, the 67/143 split is untouched
+and nothing here is a result.**
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -3730,6 +3911,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-13 | **P4 stage 13 - a car stops parking for free, and the price stops being a drawn rectangle (§9.31, issue #33).** Parking price is the prime competitive lever between car and PT for a city-centre trip, and this study is about city-centre access. `A5_parking_facilities.csv` has declared `is_priced`, `price_aud_hr` and a sweep on both since P1 and **no script read any of it** - the "declared value that reaches nothing" class on its **sixth** instance. Its spatial basis was four hand-drawn lat/lon rectangles with place names, literal prices and hand-typed occupancy profiles, and **one of the four, `honeysuckle`, was fully contained in the box tested before it and could never match a facility** - dead for three phases, because a typed rectangle cannot be wrong in a way anyone notices. Price is now derived from **the city's own core-zone job-density distribution** (p90 = 1,500.9 and p99 = 8,710.5 jobs/km², pricing 150 of 1,500 core zones and 22,353 of 143,891 car links), so a new city computes its own thresholds and no extent is typed. OSM `fee=yes` was reproduced and rejected as the basis: **452 of its 472 facilities are University of Newcastle car parks**. The charge reaches the model through `ParkingChargeHandler`, which bills a car from arrival to the next car departure as a `PersonMoneyEvent`; roadpricing is **not** in the pinned jar, so its deferred-emission pattern is reproduced rather than reused, and Java does no spatial work. **Reach was established by changing values, not by reading `consumers`** - halving `price_aud_hr_max` halved the charges (−721.42 → −361.62 AUD), Sunday charges nothing, and the largest single charge is exactly the max-stay cap. **That test caught a real defect**: `accessEgressType` inserts a `car interaction` activity after every car arrival, so the `home` exemption matched nothing and **267 of the first 641 charges were levied at people's own homes** - a nightly penalty on living in a dense zone that no observation supports. What the formula still gets wrong is measured rather than supposed: it prices Kotara, Glendale and Charlestown at or near the maximum where parking is free, and a contiguity refinement that would separate the centre cleanly (one 80-zone cluster against 49 of 1–5) was **built and rejected** because it also excludes the University and John Hunter Hospital, the two places outside the centre that verifiably do charge. Price is common to all scenarios, so it largely differences out of the S-vs-S comparison and bites on the base calibration instead. `check_package.py` 1,248 → **1,435** passing, the key check re-deriving every zone price from the registry so a typed price cannot survive. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 10 - the passenger stops outrunning the driver (§9.26, issue #28).** `ride` was routed over the network on **free-flow** times because it is in `routing.networkModes` but is not the qsim `mainMode`. `WickhamControler` now binds its travel time to `networkTravelTime()` and its disutility to the car factory. Verified against a like-for-like 10% baseline differing only in the controler: **car 32.54 -> 52.30%, ride 50.03 -> 29.45%**, total absolute gap to target **84.2 -> 44.6 pp** - the largest single correction this model has had, and it came from a defect rather than a constant. It confirms §9.25's claim that the symptom was **two** inversions: car↔ride moved ±20 points while walk↔bike moved -0.03/+0.81, untouched. **The defect is reduced, not eliminated** - ride is still 1.01-1.11x faster at matched distance, worst on short trips, so #28 stays open. The audit's headline was also corrected: the original 13% was an aggregate confounded by trip-length composition; stratified it is 4-8%, present in every bin. A first verification at 1% was **discarded as uninterpretable** - §15's storage floor produces spurious spillback that inflates car delay while teleported ride is immune, so a cross-fraction comparison is invalid. Two reproducibility defects exposed and closed: **nothing compiled the committed Java**, so a fresh clone could not run; and a run record could not say which controler produced it, so re-running would have served pre-fix results silently - records now carry `controler_sha256` and the harness refuses to resume across a change. `prune_run.py` drops MATSim's per-iteration scratch, **95% of a run's bytes** and read by nothing, reclaiming 36.6 GiB. **Not a result:** 250 iterations is short of relaxation, demand still lacks through traffic and freight, no target was fitted, the 67/143 split is untouched and no holdout row was opened. |
 | 2026-08-12 | **P4 stage 8 - own realtime collection dropped, and the published catalogue assessed instead (§9.23).** A GTFS-Realtime collector was built and **reverted in full** once an Open Data Hub API key made the 230-dataset catalogue assessable. TfNSW's own **Historical GTFS Realtime** archive was verified against the live API and carries **Metro and Ferry only** - controls return files, every light rail and bus naming returns none - so it cannot backfill Newcastle, and §7.2's contingency for the SCATS refusal is recorded as an **open gap**. What the catalogue does settle, verified against the data rather than the titles: **Traffic Lights Location** matches **all 14 corridor intersections within 60 m**, supplies the `scats_site_id` that `A2_signal_control_corridor.csv` declares but leaves empty, and dates **8 of the 14 as 2018 light-rail installations** - so the pre-intervention corridor had 6 signals, not 14, which is an observed basis for a counterfactual now assumed; **SFM22** gives origin-destination freight for issue #24; the **GTFS reference tables** carry Hunter Line running times bearing on the assumed era-1 constants; **school and public holiday** dates stratify the dated RMS counts. Recorded as *not* settled: no SCATS phasing exists in the catalogue, the kerbside and lane-width datasets are **Sydney-only** so issue #27 is untouched, JTW 2016 is withdrawn by TfNSW, and Opal tap data is **not journey-linked** so deliverable 8 keeps its fallback. **No value was acquired, changed or registered** - this is an assessment. No parameter value changed, no target value changed, the 67/143 split is untouched and no scenario was run. |
 | 2026-08-11 | **The input registry (§15).** Every value the model consumes that is not read from an immutable raw download is now declared in `config/registry/` with its units, its provenance and either a sweep range or an explicit rule holding it fixed — **123 fields**, against 316 module-level constants of which exactly one carried a machine-readable source label. Proposal §8.1 becomes a schema constraint rather than a discipline: `assumed` without a sweep does not validate. The three unobtained inputs carry `value: null` and the resolver **raises** rather than returning a point value, so §0 and §13 are enforced structurally; the §8.5 mode constants are `held_fixed` and no overlay, environment variable or flag can move them. Two factors that governed every P4 result were found set in code with no rationale and no range — `flowCapacityFactor` (derived, and now stated as such) and `storageCapacityFactor` (assumed, exponent swept 0.75–1.0, and an open risk at 1% because MATSim floors link storage at one vehicle). Outputs are declared to the same standard: `_run.json`, `_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema, and a fit block that does not name its target ids fails its contract. `docs/CONFIG_REFERENCE.md` is generated and checked for staleness. `check_package.py` 860 → **908 checks**, 1 standing warning. The build layer is declared but not yet migrated and is pinned to the registry by a drift test, which caught four transcription errors on its first run. No parameter value was changed, no target value was changed, the 67/143 split is untouched and no scenario was run. |

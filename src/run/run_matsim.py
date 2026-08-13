@@ -121,6 +121,20 @@ def build_config(src_dir, run_dir, scenario, day, fraction, iterations, threads,
                 fwd(os.path.join(src_dir, 'transitSchedule.xml.gz')))
     text = setp(text, 'vehiclesFile', fwd(veh_dst))
     text = setp(text, 'inputPlansFile', fwd(plans_dst))
+    # The parking price table sits beside the scenario network, one per
+    # scenario, and the committed config names it relatively. A run directory is
+    # not beside the scenario, so absolutise it like every other input. Checked
+    # rather than assumed: `setp` is a silent no-op on a param it cannot find,
+    # and a config that lost its price file would run with free parking and look
+    # exactly like a correct run (issue #33).
+    if 'name="priceFile"' in text:
+        price_src = os.path.join(base, 'parking_prices.tsv')
+        if not os.path.exists(price_src):
+            raise SystemExit(
+                'the config declares a parking price file but %s does not exist. '
+                'Regenerate the run inputs with build_matsim_run_inputs.py.'
+                % price_src)
+        text = setp(text, 'priceFile', fwd(price_src))
     # Both factors are registry fields, and NEITHER is a choice. flowCapacityFactor
     # equals the sample fraction, the standard MATSim scaling rule; storage equals
     # flow, which MATSim enforces - it throws when the two differ by more than

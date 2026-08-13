@@ -427,10 +427,10 @@ Appendix A of the proposal.
 | `levels` | empty |  | 0/401 |
 | `name` | str | Carpark 2 | 14/401 |
 | `scenario_variant_ref` | str | base2026 | 401/401 |
-| `parking_zone` | str | outer_free | 401/401 |
+| `parking_zone` | str | outside_zone_system | 401/401 |
 | `is_priced` | int | 0 | 401/401 |
 | `price_aud_hr` | float | 0.0 | 401/401 |
-| `price_source` | str | assumed_free | 401/401 |
+| `price_source` | str | modelled_free | 401/401 |
 | `price_sweep_low` | float | 0.0 | 401/401 |
 | `price_sweep_high` | float | 0.0 | 401/401 |
 | `max_stay_min_modelled` | int | 0 | 401/401 |
@@ -439,6 +439,23 @@ Appendix A of the proposal.
 | `occupancy_source` | str | assumed | 401/401 |
 | `walk_time_to_frontages_s` | empty |  | 0/401 |
 | `year` | int | 2026 | 401/401 |
+
+### `data/processed/landuse/A5_parking_price_zones.csv`
+
+1701 rows, 10 columns
+
+| column | type | example | non-empty in sample |
+|---|---|---|---|
+| `SA1_CODE21` | int | 10601110701 | 401/401 |
+| `zone_tier` | str | core | 401/401 |
+| `jobs` | float | 19.1 | 401/401 |
+| `area_km2` | float | 0.4799 | 401/401 |
+| `jobs_per_km2` | float | 39.8 | 401/401 |
+| `density_weight` | float | 0.0 | 401/401 |
+| `price_aud_hr` | float | 0.0 | 401/401 |
+| `price_sweep_low` | float | 0.0 | 401/401 |
+| `price_sweep_high` | float | 0.0 | 401/401 |
+| `price_source` | str | modelled_from_job_density | 401/401 |
 
 ### `data/processed/landuse/D1_buildings_cbd.csv`
 

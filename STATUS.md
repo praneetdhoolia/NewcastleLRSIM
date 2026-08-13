@@ -4,17 +4,19 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 13 August 2026 (P4 stage 12 - the fleet carries the capacities that were published, so crowding can bind for the first time; deliverable 0c closed)
-**Stage:** **P4 stages 0–3.** **Seven** defects fixed, every one of which would
+**Last updated:** 13 August 2026 (P4 stage 13 - a car stops parking for free, and the parking price stops being a hand-drawn rectangle; issue #33 closed)
+**Stage:** **P4 stages 0–3.** **Eight** defects fixed, every one of which would
 have produced a confident wrong answer rather than an obvious failure: the 30
 run-input sets could not be loaded by MATSim at all, the mode choice was not
 choosing, and the day-type filter left **the with-tram scenario with no tram on a
 weekday** (§9.9). Run cost, seed dependence and convergence are measured rather
 than assumed, and the ride constant is constrained to observed vehicle occupancy
 (§9.8). Every controllable value is now **declared** rather than typed into a script:
-`config/registry/` holds 152 fields with units, provenance and a sweep or a
+`config/registry/<city>/` holds 193 fields with units, provenance and a sweep or a
 held-fixed rule, and the resolver refuses to hand back a point value for
-anything unobtained (§15). **Two fits have now been computed against the
+anything unobtained (§15). **Parking is priced for the first time** — the price
+layer had been declared since P1 and read by nothing, and rested on four
+hand-drawn boxes of which one could never match a facility (§9.31). **Two fits have now been computed against the
 calibration targets — 38 scored, 29 explained — but both are on runs known to be
 short of relaxation, no calibration loop exists, and nothing in this repo is a
 result.**
@@ -77,6 +79,7 @@ Ordered. 0a is first because it may change what the rest is worth.
 | **0c** | **Fleet capacities. DONE (§9.30).** Bus 44+18, ferry 149+51, rail 98+48, tram 60+210. `literature`; the ferry split is the only published one and is held fixed, rail's seated share is assumed and swept. | **Closed.** Every default overstated the real vehicle, rail by ~2.7×, and **no vehicle in the fleet had standing room at all** — so the C1 crowding multipliers were unreachable in every scenario. They can now bind. |
 | **0d** | **The missing demand.** In value order: **(1)** boundary/through traffic — the M1 gap, external-station matrix seeded from cordon counts, touching no holdout row; **(2)** work-related business travel — an **observed HTS purpose** the model does not generate; **(3)** freight — a heavy-vehicle layer from the measured 6.52% heavy share. **Deferred to P5:** SUMO pedestrian crossings, which need a SUMO version change and are therefore a §14 toolchain change. | Each adds demand and will move mode share. Calibrating before them means re-calibrating after them. |
 | **0e** | **Housekeeping.** ALREADY SATISFIED, the entry was stale (§9.25). | `overpass.py` annotates both layers *"for the run replay basemap only"* and `src/analyse/build_basemap.py` consumes them, feeding `build_replay_page.py`. Used **and** labelled; no work outstanding. |
+| **0f** | **Parking price. DONE (§9.31, issue #33).** Derived from the city's own core-zone job-density distribution (p90 = 1,500.9, p99 = 8,710.5 jobs/km²), reaching the model through a `PersonMoneyEvent` handler that charges **car only** from arrival to the next car departure. | **Closed.** The price layer had been declared since P1 and **read by nothing** — a car parked free in a study about city-centre access — and its spatial basis was four hand-drawn boxes, one of which could never match a facility. Known limitation, measured not supposed: the ramp prices suburban malls at CBD rates; the contiguity fix was built and **rejected** because it also excludes the University and John Hunter Hospital, which do charge. Price is common to all scenarios, so it bites on the base calibration rather than on the S-vs-S comparison. |
 
 ### Landed from the published catalogue (§9.23, §9.24)
 

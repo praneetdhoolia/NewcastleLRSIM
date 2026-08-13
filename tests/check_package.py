@@ -1524,6 +1524,157 @@ if True:
         shutil.rmtree(_d, ignore_errors=True)
 
 
+# ---- Q. parking is priced, and the price is DERIVED rather than drawn ----
+# Two defects meet here (issue #33, DECISIONS.md 9.31). The package declared a
+# parking price from P1 and no script read it, so a car parked for free in a
+# study about city-centre access - the "declared value that reaches nothing"
+# class, on its sixth instance. And the price rested on four hand-drawn lat/lon
+# rectangles, one of which (`honeysuckle`) was fully contained in the box tested
+# before it and could never match a facility.
+#
+# The guard against the second is not "do not type a rectangle" - that is the
+# rule that has already failed twice. It is that the shipped price table must
+# reproduce EXACTLY from the registry formula and the city's own job density. A
+# hard-coded price, a re-drawn extent or a silently edited artefact all fail it.
+PRICE_ZONES = 'data/processed/landuse/A5_parking_price_zones.csv'
+if _registry is not None and os.path.exists(PRICE_ZONES):
+    _cfgp = _registry.load()
+    for _k in ('A.parking.price_threshold_pctile', 'A.parking.price_saturation_pctile',
+               'A.parking.price_aud_hr_max', 'A.parking.max_stay_min',
+               'A.parking.charged_hours_by_day_type', 'A.parking.exempt_activity_types'):
+        _f = _fields.get(_k)
+        check(_f is not None and _f.get('sweep') is not None,
+              '%s is declared WITH a sweep - parking price is the prime lever '
+              'between car and PT for a city-centre trip and none of it may be '
+              'a point value typed into a script' % _k)
+    _thr_q = _cfgp.get('A.parking.price_threshold_pctile')
+    _sat_q = _cfgp.get('A.parking.price_saturation_pctile')
+    _pmax = _cfgp.get('A.parking.price_aud_hr_max')
+    check(_sat_q > _thr_q,
+          'the parking saturation percentile (%g) exceeds the threshold percentile '
+          '(%g), so the price ramp has a positive span' % (_sat_q, _thr_q))
+
+    _att = rows('data/processed/landuse/D1_zone_attractions_SA1.csv')
+    _dens = {}
+    for _r in _att:
+        _a = float(_r['area_km2'])
+        _dens[_r['SA1_CODE21']] = (float(_r['jobs']) / _a) if _a > 0 else 0.0
+    _core = sorted(_dens[_r['SA1_CODE21']] for _r in _att if _r['zone_tier'] == 'core')
+
+    def _pct(v, q):
+        _pos = (len(v) - 1) * (q / 100.0)
+        _lo = int(_pos // 1)
+        _hi = min(_lo + 1, len(v) - 1)
+        return v[_lo] + (v[_hi] - v[_lo]) * (_pos - _lo)
+
+    _thr, _sat = _pct(_core, _thr_q), _pct(_core, _sat_q)
+    _pz = rows(PRICE_ZONES)
+    check(len(_pz) == len(_att),
+          'every zone carries a parking price row (%d of %d)' % (len(_pz), len(_att)))
+    _bad = []
+    for _r in _pz:
+        _w = min(1.0, max(0.0, (_dens[_r['SA1_CODE21']] - _thr) / (_sat - _thr)))
+        if abs(float(_r['price_aud_hr']) - round(_pmax * _w, 4)) > 5e-4:
+            _bad.append(_r['SA1_CODE21'])
+    check(not _bad,
+          'every zone parking price re-derives EXACTLY from the registry and the '
+          "city's own job-density percentiles - a typed price, a re-drawn extent "
+          'or an edited artefact cannot survive this (%d zones, %d mismatched)'
+          % (len(_pz), len(_bad)))
+    _npriced = sum(1 for _r in _pz if float(_r['price_aud_hr']) > 0)
+    check(0 < _npriced < len(_pz),
+          'the price ramp prices SOME zones and not all of them (%d of %d) - a '
+          'threshold that catches everything or nothing is not a threshold'
+          % (_npriced, len(_pz)))
+
+    # No place name survives in the priced geography: the zone id IS the id the
+    # ABS publishes, and `honeysuckle`, `cbd_core`, `cbd_fringe` and
+    # `beach_east` were names for boxes somebody drew.
+    _src = open('src/build/build_landuse_parking.py', encoding='utf-8').read()
+    # Comments are stripped first, deliberately. The names below SHOULD still be
+    # discussed in the source - a defect that is explained does not come back
+    # by accident - so the test is that they no longer appear in CODE.
+    _a5 = '\n'.join(_l for _l in _src[_src.index('A5 parking'):].splitlines()
+                    if not _l.lstrip().startswith('#'))
+    check('PARK_ZONES' not in _a5,
+          'the hand-drawn PARK_ZONES rectangles are gone from the parking build - '
+          'one of the four could never match a facility and nobody saw it for '
+          'three phases (issue #33)')
+    for _dead in ('cbd_core', 'cbd_fringe', 'honeysuckle', 'beach_east'):
+        check(_dead not in _a5,
+              'the parking price carries no hand-drawn zone named %r' % _dead)
+
+    _fac = rows('data/processed/landuse/A5_parking_facilities.csv')
+    _zprice = {_r['SA1_CODE21']: float(_r['price_aud_hr']) for _r in _pz}
+    _wrong = [_r for _r in _fac
+              if int(_r['is_priced']) and _zprice.get(_r['parking_zone'], 0.0) <= 0]
+    check(not _wrong,
+          'no parking facility is priced whose zone is not (%d facilities)' % len(_wrong))
+    _priv = [_r for _r in _fac
+             if int(_r['is_priced']) and _r['type'] == 'offstreet_private']
+    check(not _priv,
+          'no private off-street facility is charged - it is not public parking '
+          '(%d facilities)' % len(_priv))
+
+    # And the price has to REACH the model. `consumers` is a read log and cannot
+    # prove reach; the config module and the link table can.
+    _hours = _cfgp.get('A.parking.charged_hours_by_day_type')
+    _modes = ','.join(_cfgp.get('A.parking.charged_modes'))
+    _exempt = ','.join(_cfgp.get('A.parking.exempt_activity_types'))
+    for _sid in sorted(os.listdir('scenarios/matsim')) if os.path.isdir('scenarios/matsim') else []:
+        _sdir = os.path.join('scenarios/matsim', _sid)
+        if not os.path.isdir(_sdir):
+            continue
+        _tsv = os.path.join(_sdir, 'parking_prices.tsv')
+        if not check(os.path.exists(_tsv),
+                     '%s: a link-level parking price table is written beside the '
+                     'run network' % _sid):
+            continue
+        _lines = open(_tsv, encoding='utf-8').read().splitlines()
+        _ids, _neg = set(), 0
+        for _line in _lines[1:]:
+            _lid, _, _p = _line.partition('\t')
+            _ids.add(_lid)
+            if float(_p) <= 0:
+                _neg += 1
+        check(_ids and not _neg,
+              '%s: every row of the parking table is a PRICED link (%d rows, %d '
+              'priced at zero) - a zero row means the same as no row and would '
+              'be 144k rows of nothing' % (_sid, len(_ids), _neg))
+        for _d in DAY_TYPES:
+            _cfgx = os.path.join(_sdir, _d, 'config.xml')
+            if not os.path.exists(_cfgx):
+                continue
+            _t = open(_cfgx, encoding='utf-8').read()
+            _mod = re.search(r'<module name="parking">.*?</module>', _t, re.S)
+            if not check(bool(_mod),
+                         '%s/%s: the config carries a parking module, so a car '
+                         'pays to stand still' % (_sid, _d)):
+                continue
+            _mod = _mod.group(0)
+
+            def _mp(name, t=_mod):
+                _m = re.search(r'<param name="%s" value="([^"]*)"' % name, t)
+                return _m.group(1) if _m else None
+
+            _win = _hours.get(_d)
+            _want = (float(_win[0]), float(_win[1])) if _win else (0.0, 0.0)
+            check((float(_mp('chargedStartHour')), float(_mp('chargedEndHour'))) == _want,
+                  '%s/%s: the charged window is the registry window for THIS day '
+                  'type (%g-%g h) - a Sunday charged at weekday meter rates is a '
+                  'wrong answer nobody would see' % (_sid, _d, _want[0], _want[1]))
+            check(_mp('chargedModes') == _modes,
+                  '%s/%s: only %s is charged for parking - a passenger does not '
+                  'pay to park the car they are riding in' % (_sid, _d, _modes))
+            check(_mp('exemptActivityTypes') == _exempt,
+                  '%s/%s: %s is exempt, so the charge is a price on a travel '
+                  'choice and not a nightly levy on living in a dense zone'
+                  % (_sid, _d, _exempt))
+            check(abs(float(_mp('maxStayMinutes'))
+                      - _cfgp.get('A.parking.max_stay_min')) < 1e-9,
+                  '%s/%s: the charge cap is the declared max stay' % (_sid, _d))
+
+
 for m in OK:
     print('  ok    %s' % m)
 if WARN:
