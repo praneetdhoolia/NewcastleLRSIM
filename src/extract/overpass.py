@@ -256,8 +256,14 @@ def fetch(name, outdir="networks/osm"):
             return None
         parts.append(part)
     kept, dup = osm_tiles.merge(parts, path)
-    print("OK   %s: %s elements (%s duplicates across tiles) -> %s"
-          % (name, format(kept, ","), format(dup, ","), path), flush=True)
+    ways, with_children = osm_tiles.verify(path)
+    print("OK   %s: %s elements (%s duplicates across tiles), %d/%d sampled ways "
+          "carry geometry -> %s"
+          % (name, format(kept, ","), format(dup, ","), with_children, ways, path),
+          flush=True)
+    # Tiles are only discarded once the merge has been verified. Deleting them
+    # first is what made the truncation bug expensive: the merged files were
+    # corrupt and the inputs were already gone.
     for part in parts:
         os.remove(part)
     return path

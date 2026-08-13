@@ -41,14 +41,25 @@ def tiles(bbox, max_deg):
 
 
 def _element_end(block, start, kind):
-    """Index just past the element beginning at `start`, or -1."""
-    self_close = block.find(b'/>', start)
-    long_close = block.find(b'</' + kind + b'>', start)
-    if long_close != -1 and (self_close == -1 or long_close < self_close):
-        return long_close + len(kind) + 3
-    if self_close != -1:
-        return self_close + 2
-    return -1
+    """Index just past the element beginning at `start`, or -1.
+
+    The opening tag is resolved FIRST, and only then the closing tag. Searching
+    for the earlier of `/>` and `</way>` looks equivalent and is not: a way with
+    children contains `<nd ref="..."/>`, whose `/>` comes long before `</way>`,
+    so that version cut every way off at its first node reference. It produced
+    files that parsed, looked plausible and were 40% smaller than the originals
+    on a 2x larger extent - a corrupt network that would have rebuilt without
+    complaint.
+    """
+    gt = block.find(b'>', start)
+    if gt == -1:
+        return -1
+    if block[gt - 1:gt] == b'/':          # <node ... /> - opening tag IS the element
+        return gt + 1
+    close = block.find(b'</' + kind + b'>', gt)
+    if close == -1:
+        return -1
+    return close + len(kind) + 3
 
 
 def merge(parts, out_path):
@@ -81,3 +92,30 @@ def merge(parts, out_path):
                 kept += 1
         out.write(b'</osm>\n')
     return kept, dropped
+
+
+def verify(path):
+    """Refuse a merged file whose ways lost their node references.
+
+    The truncation bug above was silent: the file was well formed, every way
+    was present, and only the CHILDREN were missing. Nothing downstream would
+    have complained - build_network_layers would simply have produced a network
+    with no geometry. So the merge is checked here rather than trusted, and the
+    check is on the invariant that actually broke.
+    """
+    ways = with_children = 0
+    with open(path, 'rb') as f:
+        data = f.read()
+    for m in re.finditer(br'<way\s[^>]*?id="(\d+)"', data):
+        ways += 1
+        end = _element_end(data, m.start(), b'way')
+        if end != -1 and b'<nd ' in data[m.start():end]:
+            with_children += 1
+        if ways >= 2000:
+            break
+    if ways and with_children < ways * 0.9:
+        raise SystemExit(
+            '%s is CORRUPT: only %d of the first %d ways carry a node reference. '
+            'A way without <nd> children has no geometry, and every downstream '
+            'build would have accepted it silently.' % (path, with_children, ways))
+    return ways, with_children
