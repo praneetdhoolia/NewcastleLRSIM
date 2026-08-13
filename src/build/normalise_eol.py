@@ -17,6 +17,7 @@ TEXT_EXT = {'.csv', '.json', '.txt', '.md', '.py', '.html', '.yml', '.yaml',
 BINARY_EXT = {'.zip', '.tif', '.tiff', '.pdf', '.xlsx', '.xls', '.gpkg', '.pbf',
               '.png', '.jpg', '.jpeg', '.osm'}
 ROOTS = ['data/processed', 'params', 'scenarios', 'demand', 'docs', 'src', 'tests',
+         'config',
          '.githooks', '.claude', '.github']
 # P2 build outputs: the reports are committed, so they are hashed over LF bytes
 # like everything else. The XML networks under them are gitignored bulk.
