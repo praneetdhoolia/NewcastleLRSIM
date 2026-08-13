@@ -3179,6 +3179,59 @@ are byte-identical. `check_package.py` and the drift check pass unchanged.
 
 ---
 
+## 9.30 The fleet carries the capacities that were published (P4 deliverable 0c, issue #18)
+
+§9.18 corrected the light rail vehicle and left the other three on pt2matsim's
+generic defaults, recorded at the time as *"a stated limitation, not an
+oversight"*. §9.21 then found published figures for all of them. This applies
+them, which closes deliverable 0c.
+
+| vehicle | mapped default | published | now |
+|---|---|---|---|
+| Bus (Volvo B12BLE) | 70 seats, **0 standing** | 44 seated + 18 standing | **44 / 18 = 62** |
+| Ferry (MV Shortland, MV Hunter) | 250 seats, **0 standing** | 200 total, 149 seated | **149 / 51 = 200** |
+| Rail (Hunter two-car set) | 400 seats, **0 standing** | 77 + 69 = 146 | **98 / 48 = 146** |
+| Tram (CAF Urbos 100) | 180 seats, 0 standing | 270 total | 60 / 210 = 270 (§9.18) |
+
+**Every default overstated the real vehicle** — rail by roughly 2.7× on a
+two-car set, ferry by 25%, bus seats by about 59%. That is consistent with
+§9.12's finding that transit capacity never binds: some of the headroom was
+fictional.
+
+**The larger defect was that no vehicle in the fleet had standing room at all.**
+The C1 crowding multipliers — seated 1.00, standing 1.45 — could therefore never
+apply in any scenario, because standing never occurred anywhere. They were
+declared, swept and unreachable, the #21 defect class. All four vehicle types
+now carry standing room, so crowding can bind.
+
+### What is published and what is not
+
+Only the **ferry** split is published, so neither half of it is assumed and both
+are `held_fixed` — a vessel capacity is a fact about the boat, not a behavioural
+parameter, and sweeping it would assert an uncertainty that does not exist. The
+schema enforced this: `literature` with no sweep and no `held_fixed` rule does
+not validate, and the first attempt was rejected.
+
+**Bus** carries a published seated *and* standing figure, swept across the two
+Volvo models Newcastle actually runs — B12BLE 44 seated, B10B 51 — so the
+interval is the observed spread of stock in service rather than a chosen range.
+
+**Rail** publishes only per-car capacity, so the seated share is assumed at two
+thirds and swept 80–120, and standing is derived by identity. Same treatment as
+the tram at §9.18: only the *split* is assumed, and the total it comes from is
+published.
+
+**None of this is observed for Newcastle operations.** These are manufacturer
+and operator figures, labelled `literature`, and the capacities are per vehicle
+as scheduled — no allowance is made for a set running short.
+
+**Registry 178 → 186 fields.** `check_package.py` 1,107 → **1,245 checks**: every
+vehicle type in every one of the 30 run-input sets is asserted to carry standing
+room, which is the property rather than the numbers, so the seated sweeps stay
+free to move. **Nothing was run.**
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

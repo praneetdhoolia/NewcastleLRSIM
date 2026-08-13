@@ -337,6 +337,122 @@
         "identity": "capacity_standing = capacity_total - capacity_seated"
       }
     },
+    "A.transit.bus_capacity_seated": {
+      "value": 44,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "sweep": {
+        "interval": [
+          40,
+          51
+        ],
+        "basis": "the two Volvo models Newcastle actually runs: B12BLE 44 seated, B10B 51 seated (DECISIONS.md 9.21). Not a chosen interval - it is the observed spread of the fleet in service."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Seats on a Newcastle bus. Published Volvo B12BLE figure. The mapped fleet carried pt2matsim's generic 70 seats, overstating seats by about 59% (issue 18)."
+    },
+    "A.transit.bus_capacity_standing": {
+      "value": 18,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "sweep": {
+        "interval": [
+          14,
+          22
+        ],
+        "basis": "the published B12BLE standing figure plus or minus the usual crush-load tolerance; standing capacity is a rating, not a count, and no Newcastle-specific figure exists."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Standing room on a Newcastle bus. Published B12BLE figure, 44 + 18 = 62 total. Before issue 18 NO vehicle in the fleet had standing room, so the C1 crowding multipliers were inert by construction."
+    },
+    "A.transit.ferry_capacity_total": {
+      "value": 200,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "held_fixed": {
+        "rule": "A published vessel capacity is a fact about the boat, not a behavioural parameter, and sweeping it would assert an uncertainty that does not exist. Both Stockton ferries carry the same published figure.",
+        "decisions_ref": "9.21, 9.30",
+        "departure_requires": "a different vessel entering service on the Stockton route"
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Published capacity of the Stockton ferries MV Shortland and MV Hunter. The mapped fleet carried 250 seats and no standing room, overstating by 25%."
+    },
+    "A.transit.ferry_capacity_seated": {
+      "value": 149,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "held_fixed": {
+        "rule": "Published seated capacity, held on the same reasoning as the total: it is a fact about the vessel. This is the ONLY vehicle in the fleet whose seated/standing split is published - tram and rail both have an assumed, swept seated share because only their totals are.",
+        "decisions_ref": "9.21, 9.30",
+        "departure_requires": "a different vessel entering service on the Stockton route"
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Published seated capacity of the Stockton ferries. Unlike rail and light rail, the ferry split IS published, so neither half is assumed."
+    },
+    "A.transit.ferry_capacity_standing": {
+      "value": 51,
+      "units": "persons_per_vehicle",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Standing room on a Stockton ferry. Whatever the published total leaves once the published seats are taken out - both halves are published, so this identity carries no assumption.",
+      "derived_from": {
+        "fields": [
+          "A.transit.ferry_capacity_total",
+          "A.transit.ferry_capacity_seated"
+        ],
+        "identity": "ferry_capacity_standing = ferry_capacity_total - ferry_capacity_seated"
+      }
+    },
+    "A.transit.rail_capacity_total": {
+      "value": 146,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "sweep": {
+        "interval": [
+          146,
+          177
+        ],
+        "basis": "the two railcar classes on the Hunter Line: a two-car Hunter set is 77 (HM) + 69 (HMT) = 146, a two-car Endeavour set 95 (LE) + 82 (TE) = 177 (DECISIONS.md 9.21). The interval is the observed spread of stock in service, not a chosen range."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Capacity of a two-car Hunter Line set. The mapped fleet carried pt2matsim's generic 400 seats with no standing room - overstating a two-car set by roughly 2.7x, which is part of why transit capacity never binds (DECISIONS.md 9.12, issue 18)."
+    },
+    "A.transit.rail_capacity_seated": {
+      "value": 98,
+      "units": "persons_per_vehicle",
+      "source": "assumed",
+      "sweep": {
+        "interval": [
+          80,
+          120
+        ],
+        "basis": "the seated/standing split of the Hunter and Endeavour railcars is NOT published; only the per-car capacity is. 98 is two thirds of the 146 total, the class-typical proportion for a regional railcar with vestibules, and the interval spans the layouts that class carries. Swept because it is assumed, never pinned."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Seats on a two-car Hunter Line set. Only the SPLIT is assumed - the total it comes from is published."
+    },
+    "A.transit.rail_capacity_standing": {
+      "value": 48,
+      "units": "persons_per_vehicle",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Standing room on a two-car Hunter Line set. Not a free value: whatever the published total leaves once seats are taken out.",
+      "derived_from": {
+        "fields": [
+          "A.transit.rail_capacity_total",
+          "A.transit.rail_capacity_seated"
+        ],
+        "identity": "rail_capacity_standing = rail_capacity_total - rail_capacity_seated"
+      }
+    },
     "A.lightrail.line_speed_kmh": {
       "value": 40.0,
       "units": "km_per_hour",

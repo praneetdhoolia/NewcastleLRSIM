@@ -214,29 +214,40 @@ def split_schedule(src_dir, dst_dir, day):
             kept_veh += 1
         else:
             vroot.remove(veh)
-    # The mapped fleet is pt2matsim's generic defaults, and for the tram that
-    # is 180 seats with NO standing room - a figure that reconciles with
-    # neither the published 270 maximum nor the 60 seated of DECISIONS.md 4.1,
-    # and which left the C1 crowding multipliers inert by construction because
-    # standing never occurred anywhere in the fleet (issue 18). The light rail
-    # vehicle is the object of study, and it is the one vehicle whose capacity
-    # this package actually has a published source for, so it is the one that
-    # is corrected here. Bus, rail and ferry keep their pt2matsim defaults and
-    # keep no standing room; that is a stated limitation, not an oversight.
-    lr_seated = CFG.get('A.lightrail.capacity_seated')
-    lr_standing = CFG.get('A.lightrail.capacity_standing')
+    # The mapped fleet is pt2matsim's generic defaults, and every one of them
+    # overstates the real vehicle: tram 180 seats against a published 270 total,
+    # rail 400 against a 146 two-car set (roughly 2.7x), ferry 250 against 200,
+    # bus 70 seats against 44. None of them carried ANY standing room, which
+    # left the C1 crowding multipliers inert by construction - crowding cannot
+    # bind if nobody can stand (issue 18, DECISIONS.md 9.12, 9.18, 9.21).
+    #
+    # All four are now corrected from published figures (DECISIONS.md 9.30).
+    # Where a published split exists it is used (ferry, bus); where only a total
+    # is published the seated share is assumed and swept and the standing room
+    # is derived by identity (tram, rail). Nothing here is observed for
+    # Newcastle operations - these are manufacturer and operator figures.
+    FLEET_CAPACITY = {
+        'Tram':  ('A.lightrail.capacity_seated', 'A.lightrail.capacity_standing'),
+        'Bus':   ('A.transit.bus_capacity_seated', 'A.transit.bus_capacity_standing'),
+        'Ferry': ('A.transit.ferry_capacity_seated', 'A.transit.ferry_capacity_standing'),
+        'Rail':  ('A.transit.rail_capacity_seated', 'A.transit.rail_capacity_standing'),
+    }
     patched_types = []
     for vt in vroot:
-        if tag(vt) != 'vehicleType' or vt.get('id') != 'Tram':
+        if tag(vt) != 'vehicleType':
             continue
+        keys = FLEET_CAPACITY.get(vt.get('id'))
+        if keys is None:
+            continue
+        seated, standing = CFG.get(keys[0]), CFG.get(keys[1])
         for cap in vt:
             if tag(cap) != 'capacity':
                 continue
             patched_types.append((vt.get('id'), cap.get('seats'),
                                   cap.get('standingRoomInPersons'),
-                                  str(lr_seated), str(lr_standing)))
-            cap.set('seats', str(lr_seated))
-            cap.set('standingRoomInPersons', str(lr_standing))
+                                  str(seated), str(standing)))
+            cap.set('seats', str(seated))
+            cap.set('standingRoomInPersons', str(standing))
     out_veh = os.path.join(dst_dir, 'transitVehicles.xml.gz')
     with gzip_writer(out_veh, text=False) as f:
         vtree.write(f, encoding='utf-8', xml_declaration=True)

@@ -753,6 +753,36 @@ else:
                   '%s/%s: a single trip can change mode without its whole '
                   'subtour, so a bike subtour is not an absorbing state (9.28)'
                   % (sid, d))
+
+            # Issue #18 / DECISIONS.md 9.30. Every mapped vehicle carried
+            # pt2matsim's generic default and NO standing room, so the C1
+            # crowding multipliers were inert by construction - crowding cannot
+            # bind if nobody can stand. All four types now carry published
+            # figures. This asserts the property, not the numbers, so the
+            # seated sweeps stay free to move.
+            veh = os.path.join('scenarios/matsim', sid, d, 'transitVehicles.xml.gz')
+            if os.path.exists(veh):
+                import gzip as _gz
+                with _gz.open(veh, 'rt', encoding='utf-8') as _f:
+                    vtext = _f.read()
+                vtypes = re.findall(
+                    r'vehicleType id="([^"]+)">(.*?)</(?:ns0:)?vehicleType>',
+                    vtext, re.S)
+                seen = 0
+                for vid, body in vtypes:
+                    cap = re.search(r'seats="(\d+)" standingRoomInPersons="(\d+)"', body)
+                    if not cap:
+                        continue
+                    seen += 1
+                    check(int(cap.group(2)) > 0,
+                          '%s/%s: vehicle type %s has standing room, so the C1 '
+                          'crowding multipliers can bind - before issue 18 NOT '
+                          'ONE vehicle in the fleet could be stood in, which '
+                          'made crowding unreachable in every scenario'
+                          % (sid, d, vid))
+                check(seen >= 1,
+                      '%s/%s: the fleet declares at least one vehicle capacity'
+                      % (sid, d))
     # the E1 road variant means the same on the run network as on the base
     base_touch = mrep2.get('road_variants', {})
     for sid, v in sorted(sc.items()):

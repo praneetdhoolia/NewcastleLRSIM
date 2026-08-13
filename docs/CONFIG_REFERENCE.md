@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 178 fields are made of
+## What the 186 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 3 | read directly from a raw download |
 | `measured` | 15 | computed from observed data in this package |
-| `derived` | 14 | follows from another registry field by identity |
-| `literature` | 24 | a published value, not specific to Newcastle |
-| `assumed` | 79 | chosen without direct empirical support |
+| `derived` | 16 | follows from another registry field by identity |
+| `literature` | 29 | a published value, not specific to Newcastle |
+| `assumed` | 80 | chosen without direct empirical support |
 | `definition` | 43 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 165 | usable point value |
+| `active` | 173 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -58,11 +58,13 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `RUN.controler.last_iteration` | 250 - 2000 | NO JUSTIFIED VALUE HAS BEEN MEASURED |
 | `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
-### The 8 fields held fixed
+### The 10 fields held fixed
 
 Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating them would fit away the effect under test - proposal 9 names ASC absorption as the primary threat to validity.
 
 - `A.signals.scats_match_radius_m` - A data-join tolerance, not a model parameter. It decides which observed TfNSW signal is the same physical intersection as a clustered OSM one, and no behaviour, run time or score r
+- `A.transit.ferry_capacity_seated` - Published seated capacity, held on the same reasoning as the total: it is a fact about the vessel. This is the ONLY vehicle in the fleet whose seated/standing split is published - 
+- `A.transit.ferry_capacity_total` - A published vessel capacity is a fact about the boat, not a behavioural parameter, and sweeping it would assert an uncertainty that does not exist. Both Stockton ferries carry the 
 - `C.asc.bus` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.car_passenger` - Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the seco
 - `C.asc.cycle` - Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as t
@@ -73,7 +75,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`config/registry/newcastle/A_supply.json` - 32 fields*
+*`config/registry/newcastle/A_supply.json` - 40 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -105,9 +107,17 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.signals.n_corridor_intersections` | `14` | count | `observed` | - |
 | `A.signals.scats_match_radius_m` | `60` | metres | `assumed` | **held fixed** |
 | `A.signals.scats_phasing` | *(null - unobtained)* | phase_plan | `assumed` | `proxy_no_priority`, `proxy_partial_priority`, `proxy_full_priority` |
+| `A.transit.bus_capacity_seated` | `44` | persons_per_vehicle | `literature` | 40 - 51 |
+| `A.transit.bus_capacity_standing` | `18` | persons_per_vehicle | `literature` | 14 - 22 |
 | `A.transit.era1_line_speed_kmh` | `60.0` | km_per_hour | `assumed` | 45 - 75 |
 | `A.transit.era1_station_dwell_s` | `30.0` | seconds | `assumed` | 20 - 45 |
+| `A.transit.ferry_capacity_seated` | `149` | persons_per_vehicle | `literature` | **held fixed** |
+| `A.transit.ferry_capacity_standing` | `51` | persons_per_vehicle | `derived` | derived: ferry_capacity_standing = ferry_capacity_total - ferry_capacity_seated |
+| `A.transit.ferry_capacity_total` | `200` | persons_per_vehicle | `literature` | **held fixed** |
 | `A.transit.interchange_radius_m` | `250` | metres | `assumed` | 150 - 400 |
+| `A.transit.rail_capacity_seated` | `98` | persons_per_vehicle | `assumed` | 80 - 120 |
+| `A.transit.rail_capacity_standing` | `48` | persons_per_vehicle | `derived` | derived: rail_capacity_standing = rail_capacity_total - rail_capacity_seated |
+| `A.transit.rail_capacity_total` | `146` | persons_per_vehicle | `literature` | 146 - 177 |
 | `A.transit.s0_join_tolerance_m` | `1500.0` | metres | `assumed` | 800 - 2500 |
 | `A.transit.sbc_extension_km` | `6.65` | kilometres | `observed` | - |
 | `A.transit.walk_speed_ms` | `1.25` | metres_per_second | `literature` | 1 - 1.4 |
@@ -280,6 +290,18 @@ SCATS phase data for the Hunter/Scott corridor. NOT OBTAINED - a formal TfNSW re
 
 ***assumed** · status **unobtained** · DECISIONS.md §0, 5, 13 · proposal §6.2, 7.2*
 
+#### `A.transit.bus_capacity_seated`
+
+Seats on a Newcastle bus. Published Volvo B12BLE figure. The mapped fleet carried pt2matsim's generic 70 seats, overstating seats by about 59% (issue 18).
+
+***literature** · status **active** · DECISIONS.md §9.21, 9.30*
+
+#### `A.transit.bus_capacity_standing`
+
+Standing room on a Newcastle bus. Published B12BLE figure, 44 + 18 = 62 total. Before issue 18 NO vehicle in the fleet had standing room, so the C1 crowding multipliers were inert by construction.
+
+***literature** · status **active** · DECISIONS.md §9.21, 9.30*
+
 #### `A.transit.era1_line_speed_kmh`
 
 Heavy rail line speed in the reconstructed pre-2014 era. No 2014 public timetable has been obtained to validate this (DECISIONS.md 13 priority 8).
@@ -292,11 +314,59 @@ Heavy rail station dwell in the reconstructed pre-2014 era.
 
 ***assumed** · status **active** · DECISIONS.md §11*
 
+#### `A.transit.ferry_capacity_seated`
+
+Published seated capacity of the Stockton ferries. Unlike rail and light rail, the ferry split IS published, so neither half is assumed.
+
+***literature** · status **active** · DECISIONS.md §9.21, 9.30*
+
+> **Held fixed.** Published seated capacity, held on the same reasoning as the total: it is a fact about the vessel. This is the ONLY vehicle in the fleet whose seated/standing split is published - tram and rail both have an assumed, swept seated share because only their totals are.
+>
+> *Departure requires: a different vessel entering service on the Stockton route*
+
+#### `A.transit.ferry_capacity_standing`
+
+Standing room on a Stockton ferry. Whatever the published total leaves once the published seats are taken out - both halves are published, so this identity carries no assumption.
+
+***derived** · status **active** · DECISIONS.md §9.21, 9.30*
+
+> **Derived from** `A.transit.ferry_capacity_total`, `A.transit.ferry_capacity_seated`: ferry_capacity_standing = ferry_capacity_total - ferry_capacity_seated
+
+#### `A.transit.ferry_capacity_total`
+
+Published capacity of the Stockton ferries MV Shortland and MV Hunter. The mapped fleet carried 250 seats and no standing room, overstating by 25%.
+
+***literature** · status **active** · DECISIONS.md §9.21, 9.30*
+
+> **Held fixed.** A published vessel capacity is a fact about the boat, not a behavioural parameter, and sweeping it would assert an uncertainty that does not exist. Both Stockton ferries carry the same published figure.
+>
+> *Departure requires: a different vessel entering service on the Stockton route*
+
 #### `A.transit.interchange_radius_m`
 
 Radius within which two stops are treated as one interchange for transfer generation.
 
 ***assumed** · status **active** · DECISIONS.md §11*
+
+#### `A.transit.rail_capacity_seated`
+
+Seats on a two-car Hunter Line set. Only the SPLIT is assumed - the total it comes from is published.
+
+***assumed** · status **active** · DECISIONS.md §9.21, 9.30*
+
+#### `A.transit.rail_capacity_standing`
+
+Standing room on a two-car Hunter Line set. Not a free value: whatever the published total leaves once seats are taken out.
+
+***derived** · status **active** · DECISIONS.md §9.21, 9.30*
+
+> **Derived from** `A.transit.rail_capacity_total`, `A.transit.rail_capacity_seated`: rail_capacity_standing = rail_capacity_total - rail_capacity_seated
+
+#### `A.transit.rail_capacity_total`
+
+Capacity of a two-car Hunter Line set. The mapped fleet carried pt2matsim's generic 400 seats with no standing room - overstating a two-car set by roughly 2.7x, which is part of why transit capacity never binds (DECISIONS.md 9.12, issue 18).
+
+***literature** · status **active** · DECISIONS.md §9.21, 9.30*
 
 #### `A.transit.s0_join_tolerance_m`
 
