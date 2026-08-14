@@ -1,8 +1,9 @@
 # DECISIONS.md — modelling choices and their rationale
 
-**Project Wickham** — counterfactual microsimulation of the Newcastle Light Rail
-**Stage:** P1 data acquisition complete. No scenario has been run.
-**Date:** 10 August 2026
+**NewcastleLRSIM** — counterfactual microsimulation of the Newcastle Light Rail
+**Stage:** P4 calibration, in progress. **No scenario has been run to a
+reportable state, and nothing in this repository is a result.**
+**Started:** 10 August 2026 · **last entry:** §9.35, 13 August 2026
 
 Proposal §8.1: *"`DECISIONS.md` is not optional. Every parameter chosen without
 direct empirical support must be recorded here with its rationale and its sweep
@@ -11,6 +12,55 @@ assumptions than the business case it examines."*
 
 This file records every value in the data package whose `source` field reads
 `assumed` or `modelled`, plus the scope decisions taken to close proposal §10.
+
+---
+
+## How to find something in this file
+
+This file is **4,300+ lines and append-only**. Two things about its layout will
+otherwise cost you an hour:
+
+1. **The section numbers are not in file order.** `§15` (the input registry) sits
+   **before** `§14` (the change log), which is last. There is no `§16`.
+2. **`§9` is not only about demand.** It is titled *Synthetic population and demand*,
+   but `§9.3`–`§9.35` were appended chronologically as the build progressed, so a
+   parking decision, a network decision and a toolchain decision all live under `§9`.
+   **Look topics up in the table below, not by section title.** New entries should go
+   under the topic section they belong to; if that is not possible, add the pointer
+   here in the same change.
+
+| Looking for | Read |
+|---|---|
+| **Scope, base year, zone system, S0–S6** | §1 |
+| **Corrections to the proposal's own stated premises** | §2 (incl. **§2.6 — EPSG:28356 is GDA94, not GDA2020**) |
+| **Road / active network, lanes, speeds, gradient** | §3, §9.28, §9.33, §9.34 |
+| **pt2matsim is not reproducible run to run** | **§3.5** — one build of the network per comparison |
+| **Light rail vehicle, dwell, charging** | §4, §9.18, §9.30 |
+| **Signals, SCATS** | §5, §9.24; refusal documented in §9.21 |
+| **Parking supply, price, max stay** | §6, **§9.31** |
+| **Land use, POI, frontage** | §7 |
+| **Behavioural parameters, mode constants, VOT** | §8; **§8.5 is the rule on ASCs** — read before touching a constant |
+| **Transfer penalty** | **§9.32** — not estimable from this package; the 3–15 min sweep stands |
+| **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15 |
+| **MATSim plans, C1 translation, what does not survive it** | §9.3 |
+| **Run cost, memory, threads** | §9.5 |
+| **Convergence and the iteration count** | **§9.7, §9.27** — ~1000 iterations; 250 is not relaxation |
+| **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions |
+| **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26 |
+| **Trip length by mode** | §9.13 |
+| **External / boundary demand** | §9.14, §9.15, §9.20 |
+| **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
+| **The specification audit** | §9.25 and [`docs/audit/SPEC_AUDIT.md`](docs/audit/SPEC_AUDIT.md) |
+| **The input registry — every controllable value** | **§15**, and [`docs/reference/CONFIG_REFERENCE.md`](docs/reference/CONFIG_REFERENCE.md) (generated) |
+| **City portability, `config/registry/<city>/`** | §9.29, §15 |
+| **The OSM harvest extent, and the corrupt merge** | **§9.35** |
+| **Scenario construction (E1), era variants (A3)** | §10, §11 |
+| **Validation design, the 67/143 split** | §12 — the split is **pre-registered**; never calibrate on a holdout row |
+| **Outstanding data tasks** | §13 |
+| **Toolchain pins — a toolchain change is a model change** | §14 (change log) and `.tools/toolchain.json` |
+| **Live view, telemetry, the congestion map** | **§9.36** |
+| **Dated build narrative** | [`docs/handover/SESSION_LOG.md`](docs/handover/SESSION_LOG.md) — archive; this file is authoritative |
+
 
 ---
 
@@ -1484,7 +1534,7 @@ for trips it would never serve in reality.
 ### The constraint, measured
 
 `src/calibrate/measure_mode_constraints.py` now derives it into
-[`params/C4_mode_constraints.json`](../params/C4_mode_constraints.json) on the
+[`params/C4_mode_constraints.json`](params/C4_mode_constraints.json) on the
 same principle as occupancy: the value is the base-year figure and the sweep is
 **the observed spread across every survey year for that mode**, not an interval
 anyone chose.
@@ -2644,7 +2694,7 @@ operation is known.
 
 Deliverable 0a ran first because mode share was wrong in a way nobody had
 explained, and calibrating on top of an unexplained error fits it into a
-constant. The full ranked register is [`docs/SPEC_AUDIT.md`](docs/SPEC_AUDIT.md);
+constant. The full ranked register is [`docs/audit/SPEC_AUDIT.md`](docs/audit/SPEC_AUDIT.md);
 this records what it changes.
 
 **The symptom is two near-exact inversions, not five independent errors.** Car
@@ -3851,6 +3901,299 @@ and nothing here is a result.**
 
 ---
 
+## 9.36 A run says what it is doing while it does it, and the event stream was never the obstacle (P4, live view rebuilt)
+
+`run_monitor.py` was deleted and rebuilt as `run_view.py` plus a telemetry
+handler inside the controler. The rebuild was asked for; what it exposed was not.
+
+### The obstacle was assumed, not measured
+
+The old view inferred everything from the log because the run published nothing,
+and the apparent reason was that MATSim writes its event stream only every
+`RUN.controler.write_events_interval` iterations — 10. Getting per-mode counts
+every iteration therefore looked like it cost either a config change to
+`writeEventsInterval = 1` (≈16 MB an iteration at 1%, far more at 10%, which is
+the 51 GiB of `ITERS` scratch `prune_run.py` exists to delete) or nothing.
+
+**Both premises were wrong, and the package already held the counter-example.**
+MATSim's `EventsManager` fires every event to every registered handler on
+**every** iteration; `writeEventsInterval` governs only whether
+`EventWriterXML` — itself just another handler — is among them. The completed
+250-iteration run holds **26 event files and 251 leg histograms**, and the
+histogram is built by a handler. A registered handler therefore sees 100% of
+events on 100% of iterations at **no disk cost**, and it sees them *as the
+mobsim advances*, which is what makes the view live rather than retrospective.
+`write_events_interval` is unchanged.
+
+### What is published
+
+`src/java/wickham/RunTelemetry.java`, installed only when the `telemetry` config
+module is present, in the same on/off shape the parking price file uses:
+
+- `telemetry_live.json` — rewritten every `RUN.telemetry.live_interval_s`
+  **simulated** seconds. The boundary is simulated time, never wall clock, so a
+  repeated run writes the same snapshots in the same places; the determinism rule
+  applies to an observer as much as to a build script.
+- `telemetry.jsonl` — one summary line an iteration.
+- `telemetry_links.json` — the per-link congestion payload for the window
+  that just closed, **overwritten** on every live boundary and once more
+  with the whole day at iteration end.
+
+All three sit outside `ITERS/`, so `prune_run.py` never removes them.
+
+**The bus / rail / tram / ferry split cannot come from mode choice** — a
+passenger's leg mode is `pt` for all four. It comes from the transit fleet's own
+vehicle types, which §9.30 had already given real identities.
+
+### Three defects, each found by measurement rather than by reading
+
+1. **The per-link payload was 99.5% of the bytes.** Measured at 1.14 MB an
+   iteration against a 6 KB summary: appending it would have put **1.2 GB** on
+   disk over a 1000-iteration run at 1% — rebuilding the exact disease this
+   design exists to avoid. Split out and overwritten: **5 MB** over the same run,
+   a 240x reduction, and the map only ever shows the last completed iteration.
+2. **The counts did not close.** The conservation identity
+   *departures = arrivals + stuck* held **exactly** for car, bike, ride and walk
+   and left a **pt residual of 305** — passengers still waiting at a stop at
+   30:00:00, for whom MATSim emits no terminal event. Folded into `en_route` it
+   would have read as traffic. It is now reported as `unresolved`, the identity
+   is published per mode so it can be seen to close, and the page renames its own
+   headings once the mobsim ends rather than calling a residual "en route".
+3. **The delay ratio has no upper bound.** Over 59,399 loaded links: median
+   **1.10**, p90 **2.58**, p95 **10.67**, max **56,805** — a short link with a
+   stopped vehicle. A ramp fitted to the data in view would let one gridlocked
+   hairline flatten the whole city to green, so the ramp is **fixed and
+   saturating at 3.0**, and volume drives stroke width so a link carrying one
+   vehicle stays a hairline whatever its ratio.
+
+### The map is live too, and making it so found the worst defect in this work
+
+The first cut regenerated the map only when an iteration ended, on the argument
+that a per-link mean over a partial day is not a meaningful reading. That was a
+judgement, not a limit, and it was the wrong one: the handler already sees every
+link event as the mobsim advances. The map now publishes on the same
+simulated-time boundary as the counts.
+
+**A live map cannot be cumulative.** A running mean over the day converges and
+stops moving, so the peak would build and then never dissipate. Each publication
+is therefore the window that just closed — measured on a 1% probe, the morning
+build reads 670 → 8,466 → 19,886 → 22,208 links moving between 00:00 and 09:00,
+one simulated hour every ~0.4 s of wall clock. A window is also far smaller than
+a day: ~13k–20k links against 60k, so the payload got cheaper, not dearer.
+
+**⚠ THE OBSERVER KILLED THE RUN.** On Windows, `Files.move` with
+`REPLACE_EXISTING` throws `FileSystemException: The process cannot access the
+file because it is being used by another process` whenever a reader holds the
+target open — and the live view polls that file twice a second. The exception
+propagated out of the handler and **terminated the run at iteration 5 of 10**.
+This class had claimed in its own header that *a run observed is byte-for-byte a
+run unobserved*, and it was doing the exact opposite. Fixed by making telemetry
+structurally unable to reach the mobsim: bounded retry, then an in-place write,
+then give up and count the loss, with every publish path wrapped so no
+`RuntimeException` can escape. `write_failures` is reported in the live payload,
+so a silent loss is still visible. Verified by hammering the file with **1,987
+concurrent reads during a live run: zero IO exceptions, 99.9% clean parses**, and
+the 0.1% partial reads are the in-place fallback, which a reader simply retries.
+
+The general lesson is worth keeping: **an instrument that can stop the experiment
+is not an instrument.** Any future observer in this repo gets the same treatment.
+
+Two smaller defects, both found by looking rather than reasoning:
+
+- **Geometry came from `output_network.xml.gz`, which MATSim writes only when the
+  run ENDS** — so the map appeared only after the thing it was built to watch was
+  over. It now reads `inputNetworkFile` from the run's config: same 151,592 links,
+  same ids, available before iteration 0.
+- **`scope` was not passed through the server**, so a live window rendered under a
+  "whole day" heading. Caught because 12,814 links is not a day's 60k.
+
+`--run` with an empty string silently resolved to `results/` itself and reported
+"no telemetry" for a run that had plenty; it now exits.
+
+**Live cadence.** The page polls `RUN.monitor.live_poll_s` (0.5 s) while the
+mobsim is sweeping and falls back to `RUN.monitor.poll_s` (3 s) between mobsims,
+when nothing it shows changes. At 3 s throughout, a 15 s day sweep would be
+sampled five times and the peak would pass between two reads.
+
+### The clock reads a 24 h day, and asking why it did not found a demand defect (issue #37)
+
+The view first showed the simulated clock as MATSim stores it, running to
+`30:00:00`. That presents a 24 h day in a 30 h format, and the question *"why does
+it go to 30?"* is the right one to ask of it. The clock now reads a real day —
+`06:00:00 +1d` rather than `30:00:00` — with the raw seconds unchanged in the
+payload so nothing downstream moves.
+
+**Minutes and seconds are interpolated, and the page says so.** The run publishes
+one sample per simulated hour, so a clock that only stepped on those samples
+would jump. Between two samples the display advances at the rate measured from
+the previous two, **clamped so it can never run past the next expected sample** —
+a stalled feed must not be able to invent an hour that was never simulated. It
+resets when the iteration does. This is a smoothing of real readings, never a
+value the run reported, and the label under the clock states it.
+
+**The window itself is correct and stays.** `qsim.endTime = 30:00:00` is not a
+claim that a day is 30 hours; it is a 24 h day with a tail so a trip departing at
+23:30 arrives rather than being truncated (§9.12 already records the aborts at
+that horizon). Hours 24–30 are 00:00–06:00 the following morning.
+
+**⚠ But checking it found something real.** On `results/live_demo` (S2 × WEEKDAY,
+10%), iteration 30's event stream, 481,153 departures: **8,656 agents depart at or
+after 24:00, 3,421 depart before 06:00, and 348 do both** — a trip at 02:00 and a
+trip at 26:00 inside one modelled day, i.e. a person with two 2 a.m.s. That is
+0.66% of the sample and it is not physical.
+
+**It is in the seed, not in replanning.** Departures at or after 24:00 are
+**25,210 at iteration 0** — before any plan has been mutated — and stay flat at
+~25,500 through iteration 30 while their share falls 5.92% → 5.40% as total
+departures grow. `TimeAllocationMutator` is not the cause.
+`build_activity_chains.py` draws departure hours over **0..23**, so the seeded day
+is a correct 24 h; what is missing is any cap or wrap at the 24 h boundary when a
+chain seeded at 22:00 runs long.
+
+**Recorded, not fixed.** The fix changes B2, which regenerates demand and breaks
+comparability with every run to date (§3.5) — the rebuild #32, #30, #24 and #20
+already require. 0.66% does not justify pulling that forward alone, so it goes in
+that batch. It is stated here because those trips are in the completed-trip
+counts and therefore in the reported mode share: small, non-zero, and previously
+undeclared.
+
+### The basemap was silently dropping every segment longer than 327 m
+
+Reported as *"water is overlapping land"*. It was not an overlap: **the land was
+never being drawn at all**, so the ocean colour showed everywhere and the
+coastline vanished.
+
+`build_basemap.pack()` encodes a polyline as an int32-centimetre anchor followed
+by int16-centimetre deltas — 4 bytes a vertex at 1 cm precision, which is what
+makes zooming to a 10 m view meaningful. An int16 centimetre delta caps a step at
+**327.67 m**. On overflow the packer began a new anchored run, but the run that
+would have carried the long step was then degenerate (`n == 1`) and skipped, so
+**the segment was dropped entirely**.
+
+On a road that is a missing link. On a polygon it is fatal, and it bites exactly
+where it is least visible: `read_coast` **simplifies** the dissolved five-LGA
+boundary, and simplification is precisely what manufactures straight segments
+longer than 327 m.
+
+Measured on the shipped basemap:
+
+| | before | after |
+|---|---:|---:|
+| coast runs | 180 | **36** |
+| of which closed rings | 33 (18%) | **36 (100%)** |
+| largest ring span | 12.5 x 8.0 km | **129.4 x 69.5 km** |
+| landmass fill, sampled across the view | **1 of 40 points** | full |
+
+The boundary spans 131 km; the largest surviving fragment spanned 12.5 km. Water
+and green were fragmented the same way — 3,525 and 5,671 rings, now 100% closed.
+
+**Fixed by densifying rather than splitting**: a step longer than the bound is
+divided into equal collinear sub-steps before packing. That changes no geometry,
+needs no change to the wire format, and removes the failure mode rather than
+detecting it. The layer counts and point counts the builder reports are unchanged.
+
+**This defect is not confined to the live view.** `build_replay_page.py` decodes
+the same payload and fills `coast`, `water`, `green` and `sand` from it, so every
+replay page built before this change has the same broken area fills. Any published
+replay must be rebuilt.
+
+**How it was found, and why not sooner:** by arithmetic, not by reading. A
+boundary that spans 131 km cannot have a largest fragment of 12.5 km, and a
+landmass that fills 1 of 40 sampled points is not a landmass. Nothing in the
+render code looks wrong, and the map looked plausible — dark, with roads on it —
+which is the recurring shape of every defect in this project.
+
+### A finished run closes itself out, and says whether it can be believed (`_summary.json`, `SUMMARY.md`)
+
+A completed run used to leave a log, 9.8 GB of scratch and three JSON files, and
+the question *"so what happened?"* was answered by reading them. It is now
+answered in writing, in both dialects: `_summary.json` against a declared schema
+in `config/schema/outputs/`, and `SUMMARY.md` for a person. `run_matsim.py` calls
+`summarise_run.py` on success; the summariser also runs standalone on any
+completed run.
+
+**It answers three questions and refuses a fourth.**
+
+1. **What was run** — scenario, day type, sample fraction, seed, iterations,
+   threads, wall clock and the controler hash. A reading can never be separated
+   from the run that produced it, and the page and the file both warn that at 1%
+   the storage floor makes cross-fraction comparison invalid (§9.12, §15).
+2. **Did it relax** — drift per mode between the innovation cutoff and the final
+   iteration. After the cutoff MATSim creates no new plans, so what remains is
+   relaxation rather than search: the question issue #5 turns on.
+3. **Did its own accounting close** — departures = arrivals + stuck + unresolved,
+   per mode, plus the telemetry write-failure count.
+
+The fourth — *what does this say about Newcastle?* — is **refused, in the
+document itself**, so the file cannot be quoted out of context. No mode share, no
+patronage, no fit statistic, no validation target. `extract_metrics.py` →
+`fit.py` → `report.py` remains the only route to a reportable number, and the
+67/143 split stays enforced inside `fit.py`.
+
+**Measured on the first run it closed out** (`live_demo`, S2 × WEEKDAY, 10%, 250
+iterations, 2 h 43 m, rc=0, 52,877 agents):
+
+| verdict | reading |
+|---|---|
+| relaxation | ❌ **did not settle** — car still moving **+3.21 pp** after innovation off at iteration 200 |
+| accounting | ✅ closes on every mode; stuck 0.05% of 622,404 departures |
+| telemetry | ✅ **0** write failures |
+
+The relaxation verdict is an independent confirmation of §9.27 from a different
+instrument: 250 iterations is far short, and the run's own drift says so without
+anyone having to read `modestats.csv`. **That is what this file is for** — not to
+report a finding, but to stop an unsettled run being mistaken for a settled one.
+
+⚠ **One defect caught in the writing of it, and it is the recurring class.** The
+first version read `RUN.replanning.fraction_innovation_off` — a key that does not
+exist; the field is `RUN.replanning.fraction_to_disable_innovation` — and fell
+back to a hard-coded `0.8`. That is the shipped value, so it produced the correct
+cutoff **for the wrong reason**, and would have kept producing it after the field
+moved. It now reads the parameter from the config the run **actually executed**,
+with no fallback: unknown stays unknown. A silent default that happens to be
+right is the same defect as a declared value that reaches nothing, and it is
+harder to see.
+
+### The map needs no basemap, and is therefore not blocked
+
+The hotspot layer is drawn from the run's **own** `output_network.xml.gz`
+(70,146 nodes, 151,592 links), not from `build_basemap.py`. That avoids two
+problems at once: the basemap reads `networks/osm/`, which is **empty** until the
+issue #32 re-harvest, and it is keyed by A1 road edges while telemetry is keyed
+by MATSim link ids — a one-to-many join. The run's own network carries exactly
+the links the telemetry names, so the map is guaranteed to agree with the run
+that produced it. The basemap remains the right source for *context* — water,
+coast, parkland — once it exists.
+
+The default view is the box holding the middle **90%** of traversals, chosen by
+measurement: 99.5% gives 187 x 565 km and 98% still gives 169 x 355, because a
+fraction of a percent of very long external trips drags the frame off the city.
+90% gives **52 x 49 km**, the scale of the 4,086 km² study area. Separately
+measured and worth carrying forward: **86% of all traversals fall in a single
+40 km northing band centred on Newcastle**.
+
+### Verified by running it, not by reading it
+
+A 1%, 2-iteration probe against the pinned toolchain: the module installs, all
+three files appear, the identity closes for every mode, the fleet splits
+Bus 596 / Rail 111 / Tram 151 / Ferry 0, and the page renders 59,399 loaded links
+with no console error. **The probe also reproduced a known finding without being
+asked to:** 1,079 of 5,363 car legs stuck, which is §15's storage floor at 1%
+producing the spurious spillback that makes 1% unusable and cross-fraction
+comparison invalid (§9.12). The page states the sample fraction on its face and
+warns at or below 1% for that reason.
+
+**Not a result.** These counts are legs in flight during one iteration — neither
+the mode agents chose (`modestats.csv`) nor the trips that completed
+(`_metrics.json`). The page says so on its face.
+
+**Outstanding:** the 30 assembled run-input sets predate the `telemetry` module
+and must be regenerated (and the manifest with them) before a real run publishes
+anything; the four `RUN.monitor.*` fields are re-wired but `check_package.py`
+coverage for the new view has not been written back.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -4142,7 +4485,7 @@ carried a sweep.
 `config/registry/` now declares **152 fields** — every value the model consumes
 that is not read from an immutable raw download — each with its units, its
 provenance, and either a sweep range or an explicit rule holding it fixed.
-`src/registry/` resolves them; `docs/CONFIG_REFERENCE.md` is generated from them
+`src/registry/` resolves them; `docs/reference/CONFIG_REFERENCE.md` is generated from them
 and cannot drift; `check_package.py` tests the rules rather than trusting them.
 
 ### What the declaration buys that prose did not
@@ -4349,13 +4692,14 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-13 | **Repository context cleanup — no model or data value changed (issue #36 filed).** The documents had drifted from the model. `STATUS.md`, whose whole purpose is to be readable at session start, had become **1,191 lines of which 944 were dated session narrative** duplicating §9.1–§9.35; that narrative moved to `docs/handover/SESSION_LOG.md` as an archive and `STATUS.md` is a board again at 317 lines. **Four figures in it were stale and one was self-contradictory**: it claimed 364 manifest files against a real 386, "four runs exist" against seven directories, "~960 checks", and a header reading *"Stage: P4 stages 0–3"* under a *"last updated: P4 stage 17"* line. **A correction recorded in §2.6 had never propagated**: `CLAUDE.md` and `README.md` still labelled EPSG:28356 as GDA2020 when §2.6 establishes it is GDA94 — the one file that overrides all others was stating the wrong datum. `DECISIONS.md` gained a **topical index**, because its section numbers are not in file order (§15 precedes §14) and §9 had accumulated 35 subsections spanning parking, network, toolchain and registry decisions under a heading that says *Synthetic population and demand*; nothing was renumbered, since §9.x ids are referenced from code comments, issues and both other documents. Documents were filed under `docs/{design,reference,audit,handover}/` with `docs/README.md` marking **which four are generated and must never be hand-edited**; the three generators and `check_package.py` were repointed and `render_docs.py --check` re-verified. **The project codename was a suburb**: "Project Wickham" named the whole five-LGA Newcastle model after one suburb of it, contradicting this repo's own rule that no place name belongs in the framework — and the city-selection mechanism reads `WICKHAM_CITY=newcastle`. Prose, the three schema titles and the manifest `project` string are renamed to NewcastleLRSIM; the `WICKHAM_*` prefix and the `src/java/wickham/` package are **deliberately left** and tracked in #36, to be renamed inside the #32 re-harvest batch, which already invalidates every run record and recompiles the Java — a rename of a compiled entry point cannot be gated now, because `networks/osm/` is empty and `check_package.py` cannot pass. Every Wickham-the-suburb reference is untouched: the zone, stop and POI data, the Newcastle Interchange transfer, scenario S1 and the era-1 reconstruction. **#16 closed** — §9.12 ran the measurement it specified and §9.17 took the decision it gated; the other eleven open issues were each checked against the package and **none of the rest is resolved**. Four fully-merged local branches deleted (zero unique commits each). One broken relative link in §9.13 fixed; all 40 links in the extracted narrative repointed; **0 broken links** across every document. `check_manifest.py` passes and `compileall` is clean. **Nothing in this repository is a result**, and the OSM harvest is still empty. |
 | 2026-08-13 | **The corridor speed limit becomes the REGULATED one, and the rest stays imputed and says so (§9.34, issue #27).** TfNSW's statewide **Speed Zones** layer - the legal instrument, not a mapper's transcription of a sign - clipped to the dissolved LGA boundary plus a declared margin, never a typed extent. Corridor edges on a regulated speed **0 → 669 of 714**; imputed **75 → 41**. Network-wide, imputation falls **53.7% → 38.3%**, and 15,804 of the 16,515 still imputed are `service` roads, so on the roads anyone drives it is **2.6%**. **The join was validated and the validation changed it**: at 20 m it agreed with OSM only 73.5%, and looking showed agreement collapsing from 72% at 10 m to **30% at 10-20 m and 15% at 20-40 m**, plus service roads matching the arterial beside them at 37% against residential's 83%. Radius tightened to 10 m on that measurement and `service` excluded by class - excluding by measured agreement would be fitting the join to its own validation. **What did not close is asserted as still open**: kerbside 678 of 714 imputed, lane width 704, capacity 714, turn lanes 644 absent. TfNSW publishes kerbside for the **Sydney CBD only** and no statewide lane or capacity inventory exists, so B3 - proposal §3.3's *decisive test of Claim B* - must report them as uncertainty, and check_package now fails if the gap is quietly relabelled. Two more copies of a number found on the way: the corridor builder kept its OWN speed, lanes and capacity defaults, which had **diverged** from the measured ones (trunk 80 vs 60), and a second bare 3.2 lane width with the same carriageway-versus-lane error. **No scenario was run, no target value changed and nothing here is a result.** |
 | 2026-08-13 | **P4 deliverable 0b - six defaults stop being guesses, and a suspected duplicate turns out to be two different numbers (§9.33, issue #23).** **88 → 84 assumed, 15 → 21 measured**, plus one field that existed nowhere. `RUN.routing.beeline_distance_factor` and `B.activity.detour_factor` were flagged as probably the same quantity declared twice; they are not - one is the road graph at zone spacing, the other the ACTIVE network at walk and bike trip lengths, and circuity falls with distance. Measured: **walk 1.6902, bike 1.5231** against a shared assumed 1.30, so the field is **split in two**. A first sampling by random bearing gave 1.96 and was **rejected on its own evidence** - it sent walk trips across the harbour; sampling observed POI destinations, which is where B2 puts activities, gives 1.69. The walk SPEED, though, WAS a genuine duplicate: `A.transit.walk_speed_ms` 1.25 and `RUN.routing.teleported_walk_speed_ms` 1.05, both `literature`, each describing the other as a different quantity - and the pinned jar's bytecode shows `travelTime = (beeline x factor) / teleportedModeSpeed`, so the speed is ALONG the path and they are one number. Now `derived` by identity at 1.25. Per-class defaults measured from the city's own OSM tags where at least 30 edges are tagged: **trunk speed 80 → 60** over 1,702 tagged edges, **motorway 100 → 110**, and a **lane width that was a bare 3.2 in no registry at all**, now measured at **3.5 m** - and NOT from the `width` tag, which on a road is the whole carriageway at 6.5 m and would have doubled every carriageway in the model. Three things the data looked able to settle and could not, all the same trap: parking capacity has 4,861 observed values of which **4,623 are 1** because they are individual bays, not car parks. The reclassification #23 proposed was reviewed and **mostly declined** - the SUMO booleans and corridor buffers each change a result, and relabelling a real assumption to make a percentage look better is the opposite of what 0b is for. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-13 | **P4 deliverable 8 - the transfer penalty cannot be estimated from this package, and the parameter was reaching nothing anyway (§9.32, issues #25, #35).** Proposal §7.2's fallback asks for tap-on/tap-off **timing** at the Interchange plus a matching model. **Every Opal source held is a monthly aggregate** - no timestamp, no tap-off paired to a tap-on, nothing for a matching model to match. The stop-level tap data that would substitute is **holdout**, and the 67 calibration rows contain nothing bearing on interchange, so the constrain-to-an-observable route (§9.8) has no observable either. No published interchange percentage for Newcastle could be located; and published interchange **times** are the wrong quantity - MATSim already simulates the walk and scores the wait at 2.0x in-vehicle time, and this parameter is the premium **on top of** the measured 112 s Interchange walk, so substituting one would double-count. Per the deliverable's own bar the reason is recorded and **the sweep stands** at 3-15 minutes across seven points. Tracing where the parameter goes found that it went nowhere: `build_params.py` read **one** registry field and typed the other **26** in as literals, so setting the value through the resolver's own override path left `C1_parameters.json` **byte-identical**. Seventh instance of the class. Two consequences sharper than usual - the **mode constants are `held_fixed` under §8.5** and the model was not reading the value being protected, so deliverable 5 (#14) would have estimated seven ASCs, written them to the registry, changed nothing and reported success; and the **sweep grid was a literal too**, making #25's own bar unmeetable by construction. The prior check compared **bases only** and its comment conceded *"the registry copy is a mirror"* - three RANGES had already drifted apart unnoticed. C1 is now **generated from** the registry rather than checked against it, with five missing declarations added; declaring a sampling grid for the charging dwell did **not** pin it, which stays unobtained and null. **Value-neutral and proved so** - no base moved and all 30 run-input sets regenerated unchanged - and **reach proved by changing a value**: the override now moves `utilityOfLineSwitch` -2.2613 to -3.3922, exactly the VOT conversion. `check_package.py` 1,435 -> **1,440**. **No scenario was run, no target value changed, no holdout row was opened and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 13 - a car stops parking for free, and the price stops being a drawn rectangle (§9.31, issue #33).** Parking price is the prime competitive lever between car and PT for a city-centre trip, and this study is about city-centre access. `A5_parking_facilities.csv` has declared `is_priced`, `price_aud_hr` and a sweep on both since P1 and **no script read any of it** - the "declared value that reaches nothing" class on its **sixth** instance. Its spatial basis was four hand-drawn lat/lon rectangles with place names, literal prices and hand-typed occupancy profiles, and **one of the four, `honeysuckle`, was fully contained in the box tested before it and could never match a facility** - dead for three phases, because a typed rectangle cannot be wrong in a way anyone notices. Price is now derived from **the city's own core-zone job-density distribution** (p90 = 1,500.9 and p99 = 8,710.5 jobs/km², pricing 150 of 1,500 core zones and 22,353 of 143,891 car links), so a new city computes its own thresholds and no extent is typed. OSM `fee=yes` was reproduced and rejected as the basis: **452 of its 472 facilities are University of Newcastle car parks**. The charge reaches the model through `ParkingChargeHandler`, which bills a car from arrival to the next car departure as a `PersonMoneyEvent`; roadpricing is **not** in the pinned jar, so its deferred-emission pattern is reproduced rather than reused, and Java does no spatial work. **Reach was established by changing values, not by reading `consumers`** - halving `price_aud_hr_max` halved the charges (−721.42 → −361.62 AUD), Sunday charges nothing, and the largest single charge is exactly the max-stay cap. **That test caught a real defect**: `accessEgressType` inserts a `car interaction` activity after every car arrival, so the `home` exemption matched nothing and **267 of the first 641 charges were levied at people's own homes** - a nightly penalty on living in a dense zone that no observation supports. What the formula still gets wrong is measured rather than supposed: it prices Kotara, Glendale and Charlestown at or near the maximum where parking is free, and a contiguity refinement that would separate the centre cleanly (one 80-zone cluster against 49 of 1–5) was **built and rejected** because it also excludes the University and John Hunter Hospital, the two places outside the centre that verifiably do charge. Price is common to all scenarios, so it largely differences out of the S-vs-S comparison and bites on the base calibration instead. `check_package.py` 1,248 → **1,435** passing, the key check re-deriving every zone price from the registry so a typed price cannot survive. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-13 | **P4 stage 10 - the passenger stops outrunning the driver (§9.26, issue #28).** `ride` was routed over the network on **free-flow** times because it is in `routing.networkModes` but is not the qsim `mainMode`. `WickhamControler` now binds its travel time to `networkTravelTime()` and its disutility to the car factory. Verified against a like-for-like 10% baseline differing only in the controler: **car 32.54 -> 52.30%, ride 50.03 -> 29.45%**, total absolute gap to target **84.2 -> 44.6 pp** - the largest single correction this model has had, and it came from a defect rather than a constant. It confirms §9.25's claim that the symptom was **two** inversions: car↔ride moved ±20 points while walk↔bike moved -0.03/+0.81, untouched. **The defect is reduced, not eliminated** - ride is still 1.01-1.11x faster at matched distance, worst on short trips, so #28 stays open. The audit's headline was also corrected: the original 13% was an aggregate confounded by trip-length composition; stratified it is 4-8%, present in every bin. A first verification at 1% was **discarded as uninterpretable** - §15's storage floor produces spurious spillback that inflates car delay while teleported ride is immune, so a cross-fraction comparison is invalid. Two reproducibility defects exposed and closed: **nothing compiled the committed Java**, so a fresh clone could not run; and a run record could not say which controler produced it, so re-running would have served pre-fix results silently - records now carry `controler_sha256` and the harness refuses to resume across a change. `prune_run.py` drops MATSim's per-iteration scratch, **95% of a run's bytes** and read by nothing, reclaiming 36.6 GiB. **Not a result:** 250 iterations is short of relaxation, demand still lacks through traffic and freight, no target was fitted, the 67/143 split is untouched and no holdout row was opened. |
 | 2026-08-12 | **P4 stage 8 - own realtime collection dropped, and the published catalogue assessed instead (§9.23).** A GTFS-Realtime collector was built and **reverted in full** once an Open Data Hub API key made the 230-dataset catalogue assessable. TfNSW's own **Historical GTFS Realtime** archive was verified against the live API and carries **Metro and Ferry only** - controls return files, every light rail and bus naming returns none - so it cannot backfill Newcastle, and §7.2's contingency for the SCATS refusal is recorded as an **open gap**. What the catalogue does settle, verified against the data rather than the titles: **Traffic Lights Location** matches **all 14 corridor intersections within 60 m**, supplies the `scats_site_id` that `A2_signal_control_corridor.csv` declares but leaves empty, and dates **8 of the 14 as 2018 light-rail installations** - so the pre-intervention corridor had 6 signals, not 14, which is an observed basis for a counterfactual now assumed; **SFM22** gives origin-destination freight for issue #24; the **GTFS reference tables** carry Hunter Line running times bearing on the assumed era-1 constants; **school and public holiday** dates stratify the dated RMS counts. Recorded as *not* settled: no SCATS phasing exists in the catalogue, the kerbside and lane-width datasets are **Sydney-only** so issue #27 is untouched, JTW 2016 is withdrawn by TfNSW, and Opal tap data is **not journey-linked** so deliverable 8 keeps its fallback. **No value was acquired, changed or registered** - this is an assessment. No parameter value changed, no target value changed, the 67/143 split is untouched and no scenario was run. |
-| 2026-08-11 | **The input registry (§15).** Every value the model consumes that is not read from an immutable raw download is now declared in `config/registry/` with its units, its provenance and either a sweep range or an explicit rule holding it fixed — **123 fields**, against 316 module-level constants of which exactly one carried a machine-readable source label. Proposal §8.1 becomes a schema constraint rather than a discipline: `assumed` without a sweep does not validate. The three unobtained inputs carry `value: null` and the resolver **raises** rather than returning a point value, so §0 and §13 are enforced structurally; the §8.5 mode constants are `held_fixed` and no overlay, environment variable or flag can move them. Two factors that governed every P4 result were found set in code with no rationale and no range — `flowCapacityFactor` (derived, and now stated as such) and `storageCapacityFactor` (assumed, exponent swept 0.75–1.0, and an open risk at 1% because MATSim floors link storage at one vehicle). Outputs are declared to the same standard: `_run.json`, `_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema, and a fit block that does not name its target ids fails its contract. `docs/CONFIG_REFERENCE.md` is generated and checked for staleness. `check_package.py` 860 → **908 checks**, 1 standing warning. The build layer is declared but not yet migrated and is pinned to the registry by a drift test, which caught four transcription errors on its first run. No parameter value was changed, no target value was changed, the 67/143 split is untouched and no scenario was run. |
+| 2026-08-11 | **The input registry (§15).** Every value the model consumes that is not read from an immutable raw download is now declared in `config/registry/` with its units, its provenance and either a sweep range or an explicit rule holding it fixed — **123 fields**, against 316 module-level constants of which exactly one carried a machine-readable source label. Proposal §8.1 becomes a schema constraint rather than a discipline: `assumed` without a sweep does not validate. The three unobtained inputs carry `value: null` and the resolver **raises** rather than returning a point value, so §0 and §13 are enforced structurally; the §8.5 mode constants are `held_fixed` and no overlay, environment variable or flag can move them. Two factors that governed every P4 result were found set in code with no rationale and no range — `flowCapacityFactor` (derived, and now stated as such) and `storageCapacityFactor` (assumed, exponent swept 0.75–1.0, and an open risk at 1% because MATSim floors link storage at one vehicle). Outputs are declared to the same standard: `_run.json`, `_metrics.json`, `_fit.json` and `_config.json` each carry a JSON Schema, and a fit block that does not name its target ids fails its contract. `docs/reference/CONFIG_REFERENCE.md` is generated and checked for staleness. `check_package.py` 860 → **908 checks**, 1 standing warning. The build layer is declared but not yet migrated and is pinned to the registry by a drift test, which caught four transcription errors on its first run. No parameter value was changed, no target value was changed, the 67/143 split is untouched and no scenario was run. |
 | 2026-08-10 | **P4 stage 0 — the assembled run inputs did not load, and what a run actually costs (§9.4, §9.5, §12.1–12.3).** MATSim was pointed at `scenarios/matsim/S2/WEEKDAY/` and refused it. Three independent defects, none visible to a check that treats the artefacts as data: the day-type filter dropped the doctype MATSim selects its reader from (all 30 sets); it left stop facilities and `minimalTransferTimes` relations orphaned by the routes it removed, which makes SwissRailRaptor dereference a null array (all 30); and the kerbside patch appended a second `<attributes>` block to links that already had one, invalidating **6 of the 10** run networks — precisely the six carrying an E1 road change. Fixed, rebuilt byte-identically with the patch counts unchanged, and **all 30 sets now load and run**. `check_package.py` 556 → **657 checks**, with the three failure modes asserted per set. Run cost measured on this machine rather than estimated: **9.8 s/iteration at 1%, 29.9 s at 10%, ~64 s at 25%**, memory 9.8/18.4/31.5 GiB, extrapolating to ~4.5 min and ~97 GiB at 100% — so **a 100% weekday run does not fit in 63.5 GiB** and the specified 5,100 run-days is ~765 days of wall clock. Also recorded, without acting on either: 13 of the 67 calibration targets (`lr_cardtype_share`) can identify nothing in MATSim and several others are duplicates or schedule inputs, leaving ~4 mode-share degrees of freedom + 1 patronage level + 34 counts; and the 119 `road_aadt` values are the mean of `ALL DAYS` with the peak-period rows, 0.58–0.71× the true figure. **The 67/143 split is untouched, no holdout value was used, no target value was changed and no falsification condition altered. Still no scenario run.** |
 | 2026-08-10 | **P3 stage 3 — assumptions replaced by Newcastle measurements where the data allows, and the sweep-range rule made mechanical.** Three constants derived rather than typed: the **detour factor** is now routed over the observed A1 road graph (**1.3376**, 551 zone pairs, was assumed 1.30); the **weekday/weekend travel split** comes from the RMS counts' own `WEEKDAYS`/`WEEKENDS` periods (**0.752**, 551 station-years, was implied 0.825); and census G62 gives an observed **lower bound** on work attendance (0.651) without being allowed to set the value, since census night carries the 2021 lockdown (§2.4). Seven parameters that breached proposal §8.1 by carrying no sweep range now carry one, and `check_package.py` **enforces the rule as a test** rather than leaving it to discipline. What genuinely cannot be localised is labelled so: MATSim's `performing`, distance rates, typical durations and replanning weights are properties of the scoring formulation, not of Newcastle. `EXTERNAL_INTERACTION_RATE` stays swept and the missing ABS journey-to-work origin-destination table is added to §13. 497 → **556 checks**, all passing. Still no scenario run; no falsification condition altered. |
 | 2026-08-10 | **P3 stage 2 — MATSim plans, day-type run inputs and the C1 scoring translation (§9.3).** 517,936 weekday agents wired to the single P2 build; the day-type filter works on the already-mapped schedule and is verified to preserve all 1,714 route link sequences and the whole stop→link map. What C1 loses in translation — the nest structure, per-purpose VOT, crowding — is recorded, not dropped. Two defects caught by the new checks: the day-type token is underscore-delimited for the S1 shuttle and S3 BRT, so both were being dropped from every day type and each scenario would have run without its intervention; and banned-turn removal was network-wide, deleting 1,235 observed restrictions instead of 8. `check_package.py` 322 → **497 checks**, all passing. Still no scenario run; no falsification condition altered. |

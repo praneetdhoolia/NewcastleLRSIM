@@ -104,6 +104,13 @@ PARK_MAX_STAY_MIN = CFG.get('A.parking.max_stay_min')
 PARK_CHARGED_HOURS = CFG.get('A.parking.charged_hours_by_day_type')
 PARK_CHARGED_MODES = ','.join(CFG.get('A.parking.charged_modes'))
 PARK_EXEMPT_ACTS = ','.join(CFG.get('A.parking.exempt_activity_types'))
+
+# Live telemetry. The run publishes what is moving, of what kind and where it
+# is piling up, WHILE the mobsim runs (src/java/wickham/RunTelemetry.java). It
+# needs no change to writeEventsInterval: a registered handler receives the full
+# event stream on every iteration whether or not that stream is also written to
+# disk - the package shows 26 event files against 251 leg histograms.
+TELEMETRY_LIVE_INTERVAL_S = CFG.get('RUN.telemetry.live_interval_s')
 if BETA_BIKE_MODE < BETA_WALK_MODE:
     raise SystemExit('C.time_weights.beta_bike_mode (%s) must be >= '
                      'beta_walk_mode (%s): cycling time is dearer per hour than '
@@ -637,6 +644,9 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 \t\t<param name="chargedModes" value="{park_charged_modes}" />
 \t\t<param name="exemptActivityTypes" value="{park_exempt_acts}" />
 \t</module>
+\t<module name="telemetry">
+\t\t<param name="liveIntervalS" value="{telemetry_live_interval_s}" />
+\t</module>
 \t<module name="routing">
 \t\t<param name="networkModes" value="{rt_network_modes}" />
 \t\t<parameterset type="teleportedModeParameters">
@@ -818,7 +828,8 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
                 park_max_stay_min=PARK_MAX_STAY_MIN,
                 park_start_h=start_h, park_end_h=end_h,
                 park_charged_modes=PARK_CHARGED_MODES,
-                park_exempt_acts=PARK_EXEMPT_ACTS)
+                park_exempt_acts=PARK_EXEMPT_ACTS,
+                telemetry_live_interval_s=TELEMETRY_LIVE_INTERVAL_S)
             with open(os.path.join(dst, 'config.xml'), 'w', encoding='utf-8',
                       newline='\n') as f:
                 f.write(cfg)
