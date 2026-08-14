@@ -1,0 +1,92 @@
+{
+  "$comment": "PORTABLE. This document carries MATSim's and pt2matsim's own config STRUCTURE - which modules exist, in what order, and how a parameterset names its members. It carries NO model value: every value in an emitted config comes from a city's registry through the binding named below, or from the run's own paths. A number here would be exactly the defect the emitter exists to remove.",
+  "description": "How src/registry/param_config.py turns declared registry fields into a tool config. A field binds to a parameter by carrying the tool's binding key, e.g. \"matsim_param\": \"qsim.endTime\". The grammar is module.param, or module.setType[selector].param for a parameterset, and a field may name several comma-separated targets when one decision writes to more than one parameter.",
+  "selector_grammar": {
+    "literal": "module.setType[walk].param - one set, keyed walk. The value is that set's value.",
+    "star": "module.setType[*].param - one set per key of the field's own dict value, or per member of the field's list value. The field's value IS the membership.",
+    "note": "A set is emitted only if at least one field targets it. There is no way to emit an empty parameterset, and no way to emit a parameter no field claims - which is what makes the closure check possible."
+  },
+  "tools": {
+    "matsim": {
+      "binding": "matsim_param",
+      "doctype": "<!DOCTYPE config SYSTEM \"http://www.matsim.org/files/dtd/config_v2.dtd\">",
+      "root": "config",
+      "module_order": [
+        "global",
+        "network",
+        "plans",
+        "transit",
+        "controler",
+        "qsim",
+        "scoring",
+        "replanning",
+        "subtourModeChoice",
+        "travelTimeCalculator",
+        "transitRouter",
+        "parking",
+        "telemetry",
+        "routing"
+      ],
+      "parameter_sets": {
+        "activityParams": {
+          "key_param": "activityType",
+          "comment": "One block per activity type. Membership comes from the field that supplies typical durations."
+        },
+        "modeParams": {
+          "key_param": "mode",
+          "comment": "One block per scored mode."
+        },
+        "strategysettings": {
+          "key_param": "strategyName",
+          "repeat_over": {
+            "field": "RUN.replanning.subpopulations",
+            "param": "subpopulation"
+          },
+          "comment": "One block per strategy PER SUBPOPULATION. The repeat is declared rather than written out, so adding a subpopulation cannot silently leave one of them with no strategies - which would freeze those agents' plans without any error."
+        },
+        "teleportedModeParameters": {
+          "key_param": "mode",
+          "comment": "One block per teleported (non-network) mode."
+        }
+      }
+    },
+    "pt2matsim_osm": {
+      "binding": "pt2matsim_osm_param",
+      "doctype": "<!DOCTYPE config SYSTEM \"http://www.matsim.org/files/dtd/config_v2.dtd\">",
+      "root": "config",
+      "module_attributes": " ",
+      "module_order": [
+        "OsmConverter"
+      ],
+      "parameter_sets": {
+        "routableSubnetwork": {
+          "key_param": "subnetworkMode"
+        },
+        "wayDefaultParams": {
+          "key_param": "osmValue",
+          "comment": "A way default is keyed by its OSM value, e.g. residential. The osmKey half (highway or railway) is emitted as an ordinary parameter of the set, supplied under the derived role beside the lanes, free speed and capacity that come from A.road.* and A.network.railway_*."
+        }
+      }
+    },
+    "pt2matsim_mapper": {
+      "binding": "pt2matsim_mapper_param",
+      "doctype": "<!DOCTYPE config SYSTEM \"http://www.matsim.org/files/dtd/config_v2.dtd\">",
+      "root": "config",
+      "module_attributes": " ",
+      "module_order": [
+        "PublicTransitMapping"
+      ],
+      "parameter_sets": {
+        "transportModeAssignment": {
+          "key_param": "scheduleMode"
+        }
+      }
+    }
+  },
+  "runtime_roles": {
+    "path": "A location on this machine - an input file, an output directory. Never a model value, and correctly not in any registry.",
+    "identity": "A property of the city rather than of the run, read from cities/<city>/city.json, e.g. the coordinate system.",
+    "derived": "Computed from declared fields at build time and reported with the identity that produced it, e.g. a MATSim mode constant translated from the C1 specification. The emitter records the identity beside the value.",
+    "note": "Every parameter in an emitted config is either bound to a registry field or supplied under one of these roles. check_hardcoding's closure test asserts exactly that, so a literal has nowhere left to hide."
+  }
+}

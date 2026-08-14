@@ -806,6 +806,36 @@
         "src/build/build_matsim_run_inputs.py"
       ]
     },
+    "A.parking.charged_start_hour": {
+      "value": null,
+      "units": "hour_of_day",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.31",
+      "matsim_param": "parking.chargedStartHour",
+      "derived_from": {
+        "fields": [
+          "A.parking.charged_hours_by_day_type"
+        ],
+        "identity": "chargedStartHour = A.parking.charged_hours_by_day_type[day][0], or 0.0 when that day type declares no window"
+      },
+      "description": "Hour at which parking begins to be charged, for the day type this config is being emitted for. Computed rather than declared because the choice of day is not a registry value - it is which of the thirty run-input sets is being written. A day type with no window resolves to a zero-length window, which the Java handler reads as `charge nothing`; expressing a free day that way rather than with a separate flag keeps one code path."
+    },
+    "A.parking.charged_end_hour": {
+      "value": null,
+      "units": "hour_of_day",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.31",
+      "matsim_param": "parking.chargedEndHour",
+      "derived_from": {
+        "fields": [
+          "A.parking.charged_hours_by_day_type"
+        ],
+        "identity": "chargedEndHour = A.parking.charged_hours_by_day_type[day][1], or 0.0 when that day type declares no window"
+      },
+      "description": "Hour at which parking stops being charged, for the day type this config is being emitted for. See A.parking.charged_start_hour: an end at or before the start means the day is free."
+    },
     "A.parking.charged_hours_by_day_type": {
       "value": {
         "WEEKDAY": [
@@ -826,8 +856,7 @@
       },
       "status": "active",
       "decisions_ref": "9.31",
-      "description": "The window in which parking is charged, per day type. Assumed, and stated rather than left implicit: A5_parking_facilities.csv already asserted 'Mon-Fri 08:00-18:00; Sat 08:00-13:00; else free' in its price_schedule string, where it reached nothing. Without a window, SUN - one of the three day types - would be charged at weekday meter rates.",
-      "matsim_param": "parking.chargedStartHour, parking.chargedEndHour",
+      "description": "The window in which parking is charged, per day type. IT IS A WINDOW PER DAY TYPE, NOT THE TWO PARAMETERS: this field carried matsim_param parking.chargedStartHour, parking.chargedEndHour until the config emitter was built, which would have written the whole dictionary into both scalars. The per-day scalars are A.parking.charged_start_hour and A.parking.charged_end_hour, selected from this by the day type the config is being emitted for. Assumed, and stated rather than left implicit: A5_parking_facilities.csv already asserted 'Mon-Fri 08:00-18:00; Sat 08:00-13:00; else free' in its price_schedule string, where it reached nothing. Without a window, SUN - one of the three day types - would be charged at weekday meter rates.",
       "consumers": [
         "src/build/build_matsim_run_inputs.py"
       ]
@@ -966,6 +995,341 @@
       "consumers": [
         "cities/newcastle/extract/overpass.py"
       ]
+    },
+    "A.network.keep_paths": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.keepPaths",
+      "description": "Whether every intermediate OSM node becomes a MATSim node. False collapses a way between junctions into one link, which is what a mobsim needs: keeping paths multiplies link count without adding a decision point, and MATSim queues form per link."
+    },
+    "A.network.keep_tags_as_attributes": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.keepTagsAsAttributes",
+      "description": "Whether OSM tags survive onto the MATSim link. TRUE IS LOAD-BEARING: the E1 road variants are re-applied to a scenario network by osm:way:id, which exists on the link only because this is true (DECISIONS.md 9.3)."
+    },
+    "A.network.keep_ways_with_public_transit": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.keepWaysWithPublicTransit",
+      "description": "Retain a way carrying a public transit route even when its class would otherwise be dropped. False would delete bus-only links and strand the routes mapped onto them."
+    },
+    "A.network.max_link_length_m": {
+      "value": 500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        200.0,
+        2000.0
+      ],
+      "sweep_basis": "no measurement bears on it: it trades link count against the spatial resolution of a queue. The lower bound is about a city block, the upper long enough that a rural link is not split for its own sake. Swept because link length changes where congestion can form.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.maxLinkLength",
+      "description": "Longest MATSim link before a way is split. Decided in the network builder as a literal until this change, which made a network-construction parameter invisible to every sweep."
+    },
+    "A.network.parse_turn_restrictions": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.parseTurnRestrictions",
+      "description": "Whether OSM turn restrictions become MATSim disallowed next links. The base network carries 1,240 of them and the E1 variants add banned turn movements on the corridor, so the road-space externality of proposal 3.3 depends on this being true."
+    },
+    "A.network.scale_max_speed": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.scaleMaxSpeed",
+      "description": "Whether pt2matsim scales the OSM maxspeed by its own factor. False: free speed comes from the TfNSW regulated speed zones - the legal instrument - and from A.road.speed_default where no zone applies, not from a tool default."
+    },
+    "A.network.write_crs": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.writeCRS",
+      "description": "Write the coordinate system into the network file, so a downstream reader cannot mistake the projection. This repository carried the wrong datum label in four documents at once (DECISIONS.md 2.6)."
+    },
+    "A.network.freespeed_factor": {
+      "value": 1.0,
+      "units": "factor",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.wayDefaultParams[*].freespeedFactor",
+      "description": "Multiplier applied to a way default free speed. One, because the free speed is taken from the regulated speed instrument and a factor over it would be an undeclared second opinion about the same quantity."
+    },
+    "A.schedule_mapping.bounded_search": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.boundedSearch",
+      "description": "Bound the link-candidate search by distance rather than searching the whole network per stop. Off, the mapping of 15 feeds does not finish in usable time."
+    },
+    "A.schedule_mapping.candidate_distance_multiplier": {
+      "value": 1.6,
+      "units": "factor",
+      "source": "assumed",
+      "sweep": [
+        1.2,
+        2.5
+      ],
+      "sweep_basis": "pt2matsim documents no calibrated value. Too low and a stop on the far side of a dual carriageway finds no candidate; too high and it maps onto a parallel road. The package reports 0 unmapped stops and an artificial link share of 0.4-0.6%, which is evidence the current value works, not that it is optimal.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.candidateDistanceMultiplier",
+      "description": "How far beyond the nearest candidate link the mapper keeps looking, as a multiple of that distance."
+    },
+    "A.schedule_mapping.max_link_candidate_distance_m": {
+      "value": 90.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        50.0,
+        150.0
+      ],
+      "sweep_basis": "the distance a stop may sit from the link that serves it. The corridor measurement that bears on it is the 112 s interchange walk (DECISIONS.md 9.32); 50 m is tight for a divided road and 150 m starts admitting the wrong street.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.maxLinkCandidateDistance, PublicTransitMapping.transportModeAssignment[*].maxLinkCandidateDistance",
+      "description": "Furthest a stop may be from a candidate link. Written to BOTH the module default and every transport-mode assignment, which is why it is one field: two copies drifting apart would map bus and rail to different tolerances silently."
+    },
+    "A.schedule_mapping.max_travel_cost_factor": {
+      "value": 5.0,
+      "units": "factor",
+      "source": "assumed",
+      "sweep": [
+        2.0,
+        10.0
+      ],
+      "sweep_basis": "how much longer than the direct path a mapped route may be before the mapper inserts an artificial link instead. It controls the artificial link share directly, which the package reports at 0.4-0.6%.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.maxTravelCostFactor",
+      "description": "Ceiling on a mapped route path cost relative to the direct path. Raising it maps more of a route onto real road; lowering it produces more artificial link, on which no car ever queues."
+    },
+    "A.schedule_mapping.mode_specific_rules": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.modeSpecificRules",
+      "description": "Whether pt2matsim applies its own per-mode routing rules. False: the mode-to-network assignment is declared in A.schedule_mapping.transport_mode_assignment instead, where it can be read."
+    },
+    "A.schedule_mapping.modes_to_keep_on_cleanup": {
+      "value": [
+        "car"
+      ],
+      "units": "mode_names",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.modesToKeepOnCleanUp",
+      "description": "Network modes preserved when the mapper removes links no route uses. Car is kept because the road network is the thing being modelled; removing it to suit a schedule would delete the study."
+    },
+    "A.schedule_mapping.n_link_threshold": {
+      "value": 6,
+      "units": "links",
+      "source": "assumed",
+      "sweep": [
+        3,
+        12
+      ],
+      "sweep_basis": "how many candidate links a stop keeps before the router chooses. Fewer is faster and can miss the right link at a complex junction; more is slower with diminishing return. No measurement bears on it.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.nLinkThreshold, PublicTransitMapping.transportModeAssignment[*].nLinkThreshold",
+      "description": "Candidate links retained per stop. Written to both the module default and every transport-mode assignment, for the same reason as the candidate distance."
+    },
+    "A.schedule_mapping.network_router": {
+      "value": "SpeedyALT",
+      "units": "router_name",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.networkRouter",
+      "description": "Which least-cost path router the mapper uses. A TOOLCHAIN CHOICE AND THEREFORE A MODEL CHOICE: pt2matsim mapping is already not reproducible run to run (DECISIONS.md 3.5, about 18% of route link sequences differ between identical builds), and changing the router changes that distribution."
+    },
+    "A.schedule_mapping.remove_not_used_stop_facilities": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.removeNotUsedStopFacilities",
+      "description": "Drop stop facilities no mapped route serves. True keeps schedule and network consistent; a stranded facility is a stop no vehicle can call at."
+    },
+    "A.schedule_mapping.routing_with_candidate_distance": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.routingWithCandidateDistance",
+      "description": "Include the stop-to-link distance in the mapping cost, so a nearer link is preferred among otherwise equal paths."
+    },
+    "A.schedule_mapping.schedule_freespeed_modes": {
+      "value": [
+        "artificial"
+      ],
+      "units": "mode_names",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.scheduleFreespeedModes",
+      "description": "Modes whose link free speed is set from the SCHEDULE rather than from the road. Artificial links only: a tram on a real street must feel that street, and that trams and buses traverse congested links is a stated property of this model."
+    },
+    "A.schedule_mapping.thread_chunk_size": {
+      "value": 100,
+      "units": "routes",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.threadChunkSize",
+      "description": "How many routes a mapper thread takes at once. Throughput only - it does not change which link a route maps to."
+    },
+    "A.schedule_mapping.travel_cost_type": {
+      "value": "linkLength",
+      "units": "cost_basis",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.travelCostType",
+      "description": "Whether the mapper minimises link LENGTH or link TRAVEL TIME. Length, so a mapped path follows the geometry the timetable describes rather than the fastest road: a tram pushed onto a parallel arterial because it is quicker would put transit on the wrong street."
+    },
+    "A.schedule_mapping.strict_link_rule": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.transportModeAssignment[*].strictLinkRule",
+      "description": "Whether a route may ONLY use links carrying its declared network modes. False allows an artificial link where no permitted link exists, which is what keeps the unmapped-stop count at zero; true would strand routes rather than report them."
+    },
+    "A.network.routable_subnetworks": {
+      "value": {
+        "car": [
+          "car"
+        ],
+        "bus": [
+          "bus",
+          "car"
+        ],
+        "rail": [
+          "rail",
+          "light_rail"
+        ]
+      },
+      "units": "mode_names_by_subnetwork",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Which transport modes each routable subnetwork admits, as subnetworkMode -> allowedTransportModes. A vocabulary the network is defined over rather than a value to tune: the bus subnetwork admits car because buses run in traffic, and that is the property making transit feel congestion.",
+      "pt2matsim_osm_param": "OsmConverter.routableSubnetwork[*].allowedTransportModes"
+    },
+    "A.schedule_mapping.transport_mode_assignment": {
+      "value": {
+        "bus": [
+          "car",
+          "bus"
+        ],
+        "rail": [
+          "rail"
+        ],
+        "light_rail": [
+          "light_rail",
+          "tram",
+          "car"
+        ],
+        "tram": [
+          "light_rail",
+          "tram",
+          "car"
+        ],
+        "ferry": [
+          "artificial"
+        ]
+      },
+      "units": "network_modes_by_schedule_mode",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Which network modes may carry each schedule mode, as scheduleMode -> networkModes. LIGHT RAIL AND TRAM ADMIT CAR DELIBERATELY: the Newcastle line runs in the Hunter Street carriageway, so its links are shared with traffic and the tram is delayed by it. Ferry maps to artificial because no water network is modelled.",
+      "pt2matsim_mapper_param": "PublicTransitMapping.transportModeAssignment[*].networkModes"
+    },
+    "A.network.railway_speed_default_kmh": {
+      "value": {
+        "rail": 160.0,
+        "light_rail": 70.0,
+        "tram": 70.0
+      },
+      "units": "km_per_hour",
+      "source": "assumed",
+      "sweep": [
+        40.0,
+        180.0
+      ],
+      "sweep_basis": "line speed on reserved rail alignment where no regulated speed zone applies. The Hunter Line is a 160 km/h class alignment and Australian street-running light rail is limited to about 70; both are class defaults rather than measurements of this corridor, and A.lightrail.line_speed_kmh is the measured corridor quantity.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Default free speed for a RAILWAY class way, where A.road.speed_default does not apply because the class is not a road. Split out of the network builder table, which held speeds for road and railway classes together and had drifted from A.road.speed_default on six road classes."
+    },
+    "A.network.railway_lane_capacity_veh_h": {
+      "value": 9999.0,
+      "units": "vehicles_per_hour",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Lane capacity written for a railway link. A SENTINEL MEANING UNCONSTRAINED, not a measurement: rail headway is governed by the signalling system and the timetable, neither of which a MATSim link capacity represents. It must stay far above any plausible flow so the queue never binds on a rail link."
+    },
+    "A.network.way_default_oneway": {
+      "value": {
+        "motorway": true,
+        "motorway_link": true
+      },
+      "units": "boolean_by_way_class",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Way classes whose DEFAULT direction is one way, used where OSM carries no explicit oneway tag. A class absent from this map defaults to two way. Motorway and its links only: every other class is bidirectional unless the data says otherwise."
     }
   }
 }

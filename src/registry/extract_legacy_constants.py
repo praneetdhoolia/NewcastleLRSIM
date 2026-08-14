@@ -35,6 +35,17 @@ PATH_SUFFIXES = ('.csv', '.json', '.xml', '.gz', '.zip', '.py', '.md', '.txt',
 REGEX_HINTS = ('(?', '[^', '.*', BS + 'd', BS + 'w', BS + 's', BS + '.')
 SIBLING_SUFFIXES = ('_SWEEP', '_SOURCE', '_RANGE', '_LOW', '_HIGH')
 
+# Names that are plumbing by construction: a path, a column list, a regex, an
+# encoding. Declared here rather than in the checker so the scanner and the
+# audit that reads it cannot disagree about what counts as a value.
+IGNORE_SUFFIX = ('_FILE', '_DIR', '_PATH', '_RE', '_COLS', '_COLUMNS', '_URL',
+                 '_HEADER', '_ENCODING', '_SEP', '_EPOCH', '_EXT')
+
+# How many numbers a container must carry before it is reported as a table
+# rather than as incidental structure. Two is a pair of bounds; four is a table
+# somebody typed.
+CONTAINER_MIN_NUMBERS = 4
+
 
 def literal(node):
     try:
@@ -80,6 +91,110 @@ def classify(value):
     if value is None:
         return 'structure'
     return 'other'
+
+
+def scan_decisions(path):
+    """Every value DECIDED in one module, in each of the five forms it takes.
+
+    `scan_file` answers a narrower question - "what is this named module-level
+    constant worth?" - because it was written to pin a `legacy_symbol` to the
+    literal it replaced. A value that decides something does not have to be a
+    named module-level scalar, and in this repository most of them are not:
+
+      constant       MODULE_LEVEL = 1.3        what `scan_file` already finds
+      table          MODULE_LEVEL = [...]      a container carrying numbers
+      unpacked       ACCEL, DECEL = 1.2, 1.3   invisible to a single-target scan
+      kwarg_default  def f(speed_kmh=28.0)     a scenario spec in a signature
+      cli_default    add_argument(default=100) a value the registry declares
+                                               UNOBTAINED, supplied anyway
+
+    The last three are the forms that carried this project's scenario
+    definitions - the S1 shuttle's speed and dwell, two vehicles' acceleration,
+    and the iteration count - past an audit that only looked at the first two.
+
+    Returns a list of records; `kind` is `classify`'s verdict, so a caller can
+    keep `parameter` and drop `path`/`pattern`/`structure` exactly as the
+    one-time migration did. Numbers are counted rather than transcribed for a
+    container, because a 144-number departure profile is one decision to report,
+    not 144.
+    """
+    with io.open(path, encoding='utf-8') as f:
+        tree = ast.parse(f.read(), filename=path)
+
+    def rec(form, name, value, line, n=1):
+        # A container that carries numbers is a table of decisions whatever else
+        # it also carries. `classify` calls a list of (name, lat, lon) tuples
+        # `structure`, which is right for a vocabulary and wrong for the eight
+        # stop positions of a scenario alignment - so the entry condition, not
+        # the shape, decides here.
+        kind = 'parameter' if form == 'table' else classify(value)
+        return dict(form=form, name=name, value=value, line=line,
+                    kind=kind, n_numbers=n)
+
+    out = []
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            # ACCEL, DECEL = 1.2, 1.3 - one Tuple target, not one Name, so a
+            # single-target scan drops it entirely.
+            if isinstance(target, ast.Tuple) and isinstance(node.value, ast.Tuple):
+                for nm, val in zip(target.elts, node.value.elts):
+                    if not isinstance(nm, ast.Name) or not nm.id.isupper():
+                        continue
+                    v = literal(val)
+                    if numeric(v):
+                        out.append(rec('unpacked', nm.id, v, node.lineno))
+                continue
+            if not isinstance(target, ast.Name):
+                continue
+            name = target.id
+            if not name.isupper() or name.startswith('_') \
+                    or name.endswith(IGNORE_SUFFIX):
+                continue
+            value = literal(node.value)
+            if numeric(value):
+                out.append(rec('constant', name, value, node.lineno))
+            elif count_numbers(value) >= CONTAINER_MIN_NUMBERS:
+                out.append(rec('table', name, value, node.lineno,
+                               count_numbers(value)))
+
+    for node in ast.walk(tree):
+        # def make_bus_shuttle(..., speed_kmh=28.0, dwell_s=15.0)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            args = node.args.args + node.args.kwonlyargs
+            defaults = list(node.args.defaults) + [d for d in node.args.kw_defaults
+                                                   if d is not None]
+            named = args[len(node.args.args) - len(node.args.defaults):]
+            for arg, default in zip(named + node.args.kwonlyargs, defaults):
+                v = literal(default)
+                if numeric(v):
+                    out.append(rec('kwarg_default',
+                                   '%s(%s)' % (node.name, arg.arg), v, node.lineno))
+        # ap.add_argument('--iterations', type=int, default=100)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+                and node.func.attr == 'add_argument':
+            flag = next((a.value for a in node.args
+                         if isinstance(a, ast.Constant) and isinstance(a.value, str)),
+                        '?')
+            for kw in node.keywords:
+                if kw.arg != 'default':
+                    continue
+                v = literal(kw.value)
+                if numeric(v):
+                    out.append(rec('cli_default', flag, v, node.lineno))
+    return sorted(out, key=lambda r: (r['line'], r['name']))
+
+
+def count_numbers(value):
+    """How many numbers a literal container carries, at any depth."""
+    if numeric(value):
+        return 1
+    if isinstance(value, dict):
+        return sum(count_numbers(v) for v in value.values())
+    if isinstance(value, (list, tuple, set)):
+        return sum(count_numbers(v) for v in value)
+    return 0
 
 
 def scan_file(path):

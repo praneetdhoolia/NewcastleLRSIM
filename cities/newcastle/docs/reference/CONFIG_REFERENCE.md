@@ -27,21 +27,21 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 211 fields are made of
+## What the 259 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 4 | read directly from a raw download |
 | `measured` | 21 | computed from observed data in this package |
-| `derived` | 17 | follows from another registry field by identity |
-| `literature` | 28 | a published value, not specific to this city |
-| `assumed` | 90 | chosen without direct empirical support |
-| `definition` | 51 | fixed by the formulation, not an empirical quantity |
+| `derived` | 25 | follows from another registry field by identity |
+| `literature` | 31 | a published value, not specific to this city |
+| `assumed` | 98 | chosen without direct empirical support |
+| `definition` | 80 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 198 | usable point value |
-| `computed` | 2 | written at run time from other fields; do not hand-edit |
+| `active` | 238 | usable point value |
+| `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
 
@@ -75,7 +75,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`cities/newcastle/registry/A_supply.json` - 57 fields*
+*`cities/newcastle/registry/A_supply.json` - 86 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -97,13 +97,27 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.lightrail.dwell_sweep_grid` | `[0.0, 10.0, 20.0, 35.0]` | seconds_per_intermediate_stop | `definition` | - |
 | `A.lightrail.line_speed_kmh` | `40.0` | km_per_hour | `assumed` | 30 - 50 |
 | `A.lightrail.tsp_enabled` | `false` | boolean | `assumed` | `False`, `True` |
+| `A.network.freespeed_factor` | `1.0` | factor | `definition` | - |
+| `A.network.keep_paths` | `false` | boolean | `definition` | - |
+| `A.network.keep_tags_as_attributes` | `true` | boolean | `definition` | - |
+| `A.network.keep_ways_with_public_transit` | `true` | boolean | `definition` | - |
+| `A.network.max_link_length_m` | `500.0` | metres | `assumed` | 200 - 2000 |
+| `A.network.parse_turn_restrictions` | `true` | boolean | `definition` | - |
+| `A.network.railway_lane_capacity_veh_h` | `9999.0` | vehicles_per_hour | `definition` | - |
+| `A.network.railway_speed_default_kmh` | `{"rail": 160.0, "light_rail": 70.0, "tram": 70.0}` | km_per_hour | `assumed` | 40 - 180 |
+| `A.network.routable_subnetworks` | `{"car": ["car"], "bus": ["bus", "car"], "rail": ["rail", "light_rail"]}` | mode_names_by_subnetwork | `definition` | - |
+| `A.network.scale_max_speed` | `false` | boolean | `definition` | - |
+| `A.network.way_default_oneway` | `{"motorway": true, "motorway_link": true}` | boolean_by_way_class | `definition` | - |
+| `A.network.write_crs` | `true` | boolean | `definition` | - |
 | `A.osm.buildings_margin_m` | `3500.0` | metres | `assumed` | 2000 - 6000 |
 | `A.osm.harvest_attempts` | `12` | count | `definition` | - |
 | `A.osm.harvest_margin_m` | `5000.0` | metres | `assumed` | 2000 - 15000 |
 | `A.osm.harvest_tile_deg` | `0.4` | degrees | `assumed` | 0.2 - 0.8 |
 | `A.parking.capacity_default` | `{"onstreet": 12, "offstreet_public": 60, "offstreet_private": 40}` | spaces_per_facility | `assumed` | 5 - 100 |
+| `A.parking.charged_end_hour` | *(null - unobtained)* | hour_of_day | `derived` | derived: chargedEndHour = A.parking.charged_hours_by_day_type[day][1], or 0.0 w |
 | `A.parking.charged_hours_by_day_type` | `{"WEEKDAY": [8.0, 18.0], "SAT": [8.0, 13.0], "SUN": null}` | hour_of_day | `assumed` | plus/minus 25% |
 | `A.parking.charged_modes` | `["car"]` | enum | `definition` | - |
+| `A.parking.charged_start_hour` | *(null - unobtained)* | hour_of_day | `derived` | derived: chargedStartHour = A.parking.charged_hours_by_day_type[day][0], or 0.0 |
 | `A.parking.exempt_activity_types` | `["home"]` | enum | `assumed` | `['home']`, `[]` |
 | `A.parking.max_stay_min` | `120.0` | minutes | `assumed` | 60 - 180 |
 | `A.parking.occupancy_profile` | `[0.1, 0.08, 0.07, 0.06, 0.08, 0.14, 0.28, 0.46, 0.6, 0.66, 0.7, 0.72, 0.73, 0.72, 0.7, 0.66, 0.58, 0.46, 0....` | occupancy_ratio_by_hour | `assumed` | plus/minus 25% |
@@ -117,6 +131,21 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.road.speed_zone_clip_margin_m` | `2000.0` | metres | `assumed` | 500 - 5000 |
 | `A.road.speed_zone_excluded_classes` | `["service"]` | enum | `definition` | - |
 | `A.road.speed_zone_match_m` | `10.0` | metres | `assumed` | 5 - 20 |
+| `A.schedule_mapping.bounded_search` | `true` | boolean | `definition` | - |
+| `A.schedule_mapping.candidate_distance_multiplier` | `1.6` | factor | `assumed` | 1.2 - 2.5 |
+| `A.schedule_mapping.max_link_candidate_distance_m` | `90.0` | metres | `assumed` | 50 - 150 |
+| `A.schedule_mapping.max_travel_cost_factor` | `5.0` | factor | `assumed` | 2 - 10 |
+| `A.schedule_mapping.mode_specific_rules` | `false` | boolean | `definition` | - |
+| `A.schedule_mapping.modes_to_keep_on_cleanup` | `["car"]` | mode_names | `definition` | - |
+| `A.schedule_mapping.n_link_threshold` | `6` | links | `assumed` | 3 - 12 |
+| `A.schedule_mapping.network_router` | `SpeedyALT` | router_name | `definition` | - |
+| `A.schedule_mapping.remove_not_used_stop_facilities` | `true` | boolean | `definition` | - |
+| `A.schedule_mapping.routing_with_candidate_distance` | `true` | boolean | `definition` | - |
+| `A.schedule_mapping.schedule_freespeed_modes` | `["artificial"]` | mode_names | `definition` | - |
+| `A.schedule_mapping.strict_link_rule` | `false` | boolean | `definition` | - |
+| `A.schedule_mapping.thread_chunk_size` | `100` | routes | `definition` | - |
+| `A.schedule_mapping.transport_mode_assignment` | `{"bus": ["car", "bus"], "rail": ["rail"], "light_rail": ["light_rail", "tram", "car"], "tram": ["light_rail...` | network_modes_by_schedule_mode | `definition` | - |
+| `A.schedule_mapping.travel_cost_type` | `linkLength` | cost_basis | `definition` | - |
 | `A.signals.delay_per_intersection_s` | `26.0` | seconds | `assumed` | 15 - 40 |
 | `A.signals.junction_match_m` | `60.0` | metres | `assumed` | 30 - 100 |
 | `A.signals.min_green_s` | `6.0` | seconds | `assumed` | 4 - 10 |
@@ -243,6 +272,82 @@ Transit signal priority on the corridor. Downstream of A.signals.scats_phasing.
 
 ***assumed** · status **active** · DECISIONS.md §5 · proposal §3.4 S-b*
 
+#### `A.network.freespeed_factor`
+
+Multiplier applied to a way default free speed. One, because the free speed is taken from the regulated speed instrument and a factor over it would be an undeclared second opinion about the same quantity.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.keep_paths`
+
+Whether every intermediate OSM node becomes a MATSim node. False collapses a way between junctions into one link, which is what a mobsim needs: keeping paths multiplies link count without adding a decision point, and MATSim queues form per link.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.keep_tags_as_attributes`
+
+Whether OSM tags survive onto the MATSim link. TRUE IS LOAD-BEARING: the E1 road variants are re-applied to a scenario network by osm:way:id, which exists on the link only because this is true (DECISIONS.md 9.3).
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.keep_ways_with_public_transit`
+
+Retain a way carrying a public transit route even when its class would otherwise be dropped. False would delete bus-only links and strand the routes mapped onto them.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.max_link_length_m`
+
+Longest MATSim link before a way is split. Decided in the network builder as a literal until this change, which made a network-construction parameter invisible to every sweep.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** no measurement bears on it: it trades link count against the spatial resolution of a queue. The lower bound is about a city block, the upper long enough that a rural link is not split for its own sake. Swept because link length changes where congestion can form.
+
+#### `A.network.parse_turn_restrictions`
+
+Whether OSM turn restrictions become MATSim disallowed next links. The base network carries 1,240 of them and the E1 variants add banned turn movements on the corridor, so the road-space externality of proposal 3.3 depends on this being true.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.railway_lane_capacity_veh_h`
+
+Lane capacity written for a railway link. A SENTINEL MEANING UNCONSTRAINED, not a measurement: rail headway is governed by the signalling system and the timetable, neither of which a MATSim link capacity represents. It must stay far above any plausible flow so the queue never binds on a rail link.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.railway_speed_default_kmh`
+
+Default free speed for a RAILWAY class way, where A.road.speed_default does not apply because the class is not a road. Split out of the network builder table, which held speeds for road and railway classes together and had drifted from A.road.speed_default on six road classes.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** line speed on reserved rail alignment where no regulated speed zone applies. The Hunter Line is a 160 km/h class alignment and Australian street-running light rail is limited to about 70; both are class defaults rather than measurements of this corridor, and A.lightrail.line_speed_kmh is the measured corridor quantity.
+
+#### `A.network.routable_subnetworks`
+
+Which transport modes each routable subnetwork admits, as subnetworkMode -> allowedTransportModes. A vocabulary the network is defined over rather than a value to tune: the bus subnetwork admits car because buses run in traffic, and that is the property making transit feel congestion.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.scale_max_speed`
+
+Whether pt2matsim scales the OSM maxspeed by its own factor. False: free speed comes from the TfNSW regulated speed zones - the legal instrument - and from A.road.speed_default where no zone applies, not from a tool default.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.way_default_oneway`
+
+Way classes whose DEFAULT direction is one way, used where OSM carries no explicit oneway tag. A class absent from this map defaults to two way. Motorway and its links only: every other class is bidirectional unless the data says otherwise.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.write_crs`
+
+Write the coordinate system into the network file, so a downstream reader cannot mistake the projection. This repository carried the wrong datum label in four documents at once (DECISIONS.md 2.6).
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
 #### `A.osm.buildings_margin_m`
 
 Margin around the observed light rail STOP SET for the CBD building harvest, which feeds the D1 frontage segments hypothesis B1 is measured on. Anchored on the stops in the GTFS feed rather than a drawn rectangle - the stops are observed, available before any OSM harvest, and exist for any city with a corridor. Issue #34.
@@ -279,17 +384,33 @@ Fallback capacity where a parking facility carries none. 4,861 of 7,710 faciliti
 
 ***assumed** · status **active** · DECISIONS.md §6*
 
+#### `A.parking.charged_end_hour`
+
+Hour at which parking stops being charged, for the day type this config is being emitted for. See A.parking.charged_start_hour: an end at or before the start means the day is free.
+
+***derived** · status **computed** · DECISIONS.md §9.31 · MATSim `parking.chargedEndHour`*
+
+> **Derived from** `A.parking.charged_hours_by_day_type`: chargedEndHour = A.parking.charged_hours_by_day_type[day][1], or 0.0 when that day type declares no window
+
 #### `A.parking.charged_hours_by_day_type`
 
-The window in which parking is charged, per day type. Assumed, and stated rather than left implicit: A5_parking_facilities.csv already asserted 'Mon-Fri 08:00-18:00; Sat 08:00-13:00; else free' in its price_schedule string, where it reached nothing. Without a window, SUN - one of the three day types - would be charged at weekday meter rates.
+The window in which parking is charged, per day type. IT IS A WINDOW PER DAY TYPE, NOT THE TWO PARAMETERS: this field carried matsim_param parking.chargedStartHour, parking.chargedEndHour until the config emitter was built, which would have written the whole dictionary into both scalars. The per-day scalars are A.parking.charged_start_hour and A.parking.charged_end_hour, selected from this by the day type the config is being emitted for. Assumed, and stated rather than left implicit: A5_parking_facilities.csv already asserted 'Mon-Fri 08:00-18:00; Sat 08:00-13:00; else free' in its price_schedule string, where it reached nothing. Without a window, SUN - one of the three day types - would be charged at weekday meter rates.
 
-***assumed** · status **active** · DECISIONS.md §9.31 · MATSim `parking.chargedStartHour, parking.chargedEndHour`*
+***assumed** · status **active** · DECISIONS.md §9.31*
 
 #### `A.parking.charged_modes`
 
 Leg modes that occupy a parking space and are charged for it. Fixed by the formulation, not an empirical quantity: only the driver parks the vehicle. Charging `ride` as well would bill one car twice - the same double-count DECISIONS.md 9.17 removed from the per-km rate.
 
 ***definition** · status **active** · DECISIONS.md §9.31 · MATSim `parking.chargedModes`*
+
+#### `A.parking.charged_start_hour`
+
+Hour at which parking begins to be charged, for the day type this config is being emitted for. Computed rather than declared because the choice of day is not a registry value - it is which of the thirty run-input sets is being written. A day type with no window resolves to a zero-length window, which the Java handler reads as `charge nothing`; expressing a free day that way rather than with a separate flag keeps one code path.
+
+***derived** · status **computed** · DECISIONS.md §9.31 · MATSim `parking.chargedStartHour`*
+
+> **Derived from** `A.parking.charged_hours_by_day_type`: chargedStartHour = A.parking.charged_hours_by_day_type[day][0], or 0.0 when that day type declares no window
 
 #### `A.parking.exempt_activity_types`
 
@@ -386,6 +507,104 @@ Maximum distance from a road edge to a Speed Zone line for the regulated speed t
 ***assumed** · status **active** · DECISIONS.md §9.34*
 
 > **Sweep basis.** MEASURED, not chosen: agreement with the OSM maxspeed tag where both exist holds at 73-77% out to 5 m and 72% to 10 m, then collapses to 30% at 10-20 m and 15% at 20-40 m. Beyond 10 m the nearest line is a different road.
+
+#### `A.schedule_mapping.bounded_search`
+
+Bound the link-candidate search by distance rather than searching the whole network per stop. Off, the mapping of 15 feeds does not finish in usable time.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.candidate_distance_multiplier`
+
+How far beyond the nearest candidate link the mapper keeps looking, as a multiple of that distance.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** pt2matsim documents no calibrated value. Too low and a stop on the far side of a dual carriageway finds no candidate; too high and it maps onto a parallel road. The package reports 0 unmapped stops and an artificial link share of 0.4-0.6%, which is evidence the current value works, not that it is optimal.
+
+#### `A.schedule_mapping.max_link_candidate_distance_m`
+
+Furthest a stop may be from a candidate link. Written to BOTH the module default and every transport-mode assignment, which is why it is one field: two copies drifting apart would map bus and rail to different tolerances silently.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** the distance a stop may sit from the link that serves it. The corridor measurement that bears on it is the 112 s interchange walk (DECISIONS.md 9.32); 50 m is tight for a divided road and 150 m starts admitting the wrong street.
+
+#### `A.schedule_mapping.max_travel_cost_factor`
+
+Ceiling on a mapped route path cost relative to the direct path. Raising it maps more of a route onto real road; lowering it produces more artificial link, on which no car ever queues.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** how much longer than the direct path a mapped route may be before the mapper inserts an artificial link instead. It controls the artificial link share directly, which the package reports at 0.4-0.6%.
+
+#### `A.schedule_mapping.mode_specific_rules`
+
+Whether pt2matsim applies its own per-mode routing rules. False: the mode-to-network assignment is declared in A.schedule_mapping.transport_mode_assignment instead, where it can be read.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.modes_to_keep_on_cleanup`
+
+Network modes preserved when the mapper removes links no route uses. Car is kept because the road network is the thing being modelled; removing it to suit a schedule would delete the study.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.n_link_threshold`
+
+Candidate links retained per stop. Written to both the module default and every transport-mode assignment, for the same reason as the candidate distance.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** how many candidate links a stop keeps before the router chooses. Fewer is faster and can miss the right link at a complex junction; more is slower with diminishing return. No measurement bears on it.
+
+#### `A.schedule_mapping.network_router`
+
+Which least-cost path router the mapper uses. A TOOLCHAIN CHOICE AND THEREFORE A MODEL CHOICE: pt2matsim mapping is already not reproducible run to run (DECISIONS.md 3.5, about 18% of route link sequences differ between identical builds), and changing the router changes that distribution.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.remove_not_used_stop_facilities`
+
+Drop stop facilities no mapped route serves. True keeps schedule and network consistent; a stranded facility is a stop no vehicle can call at.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.routing_with_candidate_distance`
+
+Include the stop-to-link distance in the mapping cost, so a nearer link is preferred among otherwise equal paths.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.schedule_freespeed_modes`
+
+Modes whose link free speed is set from the SCHEDULE rather than from the road. Artificial links only: a tram on a real street must feel that street, and that trams and buses traverse congested links is a stated property of this model.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.strict_link_rule`
+
+Whether a route may ONLY use links carrying its declared network modes. False allows an artificial link where no permitted link exists, which is what keeps the unmapped-stop count at zero; true would strand routes rather than report them.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.thread_chunk_size`
+
+How many routes a mapper thread takes at once. Throughput only - it does not change which link a route maps to.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.transport_mode_assignment`
+
+Which network modes may carry each schedule mode, as scheduleMode -> networkModes. LIGHT RAIL AND TRAM ADMIT CAR DELIBERATELY: the Newcastle line runs in the Hunter Street carriageway, so its links are shared with traffic and the tram is delayed by it. Ferry maps to artificial because no water network is modelled.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.schedule_mapping.travel_cost_type`
+
+Whether the mapper minimises link LENGTH or link TRAVEL TIME. Length, so a mapped path follows the geometry the timetable describes rather than the fastest road: a tram pushed onto a parallel arterial because it is quicker would put transit on the wrong street.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
 
 #### `A.signals.delay_per_intersection_s`
 
@@ -832,7 +1051,7 @@ Points evaluated along each parameter's declared sweep interval in one coordinat
 
 ## Behavioural parameters (C1)
 
-*`cities/newcastle/registry/C_behaviour.json` - 50 fields*
+*`cities/newcastle/registry/C_behaviour.json` - 55 fields*
 
 Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.
 
@@ -864,11 +1083,16 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.nesting.active_coefficient` | `0.7` | dimensionless | `assumed` | 0.5 - 0.95 |
 | `C.nesting.private_coefficient` | `0.8` | dimensionless | `assumed` | 0.5 - 0.95 |
 | `C.nesting.pt_coefficient` | `0.65` | dimensionless | `assumed` | 0.5 - 0.95 |
+| `C.scoring.activity_minimal_applied_s` | *(null - unobtained)* | seconds | `derived` | derived: minimalDuration[a] = min(C.scoring.activity_minimal_duration_s, C.scor |
 | `C.scoring.activity_minimal_duration_s` | `900` | seconds | `assumed` | 300 - 1800 |
 | `C.scoring.activity_typical_duration_s` | `{"home": 43200, "work": 28800, "education": 21600, "shopping": 3600, "other": 7200, "business": 3600, "esco...` | seconds | `assumed` | plus/minus 25% |
 | `C.scoring.marginal_utility_of_money` | `1.0` | utils_per_AUD | `definition` | - |
+| `C.scoring.marginal_utility_of_traveling` | *(null - unobtained)* | utils_per_hour | `derived` | derived: marginalUtilityOfTraveling[m] = performing - trip_weighted_VOT * beta[ |
+| `C.scoring.mode_constant` | *(null - unobtained)* | utils | `derived` | derived: constant[m] = the C1 alternative-specific constant for the mode m maps |
 | `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
 | `C.scoring.performing_utils_per_h` | `6.0` | utils_per_hour | `literature` | 4 - 8 |
+| `C.scoring.utility_of_line_switch` | *(null - unobtained)* | utils | `derived` | derived: utilityOfLineSwitch = -(C.transfer.penalty_min / 60) * trip_weighted_V |
+| `C.scoring.waiting_pt` | *(null - unobtained)* | utils_per_hour | `derived` | derived: waitingPt = performing - trip_weighted_VOT * beta_wait * marginalUtili |
 | `C.time_weights.beta_bike_mode` | `1.21` | ratio_to_ivt | `literature` | 1 - 1.3 |
 | `C.time_weights.beta_headway` | `0.5` | ratio_to_ivt | `literature` | 0.35 - 0.65 |
 | `C.time_weights.beta_ivt` | `1.0` | ratio_to_ivt | `definition` | - |
@@ -1071,23 +1295,47 @@ Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING
 
 ***assumed** · status **placeholder** · DECISIONS.md §8.6, 9.3*
 
+#### `C.scoring.activity_minimal_applied_s`
+
+The minimal duration actually written per activity type. Computed rather than declared because it is not free: it is a floor taken against each activity's own typical duration, and a floor above the typical duration would hold a vehicle at a drop-off.
+
+***derived** · status **computed** · DECISIONS.md §9.15 · MATSim `scoring.activityParams[*].minimalDuration`*
+
+> **Derived from** `C.scoring.activity_minimal_duration_s`, `C.scoring.activity_typical_duration_s`: minimalDuration[a] = min(C.scoring.activity_minimal_duration_s, C.scoring.activity_typical_duration_s[a]), per activity type a
+
 #### `C.scoring.activity_minimal_duration_s`
 
-MATSim minimalDuration for a scored activity. Applied as min(this, typical duration) so it can never exceed the typical duration of a short activity: an escort drop-off has a typical duration of 5 minutes and a 15-minute floor over it would be self-contradictory.
+MATSim minimalDuration for a scored activity. Applied as min(this, typical duration) so it can never exceed the typical duration of a short activity: an escort drop-off has a typical duration of 5 minutes and a 15-minute floor over it would be self-contradictory. The APPLIED per-activity result is C.scoring.activity_minimal_applied_s; this is the ceiling it is taken against.
 
 ***assumed** · status **active** · DECISIONS.md §9.15*
 
 #### `C.scoring.activity_typical_duration_s`
 
-MATSim typical activity duration per activity type. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.
+MATSim typical activity duration per activity type. THIS DICTIONARY IS THE ACTIVITY VOCABULARY: the config carries one activityParams block per key here, so an activity type absent from it is unscored and an agent performing it earns nothing. MATSim reads the duration as a clock string, which is why this field declares its format - the value is seconds, because seconds is what it is. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.
 
-***assumed** · status **active** · DECISIONS.md §9.3, 9.15*
+***assumed** · status **active** · DECISIONS.md §9.3, 9.15 · MATSim `scoring.activityParams[*].typicalDuration`*
 
 #### `C.scoring.marginal_utility_of_money`
 
 Sets the utility numeraire to AUD. Definitional, not empirical.
 
 ***definition** · status **active** · DECISIONS.md §9.3 · MATSim `scoring.marginalUtilityOfMoney`*
+
+#### `C.scoring.marginal_utility_of_traveling`
+
+The MATSim per-mode marginal utility of travel time. COMPUTED, NOT DECLARED: the beta_* fields are RATIOS to in-vehicle time and this parameter is a UTILITY RATE PER HOUR. beta_walk_mode and beta_bike_mode were bound straight to this parameter until the config emitter was built, which would have written the ratio 1.04 into a util/hour rate - the same class of error as an exponent bound to a factor, and invisible while the config was a hand-written template.
+
+***derived** · status **computed** · DECISIONS.md §9.28 · MATSim `scoring.modeParams[*].marginalUtilityOfTraveling_util_hr`*
+
+> **Derived from** `C.scoring.performing_utils_per_h`, `C.vot.trip_weighted`, `C.scoring.marginal_utility_of_money`, `C.time_weights.beta_ivt`, `C.time_weights.beta_walk_mode`, `C.time_weights.beta_bike_mode`: marginalUtilityOfTraveling[m] = performing - trip_weighted_VOT * beta[m] * marginalUtilityOfMoney, the conventional MATSim identity. beta is 1.0 for car and ride, beta_ivt for pt, beta_walk_mode for walk and beta_bike_mode for bike
+
+#### `C.scoring.mode_constant`
+
+The MATSim alternative-specific constant per scored mode. Computed, because C1 is a nested-logit specification over named alternatives and MATSim scores over its own mode vocabulary - the mapping between them is the translation, and it is stated here rather than left implicit in a builder. The C.asc.* fields remain the declared quantities and are what a calibration moves; DECISIONS.md 8.5 holds them fixed.
+
+***derived** · status **computed** · DECISIONS.md §8.5, 9.8 · MATSim `scoring.modeParams[*].constant`*
+
+> **Derived from** `C.asc.car_driver`, `C.asc.car_passenger`, `C.asc.bus`, `C.asc.walk`, `C.asc.cycle`: constant[m] = the C1 alternative-specific constant for the mode m maps to, translated in src/build/build_matsim_run_inputs.py: car<-asc_car_driver, ride<-asc_car_passenger, pt<-asc_bus, walk<-asc_walk, bike<-asc_cycle
 
 #### `C.scoring.monetary_distance_rate`
 
@@ -1105,11 +1353,27 @@ Marginal utility of performing an activity. A property of the MATSim scoring for
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `scoring.performing`*
 
+#### `C.scoring.utility_of_line_switch`
+
+The scoring penalty for changing transit line, ON TOP of the walk and wait MATSim already simulates. Computed from the declared transfer penalty, which is SWEPT 3-15 min because the estimate proposal 7.2 asks for is not possible from this package (deliverable 8, DECISIONS.md 9.32). Every headline that touches interchange is bound to a curve across that sweep, and this is the parameter the sweep moves.
+
+***derived** · status **computed** · DECISIONS.md §9.32 · MATSim `scoring.utilityOfLineSwitch`*
+
+> **Derived from** `C.transfer.penalty_min`, `C.vot.trip_weighted`, `C.scoring.marginal_utility_of_money`: utilityOfLineSwitch = -(C.transfer.penalty_min / 60) * trip_weighted_VOT * marginalUtilityOfMoney
+
+#### `C.scoring.waiting_pt`
+
+Disutility of waiting for public transport, per hour. Distinct from RUN.scoring.waiting, which is general waiting and is a declared value: this one is derived from the C1 wait weight. Confusing the two is the DECISIONS.md 9.28 defect class.
+
+***derived** · status **computed** · DECISIONS.md §9.28 · MATSim `scoring.waitingPt`*
+
+> **Derived from** `C.scoring.performing_utils_per_h`, `C.vot.trip_weighted`, `C.scoring.marginal_utility_of_money`, `C.time_weights.beta_wait`: waitingPt = performing - trip_weighted_VOT * beta_wait * marginalUtilityOfMoney, the same identity as the per-mode travel rate applied to the waiting weight
+
 #### `C.time_weights.beta_bike_mode`
 
 Weight on BIKE travel time relative to in-vehicle time. Value from Melbourne AToM, estimated on VISTA n=14,959. MUST BE >= C.time_weights.beta_walk_mode: cycling time being dearer per hour than walking time is the finding of 9.28, not an incidental ordering - the model had it inverted (walk 2.0, bike 1.3) and that inversion conceded every short trip to bike. Replaces a bare literal 1.3 typed into src/build/build_matsim_run_inputs.py that carried no registry field, no source, no sweep and no consumer while governing bike's mode share.
 
-***literature** · status **active** · DECISIONS.md §8.4, 9.28 · MATSim `scoring.modeParams[bike].marginalUtilityOfTraveling_util_hr`*
+***literature** · status **active** · DECISIONS.md §8.4, 9.28*
 
 > **Sweep basis.** same bracket as beta_walk_mode. AToM estimates 1.21 for cycling; Kelheim uses 1.50 and Leipzig 1.92, so 1.0-1.3 is the conservative end of published practice.
 
@@ -1153,7 +1417,7 @@ Weight on walk egress time relative to in-vehicle time.
 
 Weight on WALK-AS-A-MODE travel time relative to in-vehicle time. DISTINCT FROM beta_walk_access, which is the appraisal weight on walking to a PT stop INSIDE a PT journey and must never be used here: doing so priced a whole walking trip at 2x car time, put the walk-bike indifference distance at 174 m against an observed mean walk trip of 700 m, and produced a 0.13% walk share against 13.4% (9.28). Value from Melbourne AToM, estimated on VISTA n=14,959, the only calibrated Australian agent-based model.
 
-***literature** · status **active** · DECISIONS.md §8.4, 9.28 · MATSim `scoring.modeParams[walk].marginalUtilityOfTraveling_util_hr`*
+***literature** · status **active** · DECISIONS.md §8.4, 9.28*
 
 > **Sweep basis.** bracketed by the two conventions actually in use: Open Berlin, Kelheim and Hamburg price walk time equal to car (1.00) and Duesseldorf at 1.15, while Melbourne AToM estimates 1.04 on Australian revealed preference. No published calibrated MATSim scenario exceeds 1.15.
 
@@ -1339,7 +1603,7 @@ Seeded replications per scenario. One of the three things that can be cut to clo
 
 ## Execution control
 
-*`cities/newcastle/registry/RUN_execution.json` - 38 fields*
+*`cities/newcastle/registry/RUN_execution.json` - 52 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -1348,6 +1612,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.controler.compression_type` | `gzip` | enum | `definition` | - |
 | `RUN.controler.first_iteration` | `0` | iterations | `definition` | - |
 | `RUN.controler.last_iteration` | *(null - unobtained)* | iterations | `assumed` | 250 - 2000 |
+| `RUN.controler.overwrite_files` | `failIfDirectoryExists` | policy | `definition` | - |
 | `RUN.controler.write_events_interval` | `10` | iterations | `definition` | - |
 | `RUN.controler.write_plans_interval` | `10` | iterations | `definition` | - |
 | `RUN.machine.seed` | `20260810` | integer_seed | `definition` | - |
@@ -1366,10 +1631,13 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
 | `RUN.qsim.end_time_h` | `30` | hours | `definition` | - |
 | `RUN.qsim.main_mode` | `car` | enum | `definition` | - |
+| `RUN.qsim.snapshot_period` | `00:00:00` | hh:mm:ss | `definition` | - |
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
+| `RUN.qsim.vehicles_source` | `defaultVehicle` | policy | `definition` | - |
 | `RUN.relaxation.drift_tolerance_pp` | `0.5` | percentage_points | `assumed` | 0.1 - 1 |
 | `RUN.replanning.fraction_to_disable_innovation` | `0.8` | share_of_iterations | `literature` | 0.7 - 0.9 |
 | `RUN.replanning.max_agent_plan_memory` | `5` | plans | `literature` | 3 - 10 |
+| `RUN.replanning.subpopulations` | `["person", "external"]` | subpopulation_names | `definition` | - |
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
 | `RUN.routing.beeline_distance_factor_bike` | `1.5231` | ratio | `measured` | 1.207 - 1.456 |
 | `RUN.routing.beeline_distance_factor_walk` | `1.6902` | ratio | `measured` | 1.294 - 1.794 |
@@ -1379,10 +1647,20 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.sample.flow_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: flowCapacityFactor = RUN.sample.fraction, the standard MATSim scaling  |
 | `RUN.sample.fraction` | `0.01` | share_of_population | `assumed` | 0.01 - 0.4 |
 | `RUN.sample.storage_capacity_exponent` | `1.0` | exponent | `derived` | derived: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim e |
+| `RUN.sample.storage_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: storageCapacityFactor = RUN.sample.fraction ** RUN.sample.storage_capa |
 | `RUN.sample.transit_capacity_floor` | `1` | seats | `assumed` | 1 - 4 |
 | `RUN.sample.transit_capacity_scaling` | `true` | boolean | `derived` | derived: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it |
+| `RUN.scoring.brain_exp_beta` | `1.0` | logit_scale | `literature` | 0.5 - 2 |
+| `RUN.scoring.early_departure_utils_per_h` | `0.0` | utils_per_hour | `assumed` | -18 - 0 |
+| `RUN.scoring.late_arrival_utils_per_h` | `-18.0` | utils_per_hour | `literature` | -36 - -6 |
+| `RUN.scoring.learning_rate` | `1.0` | share | `literature` | 0.5 - 1 |
+| `RUN.scoring.waiting_utils_per_h` | `0.0` | utils_per_hour | `assumed` | -6 - 0 |
 | `RUN.telemetry.live_interval_s` | `3600` | seconds | `definition` | - |
+| `RUN.transit.transit_modes` | `["pt"]` | mode_names | `definition` | - |
+| `RUN.transit.use_transit` | `true` | boolean | `definition` | - |
 | `RUN.transit_router.max_beeline_walk_connection_m` | `300.0` | metres | `literature` | 100 - 500 |
+| `RUN.travel_time.analysed_modes` | `["car"]` | mode_names | `definition` | - |
+| `RUN.travel_time.separate_modes` | `false` | boolean | `definition` | - |
 
 #### `RUN.controler.compression_type`
 
@@ -1401,6 +1679,12 @@ Start iteration.
 Iterations to relaxation. NO JUSTIFIED VALUE HAS BEEN MEASURED. Two 1% runs of 250 iterations showed the model had NOT converged: innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. The shipped scenario configs carry 100, which is known wrong and left in place rather than replaced by another unjustified number; run_matsim.py deliberately gives --iterations NO DEFAULT. Everything downstream needs this number (issue 5).
 
 ***assumed** · status **unobtained** · DECISIONS.md §9.7, 15 · MATSim `controler.lastIteration`*
+
+#### `RUN.controler.overwrite_files`
+
+What MATSim does with an output directory that already exists. Failing is deliberate: silently overwriting would let a re-run blend into a previous one, which is the same failure mode as a timing series outliving its run.
+
+***definition** · status **active** · DECISIONS.md §15 · MATSim `controler.overwriteFiles`*
 
 #### `RUN.controler.write_events_interval`
 
@@ -1422,9 +1706,9 @@ MATSim random seed. Held at the master seed unless replications are being drawn.
 
 #### `RUN.machine.threads`
 
-Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results.
+Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. It writes to BOTH thread parameters, which is why it is one field and not two: a config whose global and qsim counts disagree partitions differently in replanning and in the mobsim.
 
-***definition** · status **active** · DECISIONS.md §9.5*
+***definition** · status **active** · DECISIONS.md §9.5 · MATSim `global.numberOfThreads, qsim.numberOfThreads`*
 
 #### `RUN.machine.xmx`
 
@@ -1514,11 +1798,23 @@ The only mode physically simulated in the mobsim. A car passenger is not a secon
 
 ***definition** · status **active** · DECISIONS.md §9.6 · MATSim `qsim.mainMode`*
 
+#### `RUN.qsim.snapshot_period`
+
+Interval between mobsim vehicle-position snapshots. Zero disables them: this study reads movement through RunTelemetry from inside the mobsim and through the event stream, not through snapshot files, which are large and are not part of any result.
+
+***definition** · status **active** · DECISIONS.md §15 · MATSim `qsim.snapshotperiod`*
+
 #### `RUN.qsim.start_time_h`
 
 Mobsim start.
 
 ***definition** · status **active** · DECISIONS.md §15 · MATSim `qsim.startTime`*
+
+#### `RUN.qsim.vehicles_source`
+
+Where the mobsim gets a private vehicle's characteristics. `defaultVehicle` gives every car the same physical vehicle, which is what a study with no vehicle-fleet observation can support. TRANSIT vehicles are unaffected - they come from the schedule's own vehicles file, whose seats RUN.sample.transit_capacity_scaling scales.
+
+***definition** · status **active** · DECISIONS.md §15 · MATSim `qsim.vehiclesSource`*
 
 #### `RUN.relaxation.drift_tolerance_pp`
 
@@ -1537,6 +1833,12 @@ Share of iterations after which no new plans are created. At 250 iterations inno
 Plans retained per agent. A property of the MATSim formulation, not of Newcastle.
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `replanning.maxAgentPlanMemorySize`*
+
+#### `RUN.replanning.subpopulations`
+
+The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area and `external` is a boundary-tier agent. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries.
+
+***definition** · status **active** · DECISIONS.md §15*
 
 #### `RUN.replanning.weights`
 
@@ -1600,11 +1902,19 @@ Share of the synthetic population simulated. The subsample is NESTED - a person 
 
 #### `RUN.sample.storage_capacity_exponent`
 
-The exponent relating storage capacity to the sample fraction. IT IS 1.0 AND IT IS NOT FREE. An earlier revision of this registry declared it assumed with a 0.75-1.0 sweep, on the reasoning that MATSim floors link storage at one vehicle so a 1% sample would produce spurious spillback, and that raising storage relative to flow is the usual treatment. That reasoning is superseded. MATSim rejects any value below 1.0 outright and states the reason: 'the old approach of setting the stor cap fact larger than the flow cap fact is no longer needed since the qsim became a lot more deterministic'. The sweep was therefore a range whose members the tool will not accept, which is exactly the undisciplined declaration this registry exists to prevent. Corrected after the diagnostic run that tried to use it failed in one second. The remaining question - whether behaviour moves with the SAMPLE FRACTION itself - is unaffected and is what the 1% versus 10% arms test.
+The exponent relating storage capacity to the sample fraction. IT IS AN EXPONENT, NOT THE PARAMETER: this field carried matsim_param qsim.storageCapacityFactor until the config emitter was built, which would have written the exponent 1.0 straight into the factor at every sample fraction - MATSim rejects 1.0 against a flow factor of 0.01 in one second. The factor is RUN.sample.storage_capacity_factor, computed from this and the fraction. IT IS 1.0 AND IT IS NOT FREE. An earlier revision of this registry declared it assumed with a 0.75-1.0 sweep, on the reasoning that MATSim floors link storage at one vehicle so a 1% sample would produce spurious spillback, and that raising storage relative to flow is the usual treatment. That reasoning is superseded. MATSim rejects any value below 1.0 outright and states the reason: 'the old approach of setting the stor cap fact larger than the flow cap fact is no longer needed since the qsim became a lot more deterministic'. The sweep was therefore a range whose members the tool will not accept, which is exactly the undisciplined declaration this registry exists to prevent. Corrected after the diagnostic run that tried to use it failed in one second. The remaining question - whether behaviour moves with the SAMPLE FRACTION itself - is unaffected and is what the 1% versus 10% arms test.
 
-***derived** · status **active** · DECISIONS.md §15 · MATSim `qsim.storageCapacityFactor`*
+***derived** · status **active** · DECISIONS.md §15*
 
 > **Derived from** `RUN.sample.fraction`: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim enforces the equality: GlobalConfigGroup.checkConsistency throws when the two differ by more than global.relativeTolerance, which defaults to 0.0
+
+#### `RUN.sample.storage_capacity_factor`
+
+Link storage capacity scaled to the sample. NOT A FREE CHOICE and not the exponent: it is the exponent applied to the fraction, and the harness computes it per run. Split out from RUN.sample.storage_capacity_exponent when the config emitter was built, because the exponent had been bound directly to the factor parameter - two quantities in one field, of which only one is what MATSim reads.
+
+***derived** · status **computed** · DECISIONS.md §15 · MATSim `qsim.storageCapacityFactor`*
+
+> **Derived from** `RUN.sample.fraction`, `RUN.sample.storage_capacity_exponent`: storageCapacityFactor = RUN.sample.fraction ** RUN.sample.storage_capacity_exponent, which at the declared exponent of 1.0 equals flowCapacityFactor exactly. MATSim's GlobalConfigGroup.checkConsistency throws when the two differ by more than global.relativeTolerance, which defaults to 0.0
 
 #### `RUN.sample.transit_capacity_floor`
 
@@ -1620,11 +1930,63 @@ Scale transit vehicle seats by the sample fraction. NOT OPTIONAL in practice: at
 
 > **Derived from** `RUN.sample.fraction`: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it would give every vehicle 1/fraction times its real capacity
 
+#### `RUN.scoring.brain_exp_beta`
+
+The logit scale in the ChangeExpBeta plan-selection rule: how sharply an agent's probability of switching plans responds to the score difference between them. IT WAS UNDECLARED AND TYPED INTO THE CONFIG TEMPLATE until this change, which made the single parameter governing choice sharpness the one value in the scoring block that could not be swept. Not a property of Newcastle.
+
+***literature** · status **active** · DECISIONS.md §9.3, 15 · MATSim `scoring.BrainExpBeta`*
+
+> **Sweep basis.** MATSim's own default is 1.0 and the manual treats it as the conventional starting point rather than a measured quantity. The interval spans the range in common use: below 1 agents respond more softly to a utility difference and mode shares flatten, above 1 they respond more sharply and the model can lock in. Nothing about Newcastle bears on it.
+
+#### `RUN.scoring.early_departure_utils_per_h`
+
+Penalty for leaving an activity before its earliest end time. ZERO IS A CHOICE, not an absence of one, and it was typed into the config template rather than declared.
+
+***assumed** · status **active** · DECISIONS.md §9.3, 15 · MATSim `scoring.earlyDeparture`*
+
+> **Sweep basis.** Zero is an assumption that leaving an activity early costs nothing beyond the activity utility already forgone, which is the usual MATSim treatment and avoids charging the same shortfall twice. The interval allows an explicit penalty up to the late-arrival rate for a sensitivity arm.
+
+#### `RUN.scoring.late_arrival_utils_per_h`
+
+Penalty for arriving at an activity after its latest start time. Behavioural scoring, undeclared and typed into the config template until this change.
+
+***literature** · status **active** · DECISIONS.md §9.3, 15 · MATSim `scoring.lateArrival`*
+
+> **Sweep basis.** MATSim's conventional value is -18 utils/h, three times a typical performing rate, and the manual presents it as a convention rather than an estimate. The interval spans one third to twice that. No Newcastle observation bears on it: the HTS held is aggregate and carries no schedule-adherence measure.
+
+#### `RUN.scoring.learning_rate`
+
+How much of a plan's newly executed score replaces its remembered score. Governs how fast the co-evolution forgets, and therefore interacts with the iteration count the pilot exists to measure. A property of the MATSim formulation, not of Newcastle.
+
+***literature** · status **active** · DECISIONS.md §9.3, 9.7, 15 · MATSim `scoring.learningRate`*
+
+> **Sweep basis.** MATSim's default is 1.0, meaning a plan's score is replaced outright by the latest execution rather than blended with its history. Values below 1 blend, which damps oscillation at the cost of slower relaxation - directly relevant to issue 5, and therefore swept rather than pinned.
+
+#### `RUN.scoring.waiting_utils_per_h`
+
+Disutility of general waiting, over and above the opportunity cost of the time. NOT the public-transport wait - that is scoring.waitingPt, derived from C.time_weights.beta_wait, and confusing the two is the DECISIONS.md 9.28 defect class.
+
+***assumed** · status **active** · DECISIONS.md §9.3, 9.28, 15 · MATSim `scoring.waiting`*
+
+> **Sweep basis.** Zero avoids double-counting: general waiting is already priced through the forgone performing utility of the time. The interval allows an additional explicit disutility for a sensitivity arm. Distinct from scoring.waitingPt, which is DERIVED from the C1 beta_wait and is not this field.
+
 #### `RUN.telemetry.live_interval_s`
 
 Simulated seconds between live telemetry snapshots while the mobsim runs. The boundary is SIMULATED time, never wall clock, so a repeated run writes the same snapshots in the same places - the determinism rule applies to an observer as much as to a build script. 3600 puts one snapshot per simulated hour, which at the measured sweep rate (a 30 h day in about 15 s of wall clock) is roughly one every half second. Lowering it loses nothing - the file carries the accumulating profile of the day, not a single instant - it only refines the bins. This does NOT require writeEventsInterval to change: a registered handler receives the full event stream on every iteration whether or not that stream is also written to disk, which the package demonstrates at 26 event files against 251 leg histograms.
 
-***definition** · status **active** · DECISIONS.md §9.19*
+***definition** · status **active** · DECISIONS.md §9.19 · MATSim `telemetry.liveIntervalS`*
+
+#### `RUN.transit.transit_modes`
+
+The mode string the transit schedule is served under. One value, because the study scores public transport as a single mode and distinguishes tram from bus from rail by vehicle type inside it, not by mode.
+
+***definition** · status **active** · DECISIONS.md §15 · MATSim `transit.transitModes`*
+
+#### `RUN.transit.use_transit`
+
+Whether the mobsim simulates the transit schedule at all. False would make every scenario in this study meaningless, which is exactly why it is declared rather than left as a literal nobody can see.
+
+***definition** · status **active** · DECISIONS.md §15 · MATSim `transit.useTransit`*
 
 #### `RUN.transit_router.max_beeline_walk_connection_m`
 
@@ -1633,6 +1995,18 @@ Maximum stop-to-stop distance at which the PT router will create a transfer. THI
 ***literature** · status **active** · DECISIONS.md §9.28 · MATSim `transitRouter.maxBeelineWalkConnectionDistance`*
 
 > **Sweep basis.** 100 m is the MATSim default that was live here unset; 300 m is the value Open Berlin, Leipzig and Kelheim all set. The upper bound spans Leipzig and Kelheim's 500 m extensionRadius.
+
+#### `RUN.travel_time.analysed_modes`
+
+Which modes contribute observed link travel times. Only car is physically simulated (RUN.qsim.main_mode), so only car can contribute one. See RUN.travel_time.separate_modes: the two are one decision in two parameters.
+
+***definition** · status **active** · DECISIONS.md §9.29, 15 · MATSim `travelTimeCalculator.analyzedModes`*
+
+#### `RUN.travel_time.separate_modes`
+
+Whether travel times are accumulated per mode rather than once for the network. False with analysedModes=car is the pairing that makes `ride` read the car travel time it is routed on - the mechanism at the centre of issue 28. Declared so that pairing is visible and swept together, not typed into two adjacent lines of a template.
+
+***definition** · status **active** · DECISIONS.md §9.29, 15 · MATSim `travelTimeCalculator.separateModes`*
 
 ## SUMO corridor (build and microsimulation)
 

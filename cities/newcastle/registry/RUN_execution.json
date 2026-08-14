@@ -38,14 +38,29 @@
       "source": "derived",
       "status": "active",
       "decisions_ref": "15",
-      "matsim_param": "qsim.storageCapacityFactor",
       "derived_from": {
         "fields": [
           "RUN.sample.fraction"
         ],
         "identity": "storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim enforces the equality: GlobalConfigGroup.checkConsistency throws when the two differ by more than global.relativeTolerance, which defaults to 0.0"
       },
-      "description": "The exponent relating storage capacity to the sample fraction. IT IS 1.0 AND IT IS NOT FREE. An earlier revision of this registry declared it assumed with a 0.75-1.0 sweep, on the reasoning that MATSim floors link storage at one vehicle so a 1% sample would produce spurious spillback, and that raising storage relative to flow is the usual treatment. That reasoning is superseded. MATSim rejects any value below 1.0 outright and states the reason: 'the old approach of setting the stor cap fact larger than the flow cap fact is no longer needed since the qsim became a lot more deterministic'. The sweep was therefore a range whose members the tool will not accept, which is exactly the undisciplined declaration this registry exists to prevent. Corrected after the diagnostic run that tried to use it failed in one second. The remaining question - whether behaviour moves with the SAMPLE FRACTION itself - is unaffected and is what the 1% versus 10% arms test."
+      "description": "The exponent relating storage capacity to the sample fraction. IT IS AN EXPONENT, NOT THE PARAMETER: this field carried matsim_param qsim.storageCapacityFactor until the config emitter was built, which would have written the exponent 1.0 straight into the factor at every sample fraction - MATSim rejects 1.0 against a flow factor of 0.01 in one second. The factor is RUN.sample.storage_capacity_factor, computed from this and the fraction. IT IS 1.0 AND IT IS NOT FREE. An earlier revision of this registry declared it assumed with a 0.75-1.0 sweep, on the reasoning that MATSim floors link storage at one vehicle so a 1% sample would produce spurious spillback, and that raising storage relative to flow is the usual treatment. That reasoning is superseded. MATSim rejects any value below 1.0 outright and states the reason: 'the old approach of setting the stor cap fact larger than the flow cap fact is no longer needed since the qsim became a lot more deterministic'. The sweep was therefore a range whose members the tool will not accept, which is exactly the undisciplined declaration this registry exists to prevent. Corrected after the diagnostic run that tried to use it failed in one second. The remaining question - whether behaviour moves with the SAMPLE FRACTION itself - is unaffected and is what the 1% versus 10% arms test."
+    },
+    "RUN.sample.storage_capacity_factor": {
+      "value": null,
+      "units": "share_of_capacity",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "15",
+      "matsim_param": "qsim.storageCapacityFactor",
+      "derived_from": {
+        "fields": [
+          "RUN.sample.fraction",
+          "RUN.sample.storage_capacity_exponent"
+        ],
+        "identity": "storageCapacityFactor = RUN.sample.fraction ** RUN.sample.storage_capacity_exponent, which at the declared exponent of 1.0 equals flowCapacityFactor exactly. MATSim's GlobalConfigGroup.checkConsistency throws when the two differ by more than global.relativeTolerance, which defaults to 0.0"
+      },
+      "description": "Link storage capacity scaled to the sample. NOT A FREE CHOICE and not the exponent: it is the exponent applied to the fraction, and the harness computes it per run. Split out from RUN.sample.storage_capacity_exponent when the config emitter was built, because the exponent had been bound directly to the factor parameter - two quantities in one field, of which only one is what MATSim reads."
     },
     "RUN.sample.transit_capacity_scaling": {
       "value": true,
@@ -137,6 +152,7 @@
       "status": "active",
       "decisions_ref": "15",
       "matsim_param": "qsim.startTime",
+      "matsim_format": "hh:mm:ss",
       "description": "Mobsim start."
     },
     "RUN.qsim.end_time_h": {
@@ -147,6 +163,7 @@
       "status": "active",
       "decisions_ref": "15",
       "matsim_param": "qsim.endTime",
+      "matsim_format": "hh:mm:ss",
       "description": "Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnight returns."
     },
     "RUN.qsim.main_mode": {
@@ -406,7 +423,8 @@
       ],
       "status": "active",
       "decisions_ref": "9.5",
-      "description": "Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results."
+      "matsim_param": "global.numberOfThreads, qsim.numberOfThreads",
+      "description": "Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. It writes to BOTH thread parameters, which is why it is one field and not two: a config whose global and qsim counts disagree partitions differently in replanning and in the mobsim."
     },
     "RUN.machine.xmx": {
       "value": "14g",
@@ -489,6 +507,162 @@
       ],
       "description": "How often the live view re-reads status WHILE THE MOBSIM IS SWEEPING. The mobsim runs a 30 h simulated day in about 15 s of wall clock, so the shipped RUN.monitor.poll_s of 3 s would sample the whole day five times and the peak would build and dissipate between two reads. 0.5 s matches the rate at which the run publishes windows at RUN.telemetry.live_interval_s = 3600 simulated seconds. Between mobsims the page falls back to RUN.monitor.poll_s, because nothing it shows changes during replanning and scoring."
     },
+    "RUN.scoring.brain_exp_beta": {
+      "value": 1.0,
+      "units": "logit_scale",
+      "source": "literature",
+      "sweep": [
+        0.5,
+        2.0
+      ],
+      "sweep_basis": "MATSim's own default is 1.0 and the manual treats it as the conventional starting point rather than a measured quantity. The interval spans the range in common use: below 1 agents respond more softly to a utility difference and mode shares flatten, above 1 they respond more sharply and the model can lock in. Nothing about Newcastle bears on it.",
+      "status": "active",
+      "decisions_ref": "9.3, 15",
+      "matsim_param": "scoring.BrainExpBeta",
+      "description": "The logit scale in the ChangeExpBeta plan-selection rule: how sharply an agent's probability of switching plans responds to the score difference between them. IT WAS UNDECLARED AND TYPED INTO THE CONFIG TEMPLATE until this change, which made the single parameter governing choice sharpness the one value in the scoring block that could not be swept. Not a property of Newcastle."
+    },
+    "RUN.scoring.learning_rate": {
+      "value": 1.0,
+      "units": "share",
+      "source": "literature",
+      "sweep": [
+        0.5,
+        1.0
+      ],
+      "sweep_basis": "MATSim's default is 1.0, meaning a plan's score is replaced outright by the latest execution rather than blended with its history. Values below 1 blend, which damps oscillation at the cost of slower relaxation - directly relevant to issue 5, and therefore swept rather than pinned.",
+      "status": "active",
+      "decisions_ref": "9.3, 9.7, 15",
+      "matsim_param": "scoring.learningRate",
+      "description": "How much of a plan's newly executed score replaces its remembered score. Governs how fast the co-evolution forgets, and therefore interacts with the iteration count the pilot exists to measure. A property of the MATSim formulation, not of Newcastle."
+    },
+    "RUN.scoring.late_arrival_utils_per_h": {
+      "value": -18.0,
+      "units": "utils_per_hour",
+      "source": "literature",
+      "sweep": [
+        -36.0,
+        -6.0
+      ],
+      "sweep_basis": "MATSim's conventional value is -18 utils/h, three times a typical performing rate, and the manual presents it as a convention rather than an estimate. The interval spans one third to twice that. No Newcastle observation bears on it: the HTS held is aggregate and carries no schedule-adherence measure.",
+      "status": "active",
+      "decisions_ref": "9.3, 15",
+      "matsim_param": "scoring.lateArrival",
+      "description": "Penalty for arriving at an activity after its latest start time. Behavioural scoring, undeclared and typed into the config template until this change."
+    },
+    "RUN.scoring.early_departure_utils_per_h": {
+      "value": 0.0,
+      "units": "utils_per_hour",
+      "source": "assumed",
+      "sweep": [
+        -18.0,
+        0.0
+      ],
+      "sweep_basis": "Zero is an assumption that leaving an activity early costs nothing beyond the activity utility already forgone, which is the usual MATSim treatment and avoids charging the same shortfall twice. The interval allows an explicit penalty up to the late-arrival rate for a sensitivity arm.",
+      "status": "active",
+      "decisions_ref": "9.3, 15",
+      "matsim_param": "scoring.earlyDeparture",
+      "description": "Penalty for leaving an activity before its earliest end time. ZERO IS A CHOICE, not an absence of one, and it was typed into the config template rather than declared."
+    },
+    "RUN.scoring.waiting_utils_per_h": {
+      "value": 0.0,
+      "units": "utils_per_hour",
+      "source": "assumed",
+      "sweep": [
+        -6.0,
+        0.0
+      ],
+      "sweep_basis": "Zero avoids double-counting: general waiting is already priced through the forgone performing utility of the time. The interval allows an additional explicit disutility for a sensitivity arm. Distinct from scoring.waitingPt, which is DERIVED from the C1 beta_wait and is not this field.",
+      "status": "active",
+      "decisions_ref": "9.3, 9.28, 15",
+      "matsim_param": "scoring.waiting",
+      "description": "Disutility of general waiting, over and above the opportunity cost of the time. NOT the public-transport wait - that is scoring.waitingPt, derived from C.time_weights.beta_wait, and confusing the two is the DECISIONS.md 9.28 defect class."
+    },
+    "RUN.replanning.subpopulations": {
+      "value": [
+        "person",
+        "external"
+      ],
+      "units": "subpopulation_names",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "description": "The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area and `external` is a boundary-tier agent. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries."
+    },
+    "RUN.transit.use_transit": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "matsim_param": "transit.useTransit",
+      "description": "Whether the mobsim simulates the transit schedule at all. False would make every scenario in this study meaningless, which is exactly why it is declared rather than left as a literal nobody can see."
+    },
+    "RUN.transit.transit_modes": {
+      "value": [
+        "pt"
+      ],
+      "units": "mode_names",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "matsim_param": "transit.transitModes",
+      "description": "The mode string the transit schedule is served under. One value, because the study scores public transport as a single mode and distinguishes tram from bus from rail by vehicle type inside it, not by mode."
+    },
+    "RUN.controler.overwrite_files": {
+      "value": "failIfDirectoryExists",
+      "units": "policy",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "matsim_param": "controler.overwriteFiles",
+      "description": "What MATSim does with an output directory that already exists. Failing is deliberate: silently overwriting would let a re-run blend into a previous one, which is the same failure mode as a timing series outliving its run."
+    },
+    "RUN.qsim.snapshot_period": {
+      "value": "00:00:00",
+      "units": "hh:mm:ss",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "matsim_param": "qsim.snapshotperiod",
+      "description": "Interval between mobsim vehicle-position snapshots. Zero disables them: this study reads movement through RunTelemetry from inside the mobsim and through the event stream, not through snapshot files, which are large and are not part of any result."
+    },
+    "RUN.qsim.vehicles_source": {
+      "value": "defaultVehicle",
+      "units": "policy",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "matsim_param": "qsim.vehiclesSource",
+      "description": "Where the mobsim gets a private vehicle's characteristics. `defaultVehicle` gives every car the same physical vehicle, which is what a study with no vehicle-fleet observation can support. TRANSIT vehicles are unaffected - they come from the schedule's own vehicles file, whose seats RUN.sample.transit_capacity_scaling scales."
+    },
+    "RUN.travel_time.separate_modes": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.29, 15",
+      "matsim_param": "travelTimeCalculator.separateModes",
+      "description": "Whether travel times are accumulated per mode rather than once for the network. False with analysedModes=car is the pairing that makes `ride` read the car travel time it is routed on - the mechanism at the centre of issue 28. Declared so that pairing is visible and swept together, not typed into two adjacent lines of a template."
+    },
+    "RUN.travel_time.analysed_modes": {
+      "value": [
+        "car"
+      ],
+      "units": "mode_names",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.29, 15",
+      "matsim_param": "travelTimeCalculator.analyzedModes",
+      "description": "Which modes contribute observed link travel times. Only car is physically simulated (RUN.qsim.main_mode), so only car can contribute one. See RUN.travel_time.separate_modes: the two are one decision in two parameters."
+    },
     "RUN.telemetry.live_interval_s": {
       "value": 3600,
       "units": "seconds",
@@ -496,6 +670,7 @@
       "sweep": null,
       "status": "active",
       "decisions_ref": "9.19",
+      "matsim_param": "telemetry.liveIntervalS",
       "consumers": [
         "src/java/citysim/TelemetryConfigGroup.java",
         "src/java/citysim/RunTelemetry.java",

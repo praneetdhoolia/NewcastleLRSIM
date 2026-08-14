@@ -178,7 +178,21 @@
     },
     "matsim_param": {
       "type": "string",
-      "description": "The MATSim config path this field writes to, as module.param or module.parameterset[key].param."
+      "description": "The MATSim config path this field writes to, as module.param or module.parameterset[key].param. A selector of [*] means the field's own value supplies the membership: one parameterset per key of a dict, or per member of a list. Several comma-separated targets are allowed when one decision writes to more than one parameter. src/registry/param_config.py BUILDS the config from these bindings, so a parameter no field claims does not exist - which is what makes zero hardcoding checkable rather than aspirational. A field whose units differ from the parameter's is an ERROR, not a conversion: an exponent bound to a factor and a time ratio bound to a util/hour rate were both found this way."
+    },
+    "matsim_format": {
+      "enum": [
+        "hh:mm:ss"
+      ],
+      "description": "Set only where MATSim's parameter format differs from the field's declared units - a clock time or a duration, declared in hours or seconds because that is what it is, and read by MATSim as hh:mm:ss. The conversion uses the field's own `units`, so a field cannot say hours in one place and be treated as seconds in another. Without this the config template held a second representation of the value (the literal `30:00:00` beside a field declaring 30), which is the drift the registry exists to stop."
+    },
+    "pt2matsim_osm_param": {
+      "type": "string",
+      "description": "The pt2matsim OsmConverter config path this field writes to. Same grammar as matsim_param; a different tool, so a different binding."
+    },
+    "pt2matsim_mapper_param": {
+      "type": "string",
+      "description": "The pt2matsim PublicTransitMapping config path this field writes to. Same grammar as matsim_param."
     },
     "sumo_param": {
       "type": "string"

@@ -207,7 +207,6 @@
       "sweep_basis": "bracketed by the two conventions actually in use: Open Berlin, Kelheim and Hamburg price walk time equal to car (1.00) and Duesseldorf at 1.15, while Melbourne AToM estimates 1.04 on Australian revealed preference. No published calibrated MATSim scenario exceeds 1.15.",
       "status": "active",
       "decisions_ref": "8.4, 9.28",
-      "matsim_param": "scoring.modeParams[walk].marginalUtilityOfTraveling_util_hr",
       "description": "Weight on WALK-AS-A-MODE travel time relative to in-vehicle time. DISTINCT FROM beta_walk_access, which is the appraisal weight on walking to a PT stop INSIDE a PT journey and must never be used here: doing so priced a whole walking trip at 2x car time, put the walk-bike indifference distance at 174 m against an observed mean walk trip of 700 m, and produced a 0.13% walk share against 13.4% (9.28). Value from Melbourne AToM, estimated on VISTA n=14,959, the only calibrated Australian agent-based model."
     },
     "C.time_weights.beta_bike_mode": {
@@ -221,7 +220,6 @@
       "sweep_basis": "same bracket as beta_walk_mode. AToM estimates 1.21 for cycling; Kelheim uses 1.50 and Leipzig 1.92, so 1.0-1.3 is the conservative end of published practice.",
       "status": "active",
       "decisions_ref": "8.4, 9.28",
-      "matsim_param": "scoring.modeParams[bike].marginalUtilityOfTraveling_util_hr",
       "description": "Weight on BIKE travel time relative to in-vehicle time. Value from Melbourne AToM, estimated on VISTA n=14,959. MUST BE >= C.time_weights.beta_walk_mode: cycling time being dearer per hour than walking time is the finding of 9.28, not an incidental ordering - the model had it inverted (walk 2.0, bike 1.3) and that inversion conceded every short trip to bike. Replaces a bare literal 1.3 typed into src/build/build_matsim_run_inputs.py that carried no registry field, no source, no sweep and no consumer while governing bike's mode share."
     },
     "C.time_weights.beta_wait": {
@@ -693,7 +691,9 @@
       },
       "status": "active",
       "decisions_ref": "9.3, 9.15",
-      "description": "MATSim typical activity duration per activity type. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.",
+      "matsim_param": "scoring.activityParams[*].typicalDuration",
+      "matsim_format": "hh:mm:ss",
+      "description": "MATSim typical activity duration per activity type. THIS DICTIONARY IS THE ACTIVITY VOCABULARY: the config carries one activityParams block per key here, so an activity type absent from it is unscored and an agent performing it earns nothing. MATSim reads the duration as a clock string, which is why this field declares its format - the value is seconds, because seconds is what it is. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.",
       "consumers": [
         "src/build/build_matsim_run_inputs.py"
       ]
@@ -708,10 +708,101 @@
       ],
       "status": "active",
       "decisions_ref": "9.15",
-      "description": "MATSim minimalDuration for a scored activity. Applied as min(this, typical duration) so it can never exceed the typical duration of a short activity: an escort drop-off has a typical duration of 5 minutes and a 15-minute floor over it would be self-contradictory.",
+      "description": "MATSim minimalDuration for a scored activity. Applied as min(this, typical duration) so it can never exceed the typical duration of a short activity: an escort drop-off has a typical duration of 5 minutes and a 15-minute floor over it would be self-contradictory. The APPLIED per-activity result is C.scoring.activity_minimal_applied_s; this is the ceiling it is taken against.",
       "consumers": [
         "src/build/build_matsim_run_inputs.py"
       ]
+    },
+    "C.scoring.activity_minimal_applied_s": {
+      "value": null,
+      "units": "seconds",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.15",
+      "matsim_param": "scoring.activityParams[*].minimalDuration",
+      "matsim_format": "hh:mm:ss",
+      "derived_from": {
+        "fields": [
+          "C.scoring.activity_minimal_duration_s",
+          "C.scoring.activity_typical_duration_s"
+        ],
+        "identity": "minimalDuration[a] = min(C.scoring.activity_minimal_duration_s, C.scoring.activity_typical_duration_s[a]), per activity type a"
+      },
+      "description": "The minimal duration actually written per activity type. Computed rather than declared because it is not free: it is a floor taken against each activity's own typical duration, and a floor above the typical duration would hold a vehicle at a drop-off."
+    },
+    "C.scoring.mode_constant": {
+      "value": null,
+      "units": "utils",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "8.5, 9.8",
+      "matsim_param": "scoring.modeParams[*].constant",
+      "derived_from": {
+        "fields": [
+          "C.asc.car_driver",
+          "C.asc.car_passenger",
+          "C.asc.bus",
+          "C.asc.walk",
+          "C.asc.cycle"
+        ],
+        "identity": "constant[m] = the C1 alternative-specific constant for the mode m maps to, translated in src/build/build_matsim_run_inputs.py: car<-asc_car_driver, ride<-asc_car_passenger, pt<-asc_bus, walk<-asc_walk, bike<-asc_cycle"
+      },
+      "description": "The MATSim alternative-specific constant per scored mode. Computed, because C1 is a nested-logit specification over named alternatives and MATSim scores over its own mode vocabulary - the mapping between them is the translation, and it is stated here rather than left implicit in a builder. The C.asc.* fields remain the declared quantities and are what a calibration moves; DECISIONS.md 8.5 holds them fixed."
+    },
+    "C.scoring.marginal_utility_of_traveling": {
+      "value": null,
+      "units": "utils_per_hour",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.28",
+      "matsim_param": "scoring.modeParams[*].marginalUtilityOfTraveling_util_hr",
+      "derived_from": {
+        "fields": [
+          "C.scoring.performing_utils_per_h",
+          "C.vot.trip_weighted",
+          "C.scoring.marginal_utility_of_money",
+          "C.time_weights.beta_ivt",
+          "C.time_weights.beta_walk_mode",
+          "C.time_weights.beta_bike_mode"
+        ],
+        "identity": "marginalUtilityOfTraveling[m] = performing - trip_weighted_VOT * beta[m] * marginalUtilityOfMoney, the conventional MATSim identity. beta is 1.0 for car and ride, beta_ivt for pt, beta_walk_mode for walk and beta_bike_mode for bike"
+      },
+      "description": "The MATSim per-mode marginal utility of travel time. COMPUTED, NOT DECLARED: the beta_* fields are RATIOS to in-vehicle time and this parameter is a UTILITY RATE PER HOUR. beta_walk_mode and beta_bike_mode were bound straight to this parameter until the config emitter was built, which would have written the ratio 1.04 into a util/hour rate - the same class of error as an exponent bound to a factor, and invisible while the config was a hand-written template."
+    },
+    "C.scoring.waiting_pt": {
+      "value": null,
+      "units": "utils_per_hour",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.28",
+      "matsim_param": "scoring.waitingPt",
+      "derived_from": {
+        "fields": [
+          "C.scoring.performing_utils_per_h",
+          "C.vot.trip_weighted",
+          "C.scoring.marginal_utility_of_money",
+          "C.time_weights.beta_wait"
+        ],
+        "identity": "waitingPt = performing - trip_weighted_VOT * beta_wait * marginalUtilityOfMoney, the same identity as the per-mode travel rate applied to the waiting weight"
+      },
+      "description": "Disutility of waiting for public transport, per hour. Distinct from RUN.scoring.waiting, which is general waiting and is a declared value: this one is derived from the C1 wait weight. Confusing the two is the DECISIONS.md 9.28 defect class."
+    },
+    "C.scoring.utility_of_line_switch": {
+      "value": null,
+      "units": "utils",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.32",
+      "matsim_param": "scoring.utilityOfLineSwitch",
+      "derived_from": {
+        "fields": [
+          "C.transfer.penalty_min",
+          "C.vot.trip_weighted",
+          "C.scoring.marginal_utility_of_money"
+        ],
+        "identity": "utilityOfLineSwitch = -(C.transfer.penalty_min / 60) * trip_weighted_VOT * marginalUtilityOfMoney"
+      },
+      "description": "The scoring penalty for changing transit line, ON TOP of the walk and wait MATSim already simulates. Computed from the declared transfer penalty, which is SWEPT 3-15 min because the estimate proposal 7.2 asks for is not possible from this package (deliverable 8, DECISIONS.md 9.32). Every headline that touches interchange is bound to a curve across that sweep, and this is the parameter the sweep moves."
     }
   }
 }

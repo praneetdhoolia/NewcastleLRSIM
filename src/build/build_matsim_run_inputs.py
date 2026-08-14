@@ -56,7 +56,7 @@ from det_io import gzip_writer
 import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import registry as _registry  # noqa: E402
-CFG = _registry.load()
+from registry import param_config as _param_config  # noqa: E402
 
 MATSIM = _city.path('networks/matsim')
 PATCHES = _city.path('data/processed/network/A1_road_variant_patches.csv')
@@ -64,66 +64,37 @@ E1 = _city.path('scenarios/E1_scenarios.csv')
 PARAMS = _city.path('params/C1_parameters.json')
 PLANS = _city.path('demand/plans/matsim')
 OUT = _city.path('scenarios/matsim')
-DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
-
-# MATSim's opportunity cost of time, utils per hour. Conventional value; the
-# whole scoring scale is relative to it. Assumed, and **not Newcastle-specific**:
-# it is a property of the scoring formulation, not of this study area, so there
-# is nothing local to derive it from. Swept.
-PERFORMING_UTILS_PER_H = CFG.get('C.scoring.performing_utils_per_h')
-PERFORMING_SWEEP = (4.0, 8.0)
-MARGINAL_UTILITY_OF_MONEY = CFG.get('C.scoring.marginal_utility_of_money')
-
-# Mode-time weights for walk and bike scored AS MODES. Distinct from the C1
-# beta_walk_access / beta_walk_egress weights, which apply to walking to a stop
-# within a PT journey. See DECISIONS.md 9.28 for why conflating them collapsed
-# walk and PT together. The ordering bike >= walk is the finding, not incidental.
-BETA_WALK_MODE = CFG.get('C.time_weights.beta_walk_mode')
-BETA_BIKE_MODE = CFG.get('C.time_weights.beta_bike_mode')
-
-# Mode-choice and routing settings. These all had registry fields carrying a
-# matsim_param binding, and the config template wrote LITERALS instead - so
-# seven declared, swept values reached nothing, the issue #12 / #21 defect class
-# again. Resolved here and substituted into the template (DECISIONS.md 9.28).
-MC_MODES = ','.join(CFG.get('RUN.mode_choice.modes'))
-MC_CHAIN_BASED = ','.join(CFG.get('RUN.mode_choice.chain_based_modes'))
-MC_CAR_AVAIL = 'true' if CFG.get('RUN.mode_choice.consider_car_availability') else 'false'
-MC_BEHAVIOR = CFG.get('RUN.mode_choice.subtour_behavior')
-MC_PROBA_SINGLE = CFG.get('RUN.mode_choice.proba_random_single_trip_mode')
-MC_COORD_DIST = CFG.get('RUN.mode_choice.coord_distance_m')
-RT_NETWORK_MODES = ','.join(CFG.get('RUN.routing.network_modes'))
-RT_WALK_SPEED = CFG.get('RUN.routing.teleported_walk_speed_ms')
-RT_BIKE_SPEED = CFG.get('RUN.routing.teleported_bike_speed_ms')
-# Measured per mode on the ACTIVE network, not shared and not assumed:
-# walk 1.6902 at 700 m, bike 1.5231 at 5.2 km (DECISIONS.md 9.33).
-RT_BEELINE_WALK = CFG.get('RUN.routing.beeline_distance_factor_walk')
-RT_BEELINE_BIKE = CFG.get('RUN.routing.beeline_distance_factor_bike')
-TR_MAX_BEELINE_WALK = CFG.get('RUN.transit_router.max_beeline_walk_connection_m')
-
-# Parking. The package has declared a price per facility since P1 and no script
-# read it, so a car has always parked for free (issue #33, DECISIONS.md 9.31).
-# The price of a ZONE is set in build_landuse_parking.py from the city's own job
-# density; what happens here is the join from that to the run network's links,
-# done once per scenario so Java never does spatial work.
 PARK_PRICE_ZONES = _city.path('data/processed/landuse/A5_parking_price_zones.csv')
 PARK_PRICE_FILE = 'parking_prices.tsv'
-PARK_MAX_STAY_MIN = CFG.get('A.parking.max_stay_min')
-PARK_CHARGED_HOURS = CFG.get('A.parking.charged_hours_by_day_type')
-PARK_CHARGED_MODES = ','.join(CFG.get('A.parking.charged_modes'))
-PARK_EXEMPT_ACTS = ','.join(CFG.get('A.parking.exempt_activity_types'))
 
-# Live telemetry. The run publishes what is moving, of what kind and where it
-# is piling up, WHILE the mobsim runs (src/java/citysim/RunTelemetry.java). It
-# needs no change to writeEventsInterval: a registered handler receives the full
-# event stream on every iteration whether or not that stream is also written to
-# disk - the package shows 26 event files against 251 leg histograms.
-TELEMETRY_LIVE_INTERVAL_S = CFG.get('RUN.telemetry.live_interval_s')
-if BETA_BIKE_MODE < BETA_WALK_MODE:
-    raise SystemExit('C.time_weights.beta_bike_mode (%s) must be >= '
-                     'beta_walk_mode (%s): cycling time is dearer per hour than '
-                     'walking time in every calibrated model, and inverting that '
-                     'ordering is the DECISIONS.md 9.28 defect'
-                     % (BETA_BIKE_MODE, BETA_WALK_MODE))
+# The day types come from the city's own descriptor. They were a list literal
+# here, which meant a city with a different service week could not be built
+# without editing the framework.
+DAY_TYPES = list(_city.descriptor()['day_types'])
+
+# NOTHING IS RESOLVED AT IMPORT. Twenty-two values used to be read into module
+# constants here, and a value read at import is a value fixed BEFORE the
+# scenario, day and run overlays are known - so a run overlay setting one of
+# them was accepted by the resolver, recorded in the run's provenance snapshot,
+# and could not possibly reach the config. Every read below happens inside a
+# function, against the configuration that run actually resolved.
+
+
+def check_scoring_order(cfg):
+    """The one ordering that is a finding rather than an incidental.
+
+    Cycling time is dearer per hour than walking time in every calibrated model.
+    The model had it inverted (walk 2.0, bike 1.3), and that inversion conceded
+    every short trip to bike (DECISIONS.md 9.28). Checked against the resolved
+    configuration, so an overlay cannot reintroduce it either.
+    """
+    walk = cfg.get('C.time_weights.beta_walk_mode')
+    bike = cfg.get('C.time_weights.beta_bike_mode')
+    if bike < walk:
+        raise SystemExit('C.time_weights.beta_bike_mode (%s) must be >= '
+                         'beta_walk_mode (%s): cycling time is dearer per hour than '
+                         'walking time in every calibrated model, and inverting that '
+                         'ordering is the DECISIONS.md 9.28 defect' % (bike, walk))
 
 LINK_BLOCK_RE = re.compile(r'<link\b.*?(?:/>|</link>)', re.S)
 WAY_ID_RE = re.compile(r'name="osm:way:id"[^>]*>(\d+)<')
@@ -459,20 +430,20 @@ def write_parking_prices(net_path, dst_path):
                 priced_zones=len(prices))
 
 
-def parking_window(day):
+def parking_window(cfg, day):
     """The charged window for one day type, as (start_h, end_h).
 
     A day type with no window - Sunday - resolves to (0, 0), and the handler
     reads an end at or before the start as `charge nothing`. Expressing a free
     day that way rather than with a separate flag keeps one code path.
     """
-    win = PARK_CHARGED_HOURS.get(day)
+    win = (cfg.get('A.parking.charged_hours_by_day_type') or {}).get(day)
     if not win:
         return 0.0, 0.0
     return float(win[0]), float(win[1])
 
 
-def scoring_from_c1(c1, purpose_share):
+def scoring_from_c1(cfg, c1, purpose_share):
     """Translate the C1 nested-logit parameters into MATSim scoring.
 
     MATSim scores with a Charypar-Nagel utility: one marginal utility of
@@ -497,8 +468,8 @@ def scoring_from_c1(c1, purpose_share):
                if wsum > 0 else sum(vot.values()) / len(vot))
     w = c1['weights']
     asc = c1['asc']
-    perf = PERFORMING_UTILS_PER_H
-    mm = MARGINAL_UTILITY_OF_MONEY
+    perf = cfg.get('C.scoring.performing_utils_per_h')
+    mm = cfg.get('C.scoring.marginal_utility_of_money')
 
     def traveling(weight):
         return round(perf - vot_avg * weight * mm, 4)
@@ -520,18 +491,18 @@ def scoring_from_c1(c1, purpose_share):
         # scoring function and again in the raptor router, so this one value
         # governs walk AND half the cost of every PT trip.
         'walk': dict(constant=asc['asc_walk'][0],
-                     marginalUtilityOfTraveling=traveling(BETA_WALK_MODE)),
+                     marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_walk_mode'))),
         'bike': dict(constant=asc['asc_cycle'][0],
-                     marginalUtilityOfTraveling=traveling(BETA_BIKE_MODE)),
+                     marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_bike_mode'))),
     }
     tp = c1['transfer_penalty']['base']
     return dict(
         performing_utils_per_h=perf,
-        performing_sweep=list(PERFORMING_SWEEP),
-        monetary_distance_rate=MONETARY_DISTANCE_RATE,
-        monetary_distance_rate_sweep=list(MONETARY_DISTANCE_RATE_SWEEP),
-        strategies=dict(STRATEGIES),
-        subtour_mode_choice_weight_sweep=list(SUBTOUR_MODE_CHOICE_WEIGHT_SWEEP),
+        performing_sweep=list(cfg.sweep('C.scoring.performing_utils_per_h')),
+        monetary_distance_rate=cfg.get('C.scoring.monetary_distance_rate'),
+        monetary_distance_rate_sweep=list(cfg.sweep('C.scoring.monetary_distance_rate')),
+        strategies=cfg.get('RUN.replanning.weights'),
+        replanning_weight_sweep=cfg.sweep('RUN.replanning.weights'),
         marginal_utility_of_money=mm,
         vot_aud_hr_used=round(vot_avg, 3),
         vot_aud_hr_by_purpose=vot,
@@ -566,168 +537,97 @@ def scoring_from_c1(c1, purpose_share):
         ])
 
 
-# MATSim defaults its output compression to zst. gzip is set instead so the
-# analysis reads run outputs with the standard library alone - the repo pins a
-# JVM, pt2matsim and SUMO by digest and declares no Python dependency beyond
-# pandas/numpy, and an undeclared `zstandard` would be a reproducibility hole
-# that only shows up on a machine that happens not to have it.
-CONFIG = """<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
-<config>
-\t<module name="global">
-\t\t<param name="coordinateSystem" value="{crs}" />
-\t\t<param name="randomSeed" value="{seed}" />
-\t\t<param name="numberOfThreads" value="{threads}" />
-\t</module>
-\t<module name="network">
-\t\t<param name="inputNetworkFile" value="{network}" />
-\t</module>
-\t<module name="plans">
-\t\t<param name="inputPlansFile" value="{plans}" />
-\t</module>
-\t<module name="transit">
-\t\t<param name="useTransit" value="true" />
-\t\t<param name="transitScheduleFile" value="{schedule}" />
-\t\t<param name="vehiclesFile" value="{vehicles}" />
-\t\t<param name="transitModes" value="pt" />
-\t</module>
-\t<module name="controler">
-\t\t<param name="outputDirectory" value="{output}" />
-\t\t<param name="firstIteration" value="0" />
-\t\t<param name="lastIteration" value="{iterations}" />
-\t\t<param name="writeEventsInterval" value="{write_interval}" />
-\t\t<param name="writePlansInterval" value="{write_interval}" />
-\t\t<param name="overwriteFiles" value="failIfDirectoryExists" />
-\t\t<param name="compressionType" value="gzip" />
-\t</module>
-\t<module name="qsim">
-\t\t<param name="startTime" value="00:00:00" />
-\t\t<param name="endTime" value="30:00:00" />
-\t\t<param name="flowCapacityFactor" value="{capacity_factor}" />
-\t\t<param name="storageCapacityFactor" value="{capacity_factor}" />
-\t\t<param name="numberOfThreads" value="{threads}" />
-\t\t<param name="mainMode" value="car" />
-\t\t<param name="snapshotperiod" value="00:00:00" />
-\t\t<param name="vehiclesSource" value="defaultVehicle" />
-\t</module>
-\t<module name="scoring">
-\t\t<param name="learningRate" value="1.0" />
-\t\t<param name="BrainExpBeta" value="1.0" />
-\t\t<param name="marginalUtilityOfMoney" value="{money}" />
-\t\t<param name="performing" value="{performing}" />
-\t\t<param name="lateArrival" value="-18.0" />
-\t\t<param name="earlyDeparture" value="0.0" />
-\t\t<param name="waiting" value="0.0" />
-\t\t<param name="waitingPt" value="{waiting_pt}" />
-\t\t<param name="utilityOfLineSwitch" value="{line_switch}" />
-{activities}
-{modes}
-\t</module>
-\t<module name="replanning">
-\t\t<param name="maxAgentPlanMemorySize" value="{plan_memory}" />
-\t\t<param name="fractionOfIterationsToDisableInnovation" value="0.8" />
-{strategies}
-\t</module>
-\t<module name="subtourModeChoice">
-\t\t<param name="modes" value="{mc_modes}" />
-\t\t<param name="chainBasedModes" value="{mc_chain_based}" />
-\t\t<param name="considerCarAvailability" value="{mc_car_avail}" />
-\t\t<param name="behavior" value="{mc_behavior}" />
-\t\t<param name="probaForRandomSingleTripMode" value="{mc_proba_single}" />
-\t\t<param name="coordDistance" value="{mc_coord_dist}" />
-\t</module>
-\t<module name="travelTimeCalculator">
-\t\t<param name="separateModes" value="false" />
-\t\t<param name="analyzedModes" value="car" />
-\t</module>
-\t<module name="transitRouter">
-\t\t<param name="maxBeelineWalkConnectionDistance" value="{tr_max_beeline_walk}" />
-\t</module>
-\t<module name="parking">
-\t\t<param name="priceFile" value="{park_price_file}" />
-\t\t<param name="maxStayMinutes" value="{park_max_stay_min}" />
-\t\t<param name="chargedStartHour" value="{park_start_h}" />
-\t\t<param name="chargedEndHour" value="{park_end_h}" />
-\t\t<param name="chargedModes" value="{park_charged_modes}" />
-\t\t<param name="exemptActivityTypes" value="{park_exempt_acts}" />
-\t</module>
-\t<module name="telemetry">
-\t\t<param name="liveIntervalS" value="{telemetry_live_interval_s}" />
-\t</module>
-\t<module name="routing">
-\t\t<param name="networkModes" value="{rt_network_modes}" />
-\t\t<parameterset type="teleportedModeParameters">
-\t\t\t<param name="mode" value="walk" />
-\t\t\t<param name="teleportedModeSpeed" value="{rt_walk_speed}" />
-\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline_walk}" />
-\t\t</parameterset>
-\t\t<parameterset type="teleportedModeParameters">
-\t\t\t<param name="mode" value="bike" />
-\t\t\t<param name="teleportedModeSpeed" value="{rt_bike_speed}" />
-\t\t\t<param name="beelineDistanceFactor" value="{rt_beeline_bike}" />
-\t\t</parameterset>
-\t</module>
-</config>
-"""
-
-ACTIVITY_BLOCK = """\t\t<parameterset type="activityParams">
-\t\t\t<param name="activityType" value="{name}" />
-\t\t\t<param name="typicalDuration" value="{duration}" />
-\t\t\t<param name="minimalDuration" value="{minimal}" />
-\t\t</parameterset>"""
-
-MODE_BLOCK = """\t\t<parameterset type="modeParams">
-\t\t\t<param name="mode" value="{mode}" />
-\t\t\t<param name="constant" value="{constant}" />
-\t\t\t<param name="marginalUtilityOfTraveling_util_hr" value="{traveling}" />
-\t\t\t<param name="monetaryDistanceRate" value="{money_rate}" />
-\t\t</parameterset>"""
-
-STRATEGY_BLOCK = """\t\t<parameterset type="strategysettings">
-\t\t\t<param name="strategyName" value="{name}" />
-\t\t\t<param name="weight" value="{weight}" />
-\t\t\t<param name="subpopulation" value="{subpop}" />
-\t\t</parameterset>"""
-
-# Per-km running cost seen by the traveller, AUD. Assumed: fuel and tyres only,
-# not standing costs, because a mode-choice decision does not re-decide car
-# ownership within the day.
-MONETARY_DISTANCE_RATE = CFG.get('C.scoring.monetary_distance_rate')
-# AUD/m for car. Fuel and tyres vary with national prices, not with Newcastle,
-# so this is swept rather than localised.
-MONETARY_DISTANCE_RATE_SWEEP = (-0.00025, -0.00012)
-# `ride` was charged half the car rate. That half was typed in, not derived, and
-# it double-charges: a vehicle's operating cost is paid once, and the observed
-# Newcastle occupancy is 1.3503 persons per vehicle (params/C4_mode_constraints
-# .json, HTS, seven survey years). Charging the driver 0.00018 and the passenger
-# 0.00009 makes the model's aggregate vehicle operating cost about 1.35x the
-# real one. The only value derivable from the data is zero: the driver, who is
-# separately modelled, already carries it.
+# --------------------------------------------------------------------------
+# the config, BUILT from the registry rather than substituted into a template
+# --------------------------------------------------------------------------
+# This used to be a 100-line XML template with `{substitution}` holes. Every
+# parameter nobody had cut a hole for stayed a literal, and forty-seven of them
+# did - including the innovation cutoff the entire relaxation measurement hinges
+# on, the four strategy weights that govern how far co-evolution can move mode
+# share, and the logit scale, which had no registry field at all.
 #
-# This makes `ride` free at the margin and therefore moves the whole burden of
-# pinning its share onto asc_car_passenger, which is then constrained to
-# reproduce the observed occupancy. That is deliberate and is stated rather than
-# hidden: see DECISIONS.md 9.8.
-
-STRATEGIES = [('ChangeExpBeta', 0.70), ('ReRoute', 0.15),
-              ('SubtourModeChoice', 0.10), ('TimeAllocationMutator', 0.05)]
-# The mode-choice innovation weight is the one that matters for how far the
-# co-evolution can move mode share; swept. Not Newcastle-specific.
-SUBTOUR_MODE_CHOICE_WEIGHT_SWEEP = (0.05, 0.20)
-
-# Declared rather than typed in: these are properties of the MATSim scoring
-# formulation, not observable quantities of Newcastle (DECISIONS.md 9.3), so
-# they are assumed and swept like anything else that is not measured. `escort`
-# is the drop-off that comes with the serve-passenger tour purpose.
-TYPICAL_DURATION_S = CFG.get('C.scoring.activity_typical_duration_s')
-# Applied as min(this, typical): a 15-minute floor over a 5-minute drop-off
-# would be self-contradictory, and MATSim would hold the vehicle there.
-MINIMAL_DURATION_S = CFG.get('C.scoring.activity_minimal_duration_s')
+# There is no template now. `src/registry/param_config.py` builds the document
+# from the fields that declare a `matsim_param` binding, so a parameter exists
+# only if a field claims it or the caller supplies it under a declared runtime
+# role. The three roles are the three things a registry cannot hold: a path on
+# this machine, the city's own identity, and a value DERIVED from declared
+# fields. Everything else is a leak, and `closure()` returns it.
 
 
-def hhmmss(s):
-    s = int(s)
-    return '%02d:%02d:%02d' % (s // 3600, (s % 3600) // 60, s % 60)
+def config_runtime(cfg, scoring, day, paths):
+    """What the registry cannot hold, each entry carrying the role that justifies it.
+
+    `scoring` is the C1 translation: MATSim scores with a Charypar-Nagel utility
+    and C1 is a nested logit, so the mode constants and per-mode time rates are
+    computed rather than declared. Each one names the identity that produced it,
+    and the registry declares the same identity on the matching `computed` field
+    - so the value is derived in one place and its provenance is recorded in
+    another that a reader can find without opening a builder.
+    """
+    start_h, end_h = parking_window(cfg, day)
+    typical = cfg.get('C.scoring.activity_typical_duration_s')
+    minimal = cfg.get('C.scoring.activity_minimal_duration_s')
+    runtime = {
+        'global.coordinateSystem': (_city.crs(), 'identity', 'city.json crs.epsg'),
+        'controler.outputDirectory': (paths['output'], 'path', 'run output'),
+        'network.inputNetworkFile': (paths['network'], 'path', 'scenario run network'),
+        'plans.inputPlansFile': (paths['plans'], 'path', 'day-type plans'),
+        'transit.transitScheduleFile': (paths['schedule'], 'path', 'filtered schedule'),
+        'transit.vehiclesFile': (paths['vehicles'], 'path', 'transit vehicles'),
+        'parking.priceFile': (paths['parking_prices'], 'path', 'per-link price table'),
+        # The two capacity factors are identities on the sample fraction, not
+        # choices. Both registry fields are declared `computed`, so the emitter
+        # REFUSES to write them from a declared value and requires them here.
+        'qsim.flowCapacityFactor': (
+            paths['fraction'], 'derived', 'flowCapacityFactor = RUN.sample.fraction'),
+        'qsim.storageCapacityFactor': (
+            paths['fraction'] ** cfg.get('RUN.sample.storage_capacity_exponent'),
+            'derived', 'storageCapacityFactor = fraction ** '
+                       'RUN.sample.storage_capacity_exponent'),
+        # The charged parking window is one field carrying a window per day type;
+        # MATSim reads two parameters. Which day this set is for is not a
+        # registry value, so the selection happens here.
+        'parking.chargedStartHour': (
+            start_h, 'derived',
+            'A.parking.charged_hours_by_day_type[%s][0]' % day),
+        'parking.chargedEndHour': (
+            end_h, 'derived',
+            'A.parking.charged_hours_by_day_type[%s][1]' % day),
+        'scoring.waitingPt': (
+            scoring['waiting_pt'], 'derived',
+            'performing - trip-weighted VOT * beta_wait * marginalUtilityOfMoney'),
+        'scoring.utilityOfLineSwitch': (
+            scoring['utility_of_line_switch'], 'derived',
+            '-(C.transfer.penalty_min / 60) * trip-weighted VOT * '
+            'marginalUtilityOfMoney'),
+        'scoring.modeParams[*].constant': (
+            {m: v['constant'] for m, v in scoring['modes'].items()},
+            'derived', 'the C1 alternative-specific constant for each mode'),
+        'scoring.modeParams[*].marginalUtilityOfTraveling_util_hr': (
+            {m: v['marginalUtilityOfTraveling'] for m, v in scoring['modes'].items()},
+            'derived',
+            'performing - trip-weighted VOT * beta[mode] * marginalUtilityOfMoney'),
+        # Applied as min(minimal, typical): a 15-minute floor over a 5-minute
+        # drop-off would be self-contradictory, and MATSim would hold the
+        # vehicle there.
+        'scoring.activityParams[*].minimalDuration': (
+            {a: min(minimal, d) for a, d in typical.items()},
+            'derived',
+            'min(C.scoring.activity_minimal_duration_s, typical duration) per activity',
+            _param_config.HHMMSS, 'seconds'),
+    }
+    return runtime
+
+
+def write_config(path, cfg, scoring, day, paths):
+    """Emit one scenario x day-type config, and refuse a leak."""
+    runtime = config_runtime(cfg, scoring, day, paths)
+    leaks = _param_config.closure('matsim', cfg, runtime)
+    if leaks:
+        raise SystemExit('the emitted config carries %d parameter(s) that came '
+                         'from neither a registry field nor a declared runtime '
+                         'role: %s' % (len(leaks), leaks))
+    return _param_config.write(path, 'matsim', cfg, runtime)
 
 
 def hts_purpose_share():
@@ -745,12 +645,30 @@ def hts_purpose_share():
     return (j / j.sum()).to_dict()
 
 
-def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
-         threads=8, day_types=None, scenarios=None):
+def shipped_iterations(cfg):
+    """The iteration count written into a SHIPPED config, or the refusal.
+
+    `RUN.controler.last_iteration` is `unobtained`: 100 and 250 are both MEASURED
+    to be short of relaxation and no sufficient value has been established
+    (DECISIONS.md 9.7). This builder used to supply 100 from an argparse default,
+    which walked straight past the resolver's refusal and shipped the known-wrong
+    number into all thirty configs.
+
+    It no longer invents one. A shipped config carries the LOWER BOUND OF THE
+    DECLARED SWEEP, which is the largest value measured to be insufficient - so
+    a config run directly, outside the harness, is short rather than plausible.
+    The harness resolves the real value per run and re-emits.
+    """
+    sweep = cfg.sweep('RUN.controler.last_iteration')
+    interval = sweep['interval'] if isinstance(sweep, dict) else sweep
+    return int(interval[0])
+
+
+def main(day_types=None, scenarios=None, set_overrides=None):
     day_types = day_types or DAY_TYPES
     os.makedirs(OUT, exist_ok=True)
     c1 = json.load(open(PARAMS, encoding='utf-8'))
-    scoring = scoring_from_c1(c1, hts_purpose_share())
+    purpose_share = hts_purpose_share()
 
     rows = list(csv.DictReader(open(E1, encoding='utf-8')))
     if scenarios:
@@ -764,29 +682,20 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
                      csv.DictReader(open(_city.path('scenarios/E1_road_variants.csv'),
                                          encoding='utf-8'))}
 
-    report = dict(seed=seed, iterations=iterations,
-                  capacity_factor=capacity_factor, plan_memory=plan_memory,
-                  scoring=scoring, scenarios={})
-    print('scoring: VOT %.2f AUD/h (trip-weighted), performing %.1f utils/h'
-          % (scoring['vot_aud_hr_used'], scoring['performing_utils_per_h']),
-          flush=True)
-    for line in scoring['not_representable']:
-        print('   does not survive translation: %s' % line, flush=True)
+    # The shipped configs carry the sweep's lower bound, set EXPLICITLY through
+    # the resolver rather than substituted past it, so `_config.json` records
+    # where the number came from and the value is checked against its own
+    # declared range like any other.
+    shipped = {'RUN.controler.last_iteration':
+               shipped_iterations(_registry.load(strict=True))}
+    shipped.update(set_overrides or {})
 
-    activities = '\n'.join(
-        ACTIVITY_BLOCK.format(name=k, duration=hhmmss(v),
-                              minimal=hhmmss(min(MINIMAL_DURATION_S, v)))
-        for k, v in sorted(TYPICAL_DURATION_S.items()))
-    modes = '\n'.join(
-        MODE_BLOCK.format(mode=m, constant=v['constant'],
-                          traveling=v['marginalUtilityOfTraveling'],
-                          money_rate=MONETARY_DISTANCE_RATE.get(m, 0.0))
-        for m, v in sorted(scoring['modes'].items()))
-    strategies = '\n'.join(
-        STRATEGY_BLOCK.format(name=n, weight=w, subpop=sp)
-        for sp in ('person', 'external')
-        for n, w in STRATEGIES)
-
+    # Recorded so the HARNESS can recompute the C1 translation against its own
+    # resolution without re-reading the HTS. Without this the derived scoring
+    # would be frozen at build time, and a run overlay moving the transfer
+    # penalty - the field deliverable 8 sweeps 3-15 min - would not move
+    # utilityOfLineSwitch, which is the only parameter it acts through.
+    report = dict(scenarios={}, purpose_share=purpose_share)
     for r in rows:
         sid = r['scenario_id']
         sched_dir = os.path.join(MATSIM, 'schedules', sid)
@@ -804,63 +713,59 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
         entry = dict(road_variant=ref, patch_rows=len(pat),
                      links_touched=touched, parking=parking, days={})
         for d in day_types:
+            # RESOLVED PER SCENARIO AND DAY TYPE. The scenario and day overlays
+            # are layers of the registry, so S2b's signal priority and Sunday's
+            # parking window are properties of THIS resolution rather than
+            # arguments threaded through a template.
+            cfg = _registry.load(scenario=sid, day=d, set=shipped)
+            check_scoring_order(cfg)
+            scoring = scoring_from_c1(cfg, c1, purpose_share)
             dst = os.path.join(OUT, sid, d)
             counts = split_schedule(sched_dir, dst, d)
-            start_h, end_h = parking_window(d)
-            cfg = CONFIG.format(
-                seed=seed, threads=threads, crs=_city.crs(),
+            paths = dict(
+                output='output',
                 network=os.path.relpath(net_dst, dst).replace('\\', '/'),
                 plans=os.path.relpath(os.path.join(PLANS, 'population_%s.xml.gz' % d),
                                       dst).replace('\\', '/'),
                 schedule='transitSchedule.xml.gz',
                 vehicles='transitVehicles.xml.gz',
-                output='output', iterations=iterations,
-                write_interval=max(1, iterations // 10),
-                capacity_factor=capacity_factor,
-                money=scoring['marginal_utility_of_money'],
-                performing=scoring['performing_utils_per_h'],
-                waiting_pt=scoring['waiting_pt'],
-                line_switch=scoring['utility_of_line_switch'],
-                activities=activities, modes=modes,
-                plan_memory=plan_memory, strategies=strategies,
-                mc_modes=MC_MODES, mc_chain_based=MC_CHAIN_BASED,
-                mc_car_avail=MC_CAR_AVAIL, mc_behavior=MC_BEHAVIOR,
-                mc_proba_single=MC_PROBA_SINGLE, mc_coord_dist=MC_COORD_DIST,
-                rt_network_modes=RT_NETWORK_MODES, rt_walk_speed=RT_WALK_SPEED,
-                rt_bike_speed=RT_BIKE_SPEED,
-                rt_beeline_walk=RT_BEELINE_WALK,
-                rt_beeline_bike=RT_BEELINE_BIKE,
-                tr_max_beeline_walk=TR_MAX_BEELINE_WALK,
-                park_price_file=os.path.relpath(price_dst, dst).replace('\\', '/'),
-                park_max_stay_min=PARK_MAX_STAY_MIN,
-                park_start_h=start_h, park_end_h=end_h,
-                park_charged_modes=PARK_CHARGED_MODES,
-                park_exempt_acts=PARK_EXEMPT_ACTS,
-                telemetry_live_interval_s=TELEMETRY_LIVE_INTERVAL_S)
-            with open(os.path.join(dst, 'config.xml'), 'w', encoding='utf-8',
-                      newline='\n') as f:
-                f.write(cfg)
+                parking_prices=os.path.relpath(price_dst, dst).replace('\\', '/'),
+                fraction=cfg.get('RUN.sample.fraction'))
+            write_config(os.path.join(dst, 'config.xml'), cfg, scoring, d, paths)
             entry['days'][d] = counts
+            report.setdefault('scoring', scoring)
         report['scenarios'][sid] = entry
         print('   %-5s %-38s %s | parking %d/%d links priced' % (sid, ref,
               ' '.join('%s:%d routes/%d dep' % (d, v['routes_kept'], v['departures'])
                        for d, v in sorted(entry['days'].items())),
               parking['priced_links'], parking['car_links']), flush=True)
 
+    if 'scoring' in report:
+        print('scoring: VOT %.2f AUD/h (trip-weighted), performing %.1f utils/h'
+              % (report['scoring']['vot_aud_hr_used'],
+                 report['scoring']['performing_utils_per_h']), flush=True)
+        for line in report['scoring']['not_representable']:
+            print('   does not survive translation: %s' % line, flush=True)
+
     json.dump(report, open(os.path.join(OUT, '_run_inputs_report.json'), 'w'),
               indent=2)
 
 
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--seed', type=int, default=20260810)
-    ap.add_argument('--iterations', type=int, default=100)
-    ap.add_argument('--capacity-factor', type=float, default=1.0)
-    ap.add_argument('--plan-memory', type=int, default=5)
-    ap.add_argument('--threads', type=int, default=8)
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    # NO VALUE DEFAULTS. --seed, --iterations, --capacity-factor, --plan-memory
+    # and --threads all used to sit here with a number beside them, and every
+    # one of those numbers was a registry field being supplied past the
+    # resolver. `--iterations 100` was the worst: the registry declares that
+    # field UNOBTAINED because 100 is MEASURED to be too low, and this default
+    # shipped it into all thirty configs anyway. Vary a value with --set, which
+    # is checked against the field's declared sweep.
     ap.add_argument('--day-types', default=','.join(DAY_TYPES))
     ap.add_argument('--scenarios', default='')
+    ap.add_argument('--set', action='append', default=[], metavar='KEY=VALUE',
+                    help='registry override, e.g. RUN.machine.threads=8. Checked '
+                         'against the declared sweep like any other layer')
     a = ap.parse_args()
-    main(a.seed, a.iterations, a.capacity_factor, a.plan_memory, a.threads,
-         [d for d in a.day_types.split(',') if d],
-         [s for s in a.scenarios.split(',') if s] or None)
+    main([d for d in a.day_types.split(',') if d],
+         [s for s in a.scenarios.split(',') if s] or None,
+         _registry.parse_set(a.set))
