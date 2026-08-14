@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 208 fields are made of
+## What the 210 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 17 | follows from another registry field by identity |
 | `literature` | 28 | a published value, not specific to Newcastle |
 | `assumed` | 89 | chosen without direct empirical support |
-| `definition` | 49 | fixed by the formulation, not an empirical quantity |
+| `definition` | 51 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 195 | usable point value |
+| `active` | 197 | usable point value |
 | `computed` | 2 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -1339,7 +1339,7 @@ Seeded replications per scenario. One of the three things that can be cut to clo
 
 ## Execution control
 
-*`config/registry/newcastle/RUN_execution.json` - 35 fields*
+*`config/registry/newcastle/RUN_execution.json` - 37 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -1360,6 +1360,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.mode_choice.proba_random_single_trip_mode` | `0.5` | probability | `literature` | 0 - 0.5 |
 | `RUN.mode_choice.subtour_behavior` | `betweenAllAndFewerConstraints` | enum | `literature` | `betweenAllAndFewerConstraints`, `fromSpecifiedModesToSpecifiedModes` |
 | `RUN.monitor.enabled` | `true` | boolean | `definition` | - |
+| `RUN.monitor.live_poll_s` | `0.5` | seconds | `definition` | - |
 | `RUN.monitor.poll_s` | `3` | seconds | `definition` | - |
 | `RUN.monitor.port` | `8731` | tcp_port | `definition` | - |
 | `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
@@ -1379,6 +1380,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.sample.storage_capacity_exponent` | `1.0` | exponent | `derived` | derived: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim e |
 | `RUN.sample.transit_capacity_floor` | `1` | seats | `assumed` | 1 - 4 |
 | `RUN.sample.transit_capacity_scaling` | `true` | boolean | `derived` | derived: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it |
+| `RUN.telemetry.live_interval_s` | `3600` | seconds | `definition` | - |
 | `RUN.transit_router.max_beeline_walk_connection_m` | `300.0` | metres | `literature` | 100 - 500 |
 
 #### `RUN.controler.compression_type`
@@ -1474,6 +1476,12 @@ How subtour mode choice treats tours it cannot close. Under the MATSim default f
 Serve the live run view while a run is in flight. An OBSERVER only: it reads the run directory, holds no lock and writes nothing, so a run observed is byte-for-byte a run unobserved. It is not part of the run identity and cannot alter a result.
 
 ***definition** · status **active** · DECISIONS.md §9.19*
+
+#### `RUN.monitor.live_poll_s`
+
+How often the live view re-reads status WHILE THE MOBSIM IS SWEEPING. The mobsim runs a 30 h simulated day in about 15 s of wall clock, so the shipped RUN.monitor.poll_s of 3 s would sample the whole day five times and the peak would build and dissipate between two reads. 0.5 s matches the rate at which the run publishes windows at RUN.telemetry.live_interval_s = 3600 simulated seconds. Between mobsims the page falls back to RUN.monitor.poll_s, because nothing it shows changes during replanning and scoring.
+
+***definition** · status **active** · DECISIONS.md §9.36*
 
 #### `RUN.monitor.poll_s`
 
@@ -1604,6 +1612,12 @@ Scale transit vehicle seats by the sample fraction. NOT OPTIONAL in practice: at
 ***derived** · status **active** · DECISIONS.md §15*
 
 > **Derived from** `RUN.sample.fraction`: seats = max(floor, round(seats x RUN.sample.fraction)); not scaling it would give every vehicle 1/fraction times its real capacity
+
+#### `RUN.telemetry.live_interval_s`
+
+Simulated seconds between live telemetry snapshots while the mobsim runs. The boundary is SIMULATED time, never wall clock, so a repeated run writes the same snapshots in the same places - the determinism rule applies to an observer as much as to a build script. 3600 puts one snapshot per simulated hour, which at the measured sweep rate (a 30 h day in about 15 s of wall clock) is roughly one every half second. Lowering it loses nothing - the file carries the accumulating profile of the day, not a single instant - it only refines the bins. This does NOT require writeEventsInterval to change: a registered handler receives the full event stream on every iteration whether or not that stream is also written to disk, which the package demonstrates at 26 event files against 251 leg histograms.
+
+***definition** · status **active** · DECISIONS.md §9.19*
 
 #### `RUN.transit_router.max_beeline_walk_connection_m`
 

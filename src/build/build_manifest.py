@@ -137,7 +137,7 @@ def main():
 
     total = sum(f['bytes'] for f in files)
     man = dict(
-        project='Newcastle Light Rail counterfactual microsimulation (Project Wickham)',
+        project='Newcastle Light Rail counterfactual microsimulation (NewcastleLRSIM)',
         generated=datetime.datetime.now().replace(microsecond=0).isoformat(),
         base_year=2026,
         crs='EPSG:28356 (GDA2020 / MGA Zone 56)',

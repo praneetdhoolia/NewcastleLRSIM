@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""The Wickham input registry: one resolved surface for every controllable value.
+"""The NewcastleLRSIM input registry: one resolved surface for every controllable value.
 
 Every value the model consumes that is not read from an immutable raw download
 is declared in `config/registry/<city>/*.json` with its units, its provenance and

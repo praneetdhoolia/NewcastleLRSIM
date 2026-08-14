@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/overlay.schema.json",
-  "title": "Wickham overlay document",
+  "title": "NewcastleLRSIM overlay document",
   "description": "A partial override applied over the registry. Overlays carry VALUES ONLY - they may not introduce a field, nor change its units, source or sweep, because that would let a run invent an input outside the registry's provenance rules. The resolver rejects an overlay key that is not already a registry field, and rejects a value outside the field's sweep unless that key is listed in allow_outside_sweep with a justification.",
   "type": "object",
   "required": [

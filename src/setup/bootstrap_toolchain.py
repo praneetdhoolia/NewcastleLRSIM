@@ -298,7 +298,7 @@ def main():
     comps.append(install_sumo())
 
     man = dict(
-        purpose='P2 network-build toolchain for Project Wickham',
+        purpose='P2 network-build toolchain for NewcastleLRSIM',
         retrieved=datetime.date.today().isoformat(),
         platform=sys.platform,
         components=comps)

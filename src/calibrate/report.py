@@ -23,14 +23,14 @@ reader count them as evidence of fit; they are evidence of plausibility.
 whose provenance is not stated is not reportable.
 
     python src/calibrate/report.py --run <tag> [--run <tag> ...] \
-        --out docs/CALIBRATION_REPORT.md
+        --out docs/audit/CALIBRATION_REPORT.md
 """
 import os
 import json
 import argparse
 import datetime
 
-DEFAULT_OUT = 'docs/CALIBRATION_REPORT.md'
+DEFAULT_OUT = 'docs/audit/CALIBRATION_REPORT.md'
 CAL = 'params/C5_calibration.json'
 
 

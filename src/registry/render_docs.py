@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Generate docs/CONFIG_REFERENCE.md from the registry.
+"""Generate docs/reference/CONFIG_REFERENCE.md from the registry.
 
 The reference is GENERATED, never hand-written, so it cannot drift from the
 values it documents. If a field changes, the documentation changes in the same
@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.join(REPO, 'src'))
 
 import registry  # noqa: E402
 
-OUT = os.path.join(REPO, 'docs', 'CONFIG_REFERENCE.md')
+OUT = os.path.join(REPO, 'docs', 'reference', 'CONFIG_REFERENCE.md')
 
 SOURCE_ORDER = ['observed', 'measured', 'derived', 'literature', 'assumed', 'definition']
 SOURCE_GLOSS = {

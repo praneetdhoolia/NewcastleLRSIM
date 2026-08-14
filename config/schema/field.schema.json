@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/field.schema.json",
-  "title": "Wickham input field",
+  "title": "NewcastleLRSIM input field",
   "description": "One controllable input value. Every value the model consumes that is not read from an immutable raw download is described by this object. The sweep rule of proposal 8.1 is enforced here as a schema constraint rather than a convention: a value that is not directly observed and is not definitional MUST carry a sweep.",
   "type": "object",
   "required": [

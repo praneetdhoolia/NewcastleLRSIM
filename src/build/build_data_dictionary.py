@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Emit docs/DATA_DICTIONARY.md by introspecting every produced CSV."""
+"""Emit docs/reference/DATA_DICTIONARY.md by introspecting every produced CSV."""
 import os,csv,json,glob
 ROOT='.'
 GROUPS=[
@@ -57,5 +57,5 @@ for title,pat in GROUPS:
             out.append('| `%s` | %s | %s | %d/%d |'%(c,kind(vals),ex.replace(chr(124),'/'),nz,len(vals)))
         out.append('')
 os.makedirs('docs',exist_ok=True)
-open('docs/DATA_DICTIONARY.md','w',encoding='utf-8').write('\n'.join(out))
-print('wrote docs/DATA_DICTIONARY.md (%d lines)'%len(out))
+open('docs/reference/DATA_DICTIONARY.md','w',encoding='utf-8').write('\n'.join(out))
+print('wrote docs/reference/DATA_DICTIONARY.md (%d lines)'%len(out))

@@ -79,3 +79,11 @@ data/raw/speedzones/*.zip
 # --- pre-#32 OSM extracts, kept only until the re-harvest is verified
 networks/osm_pre_issue32/
 networks/osm/_tiles/
+
+# --- generated view payloads: megabytes of geometry, rebuilt by a committed
+#     script from committed inputs. The scripts are the artefact, not the page.
+#     basemap.json  src/analyse/build_basemap.py
+#     replay.json / replay.html  src/analyse/replay_events.py, build_replay_page.py
+basemap.json
+replay.json
+replay.html

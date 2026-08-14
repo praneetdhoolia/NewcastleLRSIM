@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/registry.schema.json",
-  "title": "Wickham registry document",
+  "title": "NewcastleLRSIM registry document",
   "description": "One layer of the input registry. Field keys are dotted paths: <LAYER>.<GROUP>.<NAME>, e.g. B.activity.P_INTERMEDIATE_STOP. The layer letters follow proposal Appendix A-E: A network supply, B demand, C behaviour, D land use, E scenario config, plus RUN for execution-time control.",
   "type": "object",
   "required": [

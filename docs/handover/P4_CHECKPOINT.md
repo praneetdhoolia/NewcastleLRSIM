@@ -1,7 +1,7 @@
 # P4 checkpoint — the long-form handoff
 
 **Rewritten 12 August 2026, after every phase was re-verified against the
-package and the three open decisions were taken (§9.22).** [`STATUS.md`](../STATUS.md) is the short live status and holds the
+package and the three open decisions were taken (§9.22).** [`STATUS.md`](../../STATUS.md) is the short live status and holds the
 **verified phase board and the full deliverable checklist**; this is the
 full picture for someone picking the work up cold. Where the two disagree,
 `STATUS.md` is newer.
@@ -29,7 +29,7 @@ the model was too generous**. **Nothing in this repository is a result.**
 STATUS.md                     verified phase board + the nine deliverables
 DECISIONS.md  §0, §8.5, §9.7–§9.21, §12.1, §15, §16
 CLAUDE.md                     conventions and hard constraints
-docs/CONFIG_REFERENCE.md      generated; skim "no value" and "held fixed"
+docs/reference/CONFIG_REFERENCE.md      generated; skim "no value" and "held fixed"
 gh issue list --state open   12 open; NONE awaits a decision -
                              9 awaiting-implementation, 3 awaiting-run
 ```
@@ -44,7 +44,7 @@ python tests/check_package.py                     ~960 checks, 1 standing warnin
 
 The standing warning is `lastIteration`, which is issue #5. It is *supposed* to
 be there. **Do not re-read the P1–P3 package**: 364 files are hashed in
-[`data/MANIFEST.csv`](../data/MANIFEST.csv) and the build is verified.
+[`data/MANIFEST.csv`](../../data/MANIFEST.csv) and the build is verified.
 
 **Machine:** 24 logical cores, 63.5 GiB. One run averages **2.4 busy cores of
 24** — the mobsim synchronises every simulated second, so threads idle. Memory
@@ -57,7 +57,7 @@ never threads within one**: thread count is part of the run identity. There is
 ## 2. Where the work actually is
 
 **Deliverable 0 comes before deliverable 5, and 0a comes before the rest.**
-The breakdown is in [`STATUS.md`](../STATUS.md) under *The deliverable
+The breakdown is in [`STATUS.md`](../../STATUS.md) under *The deliverable
 checklist*; it is not repeated here. The ordering argument is:
 
 > Mode share is car **32.5%** against an observed **59.0%** and car passenger
@@ -219,10 +219,10 @@ python src/run/run_matsim.py --scenario S2 --day WEEKDAY \
 # the declared pipeline - the ONLY route to a reportable number
 python src/analyse/extract_metrics.py --run <tag>
 python src/calibrate/fit.py           --run <tag>
-python src/calibrate/report.py        --run <tag> --out docs/CALIBRATION_REPORT.md
+python src/calibrate/report.py        --run <tag> --out docs/audit/CALIBRATION_REPORT.md
 
 # watch a run in flight (the url is also printed by run_matsim.py itself)
-python src/analyse/run_monitor.py --run <tag>
+# (the live run view was removed on 13 August and is being rebuilt)
 ```
 
 After any change to a build input: `normalise_eol.py` → `build_manifest.py` →
@@ -253,8 +253,10 @@ After any change to a build input: `normalise_eol.py` → `build_manifest.py` �
   backs the published replay. **Delete once the post-repair runs have replaced
   them as the reference, not before.**
 - The replay tooling (`replay_events.py`, `build_basemap.py`,
-  `build_replay_page.py`) and the live view (`run_monitor.py`) are used and
-  documented. Their output pages are **not committed** — megabytes of payload.
+  `build_replay_page.py`) is used and documented. Its output pages are **not
+  committed** — megabytes of payload. The live view (`run_monitor.py`) was
+  **deleted on 13 August** and is being rebuilt; its four `RUN.monitor.*`
+  registry fields are retained for the replacement and currently reach nothing.
 - Two Overpass layers (`water`, `green`) are **visual-only** and deliberately
   retained for the replay basemap. They have no model consumer and that is not a
   defect.

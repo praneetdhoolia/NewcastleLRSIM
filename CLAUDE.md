@@ -1,4 +1,4 @@
-# Project Wickham — project conventions
+# NewcastleLRSIM — project conventions
 
 Repo-level guidance for any Claude Code session working in this repository.
 
@@ -8,7 +8,7 @@ A counterfactual microsimulation of the **Newcastle Light Rail** as a transport
 intervention — MATSim for the regional demand model, SUMO for the corridor — built to be
 more transparent about its assumptions than the business case it examines.
 
-- [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md) is the **research design**: what
+- [`docs/design/newcastle-lr-proposal.md`](docs/design/newcastle-lr-proposal.md) is the **research design**: what
   is being built, which scenarios, which tests. Read it for intent, scope and vocabulary.
 - **[`DECISIONS.md`](DECISIONS.md) is the single source of truth for every value that is
   not observed.** Every parameter chosen without direct empirical support is recorded
@@ -18,9 +18,11 @@ more transparent about its assumptions than the business case it examines.
   evidence.**
 - **[`STATUS.md`](STATUS.md) is the single source of truth for where the build is, what's
   next, and how to resume.** Read it at session start; **keep it current in the same
-  commit/PR as the work it describes.**
+  commit/PR as the work it describes.** It is a **board, not a diary** — 944 lines of
+  dated narrative were moved out of it to
+  [`docs/handover/SESSION_LOG.md`](docs/handover/SESSION_LOG.md); do not append more.
 - [`README.md`](README.md) is the data-package guide: layout, reproduction commands,
-  sources and licences.
+  sources and licences. Every other document is under [`docs/`](docs/README.md).
 - Current stage: **P3 demand synthesis complete. No scenario has been run. Nothing in
   the repo is a result.** The MATSim network, the 15 mapped schedules, the SUMO corridor,
   the synthetic population, the activity chains and the 30 assembled scenario x day-type
@@ -40,7 +42,7 @@ more transparent about its assumptions than the business case it examines.
 - **`config/schema/` is portable; `config/registry/<city>/` is one city's values.**
   That split is the point of the naming: a field key like `A.road.speed_default` is
   generic, but 50 km/h residential, 16.96 AUD/h and a 0.50 bicycle ownership rate are
-  Newcastle's. The city is selected by `WICKHAM_CITY` (default `newcastle`). **Never
+  Newcastle's. The city is selected by `WICKHAM_CITY` (default `newcastle`) — an env prefix that is itself a suburb name awaiting rename; see *Naming* under Conventions. **Never
   put a place name, a coordinate or a hand-drawn extent in a script** — derive it from
   a boundary or a tag that any city also has, and if it genuinely must be declared, it
   belongs under `config/registry/<city>/`. A typed-in rectangle cannot be wrong in a
@@ -50,7 +52,7 @@ more transparent about its assumptions than the business case it examines.
   script.** A value whose `source` is `assumed`, `literature`, `measured` or `derived`
   must carry a sweep, a `held_fixed` rule or a `derived_from` identity — the schema
   rejects anything else, and `check_package.py` tests it. Regenerate
-  [`docs/CONFIG_REFERENCE.md`](docs/CONFIG_REFERENCE.md)
+  [`docs/reference/CONFIG_REFERENCE.md`](docs/reference/CONFIG_REFERENCE.md)
   (`python src/registry/render_docs.py`) in the same change. The build layer is not yet
   migrated and is pinned to the registry by `src/registry/check_legacy_drift.py`: if you
   change a constant there, change the registry field with it.
@@ -100,12 +102,27 @@ more transparent about its assumptions than the business case it examines.
 - **Bulk data is not committed.** See [`.gitignore`](.gitignore) — raw downloads, GTFS
   bundles, synthetic population/plans, large derived geometry and run outputs are
   regenerable and stay out of git. The manifest is committed; the bytes are not.
-- **Units and CRS.** EPSG:28356 (GDA2020 / MGA Zone 56), metres, base year 2026. State
+- **Units and CRS.** EPSG:28356 (**GDA94** / MGA Zone 56 — GDA2020 is EPSG:7856; the
+  label was wrong repo-wide and is corrected in `DECISIONS.md` §2.6, the projection
+  itself is unchanged), metres, base year 2026. State
   units in every new column name or data-dictionary entry.
 - **Language:** Australian / Indian English spellings throughout.
 
 ## Conventions
 
+- **Naming: the project is Newcastle, not Wickham.** The modelled city is the
+  **Newcastle (NSW) region** — five LGAs, 1,500 core SA1s. **Wickham is one
+  suburb of it**, and the name is legitimate in exactly three places: the
+  suburb's own zones and stops, **Newcastle Interchange at Wickham** (the
+  transfer `beta_transfer_penalty_min` prices), and **S1, the bus-shuttle
+  scenario** that starts there. Anywhere else it is a stale project codename —
+  the repo, the model and the registry are `NewcastleLRSIM` / `newcastle`.
+  Naming the whole project after one suburb also contradicts the hard constraint
+  directly below: **no place name belongs in the framework**, only in
+  `config/registry/<city>/`. Two codename identifiers survive in code and are
+  tracked for rename — the `WICKHAM_*` environment prefix and the
+  `src/java/wickham/` package (see the open naming issue). Do not add more, and
+  do not rename a genuine Wickham-the-suburb reference.
 - **Branch naming.** `<git-handle>/<short-kebab-description>`, with `<git-handle>` derived
   from the active git identity (the `…+<handle>@users.noreply.github.com` email, else
   `git config user.name`). **Never `claude/*`** — if the harness assigns one, this rule
@@ -158,13 +175,14 @@ those depend on ABS/TfNSW/Overpass availability and on compute, not on the diff.
 
 | Path | What it holds |
 |------|---------------|
-| `newcastle-lr-proposal.md` | The research design: scenarios, tests, appendices. |
-| `DECISIONS.md` | Every assumed/modelled value + rationale + sweep range (don't re-litigate). |
-| `STATUS.md` | **Verified phase board + the full deliverable checklist** — the source of truth for both (read at session start; keep current). |
-| `docs/P4_CHECKPOINT.md` | Long-form P4 handoff: what is measured and true, the traps, errors already made, how to drive the harness. |
 | `README.md` | Data-package guide: layout, reproduction commands, sources and licences. |
-| `docs/DATA_DICTIONARY.md` | Column-level definitions for every processed artefact. |
-| `docs/project-flow.html` | One-page orientation: P0–P7 flow, data layers, scenario matrix, pre-registered metrics. Plan, not result — restate its run-time figures when SCATS/dwell land. |
+| `STATUS.md` | **The board** — phase state, deliverable checklist, next action. Read at session start; keep current. **Not a diary**: narrative goes in `DECISIONS.md`. |
+| `DECISIONS.md` | Every assumed/modelled value + rationale + sweep range (don't re-litigate). **Start at its "How to find something in this file" index** — the section numbers are not in file order and §9 holds unrelated topics. |
+| `docs/` | Everything else, indexed by [`docs/README.md`](docs/README.md). Four of its eight documents are **generated** and must never be hand-edited. |
+| `docs/design/` | [`newcastle-lr-proposal.md`](docs/design/newcastle-lr-proposal.md) (the research design) and `project-flow.html`. |
+| `docs/reference/` | Generated: `CONFIG_REFERENCE.md` (registry), `DATA_DICTIONARY.md` (columns). |
+| `docs/audit/` | `SPEC_AUDIT.md` (where the logic can be silently wrong) and the generated `CALIBRATION_REPORT.md`. |
+| `docs/handover/` | `P4_CHECKPOINT.md` (long-form P4 handoff) and `SESSION_LOG.md` (dated narrative, archive only). |
 | `data/raw/` | Immutable downloads + `provenance_*.json`. Never edited in place. |
 | `data/processed/` | Clipped and derived layers: zones, census, hts, observed, network, corridor, landuse, validation. |
 | `data/MANIFEST.csv` / `.json` | Per-file hash, rows, producing script, source, licence, retrieval date. |

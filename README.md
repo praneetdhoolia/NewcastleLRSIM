@@ -1,8 +1,8 @@
-# Project Wickham — data package
+# NewcastleLRSIM — data package
 
 Counterfactual microsimulation of the Newcastle Light Rail as a transport
 intervention. This repository currently contains **phase P1: data acquisition**
-for the MATSim + SUMO model described in [`newcastle-lr-proposal.md`](newcastle-lr-proposal.md).
+for the MATSim + SUMO model described in [`docs/design/newcastle-lr-proposal.md`](docs/design/newcastle-lr-proposal.md).
 
 No scenario has been run. Nothing here is a result.
 
@@ -21,7 +21,7 @@ No scenario has been run. Nothing here is a result.
 | Active network | 35,653 edges, 6,325 km, directional walk-speed factors |
 | PT | 5 GTFS eras + 10 scenario variants |
 | Validation | 210 targets (67 calibration / 143 holdout) |
-| Base year | 2026 · CRS EPSG:28356 (GDA2020 / MGA Zone 56) |
+| Base year | 2026 · CRS EPSG:28356 (GDA94 / MGA Zone 56 — `DECISIONS.md` §2.6) |
 
 **Read [`DECISIONS.md`](DECISIONS.md) before using any of it.** It records every
 assumed value, its sweep range, and four corrections to premises stated in the
@@ -172,9 +172,19 @@ to validate the era-1 reconstruction. Full list and priority order in
 
 ---
 
-## Next phase
+## Where the build is
 
-P2 is complete: the MATSim network and all 15 mapped schedules, the four E1 road
+**P3 demand synthesis is complete and P4 (calibration) is in progress** — see
+[`STATUS.md`](STATUS.md) for the board, the deliverable checklist and the next
+action. **Nothing in this repository is a result:** no scenario has been run to a
+reportable state, and the MATSim network, the 15 mapped schedules, the SUMO
+corridor, the synthetic population, the activity chains and the 30 assembled
+scenario x day-type run-input sets are all *inputs*.
+
+**The OSM harvest is currently empty** and must be re-run before anything
+downstream of it can be rebuilt; `STATUS.md` carries the procedure and the checks.
+
+P2 delivered the MATSim network and all 15 mapped schedules, the four E1 road
 variants as link-attribute patches, and the SUMO corridor with the A2 signal
 timings attached. The corridor turned out **not** to need the hand correction
 §3.1 called for — 87.5% of as-built trunk lane counts are observed in OSM
@@ -182,7 +192,8 @@ timings attached. The corridor turned out **not** to need the hand correction
 is the *counterfactual* cross-section, which is assumed and swept 1–2 lanes per
 direction rather than digitised.
 
-P3 demand synthesis is next. Read [`STATUS.md`](STATUS.md) for the four items P2
-raised that P3–P5 must respect, in particular the requirement that any scenario
-comparison run against a single build of the network
-([`DECISIONS.md` §3.5](DECISIONS.md)).
+Two constraints every later phase must respect: any scenario comparison runs
+against **a single build of the network** ([`DECISIONS.md` §3.5](DECISIONS.md)),
+and the 67/143 validation split is **pre-registered** and opens once, at the end.
+
+All other documentation is indexed by [`docs/README.md`](docs/README.md).

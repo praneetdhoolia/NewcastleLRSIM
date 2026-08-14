@@ -23,7 +23,7 @@ ROOTS = ['data/processed', 'params', 'scenarios', 'demand', 'docs', 'src', 'test
 # like everything else. The XML networks under them are gitignored bulk.
 ROOTS += ['networks/matsim', 'networks/sumo']
 SINGLE = ['DECISIONS.md', 'README.md', 'STATUS.md', 'CLAUDE.md', '.gitignore',
-          '.gitattributes', 'newcastle-lr-proposal.md',
+          '.gitattributes',
           'data/raw/provenance_open_data.json', 'data/raw/provenance_abs_dem.json',
           'data/raw/_s3_historical_gtfs_listing.txt', 'data/raw/_osm_fetch.log',
           'schedules/provenance.json', 'schedules/raw/provenance.json',

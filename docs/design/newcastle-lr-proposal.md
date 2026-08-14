@@ -4,7 +4,7 @@
 
 **Status:** Proposal — v1, for review
 **Date:** August 2026
-**Working title:** Project Wickham
+**Working title:** NewcastleLRSIM (Newcastle Light Rail counterfactual microsimulation)
 
 ---
 
