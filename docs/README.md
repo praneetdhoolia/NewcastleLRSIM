@@ -16,6 +16,7 @@ truth for every value that is not observed**). Everything else is here.
 | | [`CALIBRATION_REPORT.md`](audit/CALIBRATION_REPORT.md) — fit against the **calibration half only** of the 67/143 split | `python src/calibrate/report.py` | ❌ never |
 | **handover/** | [`P4_CHECKPOINT.md`](handover/P4_CHECKPOINT.md) — long-form P4 handoff: what is measured and true, the traps, the errors already made | — | Yes, when P4 state changes |
 | | [`SESSION_LOG.md`](handover/SESSION_LOG.md) — dated build narrative, P3–P4 | — | **Archive.** `DECISIONS.md` §9.x is the authoritative version |
+| | [`NEXT_AGENT_BRIEF.md`](handover/NEXT_AGENT_BRIEF.md) — full cold-start context: state, traps, the batch, decisions taken and declined | — | Yes, at the end of a session |
 
 ## Two rules that keep this directory honest
 
