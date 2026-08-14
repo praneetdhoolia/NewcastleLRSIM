@@ -86,11 +86,11 @@ def _semantic_errors(kind, doc):
                               % u.get('target_id', '?'))
     if kind == 'metrics':
         ms = doc.get('mode_share') or {}
-        pct = ms.get('newcastle_lga_pct') or {}
+        pct = ms.get('target_lga_pct') or {}
         if pct:
             total = sum(pct.values())
             if abs(total - 100.0) > 0.5:
-                errors.append('mode_share.newcastle_lga_pct sums to %.2f, not 100.' % total)
+                errors.append('mode_share.target_lga_pct sums to %.2f, not 100.' % total)
     if kind == 'run':
         if doc.get('rc') == 0 and not doc.get('config_snapshot'):
             errors.append('a completed run carries no config_snapshot: it cannot state what '

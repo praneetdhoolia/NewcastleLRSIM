@@ -23,19 +23,27 @@ reader count them as evidence of fit; they are evidence of plausibility.
 whose provenance is not stated is not reportable.
 
     python src/calibrate/report.py --run <tag> [--run <tag> ...] \
-        --out docs/audit/CALIBRATION_REPORT.md
+        --out cities/<city>/docs/audit/CALIBRATION_REPORT.md
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import json
 import argparse
 import datetime
 
-DEFAULT_OUT = 'docs/audit/CALIBRATION_REPORT.md'
-CAL = 'params/C5_calibration.json'
+DEFAULT_OUT = _city.path('docs', 'audit', 'CALIBRATION_REPORT.md')
+CAL = _city.path('params/C5_calibration.json')
 
 
 def load(tag):
-    run_dir = tag if os.path.isdir(tag) else os.path.join('results', tag)
+    run_dir = tag if os.path.isdir(tag) else os.path.join(_city.REPO, 'results', tag)
     path = os.path.join(run_dir, '_fit.json')
     if not os.path.exists(path):
         raise SystemExit('no _fit.json in %s - run fit.py first' % run_dir)

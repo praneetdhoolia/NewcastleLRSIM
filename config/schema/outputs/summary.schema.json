@@ -48,10 +48,21 @@
           "additionalProperties": {"type": "number"}
         },
         "max_abs_drift_pp": {"type": ["number", "null"]},
-        "threshold_pp": {"type": ["number", "null"]},
+        "tolerance_pp": {
+          "type": ["number", "null"],
+          "description": "largest movement a mode may still show and be reported as settled, in percentage points. Declared as RUN.relaxation.drift_tolerance_pp and swept, never asserted: it decides the verdict, so it is reported beside it and a reader may apply their own."
+        },
+        "from_iteration": {
+          "type": ["integer", "null"],
+          "description": "first iteration of the window the movement was measured over - the first iteration at or after the innovation cutoff. Null when the run did not reach it."
+        },
+        "to_iteration": {
+          "type": ["integer", "null"],
+          "description": "last iteration of that window. A settled verdict means nothing without the two iteration numbers it was settled between."
+        },
         "relaxed": {
           "type": ["boolean", "null"],
-          "description": "false when any mode is still moving by more than threshold_pp after innovation is off. Null when the run did not reach the cutoff."
+          "description": "false when any mode is still moving by more than tolerance_pp between from_iteration and to_iteration. Null when the run did not reach the cutoff."
         },
         "basis": {"type": "string"}
       }

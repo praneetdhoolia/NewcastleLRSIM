@@ -5,6 +5,14 @@ Verifies that every artefact the proposal's Appendix A calls for exists, that
 the GTFS variants are internally consistent, and that cross-layer references
 resolve. Exits non-zero on failure so it can gate the next phase.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import sys
 import csv
@@ -15,7 +23,6 @@ import re
 import hashlib
 import zipfile
 import collections
-import shutil
 import time
 
 FAIL = []
@@ -40,45 +47,45 @@ def n_rows(p):
 
 # ---- 1. required artefacts, keyed to the Appendix A schemas ----
 REQUIRED = {
-    'A1 road network': 'data/processed/network/A1_road_edges.csv',
-    'A2 signals': 'data/processed/network/A2_signal_nodes_osm.csv',
-    'A2 turn restrictions': 'data/processed/network/A2_turn_restrictions_osm.csv',
-    'A2 corridor signal control': 'data/processed/corridor/A2_signal_control_corridor.csv',
-    'A3 route extras': 'data/processed/schedule_extras/A3_route_extras.csv',
-    'A3 stop extras': 'data/processed/schedule_extras/A3_stop_extras.csv',
-    'A3 transfer extras': 'data/processed/schedule_extras/A3_transfer_extras.csv',
-    'A4 vehicle spec': 'data/processed/corridor/A4_vehicle_spec.csv',
-    'A4 dwell model': 'data/processed/corridor/A4_stop_dwell_model.csv',
-    'A5 parking': 'data/processed/landuse/A5_parking_facilities.csv',
-    'A6 active transport': 'data/processed/network/A6_footway_edges.csv',
-    'B1 population': 'demand/population/B1_synthetic_population.csv',
-    'B1 households': 'demand/population/B1_households.csv',
-    'B2 activity trips (weekday)': 'demand/plans/B2_activity_trips_WEEKDAY.csv',
-    'B2 activity trips (Saturday)': 'demand/plans/B2_activity_trips_SAT.csv',
-    'B2 activity trips (Sunday)': 'demand/plans/B2_activity_trips_SUN.csv',
-    'B5 counts': 'data/processed/observed/traffic_aadt_newcastle.csv',
-    'C1 parameters': 'params/C1_behavioural_parameters.csv',
-    'C1 sweep grid': 'params/C1_sensitivity_sweep_grid.csv',
-    'D1 frontages': 'data/processed/landuse/D1_frontage_segments.csv',
-    'D1 POI': 'data/processed/landuse/D1_poi.csv',
-    'D1 employment': 'data/processed/landuse/D1_employment_by_anzsic_POW_SA2.csv',
-    'D1 zone attractions': 'data/processed/landuse/D1_zone_attractions_SA1.csv',
-    'A1 corridor road edges': 'data/processed/network/A1_corridor_road_edges.csv',
-    'A1 road variant patches': 'data/processed/network/A1_road_variant_patches.csv',
+    'A1 road network': _city.path('data/processed/network/A1_road_edges.csv'),
+    'A2 signals': _city.path('data/processed/network/A2_signal_nodes_osm.csv'),
+    'A2 turn restrictions': _city.path('data/processed/network/A2_turn_restrictions_osm.csv'),
+    'A2 corridor signal control': _city.path('data/processed/corridor/A2_signal_control_corridor.csv'),
+    'A3 route extras': _city.path('data/processed/schedule_extras/A3_route_extras.csv'),
+    'A3 stop extras': _city.path('data/processed/schedule_extras/A3_stop_extras.csv'),
+    'A3 transfer extras': _city.path('data/processed/schedule_extras/A3_transfer_extras.csv'),
+    'A4 vehicle spec': _city.path('data/processed/corridor/A4_vehicle_spec.csv'),
+    'A4 dwell model': _city.path('data/processed/corridor/A4_stop_dwell_model.csv'),
+    'A5 parking': _city.path('data/processed/landuse/A5_parking_facilities.csv'),
+    'A6 active transport': _city.path('data/processed/network/A6_footway_edges.csv'),
+    'B1 population': _city.path('demand/population/B1_synthetic_population.csv'),
+    'B1 households': _city.path('demand/population/B1_households.csv'),
+    'B2 activity trips (weekday)': _city.path('demand/plans/B2_activity_trips_WEEKDAY.csv'),
+    'B2 activity trips (Saturday)': _city.path('demand/plans/B2_activity_trips_SAT.csv'),
+    'B2 activity trips (Sunday)': _city.path('demand/plans/B2_activity_trips_SUN.csv'),
+    'B5 counts': _city.path('data/processed/observed/traffic_aadt.csv'),
+    'C1 parameters': _city.path('params/C1_behavioural_parameters.csv'),
+    'C1 sweep grid': _city.path('params/C1_sensitivity_sweep_grid.csv'),
+    'D1 frontages': _city.path('data/processed/landuse/D1_frontage_segments.csv'),
+    'D1 POI': _city.path('data/processed/landuse/D1_poi.csv'),
+    'D1 employment': _city.path('data/processed/landuse/D1_employment_by_anzsic_POW_SA2.csv'),
+    'D1 zone attractions': _city.path('data/processed/landuse/D1_zone_attractions_SA1.csv'),
+    'A1 corridor road edges': _city.path('data/processed/network/A1_corridor_road_edges.csv'),
+    'A1 road variant patches': _city.path('data/processed/network/A1_road_variant_patches.csv'),
     'A2 turn restrictions resolved':
-        'data/processed/network/A2_turn_restrictions_resolved.csv',
-    'E1 scenarios': 'scenarios/E1_scenarios.csv',
-    'E1 road variants': 'scenarios/E1_road_variants.csv',
-    'Validation targets': 'data/processed/validation/validation_targets.csv',
-    'Manifest': 'data/MANIFEST.json',
-    'Decisions log': 'DECISIONS.md',
-    'Data dictionary': 'docs/reference/DATA_DICTIONARY.md',
+        _city.path('data/processed/network/A2_turn_restrictions_resolved.csv'),
+    'E1 scenarios': _city.path('scenarios/E1_scenarios.csv'),
+    'E1 road variants': _city.path('scenarios/E1_road_variants.csv'),
+    'Validation targets': _city.path('data/processed/validation/validation_targets.csv'),
+    'Manifest': _city.path('data/MANIFEST.json'),
+    'Decisions log': _city.path('docs/DECISIONS.md'),
+    'Data dictionary': _city.path('docs/reference/DATA_DICTIONARY.md'),
 }
 for k, p in REQUIRED.items():
     check(os.path.exists(p) and os.path.getsize(p) > 100, '%s present (%s)' % (k, p))
 
 # ---- 2. GTFS variants ----
-GTFS = sorted(glob.glob('schedules/*.zip')) + sorted(glob.glob('schedules/scenarios/*.zip'))
+GTFS = sorted(glob.glob(_city.path('schedules/*.zip'))) + sorted(glob.glob(_city.path('schedules/scenarios/*.zip')))
 check(len(GTFS) >= 14, 'at least 14 GTFS feeds present (found %d)' % len(GTFS))
 for p in GTFS:
     try:
@@ -114,30 +121,31 @@ for p in GTFS:
         check(False, '%s readable (%s)' % (p, e))
 
 # ---- 3. scenario configs resolve ----
-for r in rows('scenarios/E1_scenarios.csv'):
+for r in rows(_city.path('scenarios/E1_scenarios.csv')):
     g = r['gtfs_variant_ref']
-    check(os.path.exists(g), 'scenario %s gtfs_variant_ref resolves (%s)' % (r['scenario_id'], g))
-    check(os.path.exists(r['sensitivity_grid_ref']),
+    check(os.path.exists(_city.path(g)),
+          'scenario %s gtfs_variant_ref resolves (%s)' % (r['scenario_id'], g))
+    check(os.path.exists(_city.path(r['sensitivity_grid_ref'])),
           'scenario %s sweep grid resolves' % r['scenario_id'])
     check(len(r['seed_list'].split(';')) == int(r['n_replications']),
           'scenario %s seed_list matches n_replications' % r['scenario_id'])
-road_variants = {x['road_variant_ref'] for x in rows('scenarios/E1_road_variants.csv')}
-park_variants = {x['parking_variant_ref'] for x in rows('scenarios/E1_parking_variants.csv')}
-for r in rows('scenarios/E1_scenarios.csv'):
+road_variants = {x['road_variant_ref'] for x in rows(_city.path('scenarios/E1_road_variants.csv'))}
+park_variants = {x['parking_variant_ref'] for x in rows(_city.path('scenarios/E1_parking_variants.csv'))}
+for r in rows(_city.path('scenarios/E1_scenarios.csv')):
     check(r['road_variant_ref'] in road_variants,
           'scenario %s road_variant_ref defined' % r['scenario_id'])
     check(r['parking_variant_ref'] in park_variants,
           'scenario %s parking_variant_ref defined' % r['scenario_id'])
 
 # ---- 4. cross-layer referential integrity ----
-zl = {r['SA1_CODE21'] for r in rows('data/processed/zones/zones_SA1.csv')}
-za = {r['SA1_CODE21'] for r in rows('data/processed/landuse/D1_zone_attractions_SA1.csv')}
+zl = {r['SA1_CODE21'] for r in rows(_city.path('data/processed/zones/zones_SA1.csv'))}
+za = {r['SA1_CODE21'] for r in rows(_city.path('data/processed/landuse/D1_zone_attractions_SA1.csv'))}
 check(za <= zl, 'zone attractions reference known SA1s')
 
-core = {r['SA1_CODE21'] for r in rows('data/processed/zones/zones_SA1.csv')
+core = {r['SA1_CODE21'] for r in rows(_city.path('data/processed/zones/zones_SA1.csv'))
         if r['zone_tier'] == 'core'}
 hh_sa1 = set()
-with open('demand/population/B1_households.csv', encoding='utf-8') as f:
+with open(_city.path('demand/population/B1_households.csv'), encoding='utf-8') as f:
     for i, r in enumerate(csv.DictReader(f)):
         hh_sa1.add(r['home_sa1'])
         if i > 200000:
@@ -145,14 +153,14 @@ with open('demand/population/B1_households.csv', encoding='utf-8') as f:
 check(hh_sa1 <= core, 'sampled household home_sa1 all in the core tier')
 
 # ---- 5. gradient coverage ----
-gr = json.load(open('data/processed/network/_gradient_report.json'))
+gr = json.load(open(_city.path('data/processed/network/_gradient_report.json')))
 for k in ('roads', 'footways'):
     s = gr[k]
     check(s['sampled'] / max(s['n'], 1) > 0.99,
           'gradient attached to >99%% of %s (%d/%d)' % (k, s['sampled'], s['n']))
 
 # ---- 6. parameter sweep completeness ----
-sw = rows('params/C1_sensitivity_sweep_grid.csv')
+sw = rows(_city.path('params/C1_sensitivity_sweep_grid.csv'))
 tp = sorted({float(r['beta_transfer_penalty_min']) for r in sw})
 check(min(tp) <= 3.0 and max(tp) >= 15.0,
       'transfer penalty swept across the full 3-15 min range (%s)' % tp)
@@ -167,7 +175,7 @@ check(0.0 in ch, 'charging dwell sweep includes 0 (the S2a case)')
 # corrected (as the road_aadt values were, DECISIONS.md 12.2) must not move a
 # single target between the two sets.
 CALIBRATION_N, HOLDOUT_N = 67, 143
-vt = rows('data/processed/validation/validation_targets.csv')
+vt = rows(_city.path('data/processed/validation/validation_targets.csv'))
 sp = collections.Counter(r['split'] for r in vt)
 check(sp['calibration'] == CALIBRATION_N and sp['holdout'] == HOLDOUT_N,
       'validation split is the pre-registered %d calibration / %d holdout '
@@ -190,7 +198,7 @@ check(bool(_aadt_t) and all('period=' in r['note'] for r in _aadt_t),
 check(all(r['unit'] == 'vehicles/weekday' for r in _aadt_t),
       'road_aadt targets are on a stated weekday basis, matching the day type '
       'the model runs')
-_aadt_rows = rows('data/processed/validation/road_aadt_targets.csv')
+_aadt_rows = rows(_city.path('data/processed/validation/road_aadt_targets.csv'))
 check(all(r['heavy_share_source'] in ('observed', 'not_classified_at_this_station')
           for r in _aadt_rows),
       'every traffic-count station declares whether its heavy-vehicle share is '
@@ -204,7 +212,7 @@ check(all(0.0 < float(r['heavy_share']) < 0.5 for r in _obs_heavy),
 # The corrections applied when comparing a modelled link volume to an observed
 # count are a parameter artefact, not prose, so the sweep-range rule applies to
 # them like any other assumed value (DECISIONS.md 12.2a).
-C3 = 'params/C3_count_comparison.json'
+C3 = _city.path('params/C3_count_comparison.json')
 if check(os.path.exists(C3), 'count-comparison corrections present (%s)' % C3):
     c3 = json.load(open(C3, encoding='utf-8'))
     hv = c3.get('heavy_vehicle_share', {})
@@ -229,14 +237,14 @@ if check(os.path.exists(C3), 'count-comparison corrections present (%s)' % C3):
 # The constraint on asc_car_passenger is a measured ratio of two published HTS
 # counts, and the value it may take is bounded by what the survey observed -
 # not by what would make the fit look good (DECISIONS.md 9.8).
-C4 = 'params/C4_mode_constraints.json'
+C4 = _city.path('params/C4_mode_constraints.json')
 if check(os.path.exists(C4), 'observed mode constraints present (%s)' % C4):
     c4 = json.load(open(C4, encoding='utf-8'))
     check(c4.get('source', '').startswith('measured'),
           'vehicle occupancy is measured from HTS trip counts, not assumed')
     occ = c4.get('vehicle_occupancy', {})
     lo, hi = (occ.get('sweep') or [None, None])
-    years = c4.get('by_year_newcastle', {})
+    years = c4.get('by_year_target_lga', {})
     obs = sorted(v['occupancy'] for v in years.values())
     check(bool(obs) and abs(obs[0] - lo) < 1e-6 and abs(obs[-1] - hi) < 1e-6,
           'the occupancy sweep is the observed spread across all %d survey '
@@ -250,10 +258,10 @@ if check(os.path.exists(C4), 'observed mode constraints present (%s)' % C4):
           'constants are NOT touched, so the effect under test is untouched')
 
 # ---- 8. assumed values carry sweep ranges ----
-c1 = rows('params/C1_behavioural_parameters.csv')
+c1 = rows(_city.path('params/C1_behavioural_parameters.csv'))
 check(all(r.get('beta_transfer_penalty_low') and r.get('beta_transfer_penalty_high')
           for r in c1), 'every parameter set carries a transfer-penalty sweep range')
-dw = rows('data/processed/corridor/A4_stop_dwell_model.csv')
+dw = rows(_city.path('data/processed/corridor/A4_stop_dwell_model.csv'))
 check(all(r['source'] == 'assumed' and r['dwell_charging_sweep_low'] for r in dw),
       'charging dwell flagged assumed with a sweep range at every stop')
 
@@ -262,7 +270,7 @@ check(all(r['source'] == 'assumed' and r['dwell_charging_sweep_low'] for r in dw
 # Everything from here needs the built network, which is gitignored and is
 # regenerated by src/build/build_matsim_network.py and build_sumo_corridor.py.
 # Absent, it warns rather than fails: this file also runs on a data-only checkout.
-MATSIM = 'networks/matsim'
+MATSIM = _city.path('networks/matsim')
 MREPORT = os.path.join(MATSIM, '_matsim_build_report.json')
 if not os.path.exists(MREPORT):
     check(False, 'MATSim network built (run src/build/build_matsim_network.py)', warn=True)
@@ -326,11 +334,11 @@ else:
               '%s: stop->link fingerprint matches the build of record' % feed)
 
     # ---- 10. road variants differ only where E1 says they should ----
-    patch_rows_m = rows('data/processed/network/A1_road_variant_patches.csv')
+    patch_rows_m = rows(_city.path('data/processed/network/A1_road_variant_patches.csv'))
     patched_ways = collections.defaultdict(set)
     for r in patch_rows_m:
         patched_ways[r['road_variant_ref']].add(r['edge_id'][1:])
-    for v in rows('scenarios/E1_road_variants.csv'):
+    for v in rows(_city.path('scenarios/E1_road_variants.csv')):
         ref = v['road_variant_ref']
         vp = os.path.join(MATSIM, 'variants', ref, 'network.xml.gz')
         if not check(os.path.exists(vp), 'variant network present: %s' % ref):
@@ -360,19 +368,19 @@ else:
                   '%s: as-built variant is identical to the base network' % ref)
 
 # ---- 11. P2 network build: SUMO corridor ----
-SUMO = 'networks/sumo'
+SUMO = _city.path('networks/sumo')
 SREPORT = os.path.join(SUMO, '_sumo_build_report.json')
-a2 = rows('data/processed/corridor/A2_signal_control_corridor.csv')
+a2 = rows(_city.path('data/processed/corridor/A2_signal_control_corridor.csv'))
 a2_by_variant = collections.defaultdict(list)
 for r in a2:
     a2_by_variant[r['scenario_variant_ref']].append(r)
-want_sig = {r['signal_variant_ref'] for r in rows('scenarios/E1_scenarios.csv')}
+want_sig = {r['signal_variant_ref'] for r in rows(_city.path('scenarios/E1_scenarios.csv'))}
 check(want_sig <= set(a2_by_variant),
       'every E1 signal_variant_ref defined in A2 (missing %s)'
       % sorted(want_sig - set(a2_by_variant)))
 
 if not os.path.exists(SREPORT):
-    check(False, 'SUMO corridor built (run src/build/build_sumo_corridor.py)', warn=True)
+    check(False, 'SUMO corridor built (run cities/<city>/build/build_sumo_corridor.py)', warn=True)
 else:
     srep = json.load(open(SREPORT, encoding='utf-8'))
     check(srep.get('lefthand') is True, 'SUMO corridor built for left-hand traffic')
@@ -401,7 +409,7 @@ else:
                   '%s/%s: TLS additional file present' % (ref, sref))
 
 # ---- 12. corridor attribute provenance ----
-corridor = rows('data/processed/network/A1_corridor_road_edges.csv')
+corridor = rows(_city.path('data/processed/network/A1_corridor_road_edges.csv'))
 SRC_FIELDS = ('num_lanes_source', 'speed_limit_source', 'oneway_source',
               'lane_width_source', 'kerbside_source', 'capacity_source')
 check(all(all(r.get(f) for f in SRC_FIELDS) for r in corridor),
@@ -447,14 +455,14 @@ check(ext_obs / max(len(ext), 1) > 0.5,
       'extension alignment itself is assumed'
       % (ext_obs, len(ext), 100.0 * ext_obs / max(len(ext), 1)), warn=True)
 
-patch_rows2 = rows('data/processed/network/A1_road_variant_patches.csv')
+patch_rows2 = rows(_city.path('data/processed/network/A1_road_variant_patches.csv'))
 check(all(r['sweep_low'] and r['sweep_high']
           for r in patch_rows2 if r['source'] == 'assumed'),
       'every assumed road-variant patch carries a sweep range')
 check(all(r['rationale'] for r in patch_rows2),
       'every road-variant patch states why it departs from the observed network')
 
-restr = rows('data/processed/network/A2_turn_restrictions_resolved.csv')
+restr = rows(_city.path('data/processed/network/A2_turn_restrictions_resolved.csv'))
 check(len(restr) > 1000, 'turn restrictions resolved to coordinates (%d)' % len(restr))
 check(any(r['corridor_flag'] == '1' for r in restr),
       'corridor turn restrictions located (%d within 40 m of the alignment)'
@@ -478,23 +486,23 @@ else:
 
 # ---- 12. P3 demand: activity chains (B2) ----
 DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
-CHAIN_REPORT = 'demand/plans/_activity_chains_report.json'
+CHAIN_REPORT = _city.path('demand/plans/_activity_chains_report.json')
 if not os.path.exists(CHAIN_REPORT):
     check(False, 'B2 activity chains built (run src/build/build_activity_chains.py)',
           warn=True)
 else:
     crep = json.load(open(CHAIN_REPORT, encoding='utf-8'))
-    zl = {r['SA1_CODE21'] for r in rows('data/processed/zones/zone_lookup_SA1.csv')}
+    zl = {r['SA1_CODE21'] for r in rows(_city.path('data/processed/zones/zone_lookup_SA1.csv'))}
     core_tier = {r['SA1_CODE21'] for r in
-                 rows('data/processed/zones/zone_lookup_SA1.csv')
+                 rows(_city.path('data/processed/zones/zone_lookup_SA1.csv'))
                  if r['zone_tier'] == 'core'}
 
     # the old single-file B2 must be gone, not left beside the new one
-    check(not os.path.exists('demand/plans/B2_activity_trips.csv'),
+    check(not os.path.exists(_city.path('demand/plans/B2_activity_trips.csv')),
           'the superseded single-day B2_activity_trips.csv has been removed')
 
     for day in DAY_TYPES:
-        p = 'demand/plans/B2_activity_trips_%s.csv' % day
+        p = _city.path('demand/plans/B2_activity_trips_%s.csv') % day
         if not check(os.path.exists(p), 'B2 chains present for %s' % day):
             continue
         n = 0
@@ -576,7 +584,7 @@ else:
           % ext)
 
 # ---- 13. P3 demand: MATSim plans ----
-PLANS_REPORT = 'demand/plans/matsim/_plans_report.json'
+PLANS_REPORT = _city.path('demand/plans/matsim/_plans_report.json')
 if not os.path.exists(PLANS_REPORT):
     check(False, 'MATSim plans built (run src/build/build_matsim_plans.py)', warn=True)
 else:
@@ -589,7 +597,7 @@ else:
     check(bool(prep.get('hts_mode_share_pct_source')),
           'the five-LGA unlinked HTS aggregate records which aggregation it is')
     for day, v in prep.get('by_day', {}).items():
-        pth = 'demand/plans/matsim/population_%s.xml.gz' % day
+        pth = _city.path('demand/plans/matsim/population_%s.xml.gz') % day
         if not check(os.path.exists(pth), 'MATSim population present for %s' % day):
             continue
         check(v['activities'] == v['legs'] + v['persons'],
@@ -642,19 +650,19 @@ else:
           'dependence can be tested rather than asserted'
           % prep.get('seed_mode'))
     # the first line of the file has to be parseable as MATSim v6 population
-    head = gzip.open('demand/plans/matsim/population_WEEKDAY.xml.gz',
+    head = gzip.open(_city.path('demand/plans/matsim/population_WEEKDAY.xml.gz'),
                      'rt', encoding='utf-8').read(400)
     check('population_v6.dtd' in head,
           'plans declare the MATSim population_v6 DTD')
 
 # ---- 14. P3 run inputs: one build, day types, patched run networks ----
-RUN_REPORT = 'scenarios/matsim/_run_inputs_report.json'
+RUN_REPORT = _city.path('scenarios/matsim/_run_inputs_report.json')
 if not os.path.exists(RUN_REPORT):
     check(False, 'MATSim run inputs built (run src/build/build_matsim_run_inputs.py)',
           warn=True)
 else:
     rrep = json.load(open(RUN_REPORT, encoding='utf-8'))
-    mrep2 = json.load(open('networks/matsim/_matsim_build_report.json',
+    mrep2 = json.load(open(_city.path('networks/matsim/_matsim_build_report.json'),
                            encoding='utf-8'))
     sc = rrep.get('scenarios', {})
     check(len(sc) == 10, 'run inputs assembled for all 10 scenarios (found %d)'
@@ -688,7 +696,7 @@ else:
             check(c['vehicles'] == c['vehicle_refs'],
                   '%s/%s: every referenced transit vehicle is present (%d)'
                   % (sid, d, c['vehicles']))
-            cfg = 'scenarios/matsim/%s/%s/config.xml' % (sid, d)
+            cfg = _city.path('scenarios/matsim/%s/%s/config.xml') % (sid, d)
             if not check(os.path.exists(cfg),
                          '%s/%s: config.xml written' % (sid, d)):
                 continue
@@ -780,7 +788,7 @@ else:
             # bind if nobody can stand. All four types now carry published
             # figures. This asserts the property, not the numbers, so the
             # seated sweeps stay free to move.
-            veh = os.path.join('scenarios/matsim', sid, d, 'transitVehicles.xml.gz')
+            veh = os.path.join(_city.path('scenarios/matsim'), sid, d, 'transitVehicles.xml.gz')
             if os.path.exists(veh):
                 import gzip as _gz
                 with _gz.open(veh, 'rt', encoding='utf-8') as _f:
@@ -849,7 +857,7 @@ if os.path.exists(RUN_REPORT):
     total_dangling = total_orphan = total_dangling_rel = total_dup_attr = 0
     for sid in sorted(json.load(open(RUN_REPORT, encoding='utf-8'))
                       .get('scenarios', {})):
-        net = 'scenarios/matsim/%s/network.xml.gz' % sid
+        net = _city.path('scenarios/matsim/%s/network.xml.gz') % sid
         if not os.path.exists(net):
             continue
         with gzip.open(net, 'rt', encoding='utf-8') as f:
@@ -862,7 +870,7 @@ if os.path.exists(RUN_REPORT):
               '%s: no link carries two <attributes> blocks on the run network '
               '(%d)' % (sid, dup))
         for day in DAY_TYPES:
-            sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
+            sch = _city.path('scenarios/matsim/%s/%s/transitSchedule.xml.gz') % (sid, day)
             if not os.path.exists(sch):
                 continue
             refs, missing = 0, 0
@@ -930,7 +938,7 @@ if os.path.exists(RUN_REPORT):
         if not token:
             continue
         for day in DAY_TYPES:
-            sch = 'scenarios/matsim/%s/%s/transitSchedule.xml.gz' % (sid, day)
+            sch = _city.path('scenarios/matsim/%s/%s/transitSchedule.xml.gz') % (sid, day)
             if not os.path.exists(sch):
                 continue
             hits, deps, inside = [], 0, False
@@ -1007,7 +1015,7 @@ if os.path.exists(RUN_REPORT):
           'are recorded (%d)' % len(sco.get('not_representable', [])))
 
 # ---- 17. C2 measured factors ----
-C2 = 'params/C2_network_factors.json'
+C2 = _city.path('params/C2_network_factors.json')
 if not os.path.exists(C2):
     check(False, 'C2 network factors measured (run src/build/measure_network_factors.py)',
           warn=True)
@@ -1116,7 +1124,7 @@ if _registry is not None:
     # every scenario in the matrix has an overlay, and it resolves
     _scenarios = _fields['E.matrix.scenario_ids']['value']
     for _sid in _scenarios:
-        _path = os.path.join('config', 'scenarios', '%s.json' % _sid)
+        _path = _city.path('overlays', 'scenarios', '%s.json' % _sid)
         if not check(os.path.exists(_path), 'scenario %s has a config overlay' % _sid):
             continue
         try:
@@ -1126,19 +1134,19 @@ if _registry is not None:
             check(False, 'scenario overlay %s resolves against the registry (%s)'
                   % (_sid, str(_e).replace('\n', ' ')[:90]))
     for _day in _fields['E.matrix.day_types']['value']:
-        check(os.path.exists(os.path.join('config', 'day', '%s.json' % _day)),
+        check(os.path.exists(_city.path('overlays', 'day', '%s.json' % _day)),
               'day type %s has a config overlay' % _day)
 
     # an out-of-sweep overlay value must carry a written justification
     for _sid in _scenarios:
-        _doc = json.load(open(os.path.join('config', 'scenarios', '%s.json' % _sid),
+        _doc = json.load(open(_city.path('overlays', 'scenarios', '%s.json' % _sid),
                               encoding='utf-8'))
         for _k in _doc.get('allow_outside_sweep', []):
             check(bool(_doc.get('justification', {}).get(_k)),
                   'scenario %s justifies setting %s outside its sweep' % (_sid, _k))
 
     # the generated reference cannot drift from the values it documents
-    _docs = os.path.join('docs', 'reference', 'CONFIG_REFERENCE.md')
+    _docs = _city.path('docs', 'reference', 'CONFIG_REFERENCE.md')
     if check(os.path.exists(_docs), 'docs/reference/CONFIG_REFERENCE.md exists'):
         import subprocess as _sp
         _rc = _sp.call([sys.executable, os.path.join('src', 'registry', 'render_docs.py'),
@@ -1183,8 +1191,8 @@ if _registry is not None:
         'C.time_weights.beta_headway': ('weights', 'beta_headway', 'base'),
         'C.time_weights.beta_reliability': ('weights', 'beta_reliability', 'base'),
     }
-    if os.path.exists('params/C1_parameters.json'):
-        _c1 = json.load(open('params/C1_parameters.json', encoding='utf-8'))
+    if os.path.exists(_city.path('params/C1_parameters.json')):
+        _c1 = json.load(open(_city.path('params/C1_parameters.json'), encoding='utf-8'))
         _bad = []
         for _k, _path in sorted(_C1_PAIRS.items()):
             _node = _c1
@@ -1231,7 +1239,7 @@ if _registry is not None:
         # the whole point of proposal 8.1 - and it happens by writing the field
         # first and the record after.
         import re as _re
-        _dec = open('DECISIONS.md', encoding='utf-8').read()
+        _dec = open(_city.path('docs', 'DECISIONS.md'), encoding='utf-8').read()
         _have = set(_re.findall(r'^#{2,4}\s+(\d+(?:\.\d+[a-z]?)*)', _dec, _re.M))
         _have |= set(_re.findall(r'^\*\*(\d+\.\d+[a-z]?)\s*[-—]', _dec, _re.M))
         _dangling = {}
@@ -1251,7 +1259,7 @@ if _registry is not None:
         # copied into the registry. Same hazard as the C1 mirror above: two
         # copies of a number that nothing compares. The measurement file is the
         # producer, so the registry must equal it class for class.
-        _OSMD = 'params/C2_osm_defaults.json'
+        _OSMD = _city.path('params/C2_osm_defaults.json')
         if os.path.exists(_OSMD):
             _m = json.load(open(_OSMD, encoding='utf-8'))
             _pairs = (('A.road.lanes_default', 'lanes_per_direction'),
@@ -1343,8 +1351,8 @@ if _registry is not None:
               'declaring a sampling grid for the charging dwell did NOT pin the '
               'field: it stays unobtained with a null value (DECISIONS.md 0, 13)')
 
-        if os.path.exists('params/C1_sensitivity_sweep_grid.csv'):
-            _sg = rows('params/C1_sensitivity_sweep_grid.csv')
+        if os.path.exists(_city.path('params/C1_sensitivity_sweep_grid.csv')):
+            _sg = rows(_city.path('params/C1_sensitivity_sweep_grid.csv'))
             _tps = sorted({float(_r['beta_transfer_penalty_min']) for _r in _sg})
             check(_tps == sorted(float(_g) for _g in _grid),
                   'the shipped sweep grid crosses exactly the declared transfer-penalty '
@@ -1417,8 +1425,10 @@ if _registry is not None:
                       '--tls.default-type', 'actuated', '--no-turnarounds', 'true',
                       '--default.spreadtype', 'roadCenter']
     try:
+        # the corridor builder is the CITY's, not the framework's
         sys.path.insert(0, os.path.join('src', 'build'))
         sys.path.insert(0, os.path.join('src', 'setup'))
+        sys.path.insert(0, _city.path('build'))
         import build_sumo_corridor as _bsc
         check(_bsc.PLAIN_OPTS == _expected_opts,
               'the registry assembles netconvert options identical to the literal list '
@@ -1509,14 +1519,14 @@ if True:
               'or an output (%d rows)' % len(_tg))
 
         _all_splits = {r['split'] for r in rows(
-            'data/processed/validation/validation_targets.csv')}
+            _city.path('data/processed/validation/validation_targets.csv'))}
         check(_all_splits == {'calibration', 'holdout'} and len(_tg) == 67,
               'the 67/143 pre-registered split is intact and fit.py sees exactly '
               'the 67 (%d of %d rows)' % (len(_tg), 210))
 
         _road = [t for t in _tg if t['metric'] == 'road_aadt']
         _key = lambda t: t['note'].split('station_key=')[1].split(';')[0]
-        _corr = json.load(open('params/C3_count_comparison.json', encoding='utf-8'))
+        _corr = json.load(open(_city.path('params/C3_count_comparison.json'), encoding='utf-8'))
 
         def _fit_counts(station_overrides):
             """Run score_counts against a synthetic metrics block."""
@@ -1575,7 +1585,7 @@ if True:
 
         # DECISIONS.md 9.13: trip length by mode is a CONSTRAINT and must never
         # become a target. The 67/143 split is pre-registered.
-        _c4 = json.load(open('params/C4_mode_constraints.json', encoding='utf-8'))
+        _c4 = json.load(open(_city.path('params/C4_mode_constraints.json'), encoding='utf-8'))
         _tg = (_c4.get('trip_geometry') or {}).get('modes') or {}
         check(set(_tg) == {'car', 'ride', 'pt', 'walk', 'bike'},
               'C4 carries observed trip length and time for all five MATSim modes, '
@@ -1638,7 +1648,7 @@ print('PASS %d' % len(OK))
 # rule that has already failed twice. It is that the shipped price table must
 # reproduce EXACTLY from the registry formula and the city's own job density. A
 # hard-coded price, a re-drawn extent or a silently edited artefact all fail it.
-PRICE_ZONES = 'data/processed/landuse/A5_parking_price_zones.csv'
+PRICE_ZONES = _city.path('data/processed/landuse/A5_parking_price_zones.csv')
 if _registry is not None and os.path.exists(PRICE_ZONES):
     _cfgp = _registry.load()
     for _k in ('A.parking.price_threshold_pctile', 'A.parking.price_saturation_pctile',
@@ -1656,7 +1666,7 @@ if _registry is not None and os.path.exists(PRICE_ZONES):
           'the parking saturation percentile (%g) exceeds the threshold percentile '
           '(%g), so the price ramp has a positive span' % (_sat_q, _thr_q))
 
-    _att = rows('data/processed/landuse/D1_zone_attractions_SA1.csv')
+    _att = rows(_city.path('data/processed/landuse/D1_zone_attractions_SA1.csv'))
     _dens = {}
     for _r in _att:
         _a = float(_r['area_km2'])
@@ -1692,7 +1702,7 @@ if _registry is not None and os.path.exists(PRICE_ZONES):
     # No place name survives in the priced geography: the zone id IS the id the
     # ABS publishes, and `honeysuckle`, `cbd_core`, `cbd_fringe` and
     # `beach_east` were names for boxes somebody drew.
-    _src = open('src/build/build_landuse_parking.py', encoding='utf-8').read()
+    _src = open(_city.path('build/build_landuse_parking.py'), encoding='utf-8').read()
     # Comments are stripped first, deliberately. The names below SHOULD still be
     # discussed in the source - a defect that is explained does not come back
     # by accident - so the test is that they no longer appear in CODE.
@@ -1706,7 +1716,7 @@ if _registry is not None and os.path.exists(PRICE_ZONES):
         check(_dead not in _a5,
               'the parking price carries no hand-drawn zone named %r' % _dead)
 
-    _fac = rows('data/processed/landuse/A5_parking_facilities.csv')
+    _fac = rows(_city.path('data/processed/landuse/A5_parking_facilities.csv'))
     _zprice = {_r['SA1_CODE21']: float(_r['price_aud_hr']) for _r in _pz}
     _wrong = [_r for _r in _fac
               if int(_r['is_priced']) and _zprice.get(_r['parking_zone'], 0.0) <= 0]
@@ -1723,8 +1733,8 @@ if _registry is not None and os.path.exists(PRICE_ZONES):
     _hours = _cfgp.get('A.parking.charged_hours_by_day_type')
     _modes = ','.join(_cfgp.get('A.parking.charged_modes'))
     _exempt = ','.join(_cfgp.get('A.parking.exempt_activity_types'))
-    for _sid in sorted(os.listdir('scenarios/matsim')) if os.path.isdir('scenarios/matsim') else []:
-        _sdir = os.path.join('scenarios/matsim', _sid)
+    for _sid in sorted(os.listdir(_city.path('scenarios/matsim'))) if os.path.isdir(_city.path('scenarios/matsim')) else []:
+        _sdir = os.path.join(_city.path('scenarios/matsim'), _sid)
         if not os.path.isdir(_sdir):
             continue
         _tsv = os.path.join(_sdir, 'parking_prices.tsv')

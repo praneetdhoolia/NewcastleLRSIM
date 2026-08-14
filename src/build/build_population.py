@@ -16,6 +16,14 @@ file per day type. See DECISIONS.md 9.
 Everything is seeded. Re-running with the same seed reproduces the population
 exactly; the seed is recorded in the scenario configuration (schema E1).
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -32,11 +40,11 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-CEN = 'data/processed/census'
-ZON = 'data/processed/zones'
-LU = 'data/processed/landuse'
-HTS = 'data/processed/hts'
-OUT = 'demand'
+CEN = _city.path('data/processed/census')
+ZON = _city.path('data/processed/zones')
+LU = _city.path('data/processed/landuse')
+HTS = _city.path('data/processed/hts')
+OUT = _city.path('demand')
 os.makedirs(os.path.join(OUT, 'population'), exist_ok=True)
 os.makedirs(os.path.join(OUT, 'plans'), exist_ok=True)
 
@@ -126,8 +134,8 @@ def age_sex_dist(row):
 
 def hts_trip_rates():
     """Trips per person per day by purpose, from the HTS study-area rows."""
-    m = pd.read_csv(os.path.join(HTS, 'hts_mode_newcastle.csv'))
-    p = pd.read_csv(os.path.join(HTS, 'hts_purpose_newcastle.csv'))
+    m = pd.read_csv(os.path.join(HTS, 'hts_mode.csv'))
+    p = pd.read_csv(os.path.join(HTS, 'hts_purpose.csv'))
     m['TRIPS_BY_MODE'] = pd.to_numeric(m['TRIPS_BY_MODE'], errors='coerce')
     p['JOURNEYS_BY_MODE'] = pd.to_numeric(p['JOURNEYS_BY_MODE'], errors='coerce')
     lm = m[(m.geography == 'lga')]

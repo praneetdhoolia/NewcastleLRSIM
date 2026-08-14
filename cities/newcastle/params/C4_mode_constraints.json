@@ -1,0 +1,193 @@
+{
+  "source": "measured - NSW Household Travel Survey, vehicle driver and vehicle passenger trip counts by LGA. Both quantities are ratios of two published counts; neither is a modelling choice.",
+  "base_year": "2024/25",
+  "geography": "Newcastle LGA - the geography of mode-share targets V202-V207 (DECISIONS.md 12.1)",
+  "vehicle_occupancy": {
+    "value": 1.3503,
+    "sweep": [
+      1.2493,
+      1.394
+    ],
+    "sweep_basis": "the observed spread across all 7 survey years in the file, not a chosen interval",
+    "years_observed": 7
+  },
+  "passenger_per_driver": {
+    "value": 0.3503,
+    "sweep": [
+      0.2493,
+      0.394
+    ]
+  },
+  "constrains": "asc_car_passenger",
+  "constraint_rule": "DECISIONS.md 8.5 permits two treatments of the mode constants: estimate them on the pre-intervention period and hold them fixed, or CONSTRAIN THEM AND REPORT THE CONSTRAINT. This is the second. asc_car_passenger is solved so the modelled ride:car leg ratio reproduces the observed passenger:driver ratio, and the solved value is reported as a constraint rather than presented as an estimate. The constrained constant is car passenger - NOT asc_lr, asc_bus or asc_rail, which stay at their 8.5 priors - so the effect under test is untouched and this is not the ASC absorption proposal 9 warns about.",
+  "trip_geometry": {
+    "constrains": "the RANGE a mode is used over, not its share",
+    "note": "A CONSTRAINT, NOT A TARGET. The 67/143 split is pre-registered and this is not part of it; it is reported beside the fit and never counted into one, exactly as vehicle_occupancy is.",
+    "base_year": "2024/25",
+    "modes": {
+      "bike": {
+        "hts_category": "other",
+        "avg_distance_km": 5.2,
+        "avg_distance_sweep": [
+          3.1,
+          5.2
+        ],
+        "avg_time_min": 19.2,
+        "avg_time_sweep": [
+          15.7,
+          19.4
+        ],
+        "years_observed": 7,
+        "sweep_basis": "the observed spread across all 7 survey years in the file for this mode, not a chosen interval"
+      },
+      "pt": {
+        "hts_category": "public transport",
+        "avg_distance_km": 23.4,
+        "avg_distance_sweep": [
+          15.9,
+          24.5
+        ],
+        "avg_time_min": 34.4,
+        "avg_time_sweep": [
+          30.7,
+          37.7
+        ],
+        "years_observed": 3,
+        "sweep_basis": "the observed spread across all 3 survey years in the file for this mode, not a chosen interval"
+      },
+      "car": {
+        "hts_category": "vehicle driver",
+        "avg_distance_km": 10.2,
+        "avg_distance_sweep": [
+          6.6,
+          10.8
+        ],
+        "avg_time_min": 17.2,
+        "avg_time_sweep": [
+          14.5,
+          17.6
+        ],
+        "years_observed": 7,
+        "sweep_basis": "the observed spread across all 7 survey years in the file for this mode, not a chosen interval"
+      },
+      "ride": {
+        "hts_category": "vehicle passenger",
+        "avg_distance_km": 9.8,
+        "avg_distance_sweep": [
+          5.6,
+          9.8
+        ],
+        "avg_time_min": 15.5,
+        "avg_time_sweep": [
+          12.2,
+          15.5
+        ],
+        "years_observed": 7,
+        "sweep_basis": "the observed spread across all 7 survey years in the file for this mode, not a chosen interval"
+      },
+      "walk": {
+        "hts_category": "walk only",
+        "avg_distance_km": 0.7,
+        "avg_distance_sweep": [
+          0.7,
+          1.1
+        ],
+        "avg_time_min": 12.3,
+        "avg_time_sweep": [
+          10.6,
+          14.8
+        ],
+        "years_observed": 7,
+        "sweep_basis": "the observed spread across all 7 survey years in the file for this mode, not a chosen interval"
+      }
+    }
+  },
+  "by_year_target_lga": {
+    "2016/17": {
+      "driver_trips": 334000,
+      "passenger_trips": 106000,
+      "occupancy": 1.3174,
+      "passenger_per_driver": 0.3174
+    },
+    "2017/18": {
+      "driver_trips": 303000,
+      "passenger_trips": 86000,
+      "occupancy": 1.2838,
+      "passenger_per_driver": 0.2838
+    },
+    "2018/19": {
+      "driver_trips": 337000,
+      "passenger_trips": 84000,
+      "occupancy": 1.2493,
+      "passenger_per_driver": 0.2493
+    },
+    "2019/20": {
+      "driver_trips": 348000,
+      "passenger_trips": 99000,
+      "occupancy": 1.2845,
+      "passenger_per_driver": 0.2845
+    },
+    "2022/23": {
+      "driver_trips": 335000,
+      "passenger_trips": 132000,
+      "occupancy": 1.394,
+      "passenger_per_driver": 0.394
+    },
+    "2023/24": {
+      "driver_trips": 317000,
+      "passenger_trips": 109000,
+      "occupancy": 1.3438,
+      "passenger_per_driver": 0.3438
+    },
+    "2024/25": {
+      "driver_trips": 334000,
+      "passenger_trips": 117000,
+      "occupancy": 1.3503,
+      "passenger_per_driver": 0.3503
+    }
+  },
+  "by_year_study_area": {
+    "2016/17": {
+      "driver_trips": 1198000,
+      "passenger_trips": 426000,
+      "occupancy": 1.3556,
+      "passenger_per_driver": 0.3556
+    },
+    "2017/18": {
+      "driver_trips": 1073000,
+      "passenger_trips": 415000,
+      "occupancy": 1.3868,
+      "passenger_per_driver": 0.3868
+    },
+    "2018/19": {
+      "driver_trips": 1126000,
+      "passenger_trips": 405000,
+      "occupancy": 1.3597,
+      "passenger_per_driver": 0.3597
+    },
+    "2019/20": {
+      "driver_trips": 1146000,
+      "passenger_trips": 437000,
+      "occupancy": 1.3813,
+      "passenger_per_driver": 0.3813
+    },
+    "2022/23": {
+      "driver_trips": 1230000,
+      "passenger_trips": 499000,
+      "occupancy": 1.4057,
+      "passenger_per_driver": 0.4057
+    },
+    "2023/24": {
+      "driver_trips": 1219000,
+      "passenger_trips": 462000,
+      "occupancy": 1.379,
+      "passenger_per_driver": 0.379
+    },
+    "2024/25": {
+      "driver_trips": 1221000,
+      "passenger_trips": 456000,
+      "occupancy": 1.3735,
+      "passenger_per_driver": 0.3735
+    }
+  }
+}

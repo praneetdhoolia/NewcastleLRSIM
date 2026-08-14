@@ -27,16 +27,23 @@ mode-share degrees of freedom, one contemporary patronage level and 34 counts.
 Every fit statistic carries the list of target ids it was computed over. A
 statistic that does not name its targets is not reportable.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import argparse
-import collections
 import csv
 import json
 import math
 import os
 
-TARGETS = 'data/processed/validation/validation_targets.csv'
-C3 = 'params/C3_count_comparison.json'
-C4 = 'params/C4_mode_constraints.json'
+TARGETS = _city.path('data/processed/validation/validation_targets.csv')
+C3 = _city.path('params/C3_count_comparison.json')
+C4 = _city.path('params/C4_mode_constraints.json')
 
 # MATSim mode -> the HTS category it is comparable with. `bike` carries HTS
 # "Other", which also holds taxi, motorcycle and rideshare: an imperfect map,
@@ -66,7 +73,7 @@ def scale_error(modelled, observed):
 
 def score_mode_share(targets, metrics, out):
     """Linked main-mode share, Newcastle LGA, 2024/25 vintage only."""
-    share = metrics['mode_share']['newcastle_lga_pct']
+    share = metrics['mode_share']['target_lga_pct']
     rows = [t for t in targets
             if t['metric'] == 'hts_mode_share' and t['period'] == BASE_YEAR_HTS]
     hts_to_mode = {v.lower(): k for k, v in MODE_TO_HTS.items()}
@@ -131,7 +138,7 @@ def score_counts(targets, metrics, corrections, out):
     heavy = corrections['heavy_vehicle_share']
     default_heavy = heavy['value']
     obs_heavy = {}
-    with open('data/processed/validation/road_aadt_targets.csv',
+    with open(_city.path('data/processed/validation/road_aadt_targets.csv'),
               encoding='utf-8') as f:
         for r in csv.DictReader(f):
             if r['heavy_share_source'] == 'observed' and r['heavy_share']:
@@ -229,7 +236,7 @@ def account_for_the_rest(targets, out):
 
 def score_occupancy(metrics, c4):
     """Not a validation target: the physical constraint of DECISIONS.md 9.8."""
-    share = metrics['mode_share']['newcastle_lga_pct']
+    share = metrics['mode_share']['target_lga_pct']
     car, ride = share.get('car', 0.0), share.get('ride', 0.0)
     if not car:
         return None
@@ -302,7 +309,7 @@ def main():
     ap.add_argument('--run', required=True)
     ap.add_argument('--out')
     a = ap.parse_args()
-    run_dir = a.run if os.path.isdir(a.run) else os.path.join('results', a.run)
+    run_dir = a.run if os.path.isdir(a.run) else os.path.join(_city.REPO, 'results', a.run)
     metrics = json.load(open(os.path.join(run_dir, '_metrics.json'),
                              encoding='utf-8'))
     corrections = json.load(open(C3, encoding='utf-8'))

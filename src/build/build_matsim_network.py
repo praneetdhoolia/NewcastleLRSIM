@@ -28,6 +28,14 @@ Usage:
     python src/build/build_matsim_network.py --stage schedules --only S2,base2026
     python src/build/build_matsim_network.py --workers 3
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import re
 import sys
@@ -46,36 +54,36 @@ import concurrent.futures as futures
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'setup'))
 import bootstrap_toolchain as tc  # noqa: E402
 
-OUT = 'networks/matsim'
+OUT = _city.path('networks/matsim')
 WORK = os.path.join(OUT, '_work')
-CRS = 'EPSG:28356'
-PATCHES = 'data/processed/network/A1_road_variant_patches.csv'
-E1_ROAD_VARIANTS = 'scenarios/E1_road_variants.csv'
+CRS = _city.crs()
+PATCHES = _city.path('data/processed/network/A1_road_variant_patches.csv')
+E1_ROAD_VARIANTS = _city.path('scenarios/E1_road_variants.csv')
 JAVA_XMX = '-Xmx6g'
 
 # The signals extract is merged for its `type=restriction` relations - the road
 # extract carries none, so without it pt2matsim writes no `disallowedNextLinks`
 # and every banned turn on the corridor would silently vanish from the network.
-OSM_INPUTS = ['networks/osm/newcastle_roads.osm',
-              'networks/osm/newcastle_railways.osm',
-              'networks/osm/newcastle_signals.osm']
+OSM_INPUTS = [_city.path('networks/osm/roads.osm'),
+              _city.path('networks/osm/railways.osm'),
+              _city.path('networks/osm/signals.osm')]
 
 FEEDS = collections.OrderedDict([
-    ('base2026', 'schedules/base2026.zip'),
-    ('era1_pre2014_reconstructed', 'schedules/era1_pre2014_reconstructed.zip'),
-    ('era2_2016_rail_truncated', 'schedules/era2_2016_rail_truncated.zip'),
-    ('era3_2018_keolis_interchange', 'schedules/era3_2018_keolis_interchange.zip'),
-    ('era4_2019_lr_open', 'schedules/era4_2019_lr_open.zip'),
-    ('S0', 'schedules/scenarios/S0.zip'),
-    ('S1', 'schedules/scenarios/S1.zip'),
-    ('S2', 'schedules/scenarios/S2.zip'),
-    ('S2a', 'schedules/scenarios/S2a.zip'),
-    ('S2b', 'schedules/scenarios/S2b.zip'),
-    ('S2c', 'schedules/scenarios/S2c.zip'),
-    ('S3', 'schedules/scenarios/S3.zip'),
-    ('S4', 'schedules/scenarios/S4.zip'),
-    ('S5', 'schedules/scenarios/S5.zip'),
-    ('S6', 'schedules/scenarios/S6.zip'),
+    ('base2026', _city.path('schedules/base2026.zip')),
+    ('era1_pre2014_reconstructed', _city.path('schedules/era1_pre2014_reconstructed.zip')),
+    ('era2_2016_rail_truncated', _city.path('schedules/era2_2016_rail_truncated.zip')),
+    ('era3_2018_keolis_interchange', _city.path('schedules/era3_2018_keolis_interchange.zip')),
+    ('era4_2019_lr_open', _city.path('schedules/era4_2019_lr_open.zip')),
+    ('S0', _city.path('schedules/scenarios/S0.zip')),
+    ('S1', _city.path('schedules/scenarios/S1.zip')),
+    ('S2', _city.path('schedules/scenarios/S2.zip')),
+    ('S2a', _city.path('schedules/scenarios/S2a.zip')),
+    ('S2b', _city.path('schedules/scenarios/S2b.zip')),
+    ('S2c', _city.path('schedules/scenarios/S2c.zip')),
+    ('S3', _city.path('schedules/scenarios/S3.zip')),
+    ('S4', _city.path('schedules/scenarios/S4.zip')),
+    ('S5', _city.path('schedules/scenarios/S5.zip')),
+    ('S6', _city.path('schedules/scenarios/S6.zip')),
 ])
 
 # All three day types are converted into a single schedule ("all"). The era and
@@ -231,7 +239,7 @@ def write_osm_config(path, osm_file, network_out):
 def build_base_network():
     os.makedirs(os.path.join(OUT, 'base'), exist_ok=True)
     os.makedirs(WORK, exist_ok=True)
-    osm = merge_osm(os.path.join(WORK, 'newcastle_multimodal.osm'))
+    osm = merge_osm(os.path.join(WORK, 'multimodal.osm'))
     net = os.path.join(OUT, 'base', 'network.xml.gz')
     cfg = write_osm_config(os.path.join(WORK, 'osm_converter.xml'), osm, net)
     log('Osm2MultimodalNetwork -> %s' % net)

@@ -1,0 +1,240 @@
+{
+  "layer": "RUN",
+  "title": "SUMO corridor (build and microsimulation)",
+  "description": "The corridor half of proposal 5.1: SUMO answers what the system physically does given riders, and what it costs other road users. Two things are declared here that the package does not have. The netconvert options that are MODELLING CHOICES are separated from those that are geometry handling, so a choice cannot hide inside a flag list - `tls_default_type` in particular stands in for the unobtained SCATS phasing. And the fields a SUMO RUN would need are declared even though no SUMO run harness exists: the corridor nets are built and have never been simulated.",
+  "decisions_ref": "3.6, 5, 15",
+  "fields": {
+    "RUN.sumo.bbox_margin_m": {
+      "value": 300.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        100.0,
+        800.0
+      ],
+      "status": "active",
+      "decisions_ref": "3.6, 15",
+      "description": "Margin added around the corridor edge extent when clipping the OSM input for netconvert. Too small and turning traffic has nowhere to come from; too large and the corridor net stops being a corridor. Taken from the A1 edge endpoints rather than re-read from OSM, so the clip follows the built network.",
+      "consumers": [
+        "cities/newcastle/build/build_sumo_corridor.py"
+      ]
+    },
+    "RUN.sumo.projection": {
+      "value": "+proj=utm +zone=56 +south +ellps=GRS80 +units=m +no_defs",
+      "units": "proj4",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "2.6, 3.6",
+      "description": "The projection of EPSG:28356, stated as proj4 because netconvert takes a proj4 definition rather than an EPSG code. The datum label follows the repo's correction in DECISIONS.md 2.6 (GDA94, not GDA2020).",
+      "consumers": [
+        "cities/newcastle/build/build_sumo_corridor.py"
+      ]
+    },
+    "RUN.sumo.lefthand": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "3.6",
+      "sumo_param": "--lefthand",
+      "description": "Left-hand traffic. NOT optional and not cosmetic: with it off, netconvert builds right-hand connections and every turning movement on the corridor is wrong."
+    },
+    "RUN.sumo.tls_default_type": {
+      "value": "actuated",
+      "units": "enum",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "actuated",
+          "static"
+        ],
+        "basis": "actuated responds to demand, static holds the programmed cycle. Which is right depends on SCATS phasing, which is unobtained - see A.signals.scats_phasing"
+      },
+      "status": "active",
+      "decisions_ref": "5, 15",
+      "sumo_param": "--tls.default-type",
+      "description": "Signal controller type netconvert assigns. A real modelling choice standing in for information the project does not have: the corridor run time swings 38% between no priority and full priority, and this field is part of that uncertainty rather than a build detail."
+    },
+    "RUN.sumo.junctions_join": {
+      "value": true,
+      "units": "boolean",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          true,
+          false
+        ]
+      },
+      "status": "active",
+      "decisions_ref": "5, 15",
+      "sumo_param": "--junctions.join",
+      "description": "Merge clustered approach nodes into one junction. Interacts with A.signals.junction_match_m: joining moves a junction centroid, which is why the A2 match radius is 60 m rather than A2's own 45 m clustering radius."
+    },
+    "RUN.sumo.tls_guess_signals": {
+      "value": true,
+      "units": "boolean",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          true,
+          false
+        ]
+      },
+      "status": "active",
+      "decisions_ref": "5, 15",
+      "sumo_param": "--tls.guess-signals",
+      "description": "Infer signalised junctions from OSM traffic-signal nodes."
+    },
+    "RUN.sumo.no_turnarounds": {
+      "value": true,
+      "units": "boolean",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          true,
+          false
+        ]
+      },
+      "status": "active",
+      "decisions_ref": "5, 15",
+      "sumo_param": "--no-turnarounds",
+      "description": "Suppress U-turns at junctions. Left on because uncontrolled U-turns on a trunk corridor are an artefact of the network build rather than observed behaviour."
+    },
+    "RUN.sumo.crossings_enabled": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "3.6",
+      "proposal_ref": "3.3 B1, A6",
+      "sumo_param": "--osm.crossings",
+      "description": "Pedestrian crossings and sidewalks in the SUMO corridor. FALSE BECAUSE THE OPTION SEGFAULTS netconvert 1.27.1 on this extract (exit 139), not because it was judged unnecessary - DECISIONS.md 3.6. CONSEQUENCE: there are no pedestrians in the SUMO corridor, so pedestrian delay MUST NOT be modelled there. Walk and frontage throughput are MATSim's job on A6. A toolchain change that fixes the segfault is a model change and belongs in DECISIONS.md 14."
+    },
+    "RUN.sumo.netconvert_options": {
+      "value": [
+        "--osm.turn-lanes",
+        "true",
+        "--osm.elevation",
+        "false",
+        "--geometry.remove",
+        "true",
+        "--roundabouts.guess",
+        "true",
+        "--ramps.guess",
+        "true"
+      ],
+      "units": "cli_flags",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "3.6",
+      "description": "The netconvert options that are geometry handling rather than modelling choices. Every option that IS a modelling choice is a separate registry field - lefthand, junctions_join, tls_guess_signals, tls_join, tls_default_type, no_turnarounds, spreadtype, crossings_enabled - so that a choice cannot hide inside a flag list.",
+      "consumers": [
+        "cities/newcastle/build/build_sumo_corridor.py"
+      ]
+    },
+    "RUN.sumo.seed": {
+      "value": 20260810,
+      "units": "integer_seed",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "3.6",
+      "description": "netconvert seed. Held at the master seed; netconvert output is byte-identical on rebuild, and check_package.py asserts it.",
+      "consumers": [
+        "cities/newcastle/build/build_sumo_corridor.py"
+      ]
+    },
+    "RUN.sumo.step_length_s": {
+      "value": 1.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        1.0
+      ],
+      "sweep_basis": "1.0 s is the SUMO default; sub-second steps resolve car-following and signal response more finely at proportionally higher cost",
+      "status": "active",
+      "decisions_ref": "15",
+      "sumo_param": "--step-length",
+      "description": "Microsimulation time step. DECLARED BUT NOT YET CONSUMED: no SUMO run harness exists. Proposal 5.1 gives SUMO the supply and operations layer - run time, dwell, reliability variance, car delay, frontage throughput - and none of it has been executed."
+    },
+    "RUN.sumo.begin_h": {
+      "value": 0,
+      "units": "hours",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "sumo_param": "--begin",
+      "description": "Microsimulation start. Declared; no SUMO run harness exists yet."
+    },
+    "RUN.sumo.end_h": {
+      "value": 30,
+      "units": "hours",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "sumo_param": "--end",
+      "description": "Microsimulation end, matching B.activity.day_horizon_s and RUN.qsim.end_time_h so the two tools cover the same day. Declared; no SUMO run harness exists yet."
+    },
+    "RUN.sumo.replications": {
+      "value": null,
+      "units": "count",
+      "source": "assumed",
+      "sweep": {
+        "interval": [
+          5,
+          30
+        ],
+        "basis": "proposal 5.2 specifies AT LEAST 30 seeded replications. The lower bound is not a judgement that 5 suffices - it records that replications are one of the three levers on a run budget that is ~765 days of wall clock, and that the cut has not been made"
+      },
+      "status": "unobtained",
+      "decisions_ref": "9.5, 15",
+      "proposal_ref": "5.2",
+      "description": "Seeded SUMO replications per scenario. NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cut (issue 6). Declaring it null means a SUMO harness cannot be built on an unexamined default."
+    },
+    "RUN.sumo.outer_loop_max_iterations": {
+      "value": 3,
+      "units": "iterations",
+      "source": "literature",
+      "sweep": [
+        2,
+        5
+      ],
+      "status": "active",
+      "decisions_ref": "15",
+      "proposal_ref": "5.2",
+      "description": "Maximum MATSim-SUMO outer iterations. Proposal 5.2 says 2-3 outer iterations to convergence. The loop stops when corridor run time is stable within E.coupling.outer_loop_tolerance_s - WHICH HAS NEVER BEEN DEFINED (issue 8), so this cap is currently the only thing that would terminate it."
+    },
+    "RUN.sumo.tls_join": {
+      "value": true,
+      "units": "boolean",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          true,
+          false
+        ]
+      },
+      "status": "active",
+      "decisions_ref": "5, 15",
+      "sumo_param": "--tls.join",
+      "description": "Join adjacent traffic lights into one controller. Affects how many independent signal programs the corridor carries, and therefore what the A2 timings are applied to."
+    },
+    "RUN.sumo.spreadtype": {
+      "value": "roadCenter",
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "3.6",
+      "sumo_param": "--default.spreadtype",
+      "description": "How lanes are spread about the reference geometry. roadCenter keeps the centreline as the road centre, which is what the A1 geometry represents."
+    }
+  }
+}

@@ -11,44 +11,60 @@ import json
 import hashlib
 import datetime
 import zipfile
+import sys
 
-ROOT = '.'
+# The manifest describes ONE CITY. Its paths stay city-relative - `data/...`,
+# not `cities/newcastle/data/...` - so the manifest does not repeat the city's
+# own name on all 376 of its rows, and a second city's manifest is comparable
+# to this one row for row.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', 'src'))
+import city as _city  # noqa: E402
+
+ROOT = _city.CITY_DIR
 SCAN = ['data/raw', 'data/processed', 'schedules', 'demand', 'params',
         'scenarios', 'networks/osm', 'networks/matsim', 'networks/sumo']
 SKIP_EXT = {'.pyc'}
 PROVENANCE_FILES = ['data/raw/provenance_open_data.json',
                     'data/raw/provenance_abs_dem.json',
                     'schedules/raw/provenance.json']
+PROVENANCE_FILES = [os.path.join(ROOT, p) for p in PROVENANCE_FILES]
+
+EXTRACT = 'cities/%s/extract/' % _city.CITY
+# Builders that encode THIS CITY's intervention, corridor or history live
+# with the city; the generic pipeline stays in src/build/.
+CITY_BUILD = 'cities/%s/build/' % _city.CITY
 
 # which script produced what, for the lineage graph
 LINEAGE = {
-    'networks/osm': 'src/extract/overpass.py',
-    'schedules/raw': 'src/extract/fetch_gtfs.py',
-    'data/raw/opal': 'src/extract/fetch_open_data.py',
-    'data/raw/counts': 'src/extract/fetch_open_data.py',
-    'data/raw/hts': 'src/extract/fetch_open_data.py',
-    'data/raw/boundaries': 'src/extract/fetch_abs_dem.py',
-    'data/raw/census': 'src/extract/fetch_abs_dem.py',
-    'data/raw/dem': 'src/extract/fetch_abs_dem.py',
-    'data/processed/zones': 'src/extract/extract_zones.py',
-    'data/processed/census': 'src/extract/extract_census.py',
-    'data/processed/hts': 'src/extract/extract_hts.py',
-    'data/processed/observed': 'src/extract/slice_newcastle.py',
+    'networks/osm': EXTRACT + 'overpass.py',
+    'schedules/raw': EXTRACT + 'fetch_gtfs.py',
+    'data/raw/opal': EXTRACT + 'fetch_open_data.py',
+    'data/raw/counts': EXTRACT + 'fetch_open_data.py',
+    'data/raw/hts': EXTRACT + 'fetch_open_data.py',
+    'data/raw/boundaries': EXTRACT + 'fetch_abs_dem.py',
+    'data/raw/census': EXTRACT + 'fetch_abs_dem.py',
+    'data/raw/dem': EXTRACT + 'fetch_abs_dem.py',
+    'data/processed/zones': EXTRACT + 'extract_zones.py',
+    'data/processed/census': EXTRACT + 'extract_census.py',
+    'data/processed/hts': EXTRACT + 'extract_hts.py',
+    'data/processed/observed': EXTRACT + 'slice_newcastle.py',
     'data/processed/network': 'src/build/build_network_layers.py + attach_gradient.py',
-    'data/processed/corridor': 'src/build/build_corridor_layers.py',
-    'data/processed/landuse': 'src/build/build_landuse_parking.py + build_zone_attractions.py',
+    'data/processed/corridor': CITY_BUILD + 'build_corridor_layers.py',
+    'data/processed/landuse': CITY_BUILD + 'build_landuse_parking.py + '
+                              'src/build/build_zone_attractions.py',
     'data/processed/schedule_extras': 'src/build/build_gtfs_extras.py',
-    'data/processed/validation': 'src/build/build_validation_targets.py',
-    'schedules/scenarios': 'src/build/build_scenario_schedules.py',
+    'data/processed/validation': CITY_BUILD + 'build_validation_targets.py',
+    'schedules/scenarios': CITY_BUILD + 'build_scenario_schedules.py',
     'demand/population': 'src/build/build_population.py',
     'demand/plans': 'src/build/build_activity_chains.py',
     'demand/plans/matsim': 'src/build/build_matsim_plans.py',
     'params': 'src/build/build_params.py',
-    'scenarios': 'src/build/build_scenario_configs.py',
+    'scenarios': CITY_BUILD + 'build_scenario_configs.py',
     'scenarios/matsim': 'src/build/build_matsim_run_inputs.py',
-    'schedules': 'src/build/build_era_feeds.py',
+    'schedules': CITY_BUILD + 'build_era_feeds.py',
     'networks/matsim': 'src/build/build_matsim_network.py (pt2matsim 26.6)',
-    'networks/sumo': 'src/build/build_sumo_corridor.py (SUMO netconvert 1.27.1)',
+    'networks/sumo': CITY_BUILD + 'build_sumo_corridor.py (SUMO netconvert 1.27.1)',
 }
 
 # P2 build intermediates: large, regenerable, and not part of the package.
@@ -109,6 +125,7 @@ def main():
 
     files = []
     for base in SCAN:
+        base = os.path.join(ROOT, base)
         if not os.path.isdir(base):
             continue
         for dirpath, _, names in os.walk(base):
@@ -140,7 +157,7 @@ def main():
         project='Newcastle Light Rail counterfactual microsimulation (NewcastleLRSIM)',
         generated=datetime.datetime.now().replace(microsecond=0).isoformat(),
         base_year=2026,
-        crs='EPSG:28356 (GDA2020 / MGA Zone 56)',
+        crs=_city.crs_label(),
         n_files=len(files),
         total_bytes=total,
         total_gib=round(total / (1 << 30), 2),
@@ -148,10 +165,11 @@ def main():
         bytes_by_stage={s: sum(f['bytes'] for f in files if f['stage'] == s)
                         for s in ('raw', 'processed')},
         files=files)
-    json.dump(man, open('data/MANIFEST.json', 'w'), indent=2)
+    json.dump(man, open(os.path.join(ROOT, 'data', 'MANIFEST.json'), 'w'), indent=2)
     cols = ['path', 'stage', 'bytes', 'rows', 'produced_by', 'source', 'source_url',
             'licence', 'retrieved', 'sha256']
-    with open('data/MANIFEST.csv', 'w', newline='', encoding='utf-8') as fh:
+    with open(os.path.join(ROOT, 'data', 'MANIFEST.csv'), 'w', newline='',
+          encoding='utf-8') as fh:
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction='ignore')
         w.writeheader()
         w.writerows(files)

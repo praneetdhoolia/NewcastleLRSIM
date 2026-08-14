@@ -3,7 +3,7 @@
 
 `replay_events.py` answers *what did the run do* once it is over. This answers
 *what is it doing now*, and unlike the view it replaces it does not have to
-guess: `src/java/wickham/RunTelemetry.java` publishes the counts and the
+guess: `src/java/citysim/RunTelemetry.java` publishes the counts and the
 per-link congestion from inside the mobsim, so this is a reader, not an
 inferrer.
 
@@ -54,6 +54,9 @@ ROOT = os.path.dirname(os.path.dirname(_HERE))
 RESULTS = os.path.join(ROOT, 'results')
 sys.path.insert(0, os.path.join(ROOT, 'src'))
 import registry as _registry  # noqa: E402
+import city as _city  # noqa: E402
+sys.path.insert(0, _HERE)
+import summarise_run as _summarise  # noqa: E402
 
 ITER_RE = re.compile(r'^(\S+)\s+INFO AbstractController.*ITERATION (\d+) BEGINS')
 LAST_ITER_RE = re.compile(r'name="lastIteration" value="(\d+)"')
@@ -224,20 +227,13 @@ def scan(run_dir):
     scores = read_series(os.path.join(out_dir, 'scorestats.csv'),
                          keep={'avg_executed', 'avg_best', 'avg_worst'})
 
-    # post-innovation drift: the direct read on whether this run has relaxed,
-    # which is the question issue #5 turns on
-    drift = {}
-    if innovation_off is not None and modes.get('iteration'):
-        it = modes['iteration']
-        try:
-            i0 = next(i for i, v in enumerate(it) if v >= innovation_off)
-        except StopIteration:
-            i0 = None
-        if i0 is not None and len(it) - 1 > i0:
-            for k, v in modes.items():
-                if k == 'iteration' or v[i0] is None or v[-1] is None:
-                    continue
-                drift[k] = round(v[-1] - v[i0], 5)
+    # Has the run settled? The question issue #5 turns on. Delegated to
+    # summarise_run so the live view and the finished summary cannot disagree:
+    # this page had its own second implementation, in fractions rather than
+    # percentage points, and two implementations of one verdict is exactly the
+    # drift this package cannot absorb. The tolerance is declared
+    # (RUN.relaxation.drift_tolerance_pp), not decided here.
+    relaxation = _summarise.relaxation(modes, innovation_off)
 
     live = _load_json(os.path.join(out_dir, 'telemetry_live.json'))
     history = read_jsonl(os.path.join(out_dir, 'telemetry.jsonl'))
@@ -274,7 +270,7 @@ def scan(run_dir):
         'eta_s': eta_s,
         'elapsed_s': elapsed,
         'innovation_off_at': innovation_off,
-        'post_innovation_drift': drift,
+        'relaxation': relaxation,
         'modes': modes,
         'scores': scores,
         'telemetry': telemetry,
@@ -523,7 +519,7 @@ def make_handler(run_dir):
                 # build_basemap.py and NOT required: the page draws traffic
                 # without it. See the note in hotspot() on why the traffic layer
                 # does not come from here.
-                self._send_file(os.path.join(ROOT, 'basemap.json'))
+                self._send_file(_city.path('data', 'processed', 'basemap.json'))
             elif path == '/hotspot.json':
                 self._send(json.dumps(hotspot(run_dir)))
             elif path == '/links.json':
@@ -538,6 +534,24 @@ def make_handler(run_dir):
     return Handler
 
 
+class _Server(socketserver.TCPServer):
+    """Loopback server that REFUSES a port already in use.
+
+    `allow_reuse_address` must stay false on Windows. SO_REUSEADDR there lets a
+    second socket bind a port that is already bound instead of failing, so the
+    port scan in `serve` below silently "succeeded" on the SAME port for every
+    concurrent run: three live views each printed 8731, 8732 and 8733 were never
+    opened, and only the first server ever answered. The other two ran for as
+    long as their run did, reporting a url that served nothing. On POSIX the
+    flag only skips TIME_WAIT and is harmless, so it is kept there.
+
+    It was also being set on `socketserver.TCPServer` itself, which changed the
+    default for every other server in the process.
+    """
+
+    allow_reuse_address = (os.name != 'nt')
+
+
 def serve(run_dir, port=None, poll_s=None, background=True):
     """Bind on loopback and serve. Returns the url, or None if no port is free."""
     port = int(port or PORT)
@@ -545,8 +559,7 @@ def serve(run_dir, port=None, poll_s=None, background=True):
     httpd = None
     for candidate in range(port, port + 20):
         try:
-            socketserver.TCPServer.allow_reuse_address = True
-            httpd = socketserver.TCPServer(('127.0.0.1', candidate), handler)
+            httpd = _Server(('127.0.0.1', candidate), handler)
             port = candidate
             break
         except OSError:

@@ -2,7 +2,7 @@
 """The NewcastleLRSIM input registry: one resolved surface for every controllable value.
 
 Every value the model consumes that is not read from an immutable raw download
-is declared in `config/registry/<city>/*.json` with its units, its provenance and
+is declared in `cities/<city>/registry/*.json` with its units, its provenance and
 either a sweep range or an explicit rule holding it fixed. This module resolves
 those declarations into the values a script actually runs with, and refuses the
 three things that would let the package drift:
@@ -24,11 +24,11 @@ tests, never for routine runs.
 
 Resolution order, lowest precedence first:
 
-    config/registry/<city>/*.json   the declared values for one city
-    config/scenarios/<S>.json   per-scenario overlay
-    config/day/<DAY>.json       per-day-type overlay
-    config/runs/<tag>.json      per-run overlay
-    WICKHAM_<DOTTED_KEY> env    environment override
+    cities/<city>/registry/*.json        the declared values for one city
+    cities/<city>/overlays/scenarios/<S>.json   per-scenario overlay
+    cities/<city>/overlays/day/<DAY>.json       per-day-type overlay
+    cities/<city>/overlays/runs/<tag>.json      per-run overlay
+    CITYSIM_<DOTTED_KEY> env    environment override
     set= argument               programmatic / CLI override
 
 Every resolution can be snapshotted with `snapshot()`, which records the value,
@@ -55,13 +55,14 @@ REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 # Naming the instance is the point: a field key like A.road.speed_default is
 # generic, but 50 km/h residential, 16.96 AUD/h and a 0.50 bicycle ownership
 # rate are Newcastle's, and a directory called `registry` hid that.
-CITY = os.environ.get('WICKHAM_CITY', 'newcastle')
-REGISTRY_DIR = os.path.join(REPO, 'config', 'registry', CITY)
+CITY = os.environ.get('CITYSIM_CITY', 'newcastle')
+CITY_DIR = os.path.join(REPO, 'cities', CITY)
+REGISTRY_DIR = os.path.join(CITY_DIR, 'registry')
 SCHEMA_DIR = os.path.join(REPO, 'config', 'schema')
-OVERLAY_DIRS = {'scenario': os.path.join(REPO, 'config', 'scenarios'),
-                'day': os.path.join(REPO, 'config', 'day'),
-                'run': os.path.join(REPO, 'config', 'runs')}
-ENV_PREFIX = 'WICKHAM_'
+OVERLAY_DIRS = {'scenario': os.path.join(CITY_DIR, 'overlays', 'scenarios'),
+                'day': os.path.join(CITY_DIR, 'overlays', 'day'),
+                'run': os.path.join(CITY_DIR, 'overlays', 'runs')}
+ENV_PREFIX = 'CITYSIM_'
 SWEPT_SOURCES = ('measured', 'derived', 'literature', 'assumed')
 
 
@@ -165,7 +166,7 @@ def validate(fields=None, strict_schema=True):
 # resolution
 # --------------------------------------------------------------------------
 def _env_overrides():
-    """WICKHAM_A_LIGHTRAIL_DWELL_FIXED_S -> A.lightrail.dwell_fixed_s, by matching."""
+    """CITYSIM_A_LIGHTRAIL_DWELL_FIXED_S -> A.lightrail.dwell_fixed_s, by matching."""
     out = {}
     for name, raw in os.environ.items():
         if not name.startswith(ENV_PREFIX) or name == ENV_PREFIX + 'REPO':

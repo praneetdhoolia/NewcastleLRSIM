@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """GTFS utilities: read, clip to study area, merge feeds, pick a service date."""
-import zipfile,csv,io,os,collections,datetime,shutil
+import zipfile, csv, io, os, collections, datetime
 import det_io
 
 STUDY=dict(s=-33.20,w=151.10,n=-32.55,e=151.95)

@@ -7,6 +7,14 @@ forcing an interchange at Wickham is worth the CBD distribution it buys
 whether it is sheltered, whether it requires a signalised road crossing - has to
 be an explicit input rather than an implicit constant.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import sys
 import csv
@@ -25,9 +33,9 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-OUT = 'data/processed/schedule_extras'
+OUT = _city.path('data/processed/schedule_extras')
 os.makedirs(OUT, exist_ok=True)
-BASE = 'schedules/base2026.zip'
+BASE = _city.path('schedules/base2026.zip')
 
 WALK_SPEED_MS = CFG.get('A.transit.walk_speed_ms')
 INTERCHANGE_RADIUS_M = CFG.get('A.transit.interchange_radius_m')

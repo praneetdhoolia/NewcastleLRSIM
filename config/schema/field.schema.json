@@ -38,7 +38,7 @@
         "assumed",
         "definition"
       ],
-      "description": "observed = read directly from a raw download. measured = computed from observed data in this package. derived = follows from another registry field by identity. literature = a published value not specific to Newcastle. assumed = chosen without direct empirical support. definition = fixed by the formulation, not an empirical quantity."
+      "description": "observed = read directly from a raw download. measured = computed from observed data in this package. derived = follows from another registry field by identity. literature = a published value not specific to this city. assumed = chosen without direct empirical support. definition = fixed by the formulation, not an empirical quantity."
     },
     "sweep": {
       "description": "Required unless source is 'observed' or 'definition'. A bare two-element array is shorthand for an interval, kept for compatibility with params/C2-C4.",

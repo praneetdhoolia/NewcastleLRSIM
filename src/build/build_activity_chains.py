@@ -39,6 +39,14 @@ observed HTS trip rate exactly.
 Determinism: one seeded generator, persons visited in sorted id order, zone and
 POI arrays built in sorted order. Same seed reproduces the file byte for byte.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -57,11 +65,11 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-ZON = 'data/processed/zones'
-LU = 'data/processed/landuse'
-HTS = 'data/processed/hts'
-POP = 'demand/population'
-OUT = 'demand/plans'
+ZON = _city.path('data/processed/zones')
+LU = _city.path('data/processed/landuse')
+HTS = _city.path('data/processed/hts')
+POP = _city.path('demand/population')
+OUT = _city.path('demand/plans')
 
 SEED = CFG.get('B.seed.master')
 # Purposes that choose a destination: each one has an HTS journey distance to
@@ -151,7 +159,7 @@ P_INTERMEDIATE_SWEEP = (0.10, 0.35)
 DETOUR_FACTOR = 1.30
 DETOUR_SWEEP = (1.20, 1.40)
 DETOUR_SOURCE = 'assumed - C2 factors file not found'
-NETWORK_FACTORS = 'params/C2_network_factors.json'
+NETWORK_FACTORS = _city.path('params/C2_network_factors.json')
 
 # Mean activity duration in minutes by purpose (carried from P1, DECISIONS 9).
 ACT_DURATION = CFG.get('B.activity.act_duration_min')
@@ -233,7 +241,7 @@ def norm(a):
 
 def hts_rates():
     """Trip rate and mean journey distance per purpose, from the HTS extract."""
-    pur = pd.read_csv(os.path.join(HTS, 'hts_purpose_newcastle.csv'))
+    pur = pd.read_csv(os.path.join(HTS, 'hts_purpose.csv'))
     pur = pur[(pur.geography == 'lga')]
     yr = sorted(pur.FINANCIAL_YEAR.unique())[-1]
     pur = pur[pur.FINANCIAL_YEAR == yr]
@@ -252,7 +260,7 @@ def hts_rates():
             .apply(lambda d: np.average(d.JOURNEY_AVG_DISTANCE,
                                         weights=d.JOURNEYS_BY_MODE.clip(lower=1)),
                    include_groups=False))
-    demo = pd.read_csv(os.path.join(HTS, 'hts_mode_newcastle.csv'))
+    demo = pd.read_csv(os.path.join(HTS, 'hts_mode.csv'))
     demo = demo[(demo.geography == 'lga') & (demo.FINANCIAL_YEAR == yr)]
     total_trips = demo.TRIPS_BY_MODE.sum()
     share = journeys / journeys.sum()
@@ -276,7 +284,7 @@ def load_poi_by_zone(zones):
                          crs='EPSG:4326').to_crs(zg.crs)
     j = gpd.sjoin(g, zg, how='left', predicate='within')
     j = j[j.SA1_CODE21.notna()]
-    pts = gpd.GeoDataFrame(j, geometry=j.geometry, crs=zg.crs).to_crs('EPSG:28356')
+    pts = gpd.GeoDataFrame(j, geometry=j.geometry, crs=zg.crs).to_crs(_city.crs())
     j = j.assign(x=pts.geometry.x.to_numpy(), y=pts.geometry.y.to_numpy())
 
     bld = pd.read_csv(os.path.join(LU, 'D1_buildings_cbd.csv'))
@@ -284,7 +292,7 @@ def load_poi_by_zone(zones):
                           crs='EPSG:4326').to_crs(zg.crs)
     jb = gpd.sjoin(gb, zg, how='left', predicate='within')
     jb = jb[jb.SA1_CODE21.notna()]
-    bpts = gpd.GeoDataFrame(jb, geometry=jb.geometry, crs=zg.crs).to_crs('EPSG:28356')
+    bpts = gpd.GeoDataFrame(jb, geometry=jb.geometry, crs=zg.crs).to_crs(_city.crs())
     jb = jb.assign(x=bpts.geometry.x.to_numpy(), y=bpts.geometry.y.to_numpy(),
                    category='building:cbd',
                    category_group='building',
@@ -666,7 +674,7 @@ EXTERNAL_DAY_FACTOR = CFG.get('B.external.day_factor')
 EXTERNAL_PURPOSE_SPLIT = CFG.get('B.external.purpose_split')
 EXTERNAL_PERSON_ID_BASE = CFG.get('B.external.person_id_base')
 CORDON_ROAD_CLASSES = frozenset(CFG.get('B.external.cordon_road_classes'))
-ROADS = 'data/processed/network/A1_road_edges.csv'
+ROADS = _city.path('data/processed/network/A1_road_edges.csv')
 
 
 def cordon_nodes(ext):

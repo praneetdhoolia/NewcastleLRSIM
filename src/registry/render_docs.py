@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Generate docs/reference/CONFIG_REFERENCE.md from the registry.
+"""Generate cities/<city>/docs/reference/CONFIG_REFERENCE.md from the registry.
 
 The reference is GENERATED, never hand-written, so it cannot drift from the
 values it documents. If a field changes, the documentation changes in the same
@@ -24,15 +24,17 @@ REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 sys.path.insert(0, os.path.join(REPO, 'src'))
 
 import registry  # noqa: E402
+import city as _city  # noqa: E402
 
-OUT = os.path.join(REPO, 'docs', 'reference', 'CONFIG_REFERENCE.md')
+# The reference documents ONE CITY's registry, so it belongs to that city.
+OUT = _city.path('docs', 'reference', 'CONFIG_REFERENCE.md')
 
 SOURCE_ORDER = ['observed', 'measured', 'derived', 'literature', 'assumed', 'definition']
 SOURCE_GLOSS = {
     'observed': 'read directly from a raw download',
     'measured': 'computed from observed data in this package',
     'derived': 'follows from another registry field by identity',
-    'literature': 'a published value, not specific to Newcastle',
+    'literature': 'a published value, not specific to this city',
     'assumed': 'chosen without direct empirical support',
     'definition': 'fixed by the formulation, not an empirical quantity',
 }
@@ -90,7 +92,7 @@ def render(fields, origin):
     A = L.append
     A('# Configuration reference')
     A('')
-    A('**Generated from `config/registry/<city>/` by `src/registry/render_docs.py`. Do not edit '
+    A('**Generated from `cities/<city>/registry/` by `src/registry/render_docs.py`. Do not edit '
       'by hand** - edit the registry and regenerate, or the two will disagree and '
       '`check_package.py` will say so.')
     A('')
@@ -104,7 +106,7 @@ def render(fields, origin):
     A('')
     A('```bash')
     A('# a run overlay - the committed way to vary a run')
-    A('cp config/runs/example.json config/runs/my_run.json   # then edit')
+    A('cp cities/<city>/overlays/runs/example.json cities/<city>/overlays/runs/my_run.json')
     A('python src/run/run_matsim.py --scenario S2 --day WEEKDAY --run-config my_run')
     A('')
     A('# a one-off override, checked against the same rules')
@@ -112,12 +114,12 @@ def render(fields, origin):
     A('    --set RUN.sample.fraction=0.10 --set RUN.controler.last_iteration=500')
     A('')
     A('# or from the environment')
-    A('WICKHAM_RUN_SAMPLE_FRACTION=0.10 python src/run/run_matsim.py --scenario S2 ...')
+    A('CITYSIM_RUN_SAMPLE_FRACTION=0.10 python src/run/run_matsim.py --scenario S2 ...')
     A('```')
     A('')
-    A('Resolution order, lowest precedence first: `config/registry/<city>/*.json` -> '
-      '`config/scenarios/<S>.json` -> `config/day/<DAY>.json` -> `config/runs/<tag>.json` '
-      '-> `WICKHAM_*` environment -> `--set`. The resolved snapshot is written into every '
+    A('Resolution order, lowest precedence first: `cities/<city>/registry/*.json` -> '
+      '`overlays/scenarios/<S>.json` -> `overlays/day/<DAY>.json` -> `overlays/runs/<tag>.json` '
+      '-> `CITYSIM_*` environment -> `--set`. The resolved snapshot is written into every '
       'run directory as `_config.json`, so a result always carries the exact inputs that '
       'produced it.')
     A('')

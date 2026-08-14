@@ -29,9 +29,16 @@ one mode for the entire day.
 Determinism: one seeded generator, persons consumed in the file's own sorted
 order, so the same B2 reproduces the same plans byte for byte.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
-import gzip
 import json
 import argparse
 import collections
@@ -46,7 +53,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 # Whether `ride` is withheld from a person with nobody to drive them. Derived
-# from B1 household composition; see DECISIONS.md 15 and src/java/wickham/.
+# from B1 household composition; see DECISIONS.md 15 and src/java/citysim/.
 RIDE_REQUIRES_DRIVER = CFG.get('B.population.ride_requires_household_driver')
 # An external boundary agent is a household-less boundary treatment, not a
 # synthesised person: its attributes are placeholders, and its ride availability
@@ -54,8 +61,8 @@ RIDE_REQUIRES_DRIVER = CFG.get('B.population.ride_requires_household_driver')
 EXTERNAL_PROFILE = CFG.get('B.external.agent_profile')
 EXTERNAL_RIDE_AVAILABLE = CFG.get('B.external.agent_ride_available')
 
-PLANS = 'demand/plans'
-POP = 'demand/population'
+PLANS = _city.path('demand/plans')
+POP = _city.path('demand/population')
 OUT = os.path.join(PLANS, 'matsim')
 SEED = 20260810
 DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
@@ -92,9 +99,9 @@ SEED_MODE_SPLIT_INFORMED = {
     True:  [('car', 0.78), ('ride', 0.10), ('walk', 0.09), ('pt', 0.02), ('bike', 0.01)],
     False: [('ride', 0.40), ('walk', 0.45), ('pt', 0.09), ('bike', 0.06)],
 }
-HTS_FILE = 'data/processed/hts/hts_mode_newcastle.csv'
+HTS_FILE = _city.path('data/processed/hts/hts_mode.csv')
 HTS_YEAR = '2024/25'
-HTS_TARGET_LGA = 'Newcastle'
+HTS_TARGET_LGA = _city.target_lga()
 
 
 def hts_mode_share():
@@ -163,7 +170,7 @@ def load_person_attributes():
     at 0.72 of legs against an observed 0.206 - 5.9 people in every car.
 
     Core MATSim honours `carAvail` but has no equivalent for `ride`, so the
-    attribute is consumed by src/java/wickham/RideAvailabilityModesCalculator.
+    attribute is consumed by src/java/citysim/RideAvailabilityModesCalculator.
     """
     p = pd.read_csv(os.path.join(POP, 'B1_synthetic_population.csv'),
                     usecols=['person_id', 'household_id', 'age', 'car_available',
@@ -307,7 +314,7 @@ def write_day(day, attrs, rng, report, seed_table=None):
                     '%s</attribute>\n' % esc(emp))
             w.write('\t\t\t<attribute name="mobilityImpaired" class="java.lang.String">'
                     '%s</attribute>\n' % ('yes' if mob else 'no'))
-            # consumed by wickham.RideAvailabilityModesCalculator; absent means
+            # consumed by citysim.RideAvailabilityModesCalculator; absent means
             # available, so a population without it behaves as before
             w.write('\t\t\t<attribute name="rideAvail" class="java.lang.String">'
                     '%s</attribute>\n' % ('always' if ride_av else 'never'))

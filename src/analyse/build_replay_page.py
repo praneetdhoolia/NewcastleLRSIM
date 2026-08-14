@@ -16,10 +16,10 @@ The page is generated, never hand-edited, and is NOT committed: it carries
 several megabytes of payload and this repo does not commit bulk data. The
 scripts are the committed artefacts.
 
-    python src/analyse/build_basemap.py --out basemap.json --no-simplify
+    python src/analyse/build_basemap.py --out cities/<city>/data/processed/basemap.json --no-simplify
     python src/analyse/replay_events.py results/<run>/output \
-        --basemap basemap.json --out replay.json
-    python src/analyse/build_replay_page.py replay.json --basemap basemap.json \
+        --basemap cities/<city>/data/processed/basemap.json --out replay.json
+    python src/analyse/build_replay_page.py replay.json --basemap cities/<city>/data/processed/basemap.json \
         --out replay.html
 """
 import os

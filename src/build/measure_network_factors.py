@@ -29,6 +29,14 @@ that still cannot be observed say so and keep a sweep range instead.
 Determinism: the routing sample is drawn from one seeded generator over zones
 in sorted order, so the measured factor is reproducible.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import sys
 import csv
@@ -46,10 +54,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-LU = 'data/processed/landuse'
-OBS = 'data/processed/observed'
-CEN = 'data/processed/census'
-OUT = 'params/C2_network_factors.json'
+LU = _city.path('data/processed/landuse')
+OBS = _city.path('data/processed/observed')
+CEN = _city.path('data/processed/census')
+OUT = _city.path('params/C2_network_factors.json')
 SEED = 20260810
 MIN_PAIR_M = 500.0
 # Width of the distance band a destination POI is drawn from, either side of
@@ -135,12 +143,12 @@ class ActiveGraph(RoadGraph):
 
     def __init__(self):
         ways = []
-        ways += self._load('data/processed/network/A6_footway_edges.csv',
-                           'data/processed/network/A6_footway_geometry.jsonl',
+        ways += self._load(_city.path('data/processed/network/A6_footway_edges.csv'),
+                           _city.path('data/processed/network/A6_footway_geometry.jsonl'),
                            'footway_edge_id',
                            lambda r: r.get('foot') != 'no')
-        ways += self._load('data/processed/network/A1_road_edges.csv',
-                           'data/processed/network/A1_road_geometry.jsonl',
+        ways += self._load(_city.path('data/processed/network/A1_road_edges.csv'),
+                           _city.path('data/processed/network/A1_road_geometry.jsonl'),
                            'edge_id',
                            lambda r: r.get('road_class') not in self.NO_FOOT)
         ways.sort(key=lambda w: w[0])
@@ -262,7 +270,7 @@ def measure_active_detour(n_pairs, seed, target_m, label):
 
 def measure_day_type():
     """Weekday vs weekend traffic, from the observed RMS counts."""
-    t = pd.read_csv(os.path.join(OBS, 'traffic_aadt_newcastle.csv'),
+    t = pd.read_csv(os.path.join(OBS, 'traffic_aadt.csv'),
                     low_memory=False)
     t = t[t.classification_type.isin(['ALL VEHICLES', 'UNCLASSIFIED'])]
     piv = t.pivot_table(index=['station_key', 'year'], columns='period',

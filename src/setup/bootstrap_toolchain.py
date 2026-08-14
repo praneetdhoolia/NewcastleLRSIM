@@ -196,7 +196,7 @@ def javac_path():
 def compile_java():
     """Compile the project's MATSim entry point against the pinned jar.
 
-    `run_matsim.py` runs `wickham.WickhamControler`, not the stock MATSim
+    `run_matsim.py` runs `citysim.CitysimControler`, not the stock MATSim
     Controler, because two bindings differ: ride availability (DECISIONS.md 9.11)
     and the ride travel time that issue #28 fixed. The source is committed;
     `.tools/` is not. Until this step existed the classes were built by hand, so

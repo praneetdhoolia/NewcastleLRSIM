@@ -43,14 +43,14 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(_HERE))
 RESULTS = os.path.join(ROOT, 'results')
 sys.path.insert(0, os.path.join(ROOT, 'src'))
+import registry  # noqa: E402
 from registry import outputs  # noqa: E402
 
-# A mode still moving by more than this after innovation is off has not settled.
-# Deliberately generous: DECISIONS.md 9.7 measured mode share drifting while
-# innovation was already disabled, and 9.27 put the iteration count needed at
-# ~1000, so this is a floor for calling a run unsettled rather than a claim that
-# anything under it is converged.
-DRIFT_THRESHOLD_PP = 0.5
+# How flat the trace must be before a run is reported as settled. DECLARED, not
+# typed here: it decides the verdict issue #5 turns on, so it is swept like any
+# other unobserved value instead of sitting in a constant nobody can see or vary.
+# It was `DRIFT_THRESHOLD_PP = 0.5` in this file; the value moved unchanged.
+DRIFT_TOLERANCE_PP = registry.load().get('RUN.relaxation.drift_tolerance_pp')
 
 
 def _load(path, default=None):
@@ -110,10 +110,18 @@ def _modestats(path):
     return out
 
 
-def relaxation(modes, innovation_off_at):
-    """Movement per mode between the innovation cutoff and the last iteration."""
+def relaxation(modes, innovation_off_at, tolerance_pp=None):
+    """Movement per mode between the innovation cutoff and the last iteration.
+
+    Reports the two iteration numbers the movement was measured BETWEEN, not
+    just the verdict: "settled" means nothing without the window it was settled
+    over, and a reader applying a different tolerance needs both ends.
+    """
+    if tolerance_pp is None:
+        tolerance_pp = DRIFT_TOLERANCE_PP
     block = {'innovation_off_at': innovation_off_at, 'drift_pp': {},
-             'max_abs_drift_pp': None, 'threshold_pp': DRIFT_THRESHOLD_PP,
+             'max_abs_drift_pp': None, 'tolerance_pp': tolerance_pp,
+             'from_iteration': None, 'to_iteration': None,
              'relaxed': None,
              'basis': ('mode share between the innovation cutoff and the final '
                        'iteration. After the cutoff MATSim creates no new plans, '
@@ -129,6 +137,8 @@ def relaxation(modes, innovation_off_at):
         return block
     if len(it) - 1 <= i0:
         return block
+    block['from_iteration'] = int(it[i0])
+    block['to_iteration'] = int(it[-1])
     worst = 0.0
     for k, v in modes.items():
         if k == 'iteration' or v[i0] is None or v[-1] is None:
@@ -138,7 +148,7 @@ def relaxation(modes, innovation_off_at):
         worst = max(worst, abs(d))
     if block['drift_pp']:
         block['max_abs_drift_pp'] = round(worst, 3)
-        block['relaxed'] = worst <= DRIFT_THRESHOLD_PP
+        block['relaxed'] = worst <= tolerance_pp
     return block
 
 
@@ -289,10 +299,14 @@ def markdown(doc):
     verdict = []
     if rel.get('relaxed') is True:
         verdict.append('| relaxation | ✅ **settled** — no mode moves more than '
-                       '%.1f pp after innovation is off |' % rel['threshold_pp'])
+                       '%.1f pp between iteration %s and %s |'
+                       % (rel['tolerance_pp'], rel.get('from_iteration'),
+                          rel.get('to_iteration')))
     elif rel.get('relaxed') is False:
         verdict.append('| relaxation | ❌ **NOT settled** — worst mode still moving '
-                       '**%.2f pp** after innovation is off |' % rel['max_abs_drift_pp'])
+                       '**%.2f pp** between iteration %s and %s (tolerance %.1f pp) |'
+                       % (rel['max_abs_drift_pp'], rel.get('from_iteration'),
+                          rel.get('to_iteration'), rel['tolerance_pp']))
     else:
         verdict.append('| relaxation | — not measurable (run did not reach the '
                        'innovation cutoff) |')

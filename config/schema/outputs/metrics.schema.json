@@ -58,22 +58,22 @@
     },
     "mode_share": {
       "type": "object",
-      "description": "Linked main-mode share. The calibration target is NEWCASTLE LGA and the model covers five LGAs, so the LGA-of-residence split is not optional - see DECISIONS.md 12.1.",
+      "description": "Linked main-mode share. The calibration target is ONE LGA and the model covers several, so the LGA-of-residence split is not optional - see DECISIONS.md 12.1.",
       "required": [
         "all_residents_trips",
-        "newcastle_lga_trips",
-        "newcastle_lga_pct"
+        "target_lga_trips",
+        "target_lga_pct"
       ],
       "properties": {
         "all_residents_trips": {
           "type": "integer",
           "minimum": 0
         },
-        "newcastle_lga_trips": {
+        "target_lga_trips": {
           "type": "integer",
           "minimum": 0
         },
-        "newcastle_lga_pct": {
+        "target_lga_pct": {
           "type": "object",
           "description": "Percent by MATSim mode, summing to 100.",
           "additionalProperties": {
@@ -122,7 +122,7 @@
           ],
           "minimum": 0,
           "maximum": 1,
-          "description": "Hypothesis A1's metric: light rail person-legs over TOTAL PT person-legs across Greater Newcastle. This is NOT the observed 20.8% figure, which is light rail over (light rail + NISC 1 bus) TAPS and is an UPPER BOUND on A1. Never calibrate A1 against 20.8%."
+          "description": "Hypothesis A1's metric: light rail person-legs over TOTAL PT person-legs across the whole study area. This is NOT the observed 20.8% figure, which is light rail over (light rail + NISC 1 bus) TAPS and is an UPPER BOUND on A1. Never calibrate A1 against 20.8%."
         }
       }
     },

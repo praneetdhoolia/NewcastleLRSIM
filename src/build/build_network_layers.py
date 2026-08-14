@@ -12,6 +12,14 @@ Produces (schemas per Appendix A of the proposal):
 Every field imputed rather than observed is counted and reported so the
 imputation rate lands in DECISIONS.md.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -29,7 +37,7 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-OUT = 'data/processed/network'
+OUT = _city.path('data/processed/network')
 os.makedirs(OUT, exist_ok=True)
 
 # ---- defaults applied where OSM is silent (all recorded in DECISIONS.md) ----
@@ -74,7 +82,7 @@ def _kerbside(t):
 def build_roads():
     idx = {}
     ways = []
-    for rec in parse('networks/osm/newcastle_roads.osm'):
+    for rec in parse(_city.path('networks/osm/roads.osm')):
         if rec[0] == 'node':
             idx[rec[1]] = (rec[2], rec[3])
         elif rec[0] == 'way' and 'highway' in rec[3]:
@@ -136,7 +144,7 @@ def build_roads():
 def build_footways():
     idx = {}
     ways = []
-    for rec in parse('networks/osm/newcastle_footways.osm'):
+    for rec in parse(_city.path('networks/osm/footways.osm')):
         if rec[0] == 'node':
             idx[rec[1]] = (rec[2], rec[3])
         elif rec[0] == 'way' and ('highway' in rec[3] or 'footway' in rec[3]):
@@ -181,7 +189,7 @@ def build_footways():
 
 def build_signals():
     sig, cross, restr = [], [], []
-    for rec in parse('networks/osm/newcastle_signals.osm'):
+    for rec in parse(_city.path('networks/osm/signals.osm')):
         if rec[0] == 'node':
             _, i, lat, lon, t = rec
             if t.get('highway') == 'traffic_signals':
@@ -211,7 +219,7 @@ def build_signals():
 def build_parking():
     idx = {}
     items = []
-    for rec in parse('networks/osm/newcastle_parking.osm'):
+    for rec in parse(_city.path('networks/osm/parking.osm')):
         if rec[0] == 'node':
             idx[rec[1]] = (rec[2], rec[3])
             items.append(('node', rec[1], [(rec[2], rec[3])], rec[4]))

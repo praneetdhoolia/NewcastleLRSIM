@@ -1,0 +1,1918 @@
+{
+  "generated_by": "src/registry/render_schema.py",
+  "generated_from": "cities/newcastle/registry",
+  "contract": "Every key below must be declared by any city, with the stated units and value type. A field whose source is measured, derived, literature or assumed MUST additionally carry a sweep, a held_fixed rule or a derived_from identity - field.schema.json enforces that, and check_city.py tests it.",
+  "no_prose": "Field DESCRIPTIONS are deliberately absent. They are the reference city's own wording and would put one city's prose - its suburbs, its agencies, its datasets - inside the portable half of the contract. What a city must supply is a key, its units and its value type; WHY a particular city chose a particular value belongs in that city's docs/reference/CONFIG_REFERENCE.md.",
+  "caveat": "`required` means the reference city declares it and the framework will not run without it. It does NOT mean every city needs it: an intervention-specific field is meaningless to a city without that intervention. Narrowing this set per model layer is not done.",
+  "n_fields": 211,
+  "n_by_layer": {
+    "A": 57,
+    "B": 31,
+    "C": 50,
+    "CAL": 6,
+    "D": 5,
+    "E": 7,
+    "RUN": 55
+  },
+  "fields": {
+    "A.active.footway_width_default": {
+      "layer": "A",
+      "units": "metres",
+      "type": "object",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.corridor.cross_buffer_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.corridor.extension_lane_take": {
+      "layer": "A",
+      "units": "lanes",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.corridor.off_corridor_penalty": {
+      "layer": "A",
+      "units": "dimensionless_cost_multiplier",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.corridor.parallel_buffer_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.corridor.pre_lr_lanes_per_dir": {
+      "layer": "A",
+      "units": "lanes_per_direction",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.corridor.trunk_buffer_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.capacity_seated": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.capacity_standing": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.capacity_total": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "observed",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.corridor_speed_kmh": {
+      "layer": "A",
+      "units": "km_per_hour",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.dwell_charging_s": {
+      "layer": "A",
+      "units": "seconds_per_intermediate_stop",
+      "type": "null",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": true,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.dwell_fixed_s": {
+      "layer": "A",
+      "units": "seconds_per_stop",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.dwell_sweep_grid": {
+      "layer": "A",
+      "units": "seconds_per_intermediate_stop",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.line_speed_kmh": {
+      "layer": "A",
+      "units": "km_per_hour",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.lightrail.tsp_enabled": {
+      "layer": "A",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.osm.buildings_margin_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.osm.harvest_attempts": {
+      "layer": "A",
+      "units": "count",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.osm.harvest_margin_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.osm.harvest_tile_deg": {
+      "layer": "A",
+      "units": "degrees",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.capacity_default": {
+      "layer": "A",
+      "units": "spaces_per_facility",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.charged_hours_by_day_type": {
+      "layer": "A",
+      "units": "hour_of_day",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.charged_modes": {
+      "layer": "A",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.exempt_activity_types": {
+      "layer": "A",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.max_stay_min": {
+      "layer": "A",
+      "units": "minutes",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.occupancy_profile": {
+      "layer": "A",
+      "units": "occupancy_ratio_by_hour",
+      "type": "array",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.price_aud_hr_max": {
+      "layer": "A",
+      "units": "AUD_per_hour",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.price_saturation_pctile": {
+      "layer": "A",
+      "units": "percentile",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.parking.price_threshold_pctile": {
+      "layer": "A",
+      "units": "percentile",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.road.capacity_default": {
+      "layer": "A",
+      "units": "vehicles_per_hour_per_lane",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.road.lane_width_default_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.road.lanes_default": {
+      "layer": "A",
+      "units": "lanes_per_direction",
+      "type": "object",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.road.speed_default": {
+      "layer": "A",
+      "units": "km_per_hour",
+      "type": "object",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.road.speed_zone_clip_margin_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.road.speed_zone_excluded_classes": {
+      "layer": "A",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.road.speed_zone_match_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.signals.delay_per_intersection_s": {
+      "layer": "A",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.signals.junction_match_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.signals.min_green_s": {
+      "layer": "A",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.signals.n_corridor_intersections": {
+      "layer": "A",
+      "units": "count",
+      "type": "number",
+      "source_in_reference_city": "observed",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.signals.scats_match_radius_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.signals.scats_phasing": {
+      "layer": "A",
+      "units": "phase_plan",
+      "type": "null",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": true,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.bus_capacity_seated": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.bus_capacity_standing": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.corridor_mode_label": {
+      "layer": "A",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "observed",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.era1_line_speed_kmh": {
+      "layer": "A",
+      "units": "km_per_hour",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.era1_station_dwell_s": {
+      "layer": "A",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.ferry_capacity_seated": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.ferry_capacity_standing": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.ferry_capacity_total": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.interchange_radius_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.rail_capacity_seated": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.rail_capacity_standing": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.rail_capacity_total": {
+      "layer": "A",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.s0_join_tolerance_m": {
+      "layer": "A",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.sbc_extension_km": {
+      "layer": "A",
+      "units": "kilometres",
+      "type": "number",
+      "source_in_reference_city": "observed",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.transit.walk_speed_ms": {
+      "layer": "A",
+      "units": "metres_per_second",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "B.activity.act_duration_min": {
+      "layer": "B",
+      "units": "minutes",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.child_tour_retention": {
+      "layer": "B",
+      "units": "probability",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.day_horizon_s": {
+      "layer": "B",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.day_purpose_mix": {
+      "layer": "B",
+      "units": "multiplier_on_weekday",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.days_per_week": {
+      "layer": "B",
+      "units": "days",
+      "type": "object",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.detour_factor": {
+      "layer": "B",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.duration_cv": {
+      "layer": "B",
+      "units": "coefficient_of_variation",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.escort_requires_licence": {
+      "layer": "B",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.hts_rate_per_person_day": {
+      "layer": "B",
+      "units": "trips_per_person_per_day",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.p_intermediate_stop": {
+      "layer": "B",
+      "units": "probability",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.p_mandatory": {
+      "layer": "B",
+      "units": "probability",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.p_second_stop": {
+      "layer": "B",
+      "units": "probability",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.sat_to_sun_rate": {
+      "layer": "B",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.weekend_departure_shift_h": {
+      "layer": "B",
+      "units": "hours",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.activity.weekend_to_weekday": {
+      "layer": "B",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.counts.heavy_vehicle_share": {
+      "layer": "B",
+      "units": "share_of_vehicles",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.counts.station_match_radius_m": {
+      "layer": "B",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.counts.vehicles_per_car_leg": {
+      "layer": "B",
+      "units": "vehicles_per_leg",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.counts.vehicles_per_ride_leg": {
+      "layer": "B",
+      "units": "vehicles_per_leg",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.external.agent_profile": {
+      "layer": "B",
+      "units": "person_attributes",
+      "type": "object",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.external.agent_ride_available": {
+      "layer": "B",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.external.cordon_road_classes": {
+      "layer": "B",
+      "units": "osm_highway_class",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.external.day_factor": {
+      "layer": "B",
+      "units": "multiplier",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.external.interaction_rate": {
+      "layer": "B",
+      "units": "probability",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.external.person_id_base": {
+      "layer": "B",
+      "units": "integer_offset",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.external.purpose_split": {
+      "layer": "B",
+      "units": "probability",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.opal.journey_linked": {
+      "layer": "B",
+      "units": "dataset",
+      "type": "null",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": true,
+      "declared_in": "B_demand.json"
+    },
+    "B.population.age_bands": {
+      "layer": "B",
+      "units": "years",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.population.licence_rate_by_age_band": {
+      "layer": "B",
+      "units": "probability",
+      "type": "array",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.population.ride_requires_household_driver": {
+      "layer": "B",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.seed.master": {
+      "layer": "B",
+      "units": "integer_seed",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "C.asc.bus": {
+      "layer": "C",
+      "units": "utils",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.asc.car_driver": {
+      "layer": "C",
+      "units": "utils",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.asc.car_passenger": {
+      "layer": "C",
+      "units": "utils",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.asc.cycle": {
+      "layer": "C",
+      "units": "utils",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.asc.light_rail": {
+      "layer": "C",
+      "units": "utils",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.asc.rail": {
+      "layer": "C",
+      "units": "utils",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.asc.walk": {
+      "layer": "C",
+      "units": "utils",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.passenger_per_driver": {
+      "layer": "C",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_length_km.bike": {
+      "layer": "C",
+      "units": "kilometres_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_length_km.car": {
+      "layer": "C",
+      "units": "kilometres_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_length_km.pt": {
+      "layer": "C",
+      "units": "kilometres_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_length_km.ride": {
+      "layer": "C",
+      "units": "kilometres_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_length_km.walk": {
+      "layer": "C",
+      "units": "kilometres_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_time_min.bike": {
+      "layer": "C",
+      "units": "minutes_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_time_min.car": {
+      "layer": "C",
+      "units": "minutes_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_time_min.pt": {
+      "layer": "C",
+      "units": "minutes_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_time_min.ride": {
+      "layer": "C",
+      "units": "minutes_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.trip_time_min.walk": {
+      "layer": "C",
+      "units": "minutes_per_trip",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.constraint.vehicle_occupancy": {
+      "layer": "C",
+      "units": "persons_per_vehicle",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.crowding.seated_multiplier": {
+      "layer": "C",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.crowding.standing_multiplier": {
+      "layer": "C",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.gradient.downhill_penalty_per_pct": {
+      "layer": "C",
+      "units": "utils_per_percent_grade",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.gradient.uphill_penalty_per_pct": {
+      "layer": "C",
+      "units": "utils_per_percent_grade",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.nesting.active_coefficient": {
+      "layer": "C",
+      "units": "dimensionless",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.nesting.private_coefficient": {
+      "layer": "C",
+      "units": "dimensionless",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.nesting.pt_coefficient": {
+      "layer": "C",
+      "units": "dimensionless",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.scoring.activity_minimal_duration_s": {
+      "layer": "C",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.scoring.activity_typical_duration_s": {
+      "layer": "C",
+      "units": "seconds",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.scoring.marginal_utility_of_money": {
+      "layer": "C",
+      "units": "utils_per_AUD",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.scoring.monetary_distance_rate": {
+      "layer": "C",
+      "units": "AUD_per_metre",
+      "type": "object",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.scoring.performing_utils_per_h": {
+      "layer": "C",
+      "units": "utils_per_hour",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_bike_mode": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_headway": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_ivt": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_reliability": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_wait": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_walk_access": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_walk_egress": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.time_weights.beta_walk_mode": {
+      "layer": "C",
+      "units": "ratio_to_ivt",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.transfer.beta_transfer_penalty_min": {
+      "layer": "C",
+      "units": "minutes_equivalent",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.transfer.penalty_sweep_grid": {
+      "layer": "C",
+      "units": "minutes_equivalent",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.vot.by_purpose": {
+      "layer": "C",
+      "units": "AUD_2026_per_hour",
+      "type": "object",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.vot.car_unavailable_walk_factor": {
+      "layer": "C",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.vot.concession_factor": {
+      "layer": "C",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.vot.trip_weighted": {
+      "layer": "C",
+      "units": "AUD_2026_per_hour",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.walk.decay_beta_per_m": {
+      "layer": "C",
+      "units": "per_metre",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.walk.decay_form": {
+      "layer": "C",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.walk.gaussian_mu_m": {
+      "layer": "C",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.walk.gaussian_sigma_m": {
+      "layer": "C",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "C.walk.max_considered_m": {
+      "layer": "C",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "C_behaviour.json"
+    },
+    "CAL.objective.components": {
+      "layer": "CAL",
+      "units": "weight_per_fit_component",
+      "type": "object",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "CAL_calibration.json"
+    },
+    "CAL.objective.include_counts": {
+      "layer": "CAL",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "CAL_calibration.json"
+    },
+    "CAL.objective.independent_targets": {
+      "layer": "CAL",
+      "units": "count",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "CAL_calibration.json"
+    },
+    "CAL.search.convergence_delta": {
+      "layer": "CAL",
+      "units": "percentage_points",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "CAL_calibration.json"
+    },
+    "CAL.search.max_rounds": {
+      "layer": "CAL",
+      "units": "count",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "CAL_calibration.json"
+    },
+    "CAL.search.points_per_parameter": {
+      "layer": "CAL",
+      "units": "count",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "CAL_calibration.json"
+    },
+    "D.attraction.job_weight_by_category": {
+      "layer": "D",
+      "units": "jobs_per_poi_weight",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "D_landuse.json"
+    },
+    "D.attraction.purpose_weight": {
+      "layer": "D",
+      "units": "attraction_weight",
+      "type": "object",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "D_landuse.json"
+    },
+    "D.frontage.buffer_m": {
+      "layer": "D",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "D_landuse.json"
+    },
+    "D.frontage.segment_length_m": {
+      "layer": "D",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "D_landuse.json"
+    },
+    "D.retail.vacancy_rate": {
+      "layer": "D",
+      "units": "share_of_frontage",
+      "type": "null",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": true,
+      "declared_in": "D_landuse.json"
+    },
+    "E.coupling.outer_loop_tolerance_s": {
+      "layer": "E",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.matrix.base_year": {
+      "layer": "E",
+      "units": "year",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.matrix.crs": {
+      "layer": "E",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.matrix.day_types": {
+      "layer": "E",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.matrix.reference_scenario": {
+      "layer": "E",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.matrix.scenario_ids": {
+      "layer": "E",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.replication.n_replications": {
+      "layer": "E",
+      "units": "count",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "RUN.controler.compression_type": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.controler.first_iteration": {
+      "layer": "RUN",
+      "units": "iterations",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.controler.last_iteration": {
+      "layer": "RUN",
+      "units": "iterations",
+      "type": "null",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": true,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.controler.write_events_interval": {
+      "layer": "RUN",
+      "units": "iterations",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.controler.write_plans_interval": {
+      "layer": "RUN",
+      "units": "iterations",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.machine.seed": {
+      "layer": "RUN",
+      "units": "integer_seed",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.machine.threads": {
+      "layer": "RUN",
+      "units": "threads",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.machine.xmx": {
+      "layer": "RUN",
+      "units": "jvm_heap",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.mode_choice.chain_based_modes": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.mode_choice.consider_car_availability": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.mode_choice.coord_distance_m": {
+      "layer": "RUN",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.mode_choice.modes": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.mode_choice.proba_random_single_trip_mode": {
+      "layer": "RUN",
+      "units": "probability",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.mode_choice.subtour_behavior": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.monitor.enabled": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.monitor.live_poll_s": {
+      "layer": "RUN",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.monitor.poll_s": {
+      "layer": "RUN",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.monitor.port": {
+      "layer": "RUN",
+      "units": "tcp_port",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.monitor.stall_s": {
+      "layer": "RUN",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.qsim.end_time_h": {
+      "layer": "RUN",
+      "units": "hours",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.qsim.main_mode": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.qsim.start_time_h": {
+      "layer": "RUN",
+      "units": "hours",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.relaxation.drift_tolerance_pp": {
+      "layer": "RUN",
+      "units": "percentage_points",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.replanning.fraction_to_disable_innovation": {
+      "layer": "RUN",
+      "units": "share_of_iterations",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.replanning.max_agent_plan_memory": {
+      "layer": "RUN",
+      "units": "plans",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.replanning.weights": {
+      "layer": "RUN",
+      "units": "strategy_weight",
+      "type": "object",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.routing.beeline_distance_factor_bike": {
+      "layer": "RUN",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.routing.beeline_distance_factor_walk": {
+      "layer": "RUN",
+      "units": "ratio",
+      "type": "number",
+      "source_in_reference_city": "measured",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.routing.network_modes": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.routing.teleported_bike_speed_ms": {
+      "layer": "RUN",
+      "units": "metres_per_second",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.routing.teleported_walk_speed_ms": {
+      "layer": "RUN",
+      "units": "metres_per_second",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.sample.flow_capacity_factor": {
+      "layer": "RUN",
+      "units": "share_of_capacity",
+      "type": "null",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.sample.fraction": {
+      "layer": "RUN",
+      "units": "share_of_population",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.sample.storage_capacity_exponent": {
+      "layer": "RUN",
+      "units": "exponent",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.sample.transit_capacity_floor": {
+      "layer": "RUN",
+      "units": "seats",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.sample.transit_capacity_scaling": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.sumo.bbox_margin_m": {
+      "layer": "RUN",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.begin_h": {
+      "layer": "RUN",
+      "units": "hours",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.crossings_enabled": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.end_h": {
+      "layer": "RUN",
+      "units": "hours",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.junctions_join": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.lefthand": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.netconvert_options": {
+      "layer": "RUN",
+      "units": "cli_flags",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.no_turnarounds": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.outer_loop_max_iterations": {
+      "layer": "RUN",
+      "units": "iterations",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.projection": {
+      "layer": "RUN",
+      "units": "proj4",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.replications": {
+      "layer": "RUN",
+      "units": "count",
+      "type": "null",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": true,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.seed": {
+      "layer": "RUN",
+      "units": "integer_seed",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.spreadtype": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.step_length_s": {
+      "layer": "RUN",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.tls_default_type": {
+      "layer": "RUN",
+      "units": "enum",
+      "type": "string",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.tls_guess_signals": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.sumo.tls_join": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_sumo.json"
+    },
+    "RUN.telemetry.live_interval_s": {
+      "layer": "RUN",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.transit_router.max_beeline_walk_connection_m": {
+      "layer": "RUN",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    }
+  }
+}

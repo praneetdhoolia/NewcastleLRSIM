@@ -21,6 +21,14 @@ what would show it.
 Run after attach_gradient.py; it rewrites A1_road_edges.csv in place, as
 attach_gradient does.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import io
 import os
 import sys
@@ -29,19 +37,18 @@ import json
 import argparse
 
 import geopandas as gpd
-import pandas as pd
 from shapely.geometry import LineString
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-NET = 'data/processed/network'
+NET = _city.path('data/processed/network')
 ZONES = os.path.join(NET, 'A1_speed_zones.gpkg')
 EDGES = os.path.join(NET, 'A1_road_edges.csv')
 GEOM = os.path.join(NET, 'A1_road_geometry.jsonl')
 REPORT = os.path.join(NET, '_speed_zone_report.json')
-CRS_M = 'EPSG:28356'
+CRS_M = _city.crs()
 WGS = 'EPSG:4326'
 
 

@@ -27,6 +27,14 @@ few observations for an IQR to mean anything, it keeps its assumed value.
 
 Determinism: no sampling; every figure is a quantile over the full tag set.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import sys
 import json
@@ -42,9 +50,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-ROADS = 'networks/osm/newcastle_roads.osm'
-FOOTWAYS = 'networks/osm/newcastle_footways.osm'
-OUT = 'params/C2_osm_defaults.json'
+ROADS = _city.path('networks/osm/roads.osm')
+FOOTWAYS = _city.path('networks/osm/footways.osm')
+OUT = _city.path('params/C2_osm_defaults.json')
 
 #: A class needs at least this many tagged edges before its observed median
 #: replaces the assumed default. Below it the quantiles describe the mapper, not

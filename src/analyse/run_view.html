@@ -67,6 +67,17 @@ tr.tot td{border-top:1px solid var(--edge);padding-top:.3rem}
 tr.tot td.k{color:var(--ink)}
 .warnrow{color:var(--warn)}
 
+/* The settled light. Grey is not a third verdict, it means NOT YET MEASURABLE:
+   nothing can be said about relaxation until innovation is switched off. */
+.light{display:flex;align-items:flex-start;gap:.45rem;margin:0 0 .5rem}
+.light .bulb{width:.7rem;height:.7rem;border-radius:50%;flex:none;
+  margin-top:.2rem;background:#3A3F41}
+.light .txt{font-size:.82rem;line-height:1.35}
+.light.good .bulb{background:var(--good)}
+.light.good .txt{color:var(--good)}
+.light.bad .bulb{background:var(--warn)}
+.light.bad .txt{color:var(--warn)}
+
 .clock{font:700 1.6rem/1 var(--mono);font-variant-numeric:tabular-nums;
   letter-spacing:.01em}
 #simday{font:600 .72rem/1 var(--mono);color:var(--car);margin-left:.5rem;
@@ -188,8 +199,11 @@ tr.tot td.k{color:var(--ink)}
     </section>
 
     <section data-k="drift" class="closed">
-      <h2><span>Relaxation — post-innovation drift</span><span class="chev">&#9660;</span></h2>
-      <div class="body"><table id="drift"><tr><td class="k">—</td></tr></table></div>
+      <h2><span>Has the model settled?</span><span class="chev">&#9660;</span></h2>
+      <div class="body">
+        <div id="settled" class="light"><span class="bulb"></span><span class="txt">—</span></div>
+        <table id="drift"><tr><td class="k">—</td></tr></table>
+      </div>
     </section>
 
     <div id="foot">
@@ -578,6 +592,12 @@ async function showCompletion(d){
   doneShown = true;
 
   const r0 = sm.run || {}, rel = sm.relaxation || {}, integ = sm.integrity || {};
+  // `threshold_pp` was renamed `tolerance_pp` when the value moved into the
+  // registry. A run already in flight at that moment writes its summary with the
+  // old key, and the panel would render "undefined pp" rather than a number.
+  // Safe to delete once no such run record is left.
+  if (rel.tolerance_pp == null && rel.threshold_pp != null)
+    rel.tolerance_pp = rel.threshold_pp;
   $('done_id').textContent =
     r0.scenario + ' × ' + r0.day + ' · '
     + (r0.fraction == null ? '—' : (r0.fraction*100).toFixed(0) + '%') + ' sample · seed '
@@ -586,12 +606,14 @@ async function showCompletion(d){
   let v = '';
   if (rel.relaxed === false)
     v += verdict('bad', '✕', '<b>Did not settle</b> — worst mode still moving '
-         + '<b>' + rel.max_abs_drift_pp.toFixed(2) + ' pp</b> after innovation was disabled at iteration '
-         + rel.innovation_off_at + '.',
+         + '<b>' + rel.max_abs_drift_pp.toFixed(2) + ' pp</b> between iteration '
+         + rel.from_iteration + ' and ' + rel.to_iteration
+         + ', past the ' + rel.tolerance_pp + ' pp tolerance.',
          'A run that has not relaxed supports no conclusion. DECISIONS.md §9.27 measured the iteration count needed at ~1000. This is issue #5.');
   else if (rel.relaxed === true)
     v += verdict('good', '✓', '<b>Settled</b> — no mode moves more than '
-         + rel.threshold_pp + ' pp after innovation was disabled.');
+         + rel.tolerance_pp + ' pp between iteration '
+         + rel.from_iteration + ' and ' + rel.to_iteration + '.');
   else
     v += verdict('', '–', 'Relaxation not measurable — the run did not reach the innovation cutoff.');
 
@@ -674,13 +696,39 @@ async function tick(){
     rows($('stuck'), live.stuck, {warn:true});
   }
 
-  const dr = d.post_innovation_drift;
+  // Has the model settled? Green only once every mode is inside the DECLARED
+  // tolerance (RUN.relaxation.drift_tolerance_pp), and always stated with the
+  // two iteration numbers it was measured between - "settled" says nothing
+  // without the window, and a reader applying a different tolerance needs both.
+  const rel = d.relaxation || {}, dr = rel.drift_pp, tol = rel.tolerance_pp;
+  const light = $('settled'), txt = light.querySelector('.txt');
+  if (rel.relaxed === true){
+    light.className = 'light good';
+    txt.innerHTML = 'Settled — no mode moved more than <b>' + tol
+      + ' pp</b> between iteration <b>' + rel.from_iteration + '</b> and <b>'
+      + rel.to_iteration + '</b>';
+  } else if (rel.relaxed === false){
+    light.className = 'light bad';
+    txt.innerHTML = 'Still moving — worst mode shifted <b>'
+      + rel.max_abs_drift_pp + ' pp</b> between iteration <b>'
+      + rel.from_iteration + '</b> and <b>' + rel.to_iteration
+      + '</b>, past the ' + tol + ' pp tolerance';
+  } else {
+    light.className = 'light';
+    const off = d.innovation_off_at, it = d.iteration;
+    txt.textContent = (off && it !== null && it !== undefined && it < off)
+      ? 'Not yet — nothing to measure until innovation is switched off at '
+        + 'iteration ' + off + ' (' + (off - it) + ' to go)'
+      : 'Not measurable — this run did not reach the innovation cutoff';
+  }
+
   if (dr && Object.keys(dr).length){
     let h = '';
     for (const k of Object.keys(dr).sort()){
-      const v = dr[k];
-      h += '<tr'+(Math.abs(v)>0.005?' class="warnrow"':'')+'><td class="k">'+k
-         + '</td><td class="v">'+(v>0?'+':'')+(v*100).toFixed(2)+' pp</td></tr>';
+      const v = dr[k];                          // already percentage points
+      h += '<tr'+(tol != null && Math.abs(v) > tol ? ' class="warnrow"' : '')
+         + '><td class="k">'+k
+         + '</td><td class="v">'+(v>0?'+':'')+v.toFixed(2)+' pp</td></tr>';
     }
     $('drift').innerHTML = h;
   } else {

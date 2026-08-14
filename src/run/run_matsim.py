@@ -33,8 +33,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, '..'))
 sys.path.insert(0, os.path.join(HERE, '..', 'analyse'))
-from sample_population import subsample_plans, scale_transit_capacity, SEED  # noqa: E402
+from sample_population import subsample_plans, scale_transit_capacity  # noqa: E402
 import registry  # noqa: E402
+import city  # noqa: E402
 import summarise_run  # noqa: E402
 from registry import outputs  # noqa: E402
 
@@ -44,8 +45,8 @@ JAR = os.path.join(REPO, '.tools', 'jars', 'pt2matsim-26.6-shaded.jar')
 CLASSES = os.path.join(REPO, '.tools', 'classes')
 # Our entry point, not MATSim's: it rebinds PermissibleModesCalculator so `ride`
 # can be withheld from a person with nobody to drive them (DECISIONS.md 15,
-# src/java/wickham/). The pinned jar is unchanged - this ADDS classes beside it.
-MAIN = 'wickham.WickhamControler'
+# src/java/citysim/). The pinned jar is unchanged - this ADDS classes beside it.
+MAIN = 'citysim.CitysimControler'
 JAVA_SRC = os.path.join(REPO, 'src', 'java')
 
 
@@ -71,8 +72,8 @@ def controler_sha256():
     return h.hexdigest()
 
 
-SETS = os.path.join(REPO, 'scenarios', 'matsim')
-PLANS = os.path.join(REPO, 'demand', 'plans', 'matsim')
+SETS = city.path('scenarios', 'matsim')
+PLANS = city.path('demand', 'plans', 'matsim')
 RESULTS = os.path.join(REPO, 'results')
 
 
@@ -210,6 +211,31 @@ def resolve(scenario, day, run_config=None, set_overrides=None):
         raise SystemExit(str(e))
 
 
+def start_live_view(run_dir, cfg):
+    """Serve this run's live view and return its url, or None.
+
+    One server per run, on its own port. `RUN.monitor.port` is the FIRST port
+    tried, not the only one, so concurrent runs each get their own view instead
+    of competing for a single fixed port.
+
+    It can never stop a run. The server thread is a daemon and every failure
+    here is reported and swallowed: a run that dies because its instrumentation
+    could not bind a socket is worse than a run with no instrumentation. The
+    import is deferred for the same reason - the view is optional, the run is
+    not.
+    """
+    if not cfg.get('RUN.monitor.enabled'):
+        return None
+    try:
+        import run_view                                   # noqa: PLC0415
+        return run_view.serve(run_dir, port=cfg.get('RUN.monitor.port'),
+                              poll_s=cfg.get('RUN.monitor.poll_s'),
+                              background=True)
+    except Exception as exc:                              # noqa: BLE001
+        print('live view unavailable: %s' % exc, flush=True)
+        return None
+
+
 def run(scenario, day, cfg, overrides, tag=None, force=False):
     src_dir = os.path.join(SETS, scenario, day)
     if not os.path.isdir(src_dir):
@@ -258,9 +284,12 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
     log = os.path.join(run_dir, 'matsim.log')
     classpath = os.pathsep.join([JAR, CLASSES])
     cmd = [JAVA, '-Xmx%s' % xmx, '-XX:+UseParallelGC', '-cp', classpath, MAIN, config_path]
-    # The live view was removed and is being rebuilt. Its four RUN.monitor.*
-    # registry fields are deliberately retained for the replacement and
-    # currently REACH NOTHING - re-wire them when it lands.
+    # The live view, announced before MATSim starts so the url is on screen for
+    # the whole run rather than after it. It reads the run directory and never
+    # writes to it.
+    view_url = start_live_view(run_dir, cfg)
+    print('live view: %s' % (view_url or 'disabled (RUN.monitor.enabled)'),
+          flush=True)
     t0 = time.time()
     with open(log, 'w', encoding='utf-8', errors='replace') as lf:
         rc = subprocess.Popen(cmd, stdout=lf, stderr=subprocess.STDOUT,

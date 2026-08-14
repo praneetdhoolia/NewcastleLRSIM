@@ -1,0 +1,10 @@
+{
+  "overlay": "convergence_pilot_25pct",
+  "description": "Issue #5 pilot at 25%, the third arm of the convergence set alongside convergence_pilot_1pct and convergence_pilot_10pct. Configured identically to ride_sufficiency_25pct - same fraction, threads, seed and heap, and 8 threads matches both other arms exactly because thread count is part of the run identity - with only the iteration horizon changed from 250 to 1000. 250 is not a horizon this question can be asked at: 9.7 measures 100 and 250 as both short of relaxation, so the 25% arm needs the same 1000 as the other two or it answers nothing. Innovation switches off at iteration 800, leaving 200 iterations of measurable post-innovation drift per mode, matching the other arms. The three arms together separate whether relaxation depends on sample fraction as well as on horizon. WALL CLOCK FROM THIS ARM IS NOT A THROUGHPUT BENCHMARK: it was launched concurrently with the 1% and 10% arms on a 63.5 GiB machine whose three declared heaps total 78 GiB, so the machine is deliberately over-subscribed and every iteration duration recorded here is contaminated by paging. Iteration COUNT to relaxation survives that; iteration DURATION does not. Cross-fraction comparison of mode share, patronage, counts or fit remains INVALID either way (9 - at 1% flow-capacity granularity strands car legs that 10% does not, measured live at 1,028 car agents stuck against 7). IT IS A PILOT, NOT THE ANSWER: it runs on the CURRENT demand, which the B0 batch will replace. RUN.controler.last_iteration stays UNOBTAINED, and no mode share, count comparison or fit statistic may be read from it.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 1000,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "40g"
+  }
+}

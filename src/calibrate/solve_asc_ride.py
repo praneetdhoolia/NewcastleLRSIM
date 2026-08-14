@@ -43,8 +43,9 @@ sys.path.insert(0, os.path.join(REPO, 'src', 'run'))
 sys.path.insert(0, os.path.join(REPO, 'src'))
 import run_matsim  # noqa: E402
 import registry    # noqa: E402
+import city as _city  # noqa: E402
 
-CONSTRAINTS = os.path.join(REPO, 'params', 'C4_mode_constraints.json')
+CONSTRAINTS = _city.path('params/C4_mode_constraints.json')
 OUT = os.path.join(REPO, 'results', '_asc_ride_solve.json')
 
 

@@ -27,7 +27,7 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-OUT = 'params'
+OUT = _city.path('params')
 os.makedirs(OUT, exist_ok=True)
 
 # --------------------------------------------------------------------------

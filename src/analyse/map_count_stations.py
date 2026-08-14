@@ -27,6 +27,14 @@ This reads the station coordinates and the network. **It does not read a
 validation target value**, so it is indifferent to the calibration/holdout split
 and maps all 119 stations alike.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import argparse
 import csv
 import gzip
@@ -37,7 +45,7 @@ import sys
 
 import pyproj
 
-CRS_M = 'EPSG:28356'
+CRS_M = _city.crs()
 TO_M = pyproj.Transformer.from_crs('EPSG:4326', CRS_M, always_xy=True).transform
 
 # The match radius is a registry field, not a literal typed here: it decides
@@ -46,9 +54,9 @@ TO_M = pyproj.Transformer.from_crs('EPSG:4326', CRS_M, always_xy=True).transform
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import registry                            # noqa: E402
 
-STATIONS = 'data/processed/validation/road_aadt_targets.csv'
-OUT = 'data/processed/validation/count_station_links.csv'
-DEFAULT_NETWORK = 'scenarios/matsim/S2/network.xml.gz'
+STATIONS = _city.path('data/processed/validation/road_aadt_targets.csv')
+OUT = _city.path('data/processed/validation/count_station_links.csv')
+DEFAULT_NETWORK = _city.path('scenarios/matsim/S2/network.xml.gz')
 
 NODE_RE = re.compile(r'<node id="([^"]+)"[^>]*x="([-\d.eE]+)"[^>]*y="([-\d.eE]+)"')
 LINK_RE = re.compile(r'<link id="([^"]+)" from="([^"]+)" to="([^"]+)"[^>]*>')

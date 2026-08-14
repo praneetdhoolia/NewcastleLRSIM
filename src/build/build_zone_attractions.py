@@ -8,6 +8,14 @@ proposal asks for (A4: Hansen accessibility per SA1). Jobs are therefore
 disaggregated within each SA2 in proportion to a workplace-weighted POI index,
 and the result is flagged source='modelled'.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import json
 import warnings
@@ -25,10 +33,10 @@ CFG = _registry.load()
 
 warnings.filterwarnings('ignore')
 
-ZON = 'data/processed/zones'
-LU = 'data/processed/landuse'
-CEN = 'data/processed/census'
-OUT = 'data/processed/landuse'
+ZON = _city.path('data/processed/zones')
+LU = _city.path('data/processed/landuse')
+CEN = _city.path('data/processed/census')
+OUT = _city.path('data/processed/landuse')
 
 # relative workplace intensity per POI group (jobs per establishment, indicative)
 JOB_WEIGHT = CFG.get('D.attraction.job_weight_by_category')

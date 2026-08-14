@@ -1,0 +1,105 @@
+{
+  "layer": "E",
+  "title": "Scenario configuration (E1)",
+  "description": "The scenario matrix and the coupling controls. Per-scenario variant references stay in scenarios/S*.json, which bind a scenario to its network, schedule, land use, parking, signals, demand and parameter sets; this layer holds the values those configs share.",
+  "decisions_ref": "1, 10",
+  "fields": {
+    "E.matrix.scenario_ids": {
+      "value": [
+        "S0",
+        "S1",
+        "S2",
+        "S2a",
+        "S2b",
+        "S2c",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "1",
+      "proposal_ref": "4.3",
+      "description": "The scenario matrix, fixed at P0. S2 vs S0 is the headline test, S2 vs S3 the value-for-money test, S2 vs S4/S5 the trunk-length test."
+    },
+    "E.matrix.reference_scenario": {
+      "value": "S2",
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.32",
+      "description": "The scenario every comparison is made against - light rail as built. Declared here because the sweep grid's baseline row needs to know which scenario overlay carries the baseline point for an unobtained input, and reading a scenario id out of a script is the same defect as reading a value out of one.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
+    "E.matrix.day_types": {
+      "value": [
+        "WEEKDAY",
+        "SAT",
+        "SUN"
+      ],
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "1",
+      "description": "Full weekend day types are built, not a weekday-only model with a note. Beach and event demand is arguably this system strongest use case and excluding it would bias against the light rail (DECISIONS.md 1 item 5).",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "E.matrix.base_year": {
+      "value": 2026,
+      "units": "year",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "1",
+      "description": "Base year, using 2021 Census marginals with HTS 2024/25 behaviour."
+    },
+    "E.matrix.crs": {
+      "value": "EPSG:28356",
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "2.6",
+      "description": "GDA94 / MGA Zone 56, metres. The proposal label GDA2020 was corrected."
+    },
+    "E.replication.n_replications": {
+      "value": 30,
+      "units": "count",
+      "source": "definition",
+      "sweep": [
+        5,
+        30
+      ],
+      "sweep_basis": "proposal 5.2 specifies at least 30 SUMO replications; the sweep records that cutting replications is one of the three levers on the run budget",
+      "status": "active",
+      "decisions_ref": "1",
+      "description": "Seeded replications per scenario. One of the three things that can be cut to close the run-budget gap - the others being sweep breadth and day types. Sample fraction is the WEAKEST lever because cost is sublinear in it.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_configs.py"
+      ]
+    },
+    "E.coupling.outer_loop_tolerance_s": {
+      "value": 5.0,
+      "units": "seconds",
+      "source": "assumed",
+      "status": "active",
+      "decisions_ref": "15",
+      "proposal_ref": "5.2",
+      "description": "Corridor run-time stability tolerance for the MATSim-SUMO outer loop. Proposal 5.2 defers this explicitly - run the loop \"until the corridor run time is stable within a tolerance to be defined at calibration\". P4 deliverable 7 defines it: the loop is converged when end-to-end corridor run time changes by less than this between successive outer iterations. Derived from the resolution of the target and the size of the declared sensitivities rather than chosen - see the held_fixed rule. The SUMO run harness and the loop itself are P5; this is the number they must honour.",
+      "held_fixed": {
+        "rule": "A convergence tolerance is a numerical control, not a quantity of Newcastle: it decides how many outer-loop iterations are paid for, not what the answer is, PROVIDED it stays well below the smallest difference the study reports. So it is held fixed rather than swept, and it is bounded from above by three measured quantities. (1) The corridor run time is validated against V208/V209, which are SCHEDULED times: every segment in A4_segment_runtime_decomposition.csv is a whole multiple of 60 s and direction 0 sums to exactly the 720 s target, so the target itself is known only to plus or minus 30 s. (2) The charging dwell assumption is worth 11% of end-to-end run time, about 79 s - the smallest declared corridor sensitivity in the project. (3) The signal priority sweep (S2 against S2b) moves run time 38%, about 274 s. At 5 s - 0.69% of the 720 s run time - the loop is an order of magnitude inside the smallest of those and well inside the resolution of the target it is judged against, so a converged loop cannot contribute materially to any reported difference.",
+        "decisions_ref": "9.16",
+        "departure_requires": "A SELF-POLICING BOUND, not a preference: if any reported scenario comparison ever turns on a corridor run-time difference smaller than TWICE this tolerance, the difference is not resolvable by the loop that produced it. The tolerance must then be tightened and both scenarios re-run before the comparison is reported."
+      }
+    }
+  }
+}

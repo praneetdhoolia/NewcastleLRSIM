@@ -38,6 +38,25 @@ jobs:
       - name: Every committed data file matches its MANIFEST.csv hash and size
         run: python tests/check_manifest.py
 
+  city:
+    name: city contract (schema, required fields, artefacts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install the JSON Schema validator
+        run: pip install jsonschema
+      # The portable contract is GENERATED from the reference city, so it cannot be
+      # allowed to drift from it - the same rule CONFIG_REFERENCE.md is held to.
+      - name: The input contract is current
+        run: python src/registry/render_schema.py --check
+      # Needs no data: the artefact half is reported, not failed, because a city
+      # part-way through its build is a normal state.
+      - name: Every city satisfies the contract
+        run: python src/registry/check_city.py --all
+
   provenance:
     name: provenance + decision-record presence
     runs-on: ubuntu-latest
@@ -51,14 +70,14 @@ jobs:
       - name: Committed provenance records are valid JSON
         run: |
           shopt -s nullglob
-          for f in data/raw/provenance_*.json schedules/raw/provenance.json data/MANIFEST.json; do
+          for f in cities/*/data/raw/provenance_*.json cities/*/schedules/raw/provenance.json cities/*/data/MANIFEST.json; do
             python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8')); print('PASS  ' + sys.argv[1])" "$f"
           done
       - name: Scenario configs and parameter files are valid JSON
         run: |
           shopt -s nullglob
-          for f in scenarios/*.json params/*.json; do
+          for f in cities/*/scenarios/*.json cities/*/params/*.json cities/*/overlays/*/*.json config/schema/*.json; do
             python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8')); print('PASS  ' + sys.argv[1])" "$f"
           done
       - name: DECISIONS.md is present and non-trivial (proposal 8.1 requires it)
-        run: test -s DECISIONS.md && test "$(wc -l < DECISIONS.md)" -gt 50
+        run: test -s docs/DECISIONS.md && test "$(wc -l < docs/DECISIONS.md)" -gt 50

@@ -1,19 +1,27 @@
 #!/usr/bin/env python
-"""Emit docs/reference/DATA_DICTIONARY.md by introspecting every produced CSV."""
-import os,csv,json,glob
+"""Emit cities/<city>/docs/reference/DATA_DICTIONARY.md from that city's CSVs."""
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
+import os, csv, glob
 ROOT='.'
 GROUPS=[
- ('A1/A6 network','data/processed/network/*.csv'),
- ('A4/A2 corridor','data/processed/corridor/*.csv'),
- ('A3 schedule extras','data/processed/schedule_extras/*.csv'),
- ('A5/D1 land use and parking','data/processed/landuse/*.csv'),
- ('Zones','data/processed/zones/*.csv'),
- ('HTS','data/processed/hts/*.csv'),
- ('Observed','data/processed/observed/*.csv'),
- ('Validation','data/processed/validation/*.csv'),
- ('C1 parameters','params/*.csv'),
- ('E1 scenarios','scenarios/*.csv'),
- ('B1/B2 demand','demand/*/*.csv'),
+ ('A1/A6 network',_city.path('data/processed/network/*.csv')),
+ ('A4/A2 corridor',_city.path('data/processed/corridor/*.csv')),
+ ('A3 schedule extras',_city.path('data/processed/schedule_extras/*.csv')),
+ ('A5/D1 land use and parking',_city.path('data/processed/landuse/*.csv')),
+ ('Zones',_city.path('data/processed/zones/*.csv')),
+ ('HTS',_city.path('data/processed/hts/*.csv')),
+ ('Observed',_city.path('data/processed/observed/*.csv')),
+ ('Validation',_city.path('data/processed/validation/*.csv')),
+ ('C1 parameters',_city.path('params/*.csv')),
+ ('E1 scenarios',_city.path('scenarios/*.csv')),
+ ('B1/B2 demand',_city.path('demand/*/*.csv')),
 ]
 def sniff(p,n=400):
     with open(p,encoding='utf-8',errors='replace') as f:
@@ -57,5 +65,5 @@ for title,pat in GROUPS:
             out.append('| `%s` | %s | %s | %d/%d |'%(c,kind(vals),ex.replace(chr(124),'/'),nz,len(vals)))
         out.append('')
 os.makedirs('docs',exist_ok=True)
-open('docs/reference/DATA_DICTIONARY.md','w',encoding='utf-8').write('\n'.join(out))
-print('wrote docs/reference/DATA_DICTIONARY.md (%d lines)'%len(out))
+open(_city.path('docs','reference','DATA_DICTIONARY.md'),'w',encoding='utf-8').write('\n'.join(out))
+print('wrote DATA_DICTIONARY.md (%d lines)'%len(out))

@@ -29,12 +29,19 @@ Three things have to come together, and each has a constraint attached.
 
 Nothing here runs a scenario. It writes the inputs a run would consume.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import re
 import csv
 import gzip
 import json
-import shutil
 import argparse
 import collections
 import xml.etree.ElementTree as ET
@@ -51,12 +58,12 @@ _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
-MATSIM = 'networks/matsim'
-PATCHES = 'data/processed/network/A1_road_variant_patches.csv'
-E1 = 'scenarios/E1_scenarios.csv'
-PARAMS = 'params/C1_parameters.json'
-PLANS = 'demand/plans/matsim'
-OUT = 'scenarios/matsim'
+MATSIM = _city.path('networks/matsim')
+PATCHES = _city.path('data/processed/network/A1_road_variant_patches.csv')
+E1 = _city.path('scenarios/E1_scenarios.csv')
+PARAMS = _city.path('params/C1_parameters.json')
+PLANS = _city.path('demand/plans/matsim')
+OUT = _city.path('scenarios/matsim')
 DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 
 # MATSim's opportunity cost of time, utils per hour. Conventional value; the
@@ -98,7 +105,7 @@ TR_MAX_BEELINE_WALK = CFG.get('RUN.transit_router.max_beeline_walk_connection_m'
 # The price of a ZONE is set in build_landuse_parking.py from the city's own job
 # density; what happens here is the join from that to the run network's links,
 # done once per scenario so Java never does spatial work.
-PARK_PRICE_ZONES = 'data/processed/landuse/A5_parking_price_zones.csv'
+PARK_PRICE_ZONES = _city.path('data/processed/landuse/A5_parking_price_zones.csv')
 PARK_PRICE_FILE = 'parking_prices.tsv'
 PARK_MAX_STAY_MIN = CFG.get('A.parking.max_stay_min')
 PARK_CHARGED_HOURS = CFG.get('A.parking.charged_hours_by_day_type')
@@ -106,7 +113,7 @@ PARK_CHARGED_MODES = ','.join(CFG.get('A.parking.charged_modes'))
 PARK_EXEMPT_ACTS = ','.join(CFG.get('A.parking.exempt_activity_types'))
 
 # Live telemetry. The run publishes what is moving, of what kind and where it
-# is piling up, WHILE the mobsim runs (src/java/wickham/RunTelemetry.java). It
+# is piling up, WHILE the mobsim runs (src/java/citysim/RunTelemetry.java). It
 # needs no change to writeEventsInterval: a registered handler receives the full
 # event stream on every iteration whether or not that stream is also written to
 # disk - the package shows 26 event files against 251 leg histograms.
@@ -394,7 +401,7 @@ def patch_network(src_net, dst_net, patches, drop_turns):
     return dict(applied)
 
 
-ZONES_SA1 = 'data/processed/zones/zones_SA1.gpkg'
+ZONES_SA1 = _city.path('data/processed/zones/zones_SA1.gpkg')
 
 
 def write_parking_prices(net_path, dst_path):
@@ -430,8 +437,8 @@ def write_parking_prices(net_path, dst_path):
         raise SystemExit('%s carries no car links' % net_path)
     xs = [(nodes[a][0] + nodes[b][0]) / 2.0 for _, a, b in links]
     ys = [(nodes[a][1] + nodes[b][1]) / 2.0 for _, a, b in links]
-    zones = gpd.read_file(ZONES_SA1).to_crs('EPSG:28356')[['SA1_CODE21', 'geometry']]
-    pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(xs, ys), crs='EPSG:28356')
+    zones = gpd.read_file(ZONES_SA1).to_crs(_city.crs())[['SA1_CODE21', 'geometry']]
+    pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(xs, ys), crs=_city.crs())
     j = gpd.sjoin(pts, zones, how='left', predicate='within')
     j = j[~j.index.duplicated(keep='first')].sort_index()
     codes = list(j['SA1_CODE21'])
@@ -568,7 +575,7 @@ CONFIG = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
 <config>
 \t<module name="global">
-\t\t<param name="coordinateSystem" value="EPSG:28356" />
+\t\t<param name="coordinateSystem" value="{crs}" />
 \t\t<param name="randomSeed" value="{seed}" />
 \t\t<param name="numberOfThreads" value="{threads}" />
 \t</module>
@@ -725,7 +732,7 @@ def hhmmss(s):
 
 def hts_purpose_share():
     import pandas as pd
-    pur = pd.read_csv('data/processed/hts/hts_purpose_newcastle.csv')
+    pur = pd.read_csv(_city.path('data/processed/hts/hts_purpose.csv'))
     pur = pur[pur.geography == 'lga']
     yr = sorted(pur.FINANCIAL_YEAR.unique())[-1]
     pur = pur[pur.FINANCIAL_YEAR == yr]
@@ -754,7 +761,7 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
     for p in patch_rows:
         by_variant[p['road_variant_ref']][p['edge_id'][1:]] = p
     road_variants = {r['road_variant_ref']: r for r in
-                     csv.DictReader(open('scenarios/E1_road_variants.csv',
+                     csv.DictReader(open(_city.path('scenarios/E1_road_variants.csv'),
                                          encoding='utf-8'))}
 
     report = dict(seed=seed, iterations=iterations,
@@ -801,7 +808,7 @@ def main(seed=20260810, iterations=100, capacity_factor=1.0, plan_memory=5,
             counts = split_schedule(sched_dir, dst, d)
             start_h, end_h = parking_window(d)
             cfg = CONFIG.format(
-                seed=seed, threads=threads,
+                seed=seed, threads=threads, crs=_city.crs(),
                 network=os.path.relpath(net_dst, dst).replace('\\', '/'),
                 plans=os.path.relpath(os.path.join(PLANS, 'population_%s.xml.gz' % d),
                                       dst).replace('\\', '/'),

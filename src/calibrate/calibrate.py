@@ -39,6 +39,14 @@ it a target, and the 67/143 split is pre-registered.
     python src/calibrate/calibrate.py --scenario S2 --day WEEKDAY \
         --run-config cordon_escort_10pct --execute
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import sys
 import json
@@ -48,7 +56,7 @@ import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import registry as _registry                                    # noqa: E402
 
-OUT = 'params/C5_calibration.json'
+OUT = _city.path('params/C5_calibration.json')
 
 
 # What a candidate has to REBUILD before a change to a field is real. The loop
@@ -313,7 +321,7 @@ def main():
 
     def evaluate(tag, overrides):
         """One candidate: run, extract, fit, score. Resumable by tag."""
-        run_dir = os.path.join('results', tag)
+        run_dir = os.path.join(_city.REPO, 'results', tag)
         fit_path = os.path.join(run_dir, '_fit.json')
         if not os.path.exists(fit_path):
             # the declared pipeline, invoked exactly as a reader would by hand:

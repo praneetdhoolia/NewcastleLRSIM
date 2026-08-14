@@ -33,15 +33,23 @@ These are CONSTRAINTS, not validation targets. The 67/143 split is
 pre-registered and nothing here is added to it; they are reported beside the fit
 exactly as vehicle occupancy is, and are never counted into a fit statistic.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import json
 import os
 
 import pandas as pd
 
-HTS = 'data/processed/hts/hts_mode_newcastle.csv'
-OUT = 'params/C4_mode_constraints.json'
+HTS = _city.path('data/processed/hts/hts_mode.csv')
+OUT = _city.path('params/C4_mode_constraints.json')
 BASE_YEAR = '2024/25'
-TARGET_LGA = 'Newcastle'
+TARGET_LGA = _city.target_lga()
 # HTS mode vocabulary of the base year -> the MATSim mode it is comparable with.
 # Same map fit.py uses, and the same caveat: `bike` carries HTS "Other", which
 # also holds taxi, motorcycle and rideshare.
@@ -95,7 +103,7 @@ def main():
     h['mode'] = (h['TRAVEL_MODE'].str.replace('*', '', regex=False)
                  .str.strip().str.lower())
 
-    newcastle = series(h, TARGET_LGA)
+    target = series(h, TARGET_LGA)
     study_area = series(h)
     geom = trip_geometry(h, TARGET_LGA)
 
@@ -123,8 +131,8 @@ def main():
                            'the file for this mode, not a chosen interval'
                            % len(km),
         }
-    occ = [v['occupancy'] for v in newcastle.values()]
-    base = newcastle[BASE_YEAR]
+    occ = [v['occupancy'] for v in target.values()]
+    base = target[BASE_YEAR]
 
     doc = {
         'source': 'measured - NSW Household Travel Survey, vehicle driver and '
@@ -143,9 +151,9 @@ def main():
         'passenger_per_driver': {
             'value': base['passenger_per_driver'],
             'sweep': [round(min(v['passenger_per_driver']
-                                for v in newcastle.values()), 4),
+                                for v in target.values()), 4),
                       round(max(v['passenger_per_driver']
-                                for v in newcastle.values()), 4)],
+                                for v in target.values()), 4)],
         },
         'constrains': 'asc_car_passenger',
         'constraint_rule':
@@ -160,7 +168,7 @@ def main():
             "the effect under test is untouched and this is not the ASC "
             "absorption proposal 9 warns about.",
         'trip_geometry': geometry,
-        'by_year_newcastle': newcastle,
+        'by_year_target_lga': target,
         'by_year_study_area': study_area,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)

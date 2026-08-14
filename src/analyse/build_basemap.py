@@ -26,8 +26,16 @@ Output is one JSON file whose geometry is base64 uint16, quantised over the
 network bounding box (about 2 m over a 130 km extent). Classes are simplified at
 different tolerances: a motorway keeps its curve, a cul-de-sac does not need to.
 
-    python src/analyse/build_basemap.py --out basemap.json
+    python src/analyse/build_basemap.py --out cities/<city>/data/processed/basemap.json
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -36,13 +44,13 @@ import struct
 import argparse
 import xml.etree.ElementTree as ET
 
-ROADS_GEOM = 'data/processed/network/A1_road_geometry.jsonl'
-ROADS_ATTR = 'data/processed/network/A1_road_edges.csv'
-RAILWAYS = 'networks/osm/newcastle_railways.osm'
-WATER = 'networks/osm/newcastle_water.osm'
-GREEN = 'networks/osm/newcastle_green.osm'
-LGA = 'data/processed/zones/zones_LGA.gpkg'
-SUMO_NET = 'networks/sumo/net_base2026/corridor.net.xml'
+ROADS_GEOM = _city.path('data/processed/network/A1_road_geometry.jsonl')
+ROADS_ATTR = _city.path('data/processed/network/A1_road_edges.csv')
+RAILWAYS = _city.path('networks/osm/railways.osm')
+WATER = _city.path('networks/osm/water.osm')
+GREEN = _city.path('networks/osm/green.osm')
+LGA = _city.path('data/processed/zones/zones_LGA.gpkg')
+SUMO_NET = _city.path('networks/sumo/net_base2026/corridor.net.xml')
 
 # area layers: the tag values that make a filled polygon, per source file
 AREA_SELECT = {
