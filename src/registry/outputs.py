@@ -31,9 +31,11 @@ KINDS = {
     'metrics': 'metrics.schema.json',
     'fit': 'fit.schema.json',
     'config': 'config_snapshot.schema.json',
+    'summary': 'summary.schema.json',
 }
 FILENAMES = {'_run.json': 'run', '_metrics.json': 'metrics',
-             '_fit.json': 'fit', '_config.json': 'config'}
+             '_fit.json': 'fit', '_config.json': 'config',
+             '_summary.json': 'summary'}
 
 
 class OutputError(Exception):

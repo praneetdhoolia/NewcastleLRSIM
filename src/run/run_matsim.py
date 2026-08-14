@@ -35,8 +35,8 @@ sys.path.insert(0, os.path.join(HERE, '..'))
 sys.path.insert(0, os.path.join(HERE, '..', 'analyse'))
 from sample_population import subsample_plans, scale_transit_capacity, SEED  # noqa: E402
 import registry  # noqa: E402
+import summarise_run  # noqa: E402
 from registry import outputs  # noqa: E402
-import run_monitor  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 JAVA = os.path.join(REPO, '.tools', 'jdk', 'bin', 'java.exe')
@@ -258,13 +258,9 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
     log = os.path.join(run_dir, 'matsim.log')
     classpath = os.pathsep.join([JAR, CLASSES])
     cmd = [JAVA, '-Xmx%s' % xmx, '-XX:+UseParallelGC', '-cp', classpath, MAIN, config_path]
-    # The live view is an observer: it reads this directory and writes nothing,
-    # so it is not part of the run identity and is not recorded in _run.json.
-    if cfg.get('RUN.monitor.enabled'):
-        url = run_monitor.serve(run_dir, cfg.get('RUN.monitor.port'),
-                                cfg.get('RUN.monitor.poll_s'))
-        print('live view: %s' % (url or 'unavailable - no free loopback port'),
-              flush=True)
+    # The live view was removed and is being rebuilt. Its four RUN.monitor.*
+    # registry fields are deliberately retained for the replacement and
+    # currently REACH NOTHING - re-wire them when it lands.
     t0 = time.time()
     with open(log, 'w', encoding='utf-8', errors='replace') as lf:
         rc = subprocess.Popen(cmd, stdout=lf, stderr=subprocess.STDOUT,
@@ -291,6 +287,16 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
         raise SystemExit(str(e))
     print('%s rc=0 wall=%.0fs median iteration %.1fs'
           % (name, wall, doc['median_iteration_s'] or -1), flush=True)
+    # A finished run should not leave its telemetry, its log and three JSON files
+    # for someone to interpret. Close it out with a summary in both dialects -
+    # `_summary.json` against its declared schema, and `SUMMARY.md` for a person.
+    # It reports the state of the RUN and refuses to report a finding: no mode
+    # share, no fit statistic, no validation target. A failure here is logged and
+    # never raised, because the run itself succeeded and its record is written.
+    try:
+        summarise_run.summarise(run_dir)
+    except Exception as e:                                   # noqa: BLE001
+        print('summary could not be written: %s' % e, flush=True)
     return doc
 
 

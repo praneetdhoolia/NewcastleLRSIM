@@ -1,0 +1,704 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>run view</title>
+<style>
+:root{
+  --panel:#0E1719; --edge:#1E2E2D; --ink:#DCE6E4; --muted:#7A918F;
+  --bg:#080F11; --dim:#16211F;
+  --car:#F0A93C; --transit:#4FD0E0; --warn:#E06A5E; --good:#6FCF97;
+  --g0:#2E7D5B; --g1:#8FBF4A; --g2:#E8C34A; --g3:#E08A3C; --g4:#D64B3F;
+  /* map palette, shared with build_replay_page.py so the two read as one system.
+     The road ramp rd5..rd1 is the STANDING network - a road carrying no traffic
+     is drawn in it, dark grey-green, rather than left invisible. */
+  --water:#08161F; --land:#101617; --green:#111E15; --sand:#1D1B13;
+  --rd5:#283335; --rd4:#31403F; --rd3:#3C4E4C; --rd2:#4B605C; --rd1:#66857A;
+  --rail:#5B4668; --tram:#E074AC;
+  --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+  --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
+
+header{display:flex;flex-wrap:wrap;gap:.35rem 1.2rem;align-items:baseline;
+  padding:.55rem .9rem;background:var(--panel);border-bottom:1px solid var(--edge)}
+header h1{font:600 .95rem/1 var(--mono);margin:0;letter-spacing:.02em}
+header .id{color:var(--muted);font:400 .78rem/1.4 var(--mono)}
+header .id b{color:var(--ink);font-weight:600}
+.state{font:600 .72rem/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+  padding:.22rem .5rem;border-radius:.2rem;border:1px solid var(--edge)}
+.state.running{color:var(--good);border-color:#2A4A3A}
+.state.finished{color:var(--transit);border-color:#22434A}
+.state.stalled,.state.failed{color:var(--warn);border-color:#4A2A28}
+.state.starting{color:var(--muted)}
+
+main{flex:1;display:grid;grid-template-columns:minmax(300px,360px) 1fr;
+  min-height:0;overflow:hidden}
+@media (max-width:900px){main{grid-template-columns:1fr;overflow:auto}}
+
+#side{overflow-y:auto;border-right:1px solid var(--edge);background:var(--panel)}
+section{border-bottom:1px solid var(--edge)}
+section>h2{font:600 .68rem/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin:0;padding:.65rem .9rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  user-select:none}
+section>h2:hover{color:var(--ink)}
+section>h2 .chev{transition:transform .15s ease;font-size:.6rem;opacity:.7;flex:none}
+section.closed>h2 .chev{transform:rotate(-90deg)}
+section>.body{padding:0 .9rem .75rem}
+section.closed>.body{display:none}
+
+.bar{position:relative;height:1.5rem;background:var(--dim);border-radius:.2rem;
+  overflow:hidden;border:1px solid var(--edge)}
+.bar .fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#1F5E48,#2E7D5B);
+  transition:width .4s ease}
+.bar .txt{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font:600 .78rem/1 var(--mono);
+  font-variant-numeric:tabular-nums;text-shadow:0 1px 2px #000A}
+.sub{margin-top:.35rem;font:400 .72rem/1.4 var(--mono);color:var(--muted)}
+
+table{width:100%;border-collapse:collapse;font:400 .8rem/1.5 var(--mono);
+  font-variant-numeric:tabular-nums}
+td{padding:.14rem 0}
+td.k{color:var(--muted)}
+td.v{text-align:right;font-weight:600}
+td.v.dim{color:var(--muted);font-weight:400}
+tr.tot td{border-top:1px solid var(--edge);padding-top:.3rem}
+tr.tot td.k{color:var(--ink)}
+.warnrow{color:var(--warn)}
+
+.clock{font:700 1.6rem/1 var(--mono);font-variant-numeric:tabular-nums;
+  letter-spacing:.01em}
+#simday{font:600 .72rem/1 var(--mono);color:var(--car);margin-left:.5rem;
+  vertical-align:.45rem;letter-spacing:.06em}
+#simnote{font:400 .7rem/1.4 var(--mono);color:var(--muted);display:block;
+  margin-top:.4rem}
+
+#foot{padding:.75rem .9rem 1.4rem;color:var(--muted);font-size:.7rem;
+  line-height:1.5}
+#foot b{color:var(--car)}
+
+#mapwrap{position:relative;min-height:0;background:var(--bg)}
+#map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+#map.drag{cursor:grabbing}
+.panel{position:absolute;background:#0B1214EE;border:1px solid var(--edge);
+  border-radius:.25rem;padding:.5rem .6rem;font:400 .7rem/1.45 var(--mono)}
+#views{right:.7rem;top:.7rem;display:flex;gap:.3rem;background:none;border:none;padding:0}
+#views button{background:#0B1214EE;color:var(--ink);border:1px solid var(--edge);
+  border-radius:.2rem;padding:.32rem .6rem;font:400 .72rem/1 var(--mono);cursor:pointer}
+#views button:hover{border-color:var(--muted)}
+#layers{left:.7rem;top:.7rem;display:flex;flex-direction:column;gap:.15rem;padding:.45rem .5rem}
+#layers .lb{display:flex;align-items:center;gap:.45rem;cursor:pointer;
+  padding:.18rem .3rem;border-radius:.15rem;user-select:none;color:var(--muted)}
+#layers .lb:hover{background:#1E2E2D66}
+#layers .lb.on{color:var(--ink)}
+#layers .sw{width:.9rem;height:.22rem;border-radius:.1rem;flex:none;opacity:.3}
+#layers .lb.on .sw{opacity:1}
+#layers .sq{width:.7rem;height:.7rem;border-radius:.12rem;flex:none;opacity:.3}
+#layers .lb.on .sq{opacity:1}
+#ramp{right:.7rem;bottom:.7rem}
+#rampbar{height:.45rem;width:11rem;border-radius:.1rem;margin:.3rem 0 .18rem;
+  background:linear-gradient(90deg,var(--g0),var(--g1),var(--g2),var(--g3),var(--g4))}
+.rlabels{display:flex;justify-content:space-between;color:var(--muted)}
+#done{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:#050A0BCC;backdrop-filter:blur(2px);padding:2rem;z-index:5}
+#done[hidden]{display:none}
+#done .card{background:var(--panel);border:1px solid var(--edge);border-radius:.4rem;
+  max-width:44rem;width:100%;max-height:100%;overflow:auto;
+  box-shadow:0 1.4rem 3rem #0009}
+.done-h{display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.1rem .8rem;
+  border-bottom:1px solid var(--edge)}
+.done-h .tick{color:var(--good);font-size:1.5rem;line-height:1;flex:none}
+.done-t{font:600 1.05rem/1.2 var(--sans)}
+.done-s{font:400 .74rem/1.5 var(--mono);color:var(--muted);margin-top:.2rem}
+#done_x{margin-left:auto;background:none;border:none;color:var(--muted);
+  font-size:1.3rem;line-height:1;cursor:pointer;padding:0 .2rem}
+#done_x:hover{color:var(--ink)}
+.verdicts{padding:.8rem 1.1rem;display:flex;flex-direction:column;gap:.45rem}
+.verdict{display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;line-height:1.45}
+.verdict .m{flex:none;font-size:.95rem;line-height:1.3}
+.verdict.bad{color:var(--warn)}
+.verdict.good{color:var(--ink)}
+.verdict small{display:block;color:var(--muted);font-size:.72rem;margin-top:.15rem}
+#done_tbl{padding:0;margin:0 1.1rem .6rem;width:calc(100% - 2.2rem)}
+.done-f{padding:.75rem 1.1rem 1rem;border-top:1px solid var(--edge);
+  color:var(--muted);font-size:.72rem;line-height:1.55}
+.done-f b{color:var(--car)}
+.cmds{margin-top:.5rem;font:400 .7rem/1.7 var(--mono);color:var(--ink);
+  background:var(--bg);border:1px solid var(--edge);border-radius:.2rem;
+  padding:.5rem .6rem;white-space:pre-wrap;overflow-x:auto}
+#empty{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;padding:2rem;text-align:center;color:var(--muted);
+  font-size:.82rem;line-height:1.6}
+</style>
+
+<header>
+  <h1 id="name">—</h1>
+  <span class="state" id="state">…</span>
+  <span class="id" id="ident"></span>
+</header>
+
+<main>
+  <div id="side">
+
+    <section data-k="iter">
+      <h2><span>Iteration</span><span class="chev">&#9660;</span></h2>
+      <div class="body">
+        <div class="bar">
+          <div class="fill" id="fill" style="width:0"></div>
+          <div class="txt" id="bartxt">— / —</div>
+        </div>
+        <div class="sub" id="pct">—</div>
+      </div>
+    </section>
+
+    <section data-k="clock">
+      <h2><span>Simulated clock</span><span class="chev">&#9660;</span></h2>
+      <div class="body">
+        <div class="clock"><span id="simclock">—</span><span id="simday"></span></div>
+        <span id="simnote">waiting</span>
+      </div>
+    </section>
+
+    <section data-k="time">
+      <h2><span>Time elapsed</span><span class="chev">&#9660;</span></h2>
+      <div class="body">
+        <table>
+          <tr><td class="k">total, real</td><td class="v" id="t_total">—</td></tr>
+          <tr><td class="k">this iteration, real</td><td class="v" id="t_iter">—</td></tr>
+          <tr><td class="k">median iteration</td><td class="v dim" id="t_med">—</td></tr>
+          <tr><td class="k">estimated remaining</td><td class="v dim" id="t_eta">—</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section data-k="modes">
+      <h2><span id="h_modes">En route now — by mode</span><span class="chev">&#9660;</span></h2>
+      <div class="body"><table id="modes"><tr><td class="k">waiting…</td></tr></table></div>
+    </section>
+
+    <section data-k="fleet">
+      <h2><span id="h_fleet">En route now — transit fleet</span><span class="chev">&#9660;</span></h2>
+      <div class="body"><table id="fleet"><tr><td class="k">—</td></tr></table></div>
+    </section>
+
+    <section data-k="stuck">
+      <h2><span>Stuck agents</span><span class="chev">&#9660;</span></h2>
+      <div class="body"><table id="stuck"><tr><td class="k">—</td></tr></table></div>
+    </section>
+
+    <section data-k="drift" class="closed">
+      <h2><span>Relaxation — post-innovation drift</span><span class="chev">&#9660;</span></h2>
+      <div class="body"><table id="drift"><tr><td class="k">—</td></tr></table></div>
+    </section>
+
+    <div id="foot">
+      <b>The values above are not a result.</b> They are legs in flight during one
+      iteration — not the modes agents chose, and not the trips that completed.
+      Nothing here is reportable as a model outcome.
+      <span id="fracwarn"></span>
+    </div>
+
+  </div>
+
+  <div id="mapwrap">
+    <canvas id="map"></canvas>
+
+    <div id="views" class="panel">
+      <button id="fitcore">study area</button>
+      <button id="fitall">full extent</button>
+    </div>
+
+    <div id="layers" class="panel">
+      <div class="lb on" data-layer="traffic"><span class="sw" style="background:var(--g4)"></span>live traffic</div>
+      <div class="lb on" data-layer="tram"><span class="sw" style="background:var(--tram)"></span>light rail</div>
+      <div class="lb on" data-layer="rail"><span class="sw" style="background:var(--rail)"></span>heavy rail</div>
+      <div class="lb on" data-layer="roads"><span class="sw" style="background:var(--rd1)"></span>roads</div>
+      <div class="lb on" data-layer="green"><span class="sq" style="background:var(--green)"></span>parkland</div>
+      <div class="lb on" data-layer="water"><span class="sq" style="background:var(--water);border:1px solid var(--edge)"></span>water</div>
+    </div>
+
+    <div id="ramp" class="panel">
+      delay ratio (observed ÷ free-flow)
+      <div id="rampbar"></div>
+      <div class="rlabels"><span>1.0 flowing</span><span>2.0</span><span>3.0+ stopped</span></div>
+      <div style="color:var(--muted);margin-top:.25rem">width = vehicle volume</div>
+    </div>
+
+    <div id="empty">waiting for the first window…</div>
+
+    <div id="done" hidden>
+      <div class="card">
+        <div class="done-h">
+          <span class="tick">&#10003;</span>
+          <div>
+            <div class="done-t">Run complete</div>
+            <div class="done-s" id="done_id">—</div>
+          </div>
+          <button id="done_x" title="dismiss">&times;</button>
+        </div>
+        <div class="verdicts" id="done_v"></div>
+        <table id="done_tbl"></table>
+        <div class="done-f">
+          <b>Not a result.</b> This is the state of the run, not a finding about
+          Newcastle. Written to <code>SUMMARY.md</code> and
+          <code>_summary.json</code> in the run directory.
+          <div class="cmds" id="done_next"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const POLL_MS = __POLL_MS__;
+const FAST_MS = __FAST_MS__;
+const $ = id => document.getElementById(id);
+
+/* ---- collapsible sections, remembered across reloads ---- */
+for (const sec of document.querySelectorAll('section[data-k]')){
+  const key = 'rv.sec.' + sec.dataset.k;
+  const saved = localStorage.getItem(key);
+  if (saved === 'closed') sec.classList.add('closed');
+  if (saved === 'open') sec.classList.remove('closed');
+  sec.querySelector('h2').addEventListener('click', () => {
+    sec.classList.toggle('closed');
+    localStorage.setItem(key, sec.classList.contains('closed') ? 'closed' : 'open');
+  });
+}
+
+/* ---- layer toggles ---- */
+const SHOW = {traffic:true, tram:true, rail:true, roads:true, green:true, water:true};
+for (const el of document.querySelectorAll('#layers .lb')){
+  const n = el.dataset.layer;
+  if (localStorage.getItem('rv.layer.' + n) === 'off'){ SHOW[n] = false; el.classList.remove('on'); }
+  el.addEventListener('click', () => {
+    SHOW[n] = !SHOW[n];
+    el.classList.toggle('on', SHOW[n]);
+    localStorage.setItem('rv.layer.' + n, SHOW[n] ? 'on' : 'off');
+    draw();
+  });
+}
+
+const RAMP = [[46,125,91],[143,191,74],[232,195,74],[224,138,60],[214,75,63]];
+function rampColor(t){
+  t = Math.max(0, Math.min(1, t));
+  const x = t * (RAMP.length - 1), i = Math.floor(x), f = x - i;
+  const a = RAMP[i], b = RAMP[Math.min(RAMP.length - 1, i + 1)];
+  return [Math.round(a[0]+(b[0]-a[0])*f), Math.round(a[1]+(b[1]-a[1])*f),
+          Math.round(a[2]+(b[2]-a[2])*f)];
+}
+function hms(s){
+  if (s === null || s === undefined) return '—';
+  s = Math.round(s);
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), r = s%60;
+  if (h) return h+'h '+String(m).padStart(2,'0')+'m';
+  if (m) return m+'m '+String(r).padStart(2,'0')+'s';
+  return r+'s';
+}
+const num = n => (n===null||n===undefined) ? '—' : n.toLocaleString('en-AU');
+
+function rows(el, obj, opts){
+  opts = opts || {};
+  if (!obj){ el.innerHTML = '<tr><td class="k">—</td></tr>'; return; }
+  const keys = Object.keys(obj).filter(k => k !== 'total').sort();
+  let h = '';
+  for (const k of keys){
+    const cls = (opts.warn && obj[k] > 0) ? ' class="warnrow"' : '';
+    h += '<tr'+cls+'><td class="k">'+k+'</td><td class="v">'+num(obj[k])+'</td></tr>';
+  }
+  if ('total' in obj)
+    h += '<tr class="tot"><td class="k">total</td><td class="v">'+num(obj.total)+'</td></tr>';
+  el.innerHTML = h || '<tr><td class="k">—</td></tr>';
+}
+
+/* ---- simulated clock ----
+   The run reports one sample per simulated hour. Between two samples the minutes
+   and seconds are INTERPOLATED from the measured rate of the last two - a
+   smoothing of real readings, never a value the run reported - clamped so it can
+   never run past the next expected sample. Resets when the iteration does.
+   Shown as a real 24 h day with a +1d marker: MATSim's window runs to 30 h so a
+   trip departing at 23:30 can arrive, and hours 24-30 are the following morning. */
+let clockSamples = [], clockIter = null, clockFrozen = null;
+
+function noteClock(simT, iteration, done){
+  if (iteration !== clockIter){ clockIter = iteration; clockSamples = []; }
+  clockFrozen = done ? simT : null;
+  const last = clockSamples[clockSamples.length - 1];
+  if (last && last.simT === simT) return;
+  clockSamples.push({simT: simT, wallT: performance.now()});
+  if (clockSamples.length > 3) clockSamples.shift();
+}
+function animatedSimTime(){
+  if (clockFrozen !== null) return clockFrozen;
+  const n = clockSamples.length;
+  if (!n) return null;
+  const last = clockSamples[n-1];
+  if (n < 2) return last.simT;
+  const prev = clockSamples[n-2];
+  const dSim = last.simT - prev.simT, dWall = last.wallT - prev.wallT;
+  if (dSim <= 0 || dWall <= 0) return last.simT;
+  const ahead = (performance.now() - last.wallT) * (dSim / dWall);
+  return last.simT + Math.min(ahead, dSim);
+}
+const pad = n => String(n).padStart(2, '0');
+function dayClock(t){
+  const s = Math.max(0, Math.floor(t));
+  return {hms: pad(Math.floor((s % 86400) / 3600)) + ':'
+             + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60),
+          day: Math.floor(s / 86400)};
+}
+function paintClock(){
+  const t = animatedSimTime();
+  if (t !== null){
+    const c = dayClock(t);
+    $('simclock').textContent = c.hms;
+    $('simday').textContent = c.day ? '+' + c.day + 'd' : '';
+  }
+  requestAnimationFrame(paintClock);
+}
+requestAnimationFrame(paintClock);
+
+/* ---- map ----
+   Two sources in ONE world frame of absolute EPSG:28356 metres.
+     basemap.json  the standing picture - coastline, water, parkland, the FULL
+                   road network in outline, heavy rail, light rail. A road with
+                   no traffic is drawn here in grey rather than left invisible.
+     hotspot.json  the live congestion overlay for the current window, keyed to
+                   the run's own MATSim links.
+   Basemap paths are stored relative to ORIGIN, so the canvas transform carries
+   that offset and everything else stays absolute. */
+const cv = $('map'), gx = cv.getContext('2d');
+let HS = null, BM = null, PATHS = {}, ORIGIN = [0,0], view = null, dpr = 1, fitted = false;
+
+function b64u16(s){
+  const bin = atob(s), n = bin.length/2, out = new Uint16Array(n);
+  for (let i=0;i<n;i++) out[i] = bin.charCodeAt(i*2) | (bin.charCodeAt(i*2+1)<<8);
+  return out;
+}
+function b64bytes(s){
+  const bin = atob(s), n = bin.length, u = new Uint8Array(n);
+  for (let i=0;i<n;i++) u[i] = bin.charCodeAt(i);
+  return u;
+}
+function decodeBasemap(B){
+  ORIGIN = B.origin;
+  for (const k in B.layers){
+    const area = (k==='coast'||k==='water'||k==='green'||k==='sand');
+    const u = b64bytes(B.layers[k]), dv = new DataView(u.buffer);
+    const path = new Path2D();
+    let i = 0, lastX = null, lastY = null, open = false;
+    while (i + 12 <= u.length){
+      const x0 = dv.getInt32(i,true), y0 = dv.getInt32(i+4,true);
+      const n = dv.getUint16(i+8,true);
+      i += 12;
+      if (n < 2 || i + (n-1)*4 > u.length) break;
+      // Defensive: a run whose anchor equals the previous run's last vertex is a
+      // CONTINUATION and must not start a new subpath. build_basemap.pack() now
+      // densifies long steps rather than splitting on them, so this no longer
+      // fires - but closing a fragment across a chord is exactly what once left
+      // the landmass unfilled, and the check costs nothing.
+      const cont = (lastX === x0 && lastY === y0);
+      if (!cont){
+        if (open && area) path.closePath();
+        path.moveTo(x0/100, y0/100);
+        open = true;
+      }
+      let px = x0, py = y0;
+      for (let j=1;j<n;j++){
+        px += dv.getInt16(i,true); py += dv.getInt16(i+2,true); i += 4;
+        path.lineTo(px/100, py/100);
+      }
+      lastX = px; lastY = py;
+    }
+    if (open && area) path.closePath();
+    PATHS[k] = path;
+  }
+}
+/* real carriageway metres per class: a motorway is drawn wider because it IS */
+const ROAD_ORDER = [
+  ['residential','--rd5', 7.0,0.45], ['tertiary','--rd4', 8.5,0.55],
+  ['secondary','--rd3',10.5,0.65],   ['primary','--rd2',13.0,0.80],
+  ['trunk','--rd1',16.0,1.00],       ['motorway','--rd1',22.0,1.20]
+];
+let COL = {};
+function refreshPalette(){
+  const cs = getComputedStyle(document.documentElement);
+  for (const v of ['--water','--land','--green','--sand','--rd5','--rd4','--rd3',
+                   '--rd2','--rd1','--rail','--tram'])
+    COL[v] = cs.getPropertyValue(v).trim();
+}
+const css = v => COL[v] || '#333';
+
+function resize(){
+  dpr = window.devicePixelRatio || 1;
+  const r = cv.getBoundingClientRect();
+  cv.width = Math.max(1, Math.round(r.width*dpr));
+  cv.height = Math.max(1, Math.round(r.height*dpr));
+  draw();
+}
+function fitTo(box){
+  if (!box) return;
+  const r = cv.getBoundingClientRect();
+  const w = box[2]-box[0], h = box[3]-box[1];
+  if (w <= 0 || h <= 0) return;
+  view = {s: Math.min(r.width/w, r.height/h)*0.94,
+          cx:(box[0]+box[2])/2, cy:(box[1]+box[3])/2};
+  draw();
+}
+function draw(){
+  if (!cv.width) return;
+  gx.setTransform(1,0,0,1,0,0);
+  gx.fillStyle = SHOW.water ? css('--water') : '#080F11';
+  gx.fillRect(0,0,cv.width,cv.height);
+  if (!view) return;
+
+  const W = cv.width, H = cv.height, s = view.s*dpr, mpp = 1/s;
+  if (BM){
+    gx.setTransform(s,0,0,-s, W/2-(view.cx-ORIGIN[0])*s, H/2+(view.cy-ORIGIN[1])*s);
+    gx.lineCap='round'; gx.lineJoin='round';
+    if (PATHS['coast']){ gx.fillStyle = css('--land'); gx.fill(PATHS['coast'],'evenodd'); }
+    if (SHOW.green){
+      if (PATHS['green']){ gx.fillStyle = css('--green'); gx.fill(PATHS['green'],'evenodd'); }
+      if (PATHS['sand']){ gx.fillStyle = css('--sand'); gx.fill(PATHS['sand'],'evenodd'); }
+    }
+    if (SHOW.water && PATHS['water']){ gx.fillStyle = css('--water'); gx.fill(PATHS['water'],'evenodd'); }
+    if (SHOW.roads){
+      for (const spec of ROAD_ORDER){
+        const k = spec[0];
+        if (!PATHS[k]) continue;
+        gx.strokeStyle = css(spec[1]);
+        gx.lineWidth = Math.max(spec[3]*mpp, spec[2]);
+        gx.stroke(PATHS[k]);
+      }
+    }
+    if (SHOW.rail && PATHS['rail']){
+      gx.strokeStyle = css('--rail');
+      gx.lineWidth = Math.max(1.0*mpp, 5.0);
+      gx.stroke(PATHS['rail']);
+    }
+    if (SHOW.tram && PATHS['tram']){
+      gx.strokeStyle = css('--tram');
+      gx.lineWidth = Math.max(1.6*mpp, 4.0);   // thin enough that the two tracks separate
+      gx.stroke(PATHS['tram']);
+    }
+  }
+
+  gx.setTransform(1,0,0,1,0,0);
+  if (!SHOW.traffic || !HS || !HS.available) return;
+  const bb = HS.bbox, sx = (bb[2]-bb[0])/65535, sy = (bb[3]-bb[1])/65535;
+  const px = x => (x-view.cx)*s + W/2, py = y => H/2 - (y-view.cy)*s;
+  const c = HS._coords, vol = HS._vol, del = HS._del, order = HS._order;
+  const vmax = Math.max(1, HS.volume_max);
+  gx.lineCap='round';
+  for (let oi=0; oi<order.length; oi++){
+    const i = order[oi];
+    const x1 = px(bb[0]+c[i*4]*sx),   y1 = py(bb[1]+c[i*4+1]*sy);
+    const x2 = px(bb[0]+c[i*4+2]*sx), y2 = py(bb[1]+c[i*4+3]*sy);
+    if ((x1<0&&x2<0)||(x1>W&&x2>W)||(y1<0&&y2<0)||(y1>H&&y2>H)) continue;
+    const t = del[i]/65535, rel = Math.sqrt(vol[i]/vmax);
+    const rgb = rampColor(t);
+    gx.strokeStyle = 'rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';
+    gx.globalAlpha = 0.5 + 0.5*rel;
+    gx.lineWidth = Math.max(0.8*dpr, rel*4.4*dpr);
+    gx.beginPath(); gx.moveTo(x1,y1); gx.lineTo(x2,y2); gx.stroke();
+  }
+  gx.globalAlpha = 1;
+}
+
+async function loadBasemap(){
+  try {
+    const r = await fetch('basemap.json');
+    if (!r.ok) return;
+    const B = await r.json();
+    decodeBasemap(B); BM = B;
+    draw();               // never fits: the study area owns the default view
+  } catch(e){ /* optional layer */ }
+}
+
+let lastHotspotKey = null;
+async function refreshHotspot(key){
+  if (key === lastHotspotKey) return;
+  lastHotspotKey = key;
+  try {
+    const h = await (await fetch('hotspot.json')).json();
+    if (!h.available){
+      HS = h; $('empty').style.display = 'flex';
+      $('empty').textContent = h.reason || 'no congestion payload yet';
+      draw(); return;
+    }
+    h._coords = b64u16(h.coords); h._vol = b64u16(h.volume); h._del = b64u16(h.delay);
+    h._order = Array.from(h._del.keys()).sort(function(a,b){ return h._del[a] - h._del[b]; });
+    HS = h;
+    $('empty').style.display = 'none';
+    if (!fitted){ fitTo(h.core_bbox); fitted = true; } else draw();
+  } catch(e){ /* the file is being replaced; the next poll gets it */ }
+}
+
+let drag = null;
+cv.addEventListener('mousedown', e => { drag = {x:e.clientX,y:e.clientY,cx:view&&view.cx,cy:view&&view.cy}; cv.classList.add('drag'); });
+window.addEventListener('mouseup', () => { drag = null; cv.classList.remove('drag'); });
+window.addEventListener('mousemove', e => {
+  if (!drag || !view) return;
+  view.cx = drag.cx - (e.clientX-drag.x)/view.s;
+  view.cy = drag.cy + (e.clientY-drag.y)/view.s;
+  draw();
+});
+cv.addEventListener('wheel', e => {
+  if (!view) return;
+  e.preventDefault();
+  view.s *= Math.exp(-e.deltaY*0.0016);
+  draw();
+}, {passive:false});
+$('fitcore').onclick = () => { if (HS && HS.available) fitTo(HS.core_bbox); };
+$('fitall').onclick  = () => { if (HS && HS.available) fitTo(HS.bbox); };
+window.addEventListener('resize', resize);
+
+/* ---- completion screen ----
+   Shown once, when the run reaches a terminal state and summarise_run.py has
+   written its summary. It leads with whether the run can be BELIEVED - did it
+   relax, did its accounting close - because that decides whether anything else
+   is worth reading, and it refuses to show a mode share. */
+let doneShown = false;
+$('done_x').onclick = () => { $('done').hidden = true; };
+
+function verdict(cls, mark, text, sub){
+  return '<div class="verdict ' + cls + '"><span class="m">' + mark + '</span>'
+       + '<div>' + text + (sub ? '<small>' + sub + '</small>' : '') + '</div></div>';
+}
+
+async function showCompletion(d){
+  if (doneShown) return;
+  let sm;
+  try {
+    const r = await fetch('summary.json');
+    if (!r.ok) return;                       // not written yet - try next poll
+    sm = await r.json();
+  } catch(e){ return; }
+  doneShown = true;
+
+  const r0 = sm.run || {}, rel = sm.relaxation || {}, integ = sm.integrity || {};
+  $('done_id').textContent =
+    r0.scenario + ' × ' + r0.day + ' · '
+    + (r0.fraction == null ? '—' : (r0.fraction*100).toFixed(0) + '%') + ' sample · seed '
+    + r0.seed + ' · ' + r0.iterations + ' iterations · ' + hms(r0.wall_s);
+
+  let v = '';
+  if (rel.relaxed === false)
+    v += verdict('bad', '✕', '<b>Did not settle</b> — worst mode still moving '
+         + '<b>' + rel.max_abs_drift_pp.toFixed(2) + ' pp</b> after innovation was disabled at iteration '
+         + rel.innovation_off_at + '.',
+         'A run that has not relaxed supports no conclusion. DECISIONS.md §9.27 measured the iteration count needed at ~1000. This is issue #5.');
+  else if (rel.relaxed === true)
+    v += verdict('good', '✓', '<b>Settled</b> — no mode moves more than '
+         + rel.threshold_pp + ' pp after innovation was disabled.');
+  else
+    v += verdict('', '–', 'Relaxation not measurable — the run did not reach the innovation cutoff.');
+
+  if (integ.conservation_closes === true)
+    v += verdict('good', '✓', '<b>Accounting closes</b> — every departure ends as an arrival, a stuck agent or an unresolved leg.',
+         'Stuck agents are ' + (integ.stuck_share_of_departures == null ? '—' : integ.stuck_share_of_departures.toFixed(2)) + '% of departures.');
+  else if (integ.conservation_closes === false)
+    v += verdict('bad', '✕', '<b>Accounting does not close</b> — the run has lost agents. Take no number from it.');
+
+  if (integ.telemetry_write_failures === 0)
+    v += verdict('good', '✓', 'Telemetry wrote cleanly — the observer did not affect the run.');
+  else if (integ.telemetry_write_failures > 0)
+    v += verdict('bad', '!', integ.telemetry_write_failures + ' telemetry write failure(s) — some frames were lost.');
+  $('done_v').innerHTML = v;
+
+  let t = '<tr><td class="k">exit code</td><td class="v">' + r0.rc + '</td></tr>'
+        + '<tr><td class="k">agents</td><td class="v">' + num(r0.persons_kept) + '</td></tr>'
+        + '<tr><td class="k">median iteration</td><td class="v">'
+        + (r0.median_iteration_s == null ? '—' : r0.median_iteration_s + 's') + '</td></tr>';
+  const st = integ.stuck || {};
+  const stot = Object.keys(st).reduce((a,k) => a + st[k], 0);
+  t += '<tr class="tot"><td class="k">stuck agents</td><td class="v">' + num(stot) + '</td></tr>';
+  $('done_tbl').innerHTML = t;
+  $('done_next').textContent = (sm.next || []).join(String.fromCharCode(10));
+  $('done').hidden = false;
+}
+
+/* ---- poll ---- */
+let timer = null;
+function schedule(ms){ clearTimeout(timer); timer = setTimeout(tick, ms); }
+
+async function tick(){
+  let d;
+  try { d = await (await fetch('status.json')).json(); }
+  catch(e){ $('state').textContent='no server'; $('state').className='state failed';
+            schedule(POLL_MS); return; }
+
+  $('name').textContent = d.name;
+  $('state').textContent = d.state;
+  $('state').className = 'state ' + d.state;
+
+  const frac = d.fraction === null ? '—' : (d.fraction*100).toFixed(0)+'%';
+  $('ident').innerHTML =
+    'scenario <b>'+(d.scenario||'?')+'</b> · day <b>'+(d.day||'?')+'</b> · sample <b>'
+    + frac + '</b> · seed <b>'+(d.seed||'?')+'</b> · threads <b>'+(d.threads||'?')+'</b>';
+  $('fracwarn').innerHTML = (d.fraction !== null && d.fraction <= 0.01)
+    ? ' <b>At 1%</b> MATSim floors link storage at one vehicle, so this run produces spurious spillback that inflates car delay. Never compare it against another sample fraction.'
+    : '';
+
+  const cur = d.iteration, tgt = d.target;
+  if (cur !== null && tgt){
+    const p = Math.max(0, Math.min(1, cur/tgt));
+    $('fill').style.width = (p*100).toFixed(2)+'%';
+    $('bartxt').textContent = cur + ' / ' + tgt;
+    $('pct').textContent = (p*100).toFixed(1)+'% · '+num(d.remaining)+' left';
+  } else {
+    $('bartxt').textContent = (cur===null?'—':cur) + ' / ' + (tgt||'—');
+  }
+
+  $('t_total').textContent = hms(d.elapsed_s);
+  $('t_med').textContent   = d.median_iteration_s ? d.median_iteration_s+'s' : '—';
+  $('t_eta').textContent   = hms(d.eta_s);
+
+  const live = d.live;
+  if (!d.telemetry){
+    $('simclock').textContent = 'n/a'; $('simday').textContent = '';
+    $('simnote').textContent = 'no telemetry in this run';
+    $('modes').innerHTML = '<tr><td class="k">no telemetry in this run</td></tr>';
+  } else if (live){
+    noteClock(live.sim_time_s, d.iteration, live.mobsim_done);
+    $('simnote').textContent = (d.state === 'running' || d.state === 'starting')
+      ? (live.mobsim_done ? 'loading next iteration' : 'simulating live')
+      : 'run ' + d.state + ' — final iteration shown';
+    $('t_iter').textContent = hms(live.iteration_elapsed_s);
+    const done = live.mobsim_done;
+    $('h_modes').textContent = done ? 'Unresolved at day end — by mode' : 'En route now — by mode';
+    $('h_fleet').textContent = done ? 'Unresolved at day end — transit fleet' : 'En route now — transit fleet';
+    rows($('modes'), live.en_route);
+    rows($('fleet'), live.en_route_vehicle_type);
+    rows($('stuck'), live.stuck, {warn:true});
+  }
+
+  const dr = d.post_innovation_drift;
+  if (dr && Object.keys(dr).length){
+    let h = '';
+    for (const k of Object.keys(dr).sort()){
+      const v = dr[k];
+      h += '<tr'+(Math.abs(v)>0.005?' class="warnrow"':'')+'><td class="k">'+k
+         + '</td><td class="v">'+(v>0?'+':'')+(v*100).toFixed(2)+' pp</td></tr>';
+    }
+    $('drift').innerHTML = h;
+  } else {
+    $('drift').innerHTML = '<tr><td class="k">—</td></tr>';
+  }
+
+  if (d.links_stamp) refreshHotspot(d.links_stamp);
+
+  if (d.state === 'finished' || d.state === 'failed') showCompletion(d);
+
+  // The mobsim sweeps a 30 h day in ~20 s of wall clock, so a 3 s poll would see
+  // it a handful of times. Poll fast while it sweeps, back off between mobsims.
+  const sweeping = d.state === 'running' && d.live && !d.live.mobsim_done;
+  schedule(sweeping ? FAST_MS : POLL_MS);
+}
+
+refreshPalette();
+resize();
+loadBasemap();
+tick();
+</script>

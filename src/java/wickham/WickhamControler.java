@@ -43,6 +43,13 @@ import org.matsim.core.scenario.ScenarioUtils;
  * installed and bills a car for the time it stands still. The module is absent
  * from a config that does not want it, and the handler is then never built.
  *
+ * <p><b>4. Live telemetry.</b> When the `telemetry` module is present,
+ * {@link RunTelemetry} publishes what is moving, of what kind and where it is
+ * piling up, <em>while the mobsim runs</em>. It needs no change to
+ * {@code writeEventsInterval}: a registered handler receives the full event
+ * stream on every iteration regardless of whether that stream is also being
+ * written to disk. It is an observer and cannot alter a result.
+ *
  * <p>Run exactly as the stock main was:
  * <pre>java -cp pt2matsim-shaded.jar;classes wickham.WickhamControler config.xml</pre>
  *
@@ -62,7 +69,8 @@ public final class WickhamControler {
             System.exit(2);
         }
         final ParkingConfigGroup parking = new ParkingConfigGroup();
-        final Config config = ConfigUtils.loadConfig(args[0], parking);
+        final TelemetryConfigGroup telemetry = new TelemetryConfigGroup();
+        final Config config = ConfigUtils.loadConfig(args[0], parking, telemetry);
         // The price file is written beside the config, like the network and the
         // schedule, so it is named relatively there and resolved here. MATSim
         // resolves its own input paths against the config's directory; this
@@ -96,6 +104,20 @@ public final class WickhamControler {
                     bind(ParkingChargeHandler.class).in(Singleton.class);
                     addEventHandlerBinding().to(ParkingChargeHandler.class);
                     addControllerListenerBinding().to(ParkingChargeHandler.class);
+                }
+            });
+        }
+        if (config.getModules().containsKey(TelemetryConfigGroup.NAME)) {
+            controler.addOverridingModule(new AbstractModule() {
+                @Override
+                public void install() {
+                    // One instance in three roles: it accumulates as an event
+                    // handler, flushes live as a mobsim listener, and closes the
+                    // iteration as a controler listener.
+                    bind(RunTelemetry.class).in(Singleton.class);
+                    addEventHandlerBinding().to(RunTelemetry.class);
+                    addMobsimListenerBinding().to(RunTelemetry.class);
+                    addControllerListenerBinding().to(RunTelemetry.class);
                 }
             });
         }

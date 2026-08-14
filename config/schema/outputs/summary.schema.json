@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/outputs/summary.schema.json",
+  "title": "_summary.json - what the run did, and whether it can be believed",
+  "description": "Written by src/analyse/summarise_run.py when a run completes, beside the human-readable SUMMARY.md. It answers three questions a completed run should never leave hanging: what was run, did it relax, and did its own accounting close. It is DELIBERATELY NOT a model result: it carries no mode share, no patronage, no fit statistic and no comparison against a validation target. Those come from extract_metrics.py -> fit.py -> report.py, which are the only route to a reportable number (DECISIONS.md 12.1). Everything here is about the RUN's state, not about Newcastle.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["name", "run", "relaxation", "integrity", "not_a_result"],
+  "properties": {
+    "name": {"type": "string", "description": "the run directory name"},
+    "generated_utc": {
+      "type": "string",
+      "description": "when this summary was written. Provenance only - it is not model data, and the run itself is seeded and deterministic."
+    },
+    "produced_by": {"type": "string"},
+    "run": {
+      "type": "object",
+      "description": "identity and cost, copied from _run.json and the resolved config. A picture or a number can never be separated from the run that produced it.",
+      "required": ["scenario", "day", "fraction", "seed", "iterations", "rc"],
+      "additionalProperties": true,
+      "properties": {
+        "scenario": {"type": "string"},
+        "day": {"type": "string"},
+        "fraction": {"type": ["number", "null"]},
+        "seed": {"type": ["integer", "null"]},
+        "iterations": {"type": ["integer", "null"]},
+        "threads": {"type": ["integer", "null"]},
+        "rc": {"type": ["integer", "null"]},
+        "wall_s": {"type": ["number", "null"]},
+        "median_iteration_s": {"type": ["number", "null"]},
+        "persons_kept": {"type": ["integer", "null"]},
+        "controler_sha256": {
+          "type": ["string", "null"],
+          "description": "the entry point that produced this run. A summary produced before a controler change and one produced after must not be confusable."
+        }
+      }
+    },
+    "relaxation": {
+      "type": "object",
+      "description": "Whether the run settled. After MATSim disables innovation no new plans are created, so any remaining movement in mode share is relaxation, not search - which is exactly the question issue #5 turns on. This is a statement about the RUN, not about mode choice in Newcastle.",
+      "required": ["relaxed"],
+      "additionalProperties": true,
+      "properties": {
+        "innovation_off_at": {"type": ["integer", "null"]},
+        "drift_pp": {
+          "type": "object",
+          "description": "percentage-point change per mode between the innovation cutoff and the final iteration",
+          "additionalProperties": {"type": "number"}
+        },
+        "max_abs_drift_pp": {"type": ["number", "null"]},
+        "threshold_pp": {"type": ["number", "null"]},
+        "relaxed": {
+          "type": ["boolean", "null"],
+          "description": "false when any mode is still moving by more than threshold_pp after innovation is off. Null when the run did not reach the cutoff."
+        },
+        "basis": {"type": "string"}
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "description": "Whether the run's own accounting closed. A run whose departures do not equal arrivals + stuck + unresolved has lost agents, and no number taken from it means anything.",
+      "required": ["conservation_closes"],
+      "additionalProperties": true,
+      "properties": {
+        "iterations_recorded": {"type": ["integer", "null"]},
+        "conservation_closes": {"type": ["boolean", "null"]},
+        "conservation_detail": {"type": "object", "additionalProperties": true},
+        "telemetry_write_failures": {"type": ["integer", "null"]},
+        "stuck": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "unresolved": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "stuck_share_of_departures": {"type": ["number", "null"]}
+      }
+    },
+    "activity": {
+      "type": "object",
+      "description": "Legs the final iteration generated, by mode and by transit vehicle type. Counts of what the mobsim moved - NOT a mode share, and not comparable to a validation target.",
+      "additionalProperties": true
+    },
+    "not_a_result": {
+      "type": "string",
+      "description": "Stated in the document itself, so the file cannot be quoted out of context."
+    },
+    "next": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "the declared pipeline to reach a reportable number from here"
+    }
+  }
+}

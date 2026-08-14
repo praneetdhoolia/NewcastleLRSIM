@@ -91,14 +91,34 @@ def pack(lines, origin):
     130 km study area - the same size for 200x the resolution, which is what
     makes zooming to a 10 m view meaningful rather than a staircase.
 
-    A step that will not fit in an int16 (more than 327 m) starts a new anchored
-    run, so precision never silently degrades.
+    A step that will not fit in an int16 (more than 327 m) is DENSIFIED - split
+    into equal collinear sub-steps - rather than allowed to start a new run.
+
+    That is a repair, not a refinement. The previous behaviour began a new
+    anchored run on overflow, but the run that would have carried the long step
+    was then degenerate (n == 1) and skipped, so **the segment was silently
+    dropped**. On a road that is a missing link. On a polygon it is fatal:
+    `read_coast` simplifies the dissolved LGA boundary, and simplification is
+    precisely what creates straight segments longer than 327 m, so every ring
+    came apart. Measured on the shipped basemap: the coast layer packed to 180
+    fragments of which only 33 closed, the largest spanning 12.5 km against a
+    boundary that spans 131 km, and the landmass filled 1 of 40 sampled points -
+    the whole map rendered as ocean. Densifying adds collinear vertices, changes
+    no geometry, and needs no change to the wire format.
     """
     ox, oy = origin
+    lim = 32000                                  # cm, inside the int16 bound
     out = bytearray()
     for lanes, pts in lines:
         cm = [(int(round((x - ox) * 100.0)), int(round((y - oy) * 100.0)))
               for x, y in pts]
+        dense = cm[:1]
+        for (x1, y1), (x2, y2) in zip(cm, cm[1:]):
+            steps = max(abs(x2 - x1), abs(y2 - y1)) // lim + 1
+            for k in range(1, steps + 1):
+                dense.append((x1 + (x2 - x1) * k // steps,
+                              y1 + (y2 - y1) * k // steps))
+        cm = dense
         i = 0
         while i < len(cm) - 1:
             # how far can we run before a delta overflows int16
@@ -289,11 +309,39 @@ def read_coast(simplify):
     return out
 
 
+def _rebind_osm_dir(d):
+    """Point every .osm input at `d`, keeping the filenames."""
+    global RAILWAYS, WATER, GREEN, AREA_SELECT
+    RAILWAYS = os.path.join(d, os.path.basename(RAILWAYS))
+    WATER = os.path.join(d, os.path.basename(WATER))
+    GREEN = os.path.join(d, os.path.basename(GREEN))
+    AREA_SELECT = {
+        'water': (WATER, AREA_SELECT['water'][1]),
+        'green': (GREEN, AREA_SELECT['green'][1]),
+        'sand': (GREEN, AREA_SELECT['sand'][1]),
+    }
+    missing = [p for p in (RAILWAYS, WATER, GREEN) if not os.path.exists(p)]
+    if missing:
+        raise SystemExit('missing OSM layer(s) under %s: %s'
+                         % (d, ', '.join(missing)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', required=True)
     ap.add_argument('--no-simplify', action='store_true')
+    # The harvest directory is a parameter rather than a constant because the
+    # issue #32 re-harvest empties `networks/osm/`, and the visual layers -
+    # water, green, sand, rail - have no model consumer, so a basemap can
+    # legitimately be built from the retained pre-#32 extracts while the road
+    # network comes from the current build. Whatever is used is recorded in
+    # the payload's `source` block, so a picture always says where it came from.
+    ap.add_argument('--osm-dir', default=os.path.dirname(RAILWAYS),
+                    help='directory holding the Overpass .osm layers '
+                         '(default: networks/osm)')
     a = ap.parse_args()
+    if a.osm_dir:
+        _rebind_osm_dir(a.osm_dir)
     simplify = not a.no_simplify
 
     print('reading roads ...', flush=True)
