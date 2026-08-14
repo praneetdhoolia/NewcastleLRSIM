@@ -4,86 +4,90 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 13 August 2026 · branch `praneetdhoolia/mode-choice-specification`
+**Last updated:** 14 August 2026 · branch `praneetdhoolia/mode-choice-specification`
 
 > **This file is a board, not a diary.** The dated build narrative that used to live
-> here (P3 stage 0 through P4 stage 11, 944 lines) is archived in
+> here (944 lines) is archived in
 > [`docs/handover/SESSION_LOG.md`](docs/handover/SESSION_LOG.md). Its authoritative
-> version is [`DECISIONS.md`](DECISIONS.md) §9.1–§9.35. **Do not append a session
+> version is [`DECISIONS.md`](DECISIONS.md) §9.1–§9.36. **Do not append a session
 > narrative here again** — record the decision in `DECISIONS.md` and update the board
 > lines below that it makes wrong.
 
 ---
 
-## ⛔ The build is not currently runnable
+## ⛔ One thing blocks everything: the OSM harvest is empty
 
-`networks/osm/` is **empty**. The issue #32 re-harvest was started, produced four
-corrupt layers, was deleted, and has **not been re-run**. Nothing downstream of the OSM
-extract can be rebuilt until it is, and `tests/check_package.py` cannot pass.
+`networks/osm/` holds **nothing**. The issue #32 re-harvest was started, produced four
+corrupt layers, was deleted, and has **not been re-run**. Until it is:
 
-- The only surviving copy of the pre-#32 extracts is `networks/osm_pre_issue32/`
-  (10 layers, 179 MB, gitignored). **Do not delete it** until a new harvest verifies.
-- The re-harvest is step **B0** and is a point of no return: it re-runs pt2matsim, which
-  makes every existing run incomparable ([`DECISIONS.md`](DECISIONS.md) §3.5).
+- nothing downstream of the OSM extract can be rebuilt;
+- `tests/check_package.py` **cannot pass**;
+- the manifest carries **376** files instead of 386, because the 10 OSM layers do not
+  exist to hash;
+- `build_basemap.py` runs only against `networks/osm_pre_issue32/` (10 layers, 179 MB,
+  gitignored) — **do not delete that directory** until a new harvest verifies.
 
-## Where the build is, in one table
+The re-harvest is step **B0** below and is a **point of no return**: it re-runs
+pt2matsim, which makes every existing run incomparable
+([`DECISIONS.md`](DECISIONS.md) §3.5).
+
+## Where the build is
 
 | | |
 |---|---|
-| Phase | **P4 (calibration), in progress** — 6 of 9 deliverables met |
-| Blocking state | OSM harvest empty (above); package gate un-runnable |
-| Committed data package | **376 files** hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv) · `check_manifest.py` passes. Down from 386: the **10 `networks/osm/` layers left the manifest** when it was regenerated against the empty harvest. That is the manifest correctly describing what exists — the fact that they *should* exist is recorded above, not in the manifest. |
+| Phase | **P4 (calibration), in progress** — 7 of 9 deliverables met |
+| Blocking state | OSM harvest empty; package gate un-runnable |
+| Committed data package | **376 files** in [`data/MANIFEST.csv`](data/MANIFEST.csv) · `check_manifest.py` passes |
 | Input registry | **210 fields** — 89 assumed, 51 definition, 28 literature, 21 measured, 17 derived, 4 observed; **7 carry no value** and the resolver refuses to invent one |
-| Run inputs assembled | **30** scenario × day-type sets under `scenarios/matsim/` |
-| Runs on disk | **7 directories** in `results/`, ~3.9 GB, every one superseded |
+| Run inputs assembled | **30** scenario × day-type sets, all carrying the `telemetry` module |
+| Runs on disk | **8** in `results/`, ~15 GB, every one superseded |
 | Open issues | **13** — #5 #9 #14 #20 #24 #28 #29 #30 #31 #32 #34 #36 #37 |
 | **Results** | **None. No scenario has been run to a reportable state, and nothing in this repository is an output of the model.** |
 
-### What the last working session established
+## Phase progress
 
-The specification audit ([`docs/audit/SPEC_AUDIT.md`](docs/audit/SPEC_AUDIT.md), §9.25)
-found the mode-share error is **two near-exact inversions, not five miscalibrations** —
-car −26.5 / ride +29.4 and walk −12.7 / bike +12.7. Since then:
-
-- **Car↔ride was largely non-relaxation, not a defect.** §9.27 measured the model still
-  moving at 250 iterations and needing ~1000; the fix's headline effect is **withdrawn**
-  (#28 stays open on a smaller residual).
-- **Walk↔bike does *not* improve at relaxation and is confirmed structural** (#30, #29).
-- **Parking was free** — the price layer had been declared since P1 and read by nothing,
-  and rested on four hand-drawn boxes (§9.31, #33 closed).
-- **`params/C1` was a hand-kept mirror of the registry**, so 26 declared values — every
-  mode constant and the transfer penalty — reached nothing (§9.32, #35 closed).
-- Six network defaults moved from assumed to measured (§9.33, #23 closed); corridor
-  speed limits became the regulated ones (§9.34, #27 closed).
-
-**Seven of these were "declared value reaches nothing" defects.** A parameter that is
-swept but unread is the failure mode this project keeps producing; establish reach by
-**changing a value and watching the output**, never by reading the code.
-
----
-
-## Phase board
-
-Phases as defined in [`docs/design/newcastle-lr-proposal.md`](docs/design/newcastle-lr-proposal.md) §7.1.
-**Every state below was verified against the package on 13 August 2026**, not
-carried forward from a previous entry. "Complete" means the phase's own stated
-output exists and passes its gate — not that nothing about it will change.
-
-| Phase | State | Verified against | What is NOT done |
+| Phase | State | What is done | What is not |
 |---|---|---|---|
-| **P0** Scoping | ✅ complete | Base year, zone system, S0–S6 all settled ([`DECISIONS.md`](DECISIONS.md) §1) | P0's output includes *"requests lodged"*. **The repo carries no evidence any formal request was lodged by this project** — §13 lists them as outstanding tasks. See P1. |
-| **P1** Data acquisition | 🟡 **substantially complete, two named gaps** | **376** files hashed in [`data/MANIFEST.csv`](data/MANIFEST.csv), all provenance-tagged; the 10 OSM layers are absent pending the #32 re-harvest | **Field measurement of dwell — named in P1's own work description — was never done.** SCATS is **refused by policy** (§9.21) and journey-linked Opal is unpublished; both are handled by sweep under proposal §7.2. |
-| **P2** Network build | 🟡 **complete, one refinement outstanding** | 1 MATSim base + 4 variants, 15 mapped feeds, 0 unmapped stops, 4 SUMO nets, all byte-identical on rebuild | §13 item 4: manual OSM correction on the corridor. Corridor trunk lane counts are **87.5% observed** (§2.5), so this is a refinement, not a hole. |
-| **P3** Demand synthesis | 🟡 **complete as built, and will be superseded** | 612,680 agents, 521,502 weekday persons, 3 day types, **30** scenario × day-type run-input sets on disk | **Freight, work-related business travel and boundary through traffic are absent.** Adding them (P4 deliverable 0d) regenerates B2 and breaks comparability with every run to date — a planned break, not a defect. |
-| **P4** Calibration | 🟡 **in progress — 6 of 9 deliverables** | See the checklist below | Deliverable **0** (new), **5** (calibrated base) and **8** (transfer-penalty estimate) are not met. |
-| **P5** Scenario runs | ⬜ not started | — | **SUMO has been built six times and simulated zero times**, deliberately. Verified: no run output exists anywhere in the repo. |
-| **P6** Analysis | ⬜ not started | — | `src/analyse/` holds P4 metric extraction and the run views only; nothing for the A/B hypotheses. |
-| **P7** Write-up | ⬜ not started | — | |
+| **P0** Scoping | ✅ complete | Base year 2026, zone system, S0–S6 settled (§1) | — |
+| **P1** Data acquisition | 🟡 substantially complete | 376 files hashed, provenance-tagged | Field dwell measurement never done. SCATS **refused by policy** (§9.21), journey-linked Opal unpublished — both swept, never pinned. **10 OSM layers absent** pending #32. |
+| **P2** Network build | 🟡 complete, will be redone | 1 MATSim base + 4 variants, 15 mapped feeds, 0 unmapped stops, 4 SUMO nets | Corridor kerbside 95% imputed, lane width 98.6%, capacity 100% (#27 closed as *cannot* be closed — B3 must report them as uncertainty). **#32 re-harvest will rebuild all of it.** |
+| **P3** Demand synthesis | 🟡 complete as built, **will be superseded** | 612,680 agents, 521,502 weekday persons, 3 day types, 30 run-input sets | Freight, business travel and boundary through traffic absent (#24, #20). Destinations too far (#30). Bike ownership universal (#29). 348 agents live a 30-hour day (#37). |
+| **P4** Calibration | 🟡 **in progress — 7 of 9** | Harness, metrics, fit, calibration loop, report, outer-loop tolerance, **live run view** | Deliverable **0** (input completeness) and **5** (calibrated base) not met. |
+| **P5** Scenario runs | ⬜ not started | — | **SUMO has been built six times and simulated zero times**, deliberately. |
+| **P6** Analysis | ⬜ not started | — | Hypothesis B1 has **no observable at all** without pedestrian counts. |
+| **P7** Write-up | ⬜ not started | — | — |
 
-**Seven run directories exist** in `results/` (~3.9 GB), all `rc=0` and all
-superseded — three `ride_sufficiency_*`, one `ride_fix_10pct` and three
-`S2_WEEKDAY_*`. The #32 re-harvest will invalidate every one of them
-([`DECISIONS.md`](DECISIONS.md) §3.5). **Nothing in this repository is a result.**
+### What the last two sessions established
+
+**Repository cleanup.** `STATUS.md` was 79% dated narrative; the documents had drifted
+from the model (four stale figures, one self-contradictory header, and the §2.6 CRS
+correction never propagated to `CLAUDE.md`). Documents are now filed under `docs/`,
+`DECISIONS.md` has a topical index, and the project is no longer codenamed after one
+suburb (§9.36, #36 tracks the two surviving code identifiers).
+
+**A run now reports itself.** `RunTelemetry` publishes per-mode and per-vehicle-type
+counts and per-link congestion **from inside the mobsim**, and `summarise_run.py` closes
+out a finished run with `SUMMARY.md` + `_summary.json`. `writeEventsInterval` did not
+need to change: a registered handler sees every event on every iteration — the package's
+own 26 event files against 251 leg histograms proves it.
+
+**Three defects found by measurement, not by reading** (§9.36):
+
+- **The observer killed a run.** A Windows file-replace threw while the view was reading,
+  and the exception propagated out of the handler, terminating a run at iteration 5.
+  Telemetry is now structurally unable to reach the mobsim. *An instrument that can stop
+  the experiment is not an instrument.*
+- **`build_basemap.pack()` silently dropped every segment longer than 327 m**, so the
+  simplified LGA boundary shattered and the landmass never filled — the map rendered as
+  ocean. `build_replay_page.py` decodes the same payload: **any replay page built before
+  this is wrong and must be rebuilt.**
+- **A silent default that happened to be right.** The summariser read a registry key that
+  does not exist and fell back to a hard-coded `0.8` — the shipped value, so it produced
+  the correct answer for the wrong reason.
+
+**Eight of this project's defects are now the same class:** a declared value that reaches
+nothing, or a default that is right by accident. Establish reach by **changing a value and
+watching the output**, never by reading the code.
 
 ---
 
@@ -107,7 +111,7 @@ calibrate the wrong model.
 | 6 | Calibration report | ✅ done | [`src/calibrate/report.py`](src/calibrate/report.py) |
 | 7 | MATSim↔SUMO outer-loop tolerance | ✅ done — **5 s** | [`DECISIONS.md`](DECISIONS.md) §9.16 |
 | **8** | **Transfer-penalty estimate** — proposal §7.2's own fallback | ✅ **met by its own fallback clause (§9.32)**: the estimate is **not possible** from this package and the reason is recorded, so the 3–15 min sweep stands and every headline stays bound to a curve across it. §7.2 needs tap-on/tap-off **timing**; every Opal source held is a monthly aggregate, the stop-level tap data is **holdout**, and no calibration row bears on interchange. Published interchange **times** are the wrong quantity — they would double-count the walk and wait MATSim already simulates. Settled only by a TfNSW unit-record request. | §9.32, §9.21 |
-| 9 | Live run view | ✅ **rebuilt** (§9.36) — the run now publishes live telemetry from inside the mobsim: iteration progress, simulated clock, per-mode and per-vehicle-type counts, stuck agents, and a per-iteration congestion map. **The 30 run-input sets must be regenerated before a real run publishes any of it.** | [`src/analyse/run_view.py`](src/analyse/run_view.py), [`src/java/wickham/RunTelemetry.java`](src/java/wickham/RunTelemetry.java) |
+| 9 | Live run view | ✅ **rebuilt** (§9.36) — the run now publishes live telemetry from inside the mobsim: iteration progress, simulated clock, per-mode and per-vehicle-type counts, stuck agents, and a per-iteration congestion map. All 30 run-input sets carry the `telemetry` module, and a finished run writes `SUMMARY.md` + `_summary.json` stating whether it relaxed and whether its accounting closed. | [`src/analyse/run_view.py`](src/analyse/run_view.py), [`src/java/wickham/RunTelemetry.java`](src/java/wickham/RunTelemetry.java) |
 
 ### Deliverable 0, broken down — the work that must precede a calibrated base
 
@@ -292,6 +296,24 @@ then, in order: `build_network_layers` → `attach_gradient` → `attach_speed_z
   explicitly.
 
 A bigger network is more memory. Re-measure before assuming a 10% sample still fits.
+
+**Then, in the same batch** (each regenerates B2, so doing them separately rebuilds it
+several times): #30 destination placement, #29 bike availability, #24 freight, #20
+boundary through traffic, #37 the 30-hour day, and #36 the `WICKHAM_*` / `src/java/wickham/`
+rename — which is free here because the batch already invalidates every run record.
+
+**Only after that** is it worth re-measuring the iteration count (#5), because the batch
+moves the landscape it would be measured on.
+
+### Housekeeping that is safe to do at any time
+
+- `results/live_demo` holds **9.8 GB** of `output/ITERS`. `prune_run.py` reclaims it and
+  will not touch the telemetry, but refuses until `extract_metrics.py` has run — by
+  design, so nothing is deleted before its outputs are read.
+- **Any replay page built before 14 August is wrong** and must be rebuilt: the basemap
+  packing defect (§9.36) broke every area fill.
+- `check_package.py` lost its coverage of the live view when `run_monitor.py` was deleted.
+  Restore it against `run_view.py` / `summarise_run.py`.
 
 ---
 
