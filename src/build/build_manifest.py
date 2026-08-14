@@ -30,6 +30,14 @@ PROVENANCE_FILES = ['data/raw/provenance_open_data.json',
                     'schedules/raw/provenance.json']
 PROVENANCE_FILES = [os.path.join(ROOT, p) for p in PROVENANCE_FILES]
 
+
+def _observed_adapter():
+    """The city's own adapter for the observed layer, from its descriptor."""
+    adapters = _city.descriptor().get('adapters', {})
+    spec = adapters.get('observed') or {}
+    return spec.get('script', 'extract/observed')
+
+
 EXTRACT = 'cities/%s/extract/' % _city.CITY
 # Builders that encode THIS CITY's intervention, corridor or history live
 # with the city; the generic pipeline stays in src/build/.
@@ -48,7 +56,10 @@ LINEAGE = {
     'data/processed/zones': EXTRACT + 'extract_zones.py',
     'data/processed/census': EXTRACT + 'extract_census.py',
     'data/processed/hts': EXTRACT + 'extract_hts.py',
-    'data/processed/observed': EXTRACT + 'slice_newcastle.py',
+    # The adapter that produces this layer is named by the city's own
+    # descriptor: `slice_newcastle.py` was one city's file name in framework
+    # code, and a second city's adapter is called something else.
+    'data/processed/observed': _observed_adapter(),
     'data/processed/network': 'src/build/build_network_layers.py + attach_gradient.py',
     'data/processed/corridor': CITY_BUILD + 'build_corridor_layers.py',
     'data/processed/landuse': CITY_BUILD + 'build_landuse_parking.py + '
@@ -154,9 +165,9 @@ def main():
 
     total = sum(f['bytes'] for f in files)
     man = dict(
-        project='Newcastle Light Rail counterfactual microsimulation (NewcastleLRSIM)',
+        project=_city.descriptor().get('description') or _city.descriptor()['name'],
         generated=datetime.datetime.now().replace(microsecond=0).isoformat(),
-        base_year=2026,
+        base_year=_city.base_year(),
         crs=_city.crs_label(),
         n_files=len(files),
         total_bytes=total,

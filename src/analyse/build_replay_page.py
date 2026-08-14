@@ -415,7 +415,8 @@ def main():
                       b['bbox'][3] - b['bbox'][1]])
     frac = m.get('sample_fraction')
     html = PAGE.format(
-        title=a.title or ('Newcastle microsimulation — %s' % m.get('run', 'run')),
+        title=a.title or ('%s microsimulation - %s'
+                              % (_city.descriptor()['name'], m.get('run', 'run'))),
         run=m.get('run', '?'), scenario=m.get('scenario') or '?',
         day=m.get('day') or '?',
         frac=('%g%%' % (frac * 100)) if isinstance(frac, (int, float)) else '?',

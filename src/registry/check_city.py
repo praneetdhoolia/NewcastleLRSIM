@@ -26,6 +26,7 @@ rather than a pass/fail, because the repository currently has known instances
 and hiding them would defeat the purpose.
 """
 import argparse
+import ast
 import io
 import json
 import os
@@ -199,7 +200,12 @@ def check_framework_is_city_free(name, doc):
     tokens = {t for t in tokens if len(t) > 4}
     pattern = re.compile('|'.join(re.escape(t) for t in sorted(tokens)), re.I)
 
-    hits = []
+    # A place name in a COMMENT explains the model; a place name in a STRING
+    # LITERAL is one city's value living in framework code, and only the second
+    # kind breaks a city the framework has never seen. Counting them together
+    # made the number useless - 68 occurrences of which 15 were values and 53
+    # were prose about why the values had been a problem.
+    hits, value_hits = [], []
     for root in FRAMEWORK_ROOTS:
         for dirpath, dirs, names in os.walk(os.path.join(REPO, root)):
             dirs[:] = [d for d in dirs if d != '__pycache__']
@@ -218,12 +224,41 @@ def check_framework_is_city_free(name, doc):
                 for i, line in enumerate(text.splitlines(), 1):
                     if pattern.search(line):
                         hits.append((rel, i, line.strip()[:90]))
-    check(True, '%s: %d place-name occurrence(s) in the framework '
-                '(src/, tests/, config/schema/)' % (name, len(hits)), note=True)
-    for rel, i, line in hits[:15]:
-        check(True, '  %s:%d  %s' % (rel, i, line), note=True)
-    if len(hits) > 15:
-        check(True, '  ... and %d more' % (len(hits) - 15), note=True)
+                # tests/ legitimately names the reference city: a check
+                # MESSAGE that says which city failed is the point of it.
+                if n.endswith('.py') and not rel.startswith('tests/'):
+                    value_hits.extend(_place_names_in_literals(rel, text, pattern))
+
+    # This one IS a failure. A value is not documentation.
+    check(not value_hits,
+          '%s: no place name appears as a VALUE in framework code '
+          '(a string literal, not a comment)' % name)
+    for rel, i, line in value_hits[:15]:
+        check(True, '  VALUE  %s:%d  %s' % (rel, i, line), note=True)
+
+    check(True, '%s: %d place-name mention(s) in framework PROSE - comments and '
+                'docstrings explaining the model, which is documentation rather '
+                'than a value' % (name, len(hits) - len(value_hits)), note=True)
+
+
+def _place_names_in_literals(rel, text, pattern):
+    """Place names appearing as string literals - excluding docstrings."""
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return []
+    docstrings = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef,
+                             ast.ClassDef)) and node.body:
+            first = node.body[0]
+            if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant)                     and isinstance(first.value.value, str):
+                docstrings.add(id(first.value))
+    out = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)                 and id(node) not in docstrings and pattern.search(node.value):
+            out.append((rel, node.lineno, node.value[:90]))
+    return out
 
 
 # --------------------------------------------------------------------------

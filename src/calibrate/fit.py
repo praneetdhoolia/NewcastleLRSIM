@@ -287,7 +287,8 @@ def score_trip_geometry(metrics, c4):
             modelled_mean_time_min=g['mean_time_min'],
             observed_mean_time_min=o['avg_time_min'],
             trips=g['trips'])
-    out = dict(geography='Newcastle LGA, both sides', modes=modes,
+    out = dict(geography=_city.descriptor()['mode_share_target']['geography'],
+               modes=modes,
                note='a constraint, not a validation target; it is not counted '
                     'in any fit statistic. The 67/143 split is pre-registered '
                     'and this is not part of it')
@@ -348,7 +349,8 @@ def main():
     print(out['headline'])
     ms = out['mode_share']
     if ms['errors']:
-        print('\nmode share, Newcastle LGA (percentage points):')
+        print('\nmode share, %s (percentage points):'
+              % _city.descriptor()['mode_share_target']['geography'])
         for e in ms['errors']:
             print('  %-18s modelled %6.2f  observed %6.2f  error %+6.2f pp'
                   % (e['hts_category'], e['modelled'], e['observed'],
@@ -372,7 +374,8 @@ def main():
                      ', '.join(c['modelled_zero_stations'])))
     tg = out.get('trip_geometry_constraint')
     if tg:
-        print('\ntrip geometry, Newcastle LGA (a constraint, never scored):')
+        print('\ntrip geometry, %s (a constraint, never scored):'
+              % _city.descriptor()['mode_share_target']['geography'])
         print('  %-5s %11s %11s %9s %8s' % ('mode', 'modelled km', 'observed km',
                                             'ratio', 'in range'))
         for m, g in sorted(tg['modes'].items()):

@@ -123,6 +123,16 @@ def rel(p):
     return os.path.relpath(p, REPO).replace(os.sep, '/')
 
 
+def portable(path):
+    """A repo-relative path with this city's directory written `<city>/`.
+
+    So a framework register can name a file inside a city without naming the
+    city - the same reason the manifest records city-relative paths.
+    """
+    prefix = 'cities/%s/' % _city.CITY
+    return '<city>/' + path[len(prefix):] if path.startswith(prefix) else path
+
+
 def is_test(path):
     return path.startswith('tests/')
 
@@ -320,8 +330,10 @@ TOOL_BINDINGS = ('matsim_param', 'sumo_param',
 # claim - "this number decides nothing about the transport system" - and it is
 # reviewable precisely because it had to be written down.
 #
-# Keyed by "path:SYMBOL". A MODEL VALUE MUST NEVER BE ADDED HERE. If you cannot
-# state why a number is not a modelling choice in one sentence, it is one.
+# Keyed by "path:SYMBOL", with a city's own directory written `<city>/` so this
+# framework file does not name a place. A MODEL VALUE MUST NEVER BE ADDED HERE:
+# if you cannot state why a number is not a modelling choice in one sentence,
+# it is one.
 # --------------------------------------------------------------------------
 STRUCTURAL = {
     'src/analyse/run_view.py:RAMP_MIN':
@@ -370,14 +382,14 @@ STRUCTURAL = {
     'src/registry/param_config.py:SECONDS_PER_UNIT':
         'how many seconds are in an hour and a minute. The definition of the '
         'units themselves, not a value about any city',
-    'cities/newcastle/build/build_sumo_corridor.py:_indent(level)':
+    '<city>/build/build_sumo_corridor.py:_indent(level)':
         'XML pretty-printing indent depth',
-    'cities/newcastle/build/build_scenario_schedules.py:'
+    '<city>/build/build_scenario_schedules.py:'
     'scale_lr_runtime(delta_per_intermediate_s)':
         'a NEUTRAL default of zero: "change nothing unless a caller asks". Each '
         'caller passes the scenario delta it means, and those deltas are '
         'declared (E.s2b.signal_delay_removed_share and its siblings)',
-    'cities/newcastle/build/build_scenario_schedules.py:'
+    '<city>/build/build_scenario_schedules.py:'
     'scale_lr_runtime(delta_per_segment_s)':
         'the other neutral zero of the same function',
 }
@@ -519,7 +531,7 @@ def stale_structural(corpus):
             continue
         try:
             for d in _legacy.scan_decisions(p):
-                seen.add('%s:%s' % (r, d['name']))
+                seen.add('%s:%s' % (portable(r), d['name']))
         except SyntaxError:
             continue
     return sorted(k for k in STRUCTURAL if k not in seen)
@@ -541,7 +553,7 @@ def script_decisions(corpus, fields):
         for d in found:
             if d['kind'] != 'parameter':
                 continue
-            if '%s:%s' % (r, d['name']) in STRUCTURAL:
+            if '%s:%s' % (portable(r), d['name']) in STRUCTURAL:
                 continue
             if d['name'] in pinned:
                 # Pinned to its registry field by `legacy_symbol` and compared

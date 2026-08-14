@@ -195,7 +195,8 @@ def build_layers():
                      'The producing script may be entirely different - that is what a '
                      'jurisdiction adapter is for - but the path and the columns the '
                      'framework reads are the contract.'),
-        'caveat': ('`columns_in_reference_city` is the header of Newcastle\'s copy, not '
+        'caveat': ('`columns_in_reference_city` is the header of the reference '
+                   'city\'s own copy, not '
                    'a proven minimum: a column here may be incidental. Narrowing it to '
                    'the columns framework code actually reads is not done.'),
         'n_artefacts': len(artefacts),

@@ -94,7 +94,8 @@ def rebuild_stage(key, field):
     if key.startswith('CAL.'):
         return 'excluded', "the loop's own search controls"
     if key.startswith('RUN.'):
-        return 'excluded', 'run identity and compute, not a property of Newcastle'
+        return 'excluded', ('run identity and compute, not a property of %s'
+                            % _city.descriptor()['name'])
     stage, why = 'none', None
     for c in field.get('consumers') or []:
         if any(c.startswith(m) for m in MEASUREMENT_LAYERS):

@@ -256,7 +256,7 @@ def main():
     out = a.out or os.path.join(run_dir, '_metrics.json')
     json.dump(doc, open(out, 'w'), indent=2)
     ms = doc['mode_share']
-    print('%s: %d trips (%d by Newcastle residents)'
+    print('%s: %d trips (%d by ' + _city.target_lga() + ' residents)'
           % (rec['name'], ms['all_residents_trips'], ms['target_lga_trips']))
     print('  %s LGA mode share: %s' % (TARGET_LGA, ms['target_lga_pct']))
     print('  PT boardings %s of which light rail %s'
