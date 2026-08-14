@@ -39,7 +39,7 @@ pt2matsim, which makes every existing run incomparable
 | Phase | **P4 (calibration), in progress** — 7 of 9 deliverables met |
 | Blocking state | OSM harvest empty; package gate un-runnable |
 | Committed data package | **376 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes |
-| Input registry | **292 fields** — 90 assumed, 51 definition, 28 literature, 21 measured, 17 derived, 4 observed; **7 carry no value** and the resolver refuses to invent one |
+| Input registry | **292 fields** — 122 assumed, 85 definition, 35 literature, 25 derived, 21 measured, 4 observed; **15 carry no value** and the resolver refuses to invent one; 271 active, 10 computed, 6 unobtained, 5 placeholder |
 | Run inputs assembled | **30** scenario × day-type sets, all carrying the `telemetry` module |
 | Runs on disk | **None.** The 25% convergence pilot DIED at iteration 43 of 1000 (below). The 8 superseded runs are deleted (14.5 GiB — unreadable by `fit.py` after the `newcastle_lga_pct` → `target_lga_pct` rename), and so are the 3 crash-interrupted ones (13.3 GiB). **A run with no `_run.json` is not a result and is not kept.** |
 | Open issues | **13** — #5 #9 #14 #20 #24 #28 #29 #30 #31 #32 #34 #36 #37. **#36 is OPEN**; the handover brief said it was closed and counted 12. |

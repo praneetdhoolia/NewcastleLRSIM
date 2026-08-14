@@ -343,7 +343,7 @@ cities/newcastle/            registry overlays extract build geometry docs
 | `cities/newcastle/networks/osm/` | **EMPTY.** #32 re-harvest never run |
 | `osm_pre_issue32/` | 10 layers, 179 MB, **THE ONLY COPY. DO NOT DELETE** |
 | Manifest | **376 files**, city-relative paths |
-| Registry | **292 fields** — 90 assumed, 51 definition, 28 literature, 21 measured, 17 derived, 4 observed; **7 carry no value**; 198 active, 6 unobtained, 5 placeholder, 2 computed |
+| Registry | **292 fields** — 122 assumed, 85 definition, 35 literature, 25 derived, 21 measured, 4 observed; **15 carry no value** and the resolver refuses to invent one; 271 active, 10 computed, 6 unobtained, 5 placeholder |
 | Hardcoding ledger | **0 items**, `--strict` gates CI. Honest baseline was 185 |
 | Run inputs | 30 scenario × day-type sets, all carrying `telemetry` |
 | `results/` | the 25% pilot DIED at iteration 43/1000 and must be deleted |
