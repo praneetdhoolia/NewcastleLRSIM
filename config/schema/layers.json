@@ -170,8 +170,7 @@
     "data/processed/hts": {
       "kind": "directory",
       "read_by": [
-        "src/build/build_activity_chains.py",
-        "src/build/build_population.py"
+        "src/build/build_activity_chains.py"
       ],
       "present_in_reference_city": true
     },
@@ -887,7 +886,6 @@
       "kind": "directory",
       "read_by": [
         "src/build/build_activity_chains.py",
-        "src/build/build_population.py",
         "src/build/build_zone_attractions.py"
       ],
       "present_in_reference_city": true

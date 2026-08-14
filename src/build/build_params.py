@@ -19,11 +19,12 @@ import os
 import csv
 import json
 
-# Model inputs come from config/registry/<city>/, not from literals here. Every
+# Model inputs come from cities/<city>/registry/, not from literals here. Every
 # value below carries its units, provenance and either a sweep, a held-fixed rule
 # or a derived-from identity there. See DECISIONS.md 15.
 import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import city as _city  # noqa: E402
 import registry as _registry  # noqa: E402
 CFG = _registry.load()
 

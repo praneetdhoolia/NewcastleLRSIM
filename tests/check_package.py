@@ -40,11 +40,6 @@ def rows(p):
         return list(csv.DictReader(f))
 
 
-def n_rows(p):
-    with open(p, encoding='utf-8', errors='replace') as f:
-        return max(0, sum(1 for _ in f) - 1)
-
-
 # ---- 1. required artefacts, keyed to the Appendix A schemas ----
 REQUIRED = {
     'A1 road network': _city.path('data/processed/network/A1_road_edges.csv'),

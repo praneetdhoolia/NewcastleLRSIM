@@ -32,7 +32,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
-# Model inputs come from config/registry/<city>/, not from literals here. Every
+# Model inputs come from cities/<city>/registry/, not from literals here. Every
 # value below carries its units, provenance and either a sweep, a held-fixed rule
 # or a derived-from identity there. See DECISIONS.md 15.
 import sys as _sys
@@ -41,9 +41,7 @@ import registry as _registry  # noqa: E402
 CFG = _registry.load()
 
 CEN = _city.path('data/processed/census')
-ZON = _city.path('data/processed/zones')
 LU = _city.path('data/processed/landuse')
-HTS = _city.path('data/processed/hts')
 OUT = _city.path('demand')
 os.makedirs(os.path.join(OUT, 'population'), exist_ok=True)
 os.makedirs(os.path.join(OUT, 'plans'), exist_ok=True)
@@ -58,30 +56,6 @@ OCCUPATIONS = ['Managers', 'Professionals', 'TechnicTrades_Wrs', 'CommunPersnlSv
 INCOME_BANDS = ['Neg_Nil', '1_149', '150_299', '300_399', '400_499', '500_649',
                 '650_799', '800_999', '1000_1249', '1250_1499', '1500_1749',
                 '1750_1999', '2000_2999', '3000_more']
-
-PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'NHB']
-HTS_PURPOSE_MAP = {
-    'Commute': 'HW', 'Education/childcare': 'HE', 'Shopping': 'HS',
-    'Personal business': 'HO', 'Social/recreation': 'HO', 'Serve passenger': 'NHB',
-    'Work related business': 'WB', 'Other': 'HO',
-}
-# departure-time profiles: probability by hour 0..23. Assumed, NSW-typical shapes.
-DEPART = {
-    'HW':  [.002, .001, .001, .002, .010, .045, .110, .190, .175, .085, .040, .030,
-            .028, .028, .030, .035, .050, .055, .035, .020, .012, .008, .005, .003],
-    'HE':  [.000, .000, .000, .000, .002, .010, .060, .230, .270, .090, .035, .030,
-            .035, .040, .075, .060, .030, .015, .008, .005, .003, .002, .000, .000],
-    'HS':  [.001, .001, .000, .001, .002, .008, .020, .040, .070, .095, .110, .110,
-            .100, .095, .090, .080, .065, .050, .030, .018, .008, .004, .002, .001],
-    'HO':  [.004, .002, .002, .002, .005, .015, .035, .060, .075, .080, .080, .080,
-            .075, .075, .075, .075, .070, .065, .055, .045, .035, .025, .012, .008],
-    'WB':  [.001, .001, .001, .002, .005, .020, .055, .090, .110, .120, .115, .100,
-            .085, .085, .080, .060, .040, .020, .006, .002, .001, .001, .000, .000],
-    'NHB': [.002, .001, .001, .002, .006, .020, .060, .110, .105, .070, .060, .060,
-            .060, .070, .100, .095, .070, .050, .030, .018, .008, .004, .002, .001],
-}
-# mean activity duration in minutes, by purpose (assumed)
-ACT_DURATION = {'HW': 465, 'HE': 360, 'HS': 45, 'HO': 90, 'WB': 60, 'NHB': 20}
 
 
 def rd(name, **kw):
@@ -130,43 +104,6 @@ def age_sex_dist(row):
                 if c in row and pd.notna(row[c]):
                     out[bi, si] += float(row[c])
     return out
-
-
-def hts_trip_rates():
-    """Trips per person per day by purpose, from the HTS study-area rows."""
-    m = pd.read_csv(os.path.join(HTS, 'hts_mode.csv'))
-    p = pd.read_csv(os.path.join(HTS, 'hts_purpose.csv'))
-    m['TRIPS_BY_MODE'] = pd.to_numeric(m['TRIPS_BY_MODE'], errors='coerce')
-    p['JOURNEYS_BY_MODE'] = pd.to_numeric(p['JOURNEYS_BY_MODE'], errors='coerce')
-    lm = m[(m.geography == 'lga')]
-    yr = sorted(lm['FINANCIAL_YEAR'].astype(str).unique())[-1]
-    lm = lm[lm['FINANCIAL_YEAR'].astype(str) == yr]
-    lp = p[(p.geography == 'lga') & (p['FINANCIAL_YEAR'].astype(str) == yr)]
-    trips_total = lm['TRIPS_BY_MODE'].sum()
-    # population of the same LGA set, from the zone table
-    z = pd.read_csv(os.path.join(LU, 'D1_zone_attractions_SA1.csv'))
-    pop = z.loc[z.zone_tier == 'core', 'population'].sum()
-    rate_total = trips_total / max(pop, 1)
-    sh = {}
-    for _, r in lp.iterrows():
-        pur = HTS_PURPOSE_MAP.get(str(r['TRAVEL_PURPOSE']).strip().rstrip('*'))
-        if pur and pd.notna(r['JOURNEYS_BY_MODE']):
-            sh[pur] = sh.get(pur, 0.0) + float(r['JOURNEYS_BY_MODE'])
-    tot = sum(sh.values()) or 1.0
-    rates = {k: rate_total * v / tot for k, v in sh.items()}
-    for k in PURPOSES:
-        rates.setdefault(k, 0.0)
-    # mean journey distance by purpose, for the gravity decay
-    dist = {}
-    for _, r in lp.iterrows():
-        pur = HTS_PURPOSE_MAP.get(str(r['TRAVEL_PURPOSE']).strip().rstrip('*'))
-        v = r.get('JOURNEY_AVG_DISTANCE')
-        if pur and pd.notna(v):
-            dist.setdefault(pur, []).append(float(v))
-    dist = {k: float(np.mean(v)) for k, v in dist.items()}
-    for k in PURPOSES:
-        dist.setdefault(k, 8.0)
-    return yr, rate_total, rates, dist
 
 
 def main(seed=20260810, sample=1.0, max_sa1=None):

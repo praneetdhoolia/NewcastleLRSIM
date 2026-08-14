@@ -52,7 +52,7 @@ otherwise cost you an hour:
 | **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
 | **The specification audit** | §9.25 and [`docs/audit/SPEC_AUDIT.md`](audit/SPEC_AUDIT.md) |
 | **The input registry — every controllable value** | **§15**, and [`docs/reference/CONFIG_REFERENCE.md`](reference/CONFIG_REFERENCE.md) (generated) |
-| **City portability, `config/registry/<city>/`** | §9.29, §15 |
+| **City portability, `cities/<city>/registry/`** | §9.29, §15 |
 | **The OSM harvest extent, and the corrupt merge** | **§9.35** |
 | **Scenario construction (E1), era variants (A3)** | §10, §11 |
 | **Validation design, the 67/143 split** | §12 — the split is **pre-registered**; never calibrate on a holdout row |
@@ -3122,7 +3122,7 @@ specification.
 `config/registry/` held eight files of values, every one of them Newcastle's,
 under a name that said nothing about that. `config/schema/` is the portable
 half — what any city must supply and in what shape — so the instance is now
-`config/registry/<city>/`, selected by `CITYSIM_CITY` and defaulting to
+`cities/<city>/registry/`, selected by `CITYSIM_CITY` and defaulting to
 `newcastle`. `load_registry()` already took a directory override, so the seam
 existed; only the name was missing.
 

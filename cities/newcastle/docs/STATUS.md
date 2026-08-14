@@ -41,7 +41,7 @@ pt2matsim, which makes every existing run incomparable
 | Committed data package | **376 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes |
 | Input registry | **211 fields** — 90 assumed, 51 definition, 28 literature, 21 measured, 17 derived, 4 observed; **7 carry no value** and the resolver refuses to invent one |
 | Run inputs assembled | **30** scenario × day-type sets, all carrying the `telemetry` module |
-| Runs on disk | **8** superseded in `results/`, ~15 GB, plus **3 convergence pilots in flight** (below) |
+| Runs on disk | **3 convergence pilots in flight** (below). The 8 superseded runs are **deleted** — 14.5 GiB reclaimed; they were unreadable by `fit.py` after the `newcastle_lga_pct` → `target_lga_pct` rename |
 | Open issues | **13** — #5 #9 #14 #20 #24 #28 #29 #30 #31 #32 #34 #36 #37 |
 | **Results** | **None. No scenario has been run to a reportable state, and nothing in this repository is an output of the model.** |
 
@@ -380,9 +380,11 @@ moves the landscape it would be measured on.
 
 ### Housekeeping that is safe to do at any time
 
-- `results/live_demo` holds **9.8 GB** of `output/ITERS`. `prune_run.py` reclaims it and
-  will not touch the telemetry, but refuses until `extract_metrics.py` has run — by
-  design, so nothing is deleted before its outputs are read.
+- ~~`results/live_demo` holds 9.8 GB of `output/ITERS`~~ — **done**: all 8 superseded runs
+  were deleted outright rather than pruned, reclaiming 14.5 GiB. They post-date nothing
+  that needs them: the metrics key rename made every one unreadable by `fit.py`.
+  `prune_run.py` remains the right tool for a run whose metrics are still wanted — it
+  refuses until `extract_metrics.py` has run, by design.
 - **Any replay page built before 14 August is wrong** and must be rebuilt: the basemap
   packing defect (§9.36) broke every area fill.
 - `check_package.py` lost its coverage of the live view when `run_monitor.py` was deleted.

@@ -51,7 +51,7 @@ REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 
 # The registry holds VALUES, and every one of them is a value for one city.
 # `config/schema/` is the portable half - what any city must supply and what
-# shape it must be in - and `config/registry/<city>/` is an instance of it.
+# shape it must be in - and `cities/<city>/registry/` is an instance of it.
 # Naming the instance is the point: a field key like A.road.speed_default is
 # generic, but 50 km/h residential, 16.96 AUD/h and a 0.50 bicycle ownership
 # rate are Newcastle's, and a directory called `registry` hid that.
