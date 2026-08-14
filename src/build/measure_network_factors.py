@@ -58,12 +58,12 @@ LU = _city.path('data/processed/landuse')
 OBS = _city.path('data/processed/observed')
 CEN = _city.path('data/processed/census')
 OUT = _city.path('params/C2_network_factors.json')
-SEED = 20260810
-MIN_PAIR_M = 500.0
+SEED = CFG.get('B.seed.master')
+MIN_PAIR_M = CFG.get('B.network_factors.min_pair_m')
 # Width of the distance band a destination POI is drawn from, either side of
 # the observed trip length. Wide enough that every origin has candidates,
 # narrow enough that the measurement stays at the mode's own length scale.
-BAND = 0.25
+BAND = CFG.get('B.network_factors.distance_band')
 
 
 def measure_detour(n_pairs, seed):
@@ -307,7 +307,8 @@ def measure_work_attendance():
              'below rather than setting it.')
 
 
-def main(n_pairs=600, seed=SEED):
+def main(n_pairs=None, seed=SEED):
+    n_pairs = CFG.get('B.network_factors.n_pairs') if n_pairs is None else n_pairs
     print('routing %d zone pairs over the A1 road graph ...' % n_pairs, flush=True)
     detour = measure_detour(n_pairs, seed)
     print('   detour factor %.4f (was assumed 1.30), sweep %s from %d routed pairs'
@@ -339,7 +340,8 @@ def main(n_pairs=600, seed=SEED):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('--pairs', type=int, default=600)
+    ap.add_argument('--pairs', type=int,
+                    help='override B.network_factors.n_pairs for this measurement')
     ap.add_argument('--seed', type=int, default=SEED)
     a = ap.parse_args()
     main(a.pairs, a.seed)

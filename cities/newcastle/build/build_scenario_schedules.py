@@ -573,7 +573,9 @@ def haversine_ll(a, b):
     return hav(a, b)
 
 
-def shape_coverage(feed, tol_m=500.0):
+def shape_coverage(feed, tol_m=None):
+    tol_m = (CFG.get('A.corridor.shape_coverage_tolerance_m')
+             if tol_m is None else tol_m)
     """How often a trip's shape actually reaches the trip's last stop."""
     stops = {s['stop_id']: s for s in feed['stops']}
     sh = collections.defaultdict(list)

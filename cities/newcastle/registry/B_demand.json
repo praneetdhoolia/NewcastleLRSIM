@@ -587,6 +587,275 @@
       "consumers": [
         "src/build/build_matsim_plans.py"
       ]
+    },
+    "B.activity.departure_profile": {
+      "value": {
+        "HE": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.002,
+          0.01,
+          0.06,
+          0.23,
+          0.27,
+          0.09,
+          0.035,
+          0.03,
+          0.035,
+          0.04,
+          0.075,
+          0.06,
+          0.03,
+          0.015,
+          0.008,
+          0.005,
+          0.003,
+          0.002,
+          0.0,
+          0.0
+        ],
+        "HO": [
+          0.004,
+          0.002,
+          0.002,
+          0.002,
+          0.005,
+          0.015,
+          0.035,
+          0.06,
+          0.075,
+          0.08,
+          0.08,
+          0.08,
+          0.075,
+          0.075,
+          0.075,
+          0.075,
+          0.07,
+          0.065,
+          0.055,
+          0.045,
+          0.035,
+          0.025,
+          0.012,
+          0.008
+        ],
+        "HS": [
+          0.001,
+          0.001,
+          0.0,
+          0.001,
+          0.002,
+          0.008,
+          0.02,
+          0.04,
+          0.07,
+          0.095,
+          0.11,
+          0.11,
+          0.1,
+          0.095,
+          0.09,
+          0.08,
+          0.065,
+          0.05,
+          0.03,
+          0.018,
+          0.008,
+          0.004,
+          0.002,
+          0.001
+        ],
+        "HW": [
+          0.002,
+          0.001,
+          0.001,
+          0.002,
+          0.01,
+          0.045,
+          0.11,
+          0.19,
+          0.175,
+          0.085,
+          0.04,
+          0.03,
+          0.028,
+          0.028,
+          0.03,
+          0.035,
+          0.05,
+          0.055,
+          0.035,
+          0.02,
+          0.012,
+          0.008,
+          0.005,
+          0.003
+        ],
+        "NHB": [
+          0.002,
+          0.001,
+          0.001,
+          0.002,
+          0.006,
+          0.02,
+          0.06,
+          0.11,
+          0.105,
+          0.07,
+          0.06,
+          0.06,
+          0.06,
+          0.07,
+          0.1,
+          0.095,
+          0.07,
+          0.05,
+          0.03,
+          0.018,
+          0.008,
+          0.004,
+          0.002,
+          0.001
+        ],
+        "WB": [
+          0.001,
+          0.001,
+          0.001,
+          0.002,
+          0.005,
+          0.02,
+          0.055,
+          0.09,
+          0.11,
+          0.12,
+          0.115,
+          0.1,
+          0.085,
+          0.085,
+          0.08,
+          0.06,
+          0.04,
+          0.02,
+          0.006,
+          0.002,
+          0.001,
+          0.001,
+          0.0,
+          0.0
+        ]
+      },
+      "units": "probability_by_hour",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25
+      },
+      "sweep_basis": "the whole profile may be reweighted by a quarter either way per hour, then renormalised. There is no Newcastle observation to bracket it: the HTS held is aggregate and reports journeys by purpose, not departure hour. A proportional sweep is the honest expression of \"NSW-typical shape, magnitude unknown\".",
+      "status": "active",
+      "decisions_ref": "9, 15",
+      "description": "Probability that a tour of each purpose departs in each hour 0-23. ONE HUNDRED AND FORTY-FOUR ASSUMED NUMBERS that decide when every trip in the model happens, and therefore what the peak looks like and where congestion forms. They were a dict literal in src/build/build_activity_chains.py labelled \"assumed, NSW-typical shapes\", which no audit could see because a container is not a scalar and no sweep could reach. HX is a copy of HE and is derived at load rather than declared twice."
+    },
+    "B.mode.seed_split": {
+      "value": {
+        "car_available": {
+          "bike": 0.2,
+          "car": 0.2,
+          "pt": 0.2,
+          "ride": 0.2,
+          "walk": 0.2
+        },
+        "no_car": {
+          "bike": 0.25,
+          "pt": 0.25,
+          "ride": 0.25,
+          "walk": 0.25
+        }
+      },
+      "units": "share_by_mode",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.6, 9.7",
+      "description": "The mode split the co-evolution STARTS from, conditioned only on car availability from B1. UNIFORM OVER THE USABLE MODES AND DELIBERATELY A BAD GUESS: it starts the search far from the observed point so that arriving there is evidence about the model rather than about the seed. It is a definition, not an assumption, because \"uniform over what a person can use\" is fully determined by B1 car availability and has no free share to sweep. What is swept is the CHOICE of seed - see B.mode.seed_split_informed."
+    },
+    "B.mode.seed_split_informed": {
+      "value": {
+        "car_available": {
+          "bike": 0.01,
+          "car": 0.78,
+          "pt": 0.02,
+          "ride": 0.1,
+          "walk": 0.09
+        },
+        "no_car": {
+          "bike": 0.06,
+          "pt": 0.09,
+          "ride": 0.4,
+          "walk": 0.45
+        }
+      },
+      "units": "share_by_mode",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "uninformed",
+          "informed"
+        ]
+      },
+      "sweep_basis": "the sweep is over WHICH SEED IS USED, not over the shares. These are the only two seeds the plan builder can produce, and DECISIONS.md 9.7 reports the measured difference between the runs they produce. That is what makes \"the result does not depend on the seed\" a claim that can be tested rather than asserted (DECISIONS.md 9.6).",
+      "status": "active",
+      "decisions_ref": "9.6, 9.7",
+      "description": "The informed seed the uniform one replaced, retained so the seed-independence claim is testable by running both. Selected with --seed-mode informed. Approximately the observed split, which is exactly why it is NOT the default: seeding at the answer makes reaching the answer uninformative."
+    },
+    "B.network_factors.n_pairs": {
+      "value": 600,
+      "units": "zone_pairs",
+      "source": "assumed",
+      "sweep": [
+        200,
+        5000
+      ],
+      "sweep_basis": "how many population-weighted zone pairs the detour factor is measured over. It is a MONTE CARLO SAMPLE SIZE, so the sweep is about the precision of the measurement rather than about the city: too few pairs and the ratio is noisy, more than a few thousand buys little and costs routing time.",
+      "status": "active",
+      "decisions_ref": "9.2, 15",
+      "description": "Zone pairs routed over the observed road graph to measure B.activity.detour_factor. A keyword default AND an argparse default carrying the same number, neither declared."
+    },
+    "B.network_factors.min_pair_m": {
+      "value": 500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        100.0,
+        2000.0
+      ],
+      "sweep_basis": "the shortest straight-line separation a measured pair may have. Below it the network detour ratio is dominated by which side of the block each centroid fell on rather than by the road graph, and above it short trips - the ones walk needs - stop being represented.",
+      "status": "active",
+      "decisions_ref": "9.2, 15",
+      "description": "Minimum straight-line distance between two zone centroids for the pair to enter the detour measurement."
+    },
+    "B.network_factors.distance_band": {
+      "value": 0.25,
+      "units": "share",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        0.5
+      ],
+      "sweep_basis": "width of the distance band a destination is drawn from, as a share either side of the observed trip length. Wide enough that every origin has candidates, narrow enough that the measurement stays at the mode’s own length scale.",
+      "status": "active",
+      "decisions_ref": "9.2, 15",
+      "description": "Half-width of the distance band used when drawing a destination for the network-factor measurement."
+    },
+    "B.population.build_sample_share": {
+      "value": 1.0,
+      "units": "share_of_population",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "description": "Share of the synthetic population BUILT. One, always: this is the build, not the run. Sampling for a run is RUN.sample.fraction, applied by the harness to a full population - and conflating the two would make every run a sample of a sample. Declared so the distinction is visible; it was an argparse default of 1.0 sitting next to a run-time fraction of the same shape."
     }
   }
 }

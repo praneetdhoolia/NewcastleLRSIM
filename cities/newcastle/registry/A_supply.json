@@ -1330,6 +1330,76 @@
       "status": "active",
       "decisions_ref": "9.34, 15",
       "description": "Way classes whose DEFAULT direction is one way, used where OSM carries no explicit oneway tag. A class absent from this map defaults to two way. Motorway and its links only: every other class is bidirectional unless the data says otherwise."
+    },
+    "A.corridor.attribute_search_cutoff_m": {
+      "value": 2000.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        500.0,
+        5000.0
+      ],
+      "sweep_basis": "how far the corridor attribute builder searches for a matching way before giving up. Wide enough to find a parallel service road, narrow enough not to reach the next suburb.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Search cutoff when attributing corridor road attributes to a way. A keyword default on two functions until this change."
+    },
+    "A.corridor.densify_step_m": {
+      "value": 25.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        5.0,
+        50.0
+      ],
+      "sweep_basis": "spacing at which a polyline is resampled before geometric comparison. Finer resolves a kerb line; coarser is faster and can cut a curve. It sets the resolution of every corridor geometry comparison, so it is swept rather than fixed.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Step length used when densifying a shape for geometric matching. The SAME NUMBER was a keyword default in two places - src/build/shape_tools.py and the corridor attribute builder - with no link between them."
+    },
+    "A.corridor.dedupe_tolerance_m": {
+      "value": 1.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        5.0
+      ],
+      "sweep_basis": "how close two consecutive shape points must be before one is dropped. GTFS consumers dislike near-duplicates; too large a tolerance starts removing real geometry.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Tolerance for dropping consecutive near-duplicate points from a shape."
+    },
+    "A.corridor.nearest_node_max_rings": {
+      "value": 8,
+      "units": "rings",
+      "source": "assumed",
+      "sweep": [
+        3,
+        20
+      ],
+      "sweep_basis": "how far the spatial index expands when no node is found in the first cell. Too few and an anchor off the graph finds nothing; too many is slow. No measurement bears on it.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Maximum grid rings searched when snapping a coordinate to the nearest road-graph node."
+    },
+    "A.corridor.report_sample_n": {
+      "value": 12,
+      "units": "edges",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "How many corridor edges the builder prints as a worked sample. REPORTING ONLY - it changes what a person reads, never what the model computes - and it is declared so that claim is checkable rather than asserted."
+    },
+    "A.corridor.shape_coverage_tolerance_m": {
+      "value": 500.0,
+      "units": "metres",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Distance within which a stop counts as covered by its route shape, for the coverage figure the schedule builder reports. A REPORTING tolerance: it decides what the build prints about itself, not what any vehicle does."
     }
   }
 }

@@ -119,7 +119,7 @@ SAT_TO_SUN_SWEEP = (1.00, 1.45)
 # social rise. Assumed.
 # Swept because the weekend collapse of commute and education is assumed: the
 # multiplier on each weekend purpose may move by this factor either way.
-DAY_PURPOSE_MIX_SWEEP = 0.30
+DAY_PURPOSE_MIX_SWEEP = CFG.sweep('B.activity.day_purpose_mix')['proportional']
 DAY_PURPOSE_MIX = CFG.get('B.activity.day_purpose_mix')
 
 # Probability that a person with the relevant status makes their mandatory tour
@@ -163,7 +163,10 @@ NETWORK_FACTORS = _city.path('params/C2_network_factors.json')
 
 # Mean activity duration in minutes by purpose (carried from P1, DECISIONS 9).
 ACT_DURATION = CFG.get('B.activity.act_duration_min')
-ACT_DURATION_SWEEP = 0.25       # proportional, applied to every mean duration
+# Proportional, applied to every mean duration. Taken from the field's own
+# `sweep` key: a sweep range typed beside the value it bounds cannot be
+# resolved, overlaid or varied by a run overlay.
+ACT_DURATION_SWEEP = CFG.sweep('B.activity.act_duration_min')['proportional']
 DURATION_CV = CFG.get('B.activity.duration_cv')
 
 # The day closes. Chains are compressed rather than allowed to run past this.
@@ -172,24 +175,7 @@ DAY_HORIZON_S = CFG.get('B.activity.day_horizon_s')
 # Departure-time profiles by purpose, probability by hour 0..23 (carried from
 # P1, DECISIONS 9; assumed, NSW-typical shapes). Weekend tours start later; the
 # shift is applied as a whole-profile roll, and is assumed.
-DEPART = {
-    'HW':  [.002, .001, .001, .002, .010, .045, .110, .190, .175, .085, .040, .030,
-            .028, .028, .030, .035, .050, .055, .035, .020, .012, .008, .005, .003],
-    'HE':  [.000, .000, .000, .000, .002, .010, .060, .230, .270, .090, .035, .030,
-            .035, .040, .075, .060, .030, .015, .008, .005, .003, .002, .000, .000],
-    'HS':  [.001, .001, .000, .001, .002, .008, .020, .040, .070, .095, .110, .110,
-            .100, .095, .090, .080, .065, .050, .030, .018, .008, .004, .002, .001],
-    'HO':  [.004, .002, .002, .002, .005, .015, .035, .060, .075, .080, .080, .080,
-            .075, .075, .075, .075, .070, .065, .055, .045, .035, .025, .012, .008],
-    'WB':  [.001, .001, .001, .002, .005, .020, .055, .090, .110, .120, .115, .100,
-            .085, .085, .080, .060, .040, .020, .006, .002, .001, .001, .000, .000],
-    'NHB': [.002, .001, .001, .002, .006, .020, .060, .110, .105, .070, .060, .060,
-            .060, .070, .100, .095, .070, .050, .030, .018, .008, .004, .002, .001],
-}
-# An escort trip departs when the person being escorted has to be somewhere, so
-# HX inherits the education profile rather than carrying a new set of assumed
-# hourly shares. The HTS extract in the package has no time-of-day dimension, so
-# a separate profile could only have been invented.
+DEPART = dict(CFG.get('B.activity.departure_profile'))
 DEPART['HX'] = DEPART['HE']
 WEEKEND_DEPARTURE_SHIFT_H = CFG.get('B.activity.weekend_departure_shift_h')
 

@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 281 fields are made of
+## What the 294 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -35,12 +35,12 @@ Three things are refused at every layer:
 | `measured` | 21 | computed from observed data in this package |
 | `derived` | 25 | follows from another registry field by identity |
 | `literature` | 35 | a published value, not specific to this city |
-| `assumed` | 113 | chosen without direct empirical support |
-| `definition` | 83 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 122 | chosen without direct empirical support |
+| `definition` | 87 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 260 | usable point value |
+| `active` | 273 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -75,18 +75,24 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`cities/newcastle/registry/A_supply.json` - 86 fields*
+*`cities/newcastle/registry/A_supply.json` - 92 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
 | Field | Value | Units | Provenance | Sweep |
 |---|---|---|---|---|
 | `A.active.footway_width_default` | `{"bridleway": 2.0, "corridor": 2.0, "cycleway": 2.0, "footway": 2.0, "path": 1.0, "pedestrian": 6.0, "steps...` | metres | `measured` | 0.5 - 3 |
+| `A.corridor.attribute_search_cutoff_m` | `2000.0` | metres | `assumed` | 500 - 5000 |
 | `A.corridor.cross_buffer_m` | `40.0` | metres | `assumed` | 25 - 60 |
+| `A.corridor.dedupe_tolerance_m` | `1.0` | metres | `assumed` | 0.1 - 5 |
+| `A.corridor.densify_step_m` | `25.0` | metres | `assumed` | 5 - 50 |
 | `A.corridor.extension_lane_take` | `1` | lanes | `assumed` | 0 - 1 |
+| `A.corridor.nearest_node_max_rings` | `8` | rings | `assumed` | 3 - 20 |
 | `A.corridor.off_corridor_penalty` | `12.0` | dimensionless_cost_multiplier | `assumed` | 6 - 20 |
 | `A.corridor.parallel_buffer_m` | `1500.0` | metres | `assumed` | 1000 - 2500 |
 | `A.corridor.pre_lr_lanes_per_dir` | `2` | lanes_per_direction | `assumed` | 1 - 2 |
+| `A.corridor.report_sample_n` | `12` | edges | `definition` | - |
+| `A.corridor.shape_coverage_tolerance_m` | `500.0` | metres | `definition` | - |
 | `A.corridor.trunk_buffer_m` | `60.0` | metres | `assumed` | 40 - 100 |
 | `A.lightrail.capacity_seated` | `60` | persons_per_vehicle | `assumed` | 50 - 80 |
 | `A.lightrail.capacity_standing` | `210` | persons_per_vehicle | `derived` | derived: capacity_standing = capacity_total - capacity_seated |
@@ -176,17 +182,49 @@ Fallback footway width. Footway widths were not obtained for Newcastle. MEASURED
 
 > **Sweep basis.** the union of the observed interquartile ranges across the 3 classes with at least 30 tagged edges - an observed spread, not a chosen interval
 
+#### `A.corridor.attribute_search_cutoff_m`
+
+Search cutoff when attributing corridor road attributes to a way. A keyword default on two functions until this change.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** how far the corridor attribute builder searches for a matching way before giving up. Wide enough to find a parallel service road, narrow enough not to reach the next suburb.
+
 #### `A.corridor.cross_buffer_m`
 
 Distance within which a turn restriction or cross street is treated as on the corridor. At 40 m, 10 of the 1,385 resolved restrictions fall on the alignment, against the 14 E1 assumed.
 
 ***assumed** · status **active** · DECISIONS.md §3.4*
 
+#### `A.corridor.dedupe_tolerance_m`
+
+Tolerance for dropping consecutive near-duplicate points from a shape.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** how close two consecutive shape points must be before one is dropped. GTFS consumers dislike near-duplicates; too large a tolerance starts removing real geometry.
+
+#### `A.corridor.densify_step_m`
+
+Step length used when densifying a shape for geometric matching. The SAME NUMBER was a keyword default in two places - src/build/shape_tools.py and the corridor attribute builder - with no link between them.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** spacing at which a polyline is resampled before geometric comparison. Finer resolves a kerb line; coarser is faster and can cut a curve. It sets the resolution of every corridor geometry comparison, so it is swept rather than fixed.
+
 #### `A.corridor.extension_lane_take`
 
 Lanes removed per direction where an S4/S5 extension runs in the carriageway.
 
 ***assumed** · status **active** · DECISIONS.md §3.4*
+
+#### `A.corridor.nearest_node_max_rings`
+
+Maximum grid rings searched when snapping a coordinate to the nearest road-graph node.
+
+***assumed** · status **active** · DECISIONS.md §9.34, 15*
+
+> **Sweep basis.** how far the spatial index expands when no node is found in the first cell. Too few and an anchor off the graph finds nothing; too many is slow. No measurement bears on it.
 
 #### `A.corridor.off_corridor_penalty`
 
@@ -207,6 +245,18 @@ Hunter/Scott cross-section BEFORE the light rail. THIS IS THE COUNTERFACTUAL HYP
 ***assumed** · status **active** · DECISIONS.md §3.4 · proposal §3.3 B3*
 
 > **Sweep basis.** both values are plausible from the historical record; neither is observed
+
+#### `A.corridor.report_sample_n`
+
+How many corridor edges the builder prints as a worked sample. REPORTING ONLY - it changes what a person reads, never what the model computes - and it is declared so that claim is checkable rather than asserted.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.corridor.shape_coverage_tolerance_m`
+
+Distance within which a stop counts as covered by its route shape, for the coverage figure the schedule builder reports. A REPORTING tolerance: it decides what the build prints about itself, not what any vehicle does.
+
+***definition** · status **active** · DECISIONS.md §9.34, 15*
 
 #### `A.corridor.trunk_buffer_m`
 
@@ -750,7 +800,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 31 fields*
+*`cities/newcastle/registry/B_demand.json` - 38 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -761,6 +811,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.day_horizon_s` | `108000` | seconds | `definition` | - |
 | `B.activity.day_purpose_mix` | `{"WEEKDAY": {"HW": 1.0, "HE": 1.0, "HS": 0.9, "HO": 0.9, "WB": 1.0, "HX": 1.0}, "SAT": {"HW": 0.25, "HE": 0...` | multiplier_on_weekday | `assumed` | plus/minus 30% |
 | `B.activity.days_per_week` | `{"WEEKDAY": 5.0, "SAT": 1.0, "SUN": 1.0}` | days | `definition` | - |
+| `B.activity.departure_profile` | `{"HE": [0.0, 0.0, 0.0, 0.0, 0.002, 0.01, 0.06, 0.23, 0.27, 0.09, 0.035, 0.03, 0.035, 0.04, 0.075, 0.06, 0.0...` | probability_by_hour | `assumed` | plus/minus 25% |
 | `B.activity.detour_factor` | `1.3376` | ratio | `measured` | 1.25 - 1.423 |
 | `B.activity.duration_cv` | `0.3` | coefficient_of_variation | `assumed` | 0.2 - 0.45 |
 | `B.activity.escort_requires_licence` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
@@ -782,8 +833,14 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.external.interaction_rate` | `0.08` | probability | `assumed` | 0.04 - 0.15 |
 | `B.external.person_id_base` | `900000000` | integer_offset | `definition` | - |
 | `B.external.purpose_split` | `{"HW": 0.7, "HO": 0.3}` | probability | `assumed` | plus/minus 20% |
+| `B.mode.seed_split` | `{"car_available": {"bike": 0.2, "car": 0.2, "pt": 0.2, "ride": 0.2, "walk": 0.2}, "no_car": {"bike": 0.25, ...` | share_by_mode | `definition` | - |
+| `B.mode.seed_split_informed` | `{"car_available": {"bike": 0.01, "car": 0.78, "pt": 0.02, "ride": 0.1, "walk": 0.09}, "no_car": {"bike": 0....` | share_by_mode | `assumed` | `uninformed`, `informed` |
+| `B.network_factors.distance_band` | `0.25` | share | `assumed` | 0.1 - 0.5 |
+| `B.network_factors.min_pair_m` | `500.0` | metres | `assumed` | 100 - 2000 |
+| `B.network_factors.n_pairs` | `600` | zone_pairs | `assumed` | 200 - 5000 |
 | `B.opal.journey_linked` | *(null - unobtained)* | dataset | `assumed` | `tap_sequence_matching_model` |
 | `B.population.age_bands` | `[[0, 4], [5, 11], [12, 17], [18, 24], [25, 34], [35, 44], [45, 54], [55, 64], [65, 74], [75, 84], [85, 120]]` | years | `definition` | - |
+| `B.population.build_sample_share` | `1.0` | share_of_population | `definition` | - |
 | `B.population.licence_rate_by_age_band` | `[0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]` | probability | `literature` | plus/minus 10% |
 | `B.population.ride_requires_household_driver` | `true` | boolean | `derived` | derived: a person may be a car passenger only if their B1 household holds at le |
 | `B.seed.master` | `20260810` | integer_seed | `definition` | - |
@@ -817,6 +874,14 @@ Weekend purpose mix relative to the weekday. HX (serve passenger) is derived dem
 Days each day type represents when composing a week.
 
 ***definition** · status **active** · DECISIONS.md §9.2*
+
+#### `B.activity.departure_profile`
+
+Probability that a tour of each purpose departs in each hour 0-23. ONE HUNDRED AND FORTY-FOUR ASSUMED NUMBERS that decide when every trip in the model happens, and therefore what the peak looks like and where congestion forms. They were a dict literal in src/build/build_activity_chains.py labelled "assumed, NSW-typical shapes", which no audit could see because a container is not a scalar and no sweep could reach. HX is a copy of HE and is derived at load rather than declared twice.
+
+***assumed** · status **active** · DECISIONS.md §9, 15*
+
+> **Sweep basis.** the whole profile may be reweighted by a quarter either way per hour, then renormalised. There is no Newcastle observation to bracket it: the HTS held is aggregate and reports journeys by purpose, not departure hour. A proportional sweep is the honest expression of "NSW-typical shape, magnitude unknown".
 
 #### `B.activity.detour_factor`
 
@@ -962,6 +1027,44 @@ Purpose split for external boundary demand.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
+#### `B.mode.seed_split`
+
+The mode split the co-evolution STARTS from, conditioned only on car availability from B1. UNIFORM OVER THE USABLE MODES AND DELIBERATELY A BAD GUESS: it starts the search far from the observed point so that arriving there is evidence about the model rather than about the seed. It is a definition, not an assumption, because "uniform over what a person can use" is fully determined by B1 car availability and has no free share to sweep. What is swept is the CHOICE of seed - see B.mode.seed_split_informed.
+
+***definition** · status **active** · DECISIONS.md §9.6, 9.7*
+
+#### `B.mode.seed_split_informed`
+
+The informed seed the uniform one replaced, retained so the seed-independence claim is testable by running both. Selected with --seed-mode informed. Approximately the observed split, which is exactly why it is NOT the default: seeding at the answer makes reaching the answer uninformative.
+
+***assumed** · status **active** · DECISIONS.md §9.6, 9.7*
+
+> **Sweep basis.** the sweep is over WHICH SEED IS USED, not over the shares. These are the only two seeds the plan builder can produce, and DECISIONS.md 9.7 reports the measured difference between the runs they produce. That is what makes "the result does not depend on the seed" a claim that can be tested rather than asserted (DECISIONS.md 9.6).
+
+#### `B.network_factors.distance_band`
+
+Half-width of the distance band used when drawing a destination for the network-factor measurement.
+
+***assumed** · status **active** · DECISIONS.md §9.2, 15*
+
+> **Sweep basis.** width of the distance band a destination is drawn from, as a share either side of the observed trip length. Wide enough that every origin has candidates, narrow enough that the measurement stays at the mode’s own length scale.
+
+#### `B.network_factors.min_pair_m`
+
+Minimum straight-line distance between two zone centroids for the pair to enter the detour measurement.
+
+***assumed** · status **active** · DECISIONS.md §9.2, 15*
+
+> **Sweep basis.** the shortest straight-line separation a measured pair may have. Below it the network detour ratio is dominated by which side of the block each centroid fell on rather than by the road graph, and above it short trips - the ones walk needs - stop being represented.
+
+#### `B.network_factors.n_pairs`
+
+Zone pairs routed over the observed road graph to measure B.activity.detour_factor. A keyword default AND an argparse default carrying the same number, neither declared.
+
+***assumed** · status **active** · DECISIONS.md §9.2, 15*
+
+> **Sweep basis.** how many population-weighted zone pairs the detour factor is measured over. It is a MONTE CARLO SAMPLE SIZE, so the sweep is about the precision of the measurement rather than about the city: too few pairs and the ratio is noisy, more than a few thousand buys little and costs routing time.
+
 #### `B.opal.journey_linked`
 
 Journey-linked Opal. NOT OBTAINED - a formal TfNSW request is outstanding. Proposal 6.1 calls it 'the difference between a good model and a guess'. It is what would let C.transfer.beta_transfer_penalty_min be ESTIMATED rather than swept. Until it lands the transfer penalty stays a curve across 3-15 min.
@@ -973,6 +1076,12 @@ Journey-linked Opal. NOT OBTAINED - a formal TfNSW request is outstanding. Propo
 Age banding for population synthesis. Follows the census table structure.
 
 ***definition** · status **active** · DECISIONS.md §9.1*
+
+#### `B.population.build_sample_share`
+
+Share of the synthetic population BUILT. One, always: this is the build, not the run. Sampling for a run is RUN.sample.fraction, applied by the harness to a full population - and conflating the two would make every run a sample of a sample. Declared so the distinction is visible; it was an argparse default of 1.0 sitting next to a run-time fraction of the same shape.
+
+***definition** · status **active** · DECISIONS.md §15*
 
 #### `B.population.licence_rate_by_age_band`
 

@@ -79,7 +79,8 @@ RUNNING_CLASSES = frozenset((
 ))
 
 
-def densify(pts, step_m=25.0):
+def densify(pts, step_m=None):
+    step_m = CFG.get('A.corridor.densify_step_m') if step_m is None else step_m
     """Interpolate a polyline so no leg is longer than step_m."""
     if len(pts) < 2:
         return list(pts)
@@ -98,7 +99,8 @@ def polyline_length_m(pts):
     return sum(haversine(a, b) for a, b in zip(pts, pts[1:]))
 
 
-def dedupe(pts, tol_m=1.0):
+def dedupe(pts, tol_m=None):
+    tol_m = CFG.get('A.corridor.dedupe_tolerance_m') if tol_m is None else tol_m
     """Drop consecutive near-duplicate points; GTFS consumers dislike them."""
     out = []
     for p in pts:
@@ -168,7 +170,9 @@ class RoadGraph:
         for k in self._grid:
             self._grid[k].sort()
 
-    def nearest_node(self, latlon, max_rings=8):
+    def nearest_node(self, latlon, max_rings=None):
+        max_rings = (CFG.get('A.corridor.nearest_node_max_rings')
+                     if max_rings is None else max_rings)
         """Nearest graph node to a coordinate, searched outward by grid ring."""
         klat, klon = int(latlon[0] * 200), int(latlon[1] * 200)
         best, bestd = None, float('inf')

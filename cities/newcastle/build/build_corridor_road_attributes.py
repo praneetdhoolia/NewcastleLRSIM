@@ -189,7 +189,9 @@ class Near:
     def _xy(self, p):
         return (p[1] * self.kx, p[0] * self.ky)
 
-    def dist(self, p, cutoff=2000.0):
+    def dist(self, p, cutoff=None):
+        cutoff = (CFG.get('A.corridor.attribute_search_cutoff_m')
+                  if cutoff is None else cutoff)
         x, y = self._xy(p)
         r = int(cutoff // self.CELL) + 1
         cx, cy = int(x // self.CELL), int(y // self.CELL)
@@ -203,11 +205,12 @@ class Near:
                         best = d
         return best
 
-    def dist_way(self, pts, cutoff=2000.0):
+    def dist_way(self, pts, cutoff=None):
         return min((self.dist(p, cutoff) for p in pts), default=float('inf'))
 
 
-def densify(pts, step_m=25.0):
+def densify(pts, step_m=None):
+    step_m = CFG.get('A.corridor.densify_step_m') if step_m is None else step_m
     """Interpolate a polyline so a buffer test cannot fall through long legs."""
     out = []
     for a, b in zip(pts, pts[1:]):
@@ -298,7 +301,8 @@ def load_roads():
     return idx, ways
 
 
-def sample(pts, n=12):
+def sample(pts, n=None):
+    n = CFG.get('A.corridor.report_sample_n') if n is None else n
     """Up to n evenly spaced points of a way, endpoints always included."""
     if len(pts) <= n:
         return pts

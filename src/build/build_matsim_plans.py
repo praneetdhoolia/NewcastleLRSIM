@@ -64,7 +64,7 @@ EXTERNAL_RIDE_AVAILABLE = CFG.get('B.external.agent_ride_available')
 PLANS = _city.path('demand/plans')
 POP = _city.path('demand/population')
 OUT = os.path.join(PLANS, 'matsim')
-SEED = 20260810
+SEED = CFG.get('B.seed.master')
 DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 
 # Seed mode split: UNINFORMED, uniform over the modes a person can use.
@@ -82,23 +82,29 @@ DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 # person can actually use, the draw is uniform. This is deliberately a bad guess:
 # it starts the co-evolution far from the observed point so that arriving there
 # is evidence about the model rather than about the seed.
-SEED_MODE_SPLIT = {
-    True:  [('car', 0.20), ('ride', 0.20), ('walk', 0.20), ('pt', 0.20), ('bike', 0.20)],
-    False: [('ride', 0.25), ('walk', 0.25), ('pt', 0.25), ('bike', 0.25)],
-}
-# The uniform seed has no free share to sweep - "uniform over the usable modes"
-# is fully determined by B1 car availability. What is swept instead is the
-# *choice of seed itself*, which is the quantity that could bias the result:
-# the two entries are the two seeds this script can produce, and DECISIONS.md
-# 9.7 reports the measured difference between them.
-SEED_MODE_SWEEP = {'seed_mode': ('uninformed', 'informed')}
-# The informed seed the uniform one replaces. Retained so that "the result does
-# not depend on the seed" is a claim that can be tested by running both, not an
-# assertion (DECISIONS.md 9.6); selected with --seed-mode informed.
-SEED_MODE_SPLIT_INFORMED = {
-    True:  [('car', 0.78), ('ride', 0.10), ('walk', 0.09), ('pt', 0.02), ('bike', 0.01)],
-    False: [('ride', 0.40), ('walk', 0.45), ('pt', 0.09), ('bike', 0.06)],
-}
+def _seed_table(key):
+    """A declared seed split as the {car_available: [(mode, share)]} form used here.
+
+    JSON has no boolean keys, so the field names the two cases; the mapping back
+    happens once, here, rather than at each of the three call sites.
+    """
+    table = CFG.get(key)
+    return {True: sorted(table['car_available'].items()),
+            False: sorted(table['no_car'].items())}
+
+
+# The uniform seed: deliberately a bad guess, so that arriving at the observed
+# point is evidence about the model rather than about the seed.
+SEED_MODE_SPLIT = _seed_table('B.mode.seed_split')
+# The sweep is over WHICH SEED IS USED, not over the shares - the two entries
+# are the only two seeds this script can produce, and DECISIONS.md 9.7 reports
+# the measured difference between them.
+SEED_MODE_SWEEP = {'seed_mode': tuple(
+    CFG.sweep('B.mode.seed_split_informed')['categorical'])}
+# The informed seed the uniform one replaced, retained so that "the result does
+# not depend on the seed" can be tested rather than asserted (DECISIONS.md 9.6);
+# selected with --seed-mode informed.
+SEED_MODE_SPLIT_INFORMED = _seed_table('B.mode.seed_split_informed')
 HTS_FILE = _city.path('data/processed/hts/hts_mode.csv')
 HTS_YEAR = '2024/25'
 HTS_TARGET_LGA = _city.target_lga()
@@ -143,11 +149,15 @@ def hts_mode_share():
 
 # Activity types carried through to the scoring configuration.
 ACT_TYPES = ('home', 'work', 'education', 'shopping', 'other', 'business')
-TYPICAL_DURATION_S = {'home': 12 * 3600, 'work': 8 * 3600, 'education': 6 * 3600,
-                      'shopping': 1 * 3600, 'other': 2 * 3600, 'business': 1 * 3600}
+# A SECOND COPY of C.scoring.activity_typical_duration_s lived here, with six
+# keys against the field's seven - it had no `escort`, the drop-off that comes
+# with the serve-passenger tour purpose. Two tables of the same quantity, one of
+# them silently short.
+TYPICAL_DURATION_S = CFG.get('C.scoring.activity_typical_duration_s')
 # Proportional sweep on every typical duration. Not Newcastle-specific: this is
 # MATSim's scoring shape parameter, not an observable local quantity.
-TYPICAL_DURATION_SWEEP = 0.25
+TYPICAL_DURATION_SWEEP = CFG.sweep(
+    'C.scoring.activity_typical_duration_s')['proportional']
 
 
 def hhmmss(s):

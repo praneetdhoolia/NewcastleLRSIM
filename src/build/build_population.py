@@ -106,7 +106,12 @@ def age_sex_dist(row):
     return out
 
 
-def main(seed=20260810, sample=1.0, max_sa1=None):
+def main(seed=None, sample=None, max_sa1=None):
+    # Resolved, not defaulted. The seed is this project's headline determinism
+    # claim and it existed in nine copies; the build sample is ONE, always, and
+    # is a different quantity from the run-time RUN.sample.fraction.
+    seed = CFG.get('B.seed.master') if seed is None else seed
+    sample = CFG.get('B.population.build_sample_share') if sample is None else sample
     rng = np.random.default_rng(seed)
     M = load_marginals()
     key = M['key']
@@ -287,8 +292,9 @@ def main(seed=20260810, sample=1.0, max_sa1=None):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('--seed', type=int, default=20260810)
-    ap.add_argument('--sample', type=float, default=1.0)
+    ap.add_argument('--seed', type=int, help='override B.seed.master')
+    ap.add_argument('--sample', type=float,
+                    help='override B.population.build_sample_share')
     ap.add_argument('--max-sa1', type=int, default=None)
     a = ap.parse_args()
     main(a.seed, a.sample, a.max_sa1)

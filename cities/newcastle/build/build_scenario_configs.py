@@ -33,7 +33,7 @@ OUT = _city.path('scenarios')
 os.makedirs(OUT, exist_ok=True)
 
 N_REPLICATIONS = CFG.get('E.replication.n_replications')
-BASE_SEED = 20260810
+BASE_SEED = CFG.get('B.seed.master')
 
 COMMON = dict(
     base_year=2026,
