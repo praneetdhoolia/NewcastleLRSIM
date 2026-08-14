@@ -56,12 +56,37 @@ OUT = _city.path('schedules/scenarios')
 os.makedirs(OUT, exist_ok=True)
 
 LR_ROUTE_PREFIX = 'lightrail:'
-ACCEL, DECEL = 1.2, 1.3
+# Vehicle kinematics, declared. These were `ACCEL, DECEL = 1.2, 1.3` - a tuple
+# unpack, which a single-target constant scan cannot see, so two parameters that
+# decide every light rail run time sat outside the audit entirely.
+ACCEL = CFG.get('E.vehicle.tram_accel_ms2')
+DECEL = CFG.get('E.vehicle.tram_decel_ms2')
 LINE_SPEED = CFG.get('A.lightrail.line_speed_kmh')
 CORRIDOR_SPEED = CFG.get('A.lightrail.corridor_speed_kmh')
 DWELL_FIXED = CFG.get('A.lightrail.dwell_fixed_s')
-DWELL_CHARGING = 20.0
+# Supercapacitor charging dwell. THE FIELD IS `unobtained` AND THE RESOLVER
+# REFUSES A POINT VALUE - it is one of the three inputs DECISIONS.md 0 and 13
+# keep unpinned - so the baseline sweep point is taken from the SCENARIO OVERLAY,
+# which is where a selected sweep member belongs. A literal 20.0 sat here
+# instead, pinning an unobtained input in a script and bypassing the one refusal
+# the registry exists to make. It was also listed in check_legacy_drift's
+# EXPECTED_DIVERGENCE while carrying no `legacy_symbol`, so nothing compared it
+# with anything.
+DWELL_CHARGING = _registry.load(
+    scenario=CFG.get('E.matrix.reference_scenario')).get('A.lightrail.dwell_charging_s')
 SIGNAL_DELAY_PER_INT = CFG.get('A.signals.delay_per_intersection_s')
+# Path-length multipliers, service guards and the GTFS vocabulary, declared.
+# Each was a bare number inside an arithmetic expression - the form no
+# module-level constant scan can see, and the form this repository's scenario
+# magnitudes were hiding in.
+RAIL_DETOUR = CFG.get('E.s0.heavy_rail_detour_factor')
+EXTENSION_DETOUR = CFG.get('E.lightrail.extension_detour_factor')
+MIN_SEGMENT_S = CFG.get('E.schedule.min_segment_s')
+N_LR_SEGMENTS = CFG.get('E.s2b.lr_segment_count')
+BUS_ROUTE_TYPE = CFG.get('E.schedule.bus_route_type')
+# The day types are the city's, not the framework's.
+DAY_TYPES = list(_city.descriptor()['day_types'])
+WEEKDAY = DAY_TYPES[0]
 # How close a heavy-rail shape's end must come to the Interchange before the S0
 # corridor is spliced onto it. Newcastle Interchange platforms sit ~200 m from
 # the tram stop the corridor starts at, so this is generous but far short of
@@ -83,21 +108,32 @@ EXT_JHH = [
     ('Lambton', ('intersection', 'Lambton Road', 'Turton Road')),
     ('John Hunter Hospital', ('poi', 'John Hunter Hospital', 'health:hospital')),
 ]
-# S1 bus shuttle stop spacing is tighter than light rail
-S1_SHUTTLE = [
-    ('Newcastle Interchange', -32.92433, 151.75943),
-    ('Honeysuckle', -32.92647, 151.76583),
-    ('Civic', -32.92699, 151.77175),
-    ('Market Street', -32.92660, 151.77450),
-    ('Crown Street', -32.92637, 151.77721),
-    ('Queens Wharf', -32.92633, 151.78164),
-    ('Watt Street', -32.92700, 151.78400),
-    ('Newcastle Beach', -32.92748, 151.78626),
-]
-S0_EXTENSION = [
-    ('Civic Station', -32.92800, 151.77560, 'assumed - former station site'),
-    ('Newcastle Station', -32.92820, 151.78460, 'assumed - former terminus site'),
-]
+# Scenario stop positions come from cities/<city>/geometry/, not from here.
+# S1, S3, S0 and era 1 are services that were never operated, so no feed carries
+# their stops - but a coordinate in a script is invisible, and eight of them were
+# the whole alignment of a counterfactual the study reports against S2. The S3
+# list was a copy of the S1 list with two stops deleted; it is now expressed as
+# WHICH S1 STOPS ARE OMITTED, so the two cannot drift apart.
+_ALIGNMENTS = _city.geometry('scenario_alignments')
+
+
+def alignment(name):
+    """One declared alignment as the (name, lat, lon) tuples the builders use."""
+    spec = _ALIGNMENTS['alignments'][name]
+    if 'derived_from' in spec:
+        omit = set(spec.get('omit_stops', []))
+        return [s for s in alignment(spec['derived_from']) if s[0] not in omit]
+    return [(s['name'], s['lat'], s['lon']) for s in spec['stops']]
+
+
+def anchor(name):
+    """One declared route anchor as a (lat, lon) pair."""
+    a = _ALIGNMENTS['anchors'][name]
+    return (a['lat'], a['lon'])
+
+
+S1_SHUTTLE = alignment('s1_bus_shuttle')
+S0_EXTENSION = alignment('s0_heavy_rail_extension')
 
 
 def hav(a, b):
@@ -206,7 +242,7 @@ def scale_lr_runtime(feed, delta_per_intermediate_s=0.0, delta_per_segment_s=0.0
                     + delta_per_segment_s
             else:
                 seg = base_seg + delta_per_segment_s
-            seg = max(30.0, seg)
+            seg = max(MIN_SEGMENT_S, seg)
             cum += seg
             arr = cum
             dw = 0.0 if i == len(rows) - 1 else max(0.0, delta_per_intermediate_s)
@@ -248,9 +284,12 @@ def extend_lr(feed, extra_stops, speed_kmh=LINE_SPEED, tag='EXT'):
                                    for i_, n in zip(ids, extra_stops)]
         legs = []
         for a, b in zip(chain, chain[1:]):
-            d = hav((float(a[0]['stop_lat']), float(a[0]['stop_lon'])),
-                    (float(b[0]['stop_lat']), float(b[0]['stop_lon']))) * 1.15
-            legs.append(kin(d, speed_kmh) + DWELL_FIXED + DWELL_CHARGING + SIGNAL_DELAY_PER_INT * 0.6)
+            d = EXTENSION_DETOUR * hav(
+                (float(a[0]['stop_lat']), float(a[0]['stop_lon'])),
+                (float(b[0]['stop_lat']), float(b[0]['stop_lon'])))
+            legs.append(kin(d, speed_kmh) + DWELL_FIXED + DWELL_CHARGING
+                        + SIGNAL_DELAY_PER_INT
+                        * CFG.get('E.s2c.signal_delay_removed_share'))
         if starts_at_inter:
             # trip now begins at the far end of the extension and runs inbound
             t_first = sec(first['departure_time'])
@@ -290,7 +329,7 @@ def extend_heavy_rail(feed):
     routes = {r['route_id']: r for r in f['routes']}
     newstops = []
     ids = []
-    for i, (nm, la, lo, src) in enumerate(S0_EXTENSION):
+    for i, (nm, la, lo) in enumerate(S0_EXTENSION):
         sid = 'sydneytrains:S0_%d' % (i + 1)
         ids.append(sid)
         newstops.append(dict(stop_id=sid, stop_name=nm, stop_lat=la, stop_lon=lo,
@@ -298,11 +337,11 @@ def extend_heavy_rail(feed):
     f['stops'] = f['stops'] + newstops
     inter_names = ('Newcastle Interchange',)
     # heavy rail runs on reserved alignment: faster than the tram over the same ground
-    chain_ll = [(-32.92404, 151.75908)] + [(s[1], s[2]) for s in S0_EXTENSION]
+    chain_ll = [anchor('corridor_west')] + [(s[1], s[2]) for s in S0_EXTENSION]
     legs = []
     for a, b in zip(chain_ll, chain_ll[1:]):
-        d = hav(a, b) * 1.10
-        legs.append(kin(d, CORRIDOR_SPEED) + 30.0)   # 30 s station dwell
+        d = hav(a, b) * RAIL_DETOUR
+        legs.append(kin(d, CORRIDOR_SPEED) + CFG.get('E.s0.station_dwell_s'))
     n_ext = 0
     newst = []
     touched = set()
@@ -332,8 +371,12 @@ def extend_heavy_rail(feed):
     return f, n_ext
 
 
-def make_bus_shuttle(feed, stops_def, headway_s, route_id, route_name, mode='3',
-                     speed_kmh=28.0, dwell_s=15.0, first_h=5, last_h=24):
+def make_bus_shuttle(feed, stops_def, headway_s, route_id, route_name, mode,
+                     speed_kmh, dwell_s, first_h, last_h):
+    # NO DEFAULTS. Speed, dwell and the service span decide how attractive a
+    # counterfactual service is, and S1 and S3 are the alternatives the study
+    # reports the light rail against - so every caller states them from the
+    # registry rather than inheriting a number from this signature.
     """Insert a new surface route along the CBD spine (used by S1 and S3)."""
     f = copy.deepcopy(feed)
     sids = []
@@ -347,11 +390,13 @@ def make_bus_shuttle(feed, stops_def, headway_s, route_id, route_name, mode='3',
                             route_type=mode, route_color='0057B8', route_text_color='FFFFFF'))
     legs = []
     for a, b in zip(stops_def, stops_def[1:]):
-        d = hav((a[1], a[2]), (b[1], b[2])) * 1.10
-        legs.append(kin(d, speed_kmh) + dwell_s + SIGNAL_DELAY_PER_INT * 0.5)
+        d = hav((a[1], a[2]), (b[1], b[2])) * RAIL_DETOUR
+        legs.append(kin(d, speed_kmh) + dwell_s
+                    + SIGNAL_DELAY_PER_INT * CFG.get('E.bus.signal_delay_share'))
     n = 0
-    for daytype in ['WEEKDAY', 'SAT', 'SUN']:
-        hw = headway_s * (1.0 if daytype == 'WEEKDAY' else 1.5)
+    for daytype in DAY_TYPES:
+        hw = headway_s * (1.0 if daytype == WEEKDAY
+                          else CFG.get('E.schedule.weekend_headway_factor'))
         t = first_h * 3600
         while t < last_h * 3600:
             for direction, order in ((0, sids), (1, sids[::-1])):
@@ -396,8 +441,8 @@ SBC_EXTENSION_STREETS = ('Hunter Street', 'Tudor Street', 'Belford Street',
                          'Lambton Road', 'Turton Road', 'Russell Road',
                          'Lookout Road')
 SBC_EXTENSION_KM = CFG.get('A.transit.sbc_extension_km')
-INTERCHANGE_LL = (-32.92433, 151.75943)
-JHH_LL = (-32.92230, 151.69440)
+INTERCHANGE_LL = anchor('interchange')
+JHH_LL = anchor('john_hunter_hospital')
 
 
 def shape_points(feed, shape_id):
@@ -655,8 +700,12 @@ def main():
     out['S0']['shapes_extended'] = dict(trips=n_trips, shapes=n_shapes)
 
     # S1 - bus shuttle from Wickham, no light rail
-    s1, n1 = make_bus_shuttle(drop_lr(base), S1_SHUTTLE, 600, 'S1SHUTTLE',
-                              'S1SHUTTLE', mode='3', speed_kmh=26.0, dwell_s=18.0)
+    s1, n1 = make_bus_shuttle(
+        drop_lr(base), S1_SHUTTLE, CFG.get('E.s1.headway_s'), 'S1SHUTTLE',
+        'S1SHUTTLE', mode=BUS_ROUTE_TYPE,
+        speed_kmh=CFG.get('E.s1.shuttle_speed_kmh'),
+        dwell_s=CFG.get('E.s1.shuttle_dwell_s'),
+        first_h=CFG.get('E.s1.first_hour'), last_h=CFG.get('E.s1.last_hour'))
     write_feed(renumber_sequences(s1), os.path.join(OUT, 'S1.zip'))
     out['S1'] = summarise(s1, 'S1')
     out['S1']['shuttle_trips'] = n1
@@ -670,7 +719,8 @@ def main():
     out['S2a'] = summarise(s2a, 'S2a')
 
     # S2b - full transit signal priority (75% of signal delay removed)
-    saving = SIGNAL_DELAY_PER_INT * N_CORRIDOR_INTERSECTIONS * 0.75 / 5.0
+    saving = (SIGNAL_DELAY_PER_INT * N_CORRIDOR_INTERSECTIONS
+              * CFG.get('E.s2b.signal_delay_removed_share') / N_LR_SEGMENTS)
     s2b = scale_lr_runtime(base, delta_per_segment_s=-saving)
     write_feed(renumber_sequences(s2b), os.path.join(OUT, 'S2b.zip'))
     out['S2b'] = summarise(s2b, 'S2b')
@@ -682,22 +732,23 @@ def main():
     s2c_src = copy.deepcopy(base)
     n_moved = move_lr_stops_onto(s2c_src, tram_corridor)
     s2c = scale_lr_runtime(s2c_src, speed_kmh=CORRIDOR_SPEED,
-                           delta_per_segment_s=-SIGNAL_DELAY_PER_INT * 0.6)
+                           delta_per_segment_s=-SIGNAL_DELAY_PER_INT
+                           * CFG.get('E.s2c.signal_delay_removed_share'))
     set_reserved_alignment_shape(s2c, tram_corridor)
     write_feed(renumber_sequences(s2c), os.path.join(OUT, 'S2c.zip'))
     out['S2c'] = summarise(s2c, 'S2c')
     out['S2c']['stops_moved_to_reserved_corridor'] = n_moved
 
     # S3 - bus rapid transit on the same alignment
-    brt_stops = [(n, la, lo) for n, la, lo in
-                 [('Newcastle Interchange', -32.92433, 151.75943),
-                  ('Honeysuckle', -32.92647, 151.76583),
-                  ('Civic', -32.92699, 151.77175),
-                  ('Crown Street', -32.92637, 151.77721),
-                  ('Queens Wharf', -32.92633, 151.78164),
-                  ('Newcastle Beach', -32.92748, 151.78626)]]
-    s3, n3 = make_bus_shuttle(drop_lr(base), brt_stops, 450, 'S3BRT', 'S3BRT',
-                              mode='3', speed_kmh=40.0, dwell_s=12.0)
+    # S3 calls at the S1 stops MINUS the two the declaration omits - wider
+    # spacing is what makes it rapid transit. It was a second copy of the same
+    # coordinates in this file, which could drift from the first silently.
+    brt_stops = alignment('s3_brt')
+    s3, n3 = make_bus_shuttle(
+        drop_lr(base), brt_stops, CFG.get('E.s3.headway_s'), 'S3BRT', 'S3BRT',
+        mode=BUS_ROUTE_TYPE, speed_kmh=CFG.get('E.s3.brt_speed_kmh'),
+        dwell_s=CFG.get('E.s3.brt_dwell_s'),
+        first_h=CFG.get('E.s1.first_hour'), last_h=CFG.get('E.s1.last_hour'))
     write_feed(renumber_sequences(s3), os.path.join(OUT, 'S3.zip'))
     out['S3'] = summarise(s3, 'S3')
     out['S3']['brt_trips'] = n3

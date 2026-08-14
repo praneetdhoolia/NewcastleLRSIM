@@ -100,6 +100,288 @@
         "decisions_ref": "9.16",
         "departure_requires": "A SELF-POLICING BOUND, not a preference: if any reported scenario comparison ever turns on a corridor run-time difference smaller than TWICE this tolerance, the difference is not resolvable by the loop that produced it. The tolerance must then be tightened and both scenarios re-run before the comparison is reported."
       }
+    },
+    "E.s1.shuttle_speed_kmh": {
+      "value": 26.0,
+      "units": "km_per_hour",
+      "source": "assumed",
+      "sweep": [
+        18.0,
+        40.0
+      ],
+      "sweep_basis": "a bus in mixed traffic on an urban main street. The lower bound is congested Hunter Street, the upper is free-flowing. No timetable exists for a service that never ran, so nothing measures it - and S1 is a counterfactual the study reports against S2, so its run time is part of the comparison.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "proposal_ref": "3.4",
+      "description": "Average running speed of the S1 Wickham bus shuttle between stops, excluding dwell. TWO VALUES EXISTED: the call site passed 26.0 while the function signature defaulted to 28.0, so the default was dead code that looked like the specification. The operative 26.0 is declared here and the signature no longer carries a default at all."
+    },
+    "E.s1.shuttle_dwell_s": {
+      "value": 18.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        10.0,
+        30.0
+      ],
+      "sweep_basis": "boarding dwell for a high-floor bus with mixed fare payment. Bracketed by observed urban bus practice rather than measured here.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "proposal_ref": "3.4",
+      "description": "Dwell at each S1 shuttle stop. Like the speed, this had a live call-site value of 18.0 and a dead signature default of 15.0."
+    },
+    "E.s1.headway_s": {
+      "value": 600,
+      "units": "seconds",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "proposal_ref": "3.4",
+      "description": "S1 shuttle headway. TEN MINUTES IS THE ANNOUNCED POLICY, not an assumption: the December 2012 announcement specified a ten-minute shuttle, and E1_scenarios.csv already describes S1 as \"10 minute headway, 8 stops, mixed traffic\". Held as a definition of the scenario - changing it would be modelling a different policy, not testing a range."
+    },
+    "E.s1.first_hour": {
+      "value": 5,
+      "units": "hour_of_day",
+      "source": "assumed",
+      "sweep": [
+        4,
+        7
+      ],
+      "sweep_basis": "service span start. Newcastle bus services begin between about 04:30 and 06:00 depending on the route.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "First hour of the S1 shuttle service day."
+    },
+    "E.s1.last_hour": {
+      "value": 24,
+      "units": "hour_of_day",
+      "source": "assumed",
+      "sweep": [
+        22,
+        27
+      ],
+      "sweep_basis": "service span end, expressed on the same 30 h clock as the qsim window so a late trip can still arrive.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Last hour in which an S1 shuttle departs."
+    },
+    "E.s3.brt_speed_kmh": {
+      "value": 40.0,
+      "units": "km_per_hour",
+      "source": "assumed",
+      "sweep": [
+        25.0,
+        55.0
+      ],
+      "sweep_basis": "bus rapid transit with priority and wider stop spacing than S1. The lower bound is little better than the S1 shuttle, the upper is close to free-flow on the corridor. Nothing measures it: S3 is a service that has never run.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "proposal_ref": "3.4",
+      "description": "Average running speed of the S3 bus rapid transit alternative. S3 exists to test whether the corridor benefit needed rail at all, so THIS NUMBER LARGELY DECIDES THE ANSWER - and it was a call-site literal, make_bus_shuttle(..., speed_kmh=40.0)."
+    },
+    "E.s3.brt_dwell_s": {
+      "value": 12.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        8.0,
+        25.0
+      ],
+      "sweep_basis": "shorter than the S1 shuttle because rapid transit assumes level boarding and off-vehicle fare payment. Assumed, like the speed.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "proposal_ref": "3.4",
+      "description": "Dwell at each S3 BRT stop."
+    },
+    "E.s3.headway_s": {
+      "value": 450,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        300,
+        900
+      ],
+      "sweep_basis": "7.5 minutes was chosen to be more frequent than the S1 shuttle and comparable to the light rail. No document specifies it.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "proposal_ref": "3.4",
+      "description": "S3 BRT headway. Unlike the S1 headway this is NOT an announced policy - S3 is the study’s own alternative - so it is assumed and swept."
+    },
+    "E.vehicle.tram_accel_ms2": {
+      "value": 1.2,
+      "units": "metres_per_second_squared",
+      "source": "literature",
+      "sweep": [
+        0.8,
+        1.5
+      ],
+      "sweep_basis": "service acceleration of a modern low-floor tram, bracketed by published rolling-stock figures. Not measured on this vehicle.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Tram service acceleration, used to compute run time between stops. IT WAS PART OF A TUPLE UNPACK - ACCEL, DECEL = 1.2, 1.3 - which a single-target constant scan cannot see, so two vehicle parameters sat outside the audit entirely."
+    },
+    "E.vehicle.tram_decel_ms2": {
+      "value": 1.3,
+      "units": "metres_per_second_squared",
+      "source": "literature",
+      "sweep": [
+        0.9,
+        1.6
+      ],
+      "sweep_basis": "service braking rate, bracketed with the acceleration. Emergency braking is higher and is not what a timetable is built on.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Tram service deceleration."
+    },
+    "E.vehicle.emu_accel_ms2": {
+      "value": 0.7,
+      "units": "metres_per_second_squared",
+      "source": "literature",
+      "sweep": [
+        0.5,
+        1.0
+      ],
+      "sweep_basis": "heavy rail electric multiple unit, gentler than a tram. Bracketed by published figures for the class of unit the Hunter Line ran.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Heavy rail EMU service acceleration, used by the era 1 reconstruction and by S0. Also a tuple unpack until this change."
+    },
+    "E.vehicle.emu_decel_ms2": {
+      "value": 0.8,
+      "units": "metres_per_second_squared",
+      "source": "literature",
+      "sweep": [
+        0.6,
+        1.1
+      ],
+      "sweep_basis": "service braking rate for the same unit.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Heavy rail EMU service deceleration."
+    },
+    "E.s0.heavy_rail_detour_factor": {
+      "value": 1.1,
+      "units": "factor",
+      "source": "assumed",
+      "sweep": [
+        1.0,
+        1.3
+      ],
+      "sweep_basis": "how much longer the running alignment is than the straight line between two station sites. Rail on reserved alignment is close to straight, so the range is tight; the road detour factor B.activity.detour_factor is 1.3376 and does NOT apply here.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Path-length multiplier applied to the beeline between S0 station sites when computing run time. A bare 1.10 in an expression until this change, which is the form of literal no module-level constant scan can reach."
+    },
+    "E.s2b.signal_delay_removed_share": {
+      "value": 0.75,
+      "units": "share",
+      "source": "assumed",
+      "sweep": [
+        0.5,
+        1.0
+      ],
+      "sweep_basis": "what \"full transit signal priority\" removes of the delay a tram suffers at signalised intersections. Total removal (1.0) is the theoretical ceiling and is not achievable where the tram crosses a coordinated arterial; 0.5 is partial priority. NOTHING MEASURES IT - SCATS phasing is refused by policy (DECISIONS.md 9.21), which is exactly why this must be swept and not pinned.",
+      "status": "active",
+      "decisions_ref": "5, 9.21, 15",
+      "proposal_ref": "3.4 S-b",
+      "description": "Share of corridor signal delay removed by full transit signal priority. THIS IS THE S2b INTERVENTION: the 38% swing S2b exists to measure is produced by this number, and it was the literal 0.75 inside an arithmetic expression - the form the previous audit was structurally blind to. A.lightrail.tsp_enabled says WHETHER priority applies; this says how much it is worth."
+    },
+    "E.s2c.signal_delay_removed_share": {
+      "value": 0.6,
+      "units": "share",
+      "source": "assumed",
+      "sweep": [
+        0.4,
+        0.9
+      ],
+      "sweep_basis": "the reserved former-railway alignment of Option A has fewer conflicting movements than the street alignment, but it still crosses roads. Lower than full priority because it is a geometric effect rather than a signal-control one.",
+      "status": "active",
+      "decisions_ref": "5, 15",
+      "proposal_ref": "3.4",
+      "description": "Share of corridor signal delay avoided by the S2c reserved alignment. A bare 0.6 in an expression until this change."
+    },
+    "E.s0.station_dwell_s": {
+      "value": 30.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        20.0,
+        60.0
+      ],
+      "sweep_basis": "heavy rail station dwell on a suburban service. Bracketed by observed practice rather than measured on this line.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Dwell at each restored S0 station. A bare 30.0 added inside the leg-time expression until this change."
+    },
+    "E.lightrail.extension_detour_factor": {
+      "value": 1.15,
+      "units": "factor",
+      "source": "assumed",
+      "sweep": [
+        1.0,
+        1.4
+      ],
+      "sweep_basis": "how much longer a street-running extension is than the straight line between its stops. Higher than the reserved-alignment factor because a tram on a street follows the street. Nothing measures it for an extension that does not exist.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Path-length multiplier on the beeline between stops of a light rail EXTENSION (S4 Broadmeadow, S5 John Hunter Hospital). A bare 1.15 inside the leg-length expression until this change."
+    },
+    "E.schedule.min_segment_s": {
+      "value": 30.0,
+      "units": "seconds",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Floor on a rebuilt stop-to-stop segment time. A GUARD, not a modelling value: a scenario that shortened a segment below this would produce a timetable with two stops at the same second, which GTFS readers and pt2matsim both mishandle. Declared so the guard is visible rather than typed into the arithmetic it guards."
+    },
+    "E.schedule.weekend_headway_factor": {
+      "value": 1.5,
+      "units": "factor",
+      "source": "assumed",
+      "sweep": [
+        1.0,
+        3.0
+      ],
+      "sweep_basis": "how much less frequent a weekend service is than a weekday one. The real feeds carry their own weekend timetables and this factor applies ONLY to the invented S1 and S3 services, for which no weekend timetable exists to read.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Headway multiplier applied to the invented S1 and S3 services on Saturday and Sunday. A bare 1.5 in an expression until this change."
+    },
+    "E.bus.signal_delay_share": {
+      "value": 0.5,
+      "units": "share",
+      "source": "assumed",
+      "sweep": [
+        0.3,
+        1.0
+      ],
+      "sweep_basis": "what share of the per-intersection signal delay a bus suffers relative to the value measured for the tram. A bus stops in the traffic lane and rejoins, so it is not obviously less delayed than a tram; 0.5 is a judgement and the upper bound treats it as equal.",
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "Share of A.signals.delay_per_intersection_s borne by an S1 or S3 bus at each corridor intersection. IT SETS HOW MUCH FASTER THE BUS COUNTERFACTUALS ARE than the tram they are compared with, and it was a bare 0.5 in an expression."
+    },
+    "E.schedule.bus_route_type": {
+      "value": "3",
+      "units": "gtfs_route_type",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "4.3, 9.34, 15",
+      "description": "The GTFS route_type written for the invented bus services. 3 is Bus in the GTFS specification - a vocabulary the feed is defined over, not a value to tune."
+    },
+    "E.s2b.lr_segment_count": {
+      "value": 5.0,
+      "units": "segments",
+      "source": "assumed",
+      "sweep": [
+        4.0,
+        8.0
+      ],
+      "sweep_basis": "the number of stop-to-stop segments the corridor signal delay is spread across. It SHOULD be derived from the mapped light rail feed rather than declared - the feed knows how many segments it has - and it is recorded as assumed because it is not yet.",
+      "status": "active",
+      "decisions_ref": "5, 15",
+      "description": "Segments over which the S2b signal-priority saving is divided to give a per-segment delta. A bare divisor 5.0 in the S2b expression until this change. DERIVING IT FROM THE FEED IS OUTSTANDING WORK: if the segment count and this value disagree, S2b removes the wrong total amount of delay."
     }
   }
 }

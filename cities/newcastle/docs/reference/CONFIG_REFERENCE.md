@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 259 fields are made of
+## What the 281 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 4 | read directly from a raw download |
 | `measured` | 21 | computed from observed data in this package |
 | `derived` | 25 | follows from another registry field by identity |
-| `literature` | 31 | a published value, not specific to this city |
-| `assumed` | 98 | chosen without direct empirical support |
-| `definition` | 80 | fixed by the formulation, not an empirical quantity |
+| `literature` | 35 | a published value, not specific to this city |
+| `assumed` | 113 | chosen without direct empirical support |
+| `definition` | 83 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 238 | usable point value |
+| `active` | 260 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -1539,19 +1539,49 @@ Frontage-level retail vacancy. NOT OBTAINED and not currently consumed by any me
 
 ## Scenario configuration (E1)
 
-*`cities/newcastle/registry/E_scenario.json` - 7 fields*
+*`cities/newcastle/registry/E_scenario.json` - 29 fields*
 
 The scenario matrix and the coupling controls. Per-scenario variant references stay in scenarios/S*.json, which bind a scenario to its network, schedule, land use, parking, signals, demand and parameter sets; this layer holds the values those configs share.
 
 | Field | Value | Units | Provenance | Sweep |
 |---|---|---|---|---|
+| `E.bus.signal_delay_share` | `0.5` | share | `assumed` | 0.3 - 1 |
 | `E.coupling.outer_loop_tolerance_s` | `5.0` | seconds | `assumed` | **held fixed** |
+| `E.lightrail.extension_detour_factor` | `1.15` | factor | `assumed` | 1 - 1.4 |
 | `E.matrix.base_year` | `2026` | year | `definition` | - |
 | `E.matrix.crs` | `EPSG:28356` | enum | `definition` | - |
 | `E.matrix.day_types` | `["WEEKDAY", "SAT", "SUN"]` | enum | `definition` | - |
 | `E.matrix.reference_scenario` | `S2` | enum | `definition` | - |
 | `E.matrix.scenario_ids` | `["S0", "S1", "S2", "S2a", "S2b", "S2c", "S3", "S4", "S5", "S6"]` | enum | `definition` | - |
 | `E.replication.n_replications` | `30` | count | `definition` | 5 - 30 |
+| `E.s0.heavy_rail_detour_factor` | `1.1` | factor | `assumed` | 1 - 1.3 |
+| `E.s0.station_dwell_s` | `30.0` | seconds | `assumed` | 20 - 60 |
+| `E.s1.first_hour` | `5` | hour_of_day | `assumed` | 4 - 7 |
+| `E.s1.headway_s` | `600` | seconds | `definition` | - |
+| `E.s1.last_hour` | `24` | hour_of_day | `assumed` | 22 - 27 |
+| `E.s1.shuttle_dwell_s` | `18.0` | seconds | `assumed` | 10 - 30 |
+| `E.s1.shuttle_speed_kmh` | `26.0` | km_per_hour | `assumed` | 18 - 40 |
+| `E.s2b.lr_segment_count` | `5.0` | segments | `assumed` | 4 - 8 |
+| `E.s2b.signal_delay_removed_share` | `0.75` | share | `assumed` | 0.5 - 1 |
+| `E.s2c.signal_delay_removed_share` | `0.6` | share | `assumed` | 0.4 - 0.9 |
+| `E.s3.brt_dwell_s` | `12.0` | seconds | `assumed` | 8 - 25 |
+| `E.s3.brt_speed_kmh` | `40.0` | km_per_hour | `assumed` | 25 - 55 |
+| `E.s3.headway_s` | `450` | seconds | `assumed` | 300 - 900 |
+| `E.schedule.bus_route_type` | `3` | gtfs_route_type | `definition` | - |
+| `E.schedule.min_segment_s` | `30.0` | seconds | `definition` | - |
+| `E.schedule.weekend_headway_factor` | `1.5` | factor | `assumed` | 1 - 3 |
+| `E.vehicle.emu_accel_ms2` | `0.7` | metres_per_second_squared | `literature` | 0.5 - 1 |
+| `E.vehicle.emu_decel_ms2` | `0.8` | metres_per_second_squared | `literature` | 0.6 - 1.1 |
+| `E.vehicle.tram_accel_ms2` | `1.2` | metres_per_second_squared | `literature` | 0.8 - 1.5 |
+| `E.vehicle.tram_decel_ms2` | `1.3` | metres_per_second_squared | `literature` | 0.9 - 1.6 |
+
+#### `E.bus.signal_delay_share`
+
+Share of A.signals.delay_per_intersection_s borne by an S1 or S3 bus at each corridor intersection. IT SETS HOW MUCH FASTER THE BUS COUNTERFACTUALS ARE than the tram they are compared with, and it was a bare 0.5 in an expression.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** what share of the per-intersection signal delay a bus suffers relative to the value measured for the tram. A bus stops in the traffic lane and rejoins, so it is not obviously less delayed than a tram; 0.5 is a judgement and the upper bound treats it as equal.
 
 #### `E.coupling.outer_loop_tolerance_s`
 
@@ -1562,6 +1592,14 @@ Corridor run-time stability tolerance for the MATSim-SUMO outer loop. Proposal 5
 > **Held fixed.** A convergence tolerance is a numerical control, not a quantity of Newcastle: it decides how many outer-loop iterations are paid for, not what the answer is, PROVIDED it stays well below the smallest difference the study reports. So it is held fixed rather than swept, and it is bounded from above by three measured quantities. (1) The corridor run time is validated against V208/V209, which are SCHEDULED times: every segment in A4_segment_runtime_decomposition.csv is a whole multiple of 60 s and direction 0 sums to exactly the 720 s target, so the target itself is known only to plus or minus 30 s. (2) The charging dwell assumption is worth 11% of end-to-end run time, about 79 s - the smallest declared corridor sensitivity in the project. (3) The signal priority sweep (S2 against S2b) moves run time 38%, about 274 s. At 5 s - 0.69% of the 720 s run time - the loop is an order of magnitude inside the smallest of those and well inside the resolution of the target it is judged against, so a converged loop cannot contribute materially to any reported difference.
 >
 > *Departure requires: A SELF-POLICING BOUND, not a preference: if any reported scenario comparison ever turns on a corridor run-time difference smaller than TWICE this tolerance, the difference is not resolvable by the loop that produced it. The tolerance must then be tightened and both scenarios re-run before the comparison is reported.*
+
+#### `E.lightrail.extension_detour_factor`
+
+Path-length multiplier on the beeline between stops of a light rail EXTENSION (S4 Broadmeadow, S5 John Hunter Hospital). A bare 1.15 inside the leg-length expression until this change.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** how much longer a street-running extension is than the straight line between its stops. Higher than the reserved-alignment factor because a tram on a street follows the street. Nothing measures it for an extension that does not exist.
 
 #### `E.matrix.base_year`
 
@@ -1600,6 +1638,160 @@ Seeded replications per scenario. One of the three things that can be cut to clo
 ***definition** · status **active** · DECISIONS.md §1*
 
 > **Sweep basis.** proposal 5.2 specifies at least 30 SUMO replications; the sweep records that cutting replications is one of the three levers on the run budget
+
+#### `E.s0.heavy_rail_detour_factor`
+
+Path-length multiplier applied to the beeline between S0 station sites when computing run time. A bare 1.10 in an expression until this change, which is the form of literal no module-level constant scan can reach.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** how much longer the running alignment is than the straight line between two station sites. Rail on reserved alignment is close to straight, so the range is tight; the road detour factor B.activity.detour_factor is 1.3376 and does NOT apply here.
+
+#### `E.s0.station_dwell_s`
+
+Dwell at each restored S0 station. A bare 30.0 added inside the leg-time expression until this change.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** heavy rail station dwell on a suburban service. Bracketed by observed practice rather than measured on this line.
+
+#### `E.s1.first_hour`
+
+First hour of the S1 shuttle service day.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** service span start. Newcastle bus services begin between about 04:30 and 06:00 depending on the route.
+
+#### `E.s1.headway_s`
+
+S1 shuttle headway. TEN MINUTES IS THE ANNOUNCED POLICY, not an assumption: the December 2012 announcement specified a ten-minute shuttle, and E1_scenarios.csv already describes S1 as "10 minute headway, 8 stops, mixed traffic". Held as a definition of the scenario - changing it would be modelling a different policy, not testing a range.
+
+***definition** · status **active** · DECISIONS.md §4.3, 9.34, 15 · proposal §3.4*
+
+#### `E.s1.last_hour`
+
+Last hour in which an S1 shuttle departs.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** service span end, expressed on the same 30 h clock as the qsim window so a late trip can still arrive.
+
+#### `E.s1.shuttle_dwell_s`
+
+Dwell at each S1 shuttle stop. Like the speed, this had a live call-site value of 18.0 and a dead signature default of 15.0.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15 · proposal §3.4*
+
+> **Sweep basis.** boarding dwell for a high-floor bus with mixed fare payment. Bracketed by observed urban bus practice rather than measured here.
+
+#### `E.s1.shuttle_speed_kmh`
+
+Average running speed of the S1 Wickham bus shuttle between stops, excluding dwell. TWO VALUES EXISTED: the call site passed 26.0 while the function signature defaulted to 28.0, so the default was dead code that looked like the specification. The operative 26.0 is declared here and the signature no longer carries a default at all.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15 · proposal §3.4*
+
+> **Sweep basis.** a bus in mixed traffic on an urban main street. The lower bound is congested Hunter Street, the upper is free-flowing. No timetable exists for a service that never ran, so nothing measures it - and S1 is a counterfactual the study reports against S2, so its run time is part of the comparison.
+
+#### `E.s2b.lr_segment_count`
+
+Segments over which the S2b signal-priority saving is divided to give a per-segment delta. A bare divisor 5.0 in the S2b expression until this change. DERIVING IT FROM THE FEED IS OUTSTANDING WORK: if the segment count and this value disagree, S2b removes the wrong total amount of delay.
+
+***assumed** · status **active** · DECISIONS.md §5, 15*
+
+> **Sweep basis.** the number of stop-to-stop segments the corridor signal delay is spread across. It SHOULD be derived from the mapped light rail feed rather than declared - the feed knows how many segments it has - and it is recorded as assumed because it is not yet.
+
+#### `E.s2b.signal_delay_removed_share`
+
+Share of corridor signal delay removed by full transit signal priority. THIS IS THE S2b INTERVENTION: the 38% swing S2b exists to measure is produced by this number, and it was the literal 0.75 inside an arithmetic expression - the form the previous audit was structurally blind to. A.lightrail.tsp_enabled says WHETHER priority applies; this says how much it is worth.
+
+***assumed** · status **active** · DECISIONS.md §5, 9.21, 15 · proposal §3.4 S-b*
+
+> **Sweep basis.** what "full transit signal priority" removes of the delay a tram suffers at signalised intersections. Total removal (1.0) is the theoretical ceiling and is not achievable where the tram crosses a coordinated arterial; 0.5 is partial priority. NOTHING MEASURES IT - SCATS phasing is refused by policy (DECISIONS.md 9.21), which is exactly why this must be swept and not pinned.
+
+#### `E.s2c.signal_delay_removed_share`
+
+Share of corridor signal delay avoided by the S2c reserved alignment. A bare 0.6 in an expression until this change.
+
+***assumed** · status **active** · DECISIONS.md §5, 15 · proposal §3.4*
+
+> **Sweep basis.** the reserved former-railway alignment of Option A has fewer conflicting movements than the street alignment, but it still crosses roads. Lower than full priority because it is a geometric effect rather than a signal-control one.
+
+#### `E.s3.brt_dwell_s`
+
+Dwell at each S3 BRT stop.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15 · proposal §3.4*
+
+> **Sweep basis.** shorter than the S1 shuttle because rapid transit assumes level boarding and off-vehicle fare payment. Assumed, like the speed.
+
+#### `E.s3.brt_speed_kmh`
+
+Average running speed of the S3 bus rapid transit alternative. S3 exists to test whether the corridor benefit needed rail at all, so THIS NUMBER LARGELY DECIDES THE ANSWER - and it was a call-site literal, make_bus_shuttle(..., speed_kmh=40.0).
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15 · proposal §3.4*
+
+> **Sweep basis.** bus rapid transit with priority and wider stop spacing than S1. The lower bound is little better than the S1 shuttle, the upper is close to free-flow on the corridor. Nothing measures it: S3 is a service that has never run.
+
+#### `E.s3.headway_s`
+
+S3 BRT headway. Unlike the S1 headway this is NOT an announced policy - S3 is the study’s own alternative - so it is assumed and swept.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15 · proposal §3.4*
+
+> **Sweep basis.** 7.5 minutes was chosen to be more frequent than the S1 shuttle and comparable to the light rail. No document specifies it.
+
+#### `E.schedule.bus_route_type`
+
+The GTFS route_type written for the invented bus services. 3 is Bus in the GTFS specification - a vocabulary the feed is defined over, not a value to tune.
+
+***definition** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+#### `E.schedule.min_segment_s`
+
+Floor on a rebuilt stop-to-stop segment time. A GUARD, not a modelling value: a scenario that shortened a segment below this would produce a timetable with two stops at the same second, which GTFS readers and pt2matsim both mishandle. Declared so the guard is visible rather than typed into the arithmetic it guards.
+
+***definition** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+#### `E.schedule.weekend_headway_factor`
+
+Headway multiplier applied to the invented S1 and S3 services on Saturday and Sunday. A bare 1.5 in an expression until this change.
+
+***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** how much less frequent a weekend service is than a weekday one. The real feeds carry their own weekend timetables and this factor applies ONLY to the invented S1 and S3 services, for which no weekend timetable exists to read.
+
+#### `E.vehicle.emu_accel_ms2`
+
+Heavy rail EMU service acceleration, used by the era 1 reconstruction and by S0. Also a tuple unpack until this change.
+
+***literature** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** heavy rail electric multiple unit, gentler than a tram. Bracketed by published figures for the class of unit the Hunter Line ran.
+
+#### `E.vehicle.emu_decel_ms2`
+
+Heavy rail EMU service deceleration.
+
+***literature** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** service braking rate for the same unit.
+
+#### `E.vehicle.tram_accel_ms2`
+
+Tram service acceleration, used to compute run time between stops. IT WAS PART OF A TUPLE UNPACK - ACCEL, DECEL = 1.2, 1.3 - which a single-target constant scan cannot see, so two vehicle parameters sat outside the audit entirely.
+
+***literature** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** service acceleration of a modern low-floor tram, bracketed by published rolling-stock figures. Not measured on this vehicle.
+
+#### `E.vehicle.tram_decel_ms2`
+
+Tram service deceleration.
+
+***literature** · status **active** · DECISIONS.md §4.3, 9.34, 15*
+
+> **Sweep basis.** service braking rate, bracketed with the acceleration. Emergency braking is higher and is not what a timetable is built on.
 
 ## Execution control
 

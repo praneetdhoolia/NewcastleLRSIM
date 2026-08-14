@@ -1,0 +1,87 @@
+{
+  "description": "Stop positions and route anchors for scenarios that DO NOT EXIST and therefore appear in no observed feed. They were typed into cities/newcastle/build/build_scenario_schedules.py and build_era1_reconstruction.py, where a coordinate cannot be seen, reviewed or varied - a direct breach of the hard constraint in .claude/CLAUDE.md: never put a place name, a coordinate or a hand-drawn extent in a script. This file relocates them AT THE VALUES THEY HAD; it does not correct them.",
+
+  "crs": "EPSG:4326",
+  "coordinate_order": "lat, lon (decimal degrees)",
+
+  "why_these_are_not_observed": "S2 is the line as built and its stops come from the real GTFS feed, so no scenario stop is declared here for it. S1 and S3 are counterfactual services that were never operated, S0 restores two stations closed in 2014, and era 1 reconstructs three closed heavy rail stations. There is no feed to read any of them from, so each is ASSUMED and is recorded as such with the reasoning that placed it.",
+
+  "warning": "A typed coordinate cannot be wrong in a way anyone notices. The OSM harvest box clipped 87 of 1,500 core SA1s out of the road network and survived three phases. Every position below is assumed until it is derived from an observed feature, and moving one moves a scenario the study reports on.",
+
+  "alignments": {
+    "s1_bus_shuttle": {
+      "scenario": "S1",
+      "source": "assumed",
+      "selects": "The stops of the Wickham bus shuttle - the December 2012 policy as originally announced, and one of the two primary counterfactuals to the light rail.",
+      "why_it_matters": "S1 is a counterfactual the study reports against S2. Its stop spacing sets the shuttle's run time and therefore its attractiveness, so these positions are part of the comparison, not scenery. Spacing is deliberately tighter than light rail.",
+      "basis": "Positioned along the Hunter Street corridor at the light rail stop sites plus two intermediate stops, on the reasoning that a bus shuttle serving the same corridor would call at the same generators. Not a published stop list - no such list was ever issued for a service that did not run.",
+      "stops": [
+        {"name": "Newcastle Interchange", "lat": -32.92433, "lon": 151.75943},
+        {"name": "Honeysuckle", "lat": -32.92647, "lon": 151.76583},
+        {"name": "Civic", "lat": -32.92699, "lon": 151.77175},
+        {"name": "Market Street", "lat": -32.92660, "lon": 151.77450},
+        {"name": "Crown Street", "lat": -32.92637, "lon": 151.77721},
+        {"name": "Queens Wharf", "lat": -32.92633, "lon": 151.78164},
+        {"name": "Watt Street", "lat": -32.92700, "lon": 151.78400},
+        {"name": "Newcastle Beach", "lat": -32.92748, "lon": 151.78626}
+      ]
+    },
+
+    "s3_brt": {
+      "scenario": "S3",
+      "source": "assumed",
+      "derived_from": "s1_bus_shuttle",
+      "omit_stops": ["Market Street", "Watt Street"],
+      "selects": "The stops of the bus rapid transit alternative on the same alignment.",
+      "why_it_matters": "S3 tests whether the corridor's benefit needed rail at all. Wider stop spacing than S1 is the whole point of calling it rapid transit, and it is expressed here as WHICH S1 STOPS ARE OMITTED rather than as a second list of coordinates - the two lists were a copy and could drift apart silently, which is how this repository loses a value."
+    },
+
+    "s0_heavy_rail_extension": {
+      "scenario": "S0",
+      "source": "assumed",
+      "selects": "The two stations east of Wickham that the 2014 truncation removed, restored for the primary counterfactual in which the heavy rail line is never cut.",
+      "why_it_matters": "S0 is the counterfactual the whole study is framed against: the line is not cut. These two station sites decide where its passengers board.",
+      "basis": "The former station sites. Assumed rather than surveyed - the platforms were removed and the corridor redeveloped.",
+      "stops": [
+        {"name": "Civic Station", "lat": -32.92800, "lon": 151.77560},
+        {"name": "Newcastle Station", "lat": -32.92820, "lon": 151.78460}
+      ]
+    },
+
+    "era1_closed_stations": {
+      "scenario": "era1",
+      "source": "assumed",
+      "selects": "The three stations closed on 26 December 2014, reinstated to reconstruct the pre-truncation timetable.",
+      "why_it_matters": "The era 1 reconstruction is the observed-history baseline the counterfactual is anchored on. DECISIONS.md records that no 2014 public timetable has been obtained to validate it.",
+      "stops": [
+        {"name": "Wickham Station (closed 2014)", "lat": -32.92450, "lon": 151.76500},
+        {"name": "Civic Station (closed 2014)", "lat": -32.92800, "lon": 151.77560},
+        {"name": "Newcastle Station (closed 2014)", "lat": -32.92820, "lon": 151.78460}
+      ]
+    }
+  },
+
+  "anchors": {
+    "corridor_west": {
+      "lat": -32.92404,
+      "lon": 151.75908,
+      "source": "assumed",
+      "selects": "Western end of the S0 heavy rail chain, where the restored corridor is spliced onto the surviving line.",
+      "note": "Distinct from the interchange anchor by about 40 m, and it was a bare tuple inside a list comprehension. Whether the two SHOULD differ has never been established."
+    },
+    "interchange": {
+      "lat": -32.92433,
+      "lon": 151.75943,
+      "source": "assumed",
+      "selects": "Newcastle Interchange at Wickham - the western terminus and the transfer point the transfer penalty prices.",
+      "note": "Identical to the first stop of s1_bus_shuttle. It was typed twice in the same file; it is declared once here and both readers take it from this entry."
+    },
+    "john_hunter_hospital": {
+      "lat": -32.92230,
+      "lon": 151.69440,
+      "source": "assumed",
+      "selects": "Eastern anchor of the S5 extension to John Hunter Hospital.",
+      "note": "The hospital is a POI in the OSM extract and this position could be DERIVED from it once the issue #32 harvest lands. Declared, not derived, and that is a gap rather than a decision."
+    }
+  }
+}

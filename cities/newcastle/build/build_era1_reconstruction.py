@@ -45,15 +45,19 @@ SRC = _city.path('schedules/era2_2016_rail_truncated.zip')
 OUT = _city.path('schedules/era1_pre2014_reconstructed.zip')
 REPORT = _city.path('schedules/_era1_reconstruction_report.json')
 
-# The three stations closed on 26 December 2014, with their real sites.
-CLOSED_STATIONS = [
-    ('Wickham Station (closed 2014)', -32.92450, 151.76500),
-    ('Civic Station (closed 2014)', -32.92800, 151.77560),
-    ('Newcastle Station (closed 2014)', -32.92820, 151.78460),
-]
+# The three stations closed on 26 December 2014. Their positions are DECLARED in
+# cities/<city>/geometry/scenario_alignments.json, not typed here: a coordinate
+# in a script is invisible, and these three decide where the pre-truncation
+# service the counterfactual is anchored on picked its passengers up.
+CLOSED_STATIONS = [(s['name'], s['lat'], s['lon']) for s in
+                   _city.geometry('scenario_alignments')['alignments']
+                   ['era1_closed_stations']['stops']]
 TRUNCATION_POINTS = ('Hamilton Station', 'Newcastle Interchange', 'Wickham')
 LINE_SPEED_KMH = CFG.get('A.transit.era1_line_speed_kmh')
-ACCEL, DECEL = 0.7, 0.8      # heavy rail EMU, gentler than a tram
+# Heavy rail EMU kinematics, gentler than a tram. A tuple unpack until this
+# change, which is the form a single-target constant scan cannot see.
+ACCEL = CFG.get('E.vehicle.emu_accel_ms2')
+DECEL = CFG.get('E.vehicle.emu_decel_ms2')
 STATION_DWELL_S = CFG.get('A.transit.era1_station_dwell_s')
 
 

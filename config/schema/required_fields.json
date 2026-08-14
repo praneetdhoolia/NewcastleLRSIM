@@ -4,14 +4,14 @@
   "contract": "Every key below must be declared by any city, with the stated units and value type. A field whose source is measured, derived, literature or assumed MUST additionally carry a sweep, a held_fixed rule or a derived_from identity - field.schema.json enforces that, and check_city.py tests it.",
   "no_prose": "Field DESCRIPTIONS are deliberately absent. They are the reference city's own wording and would put one city's prose - its suburbs, its agencies, its datasets - inside the portable half of the contract. What a city must supply is a key, its units and its value type; WHY a particular city chose a particular value belongs in that city's docs/reference/CONFIG_REFERENCE.md.",
   "caveat": "`required` means the reference city declares it and the framework will not run without it. It does NOT mean every city needs it: an intervention-specific field is meaningless to a city without that intervention. Narrowing this set per model layer is not done.",
-  "n_fields": 259,
+  "n_fields": 281,
   "n_by_layer": {
     "A": 86,
     "B": 31,
     "C": 55,
     "CAL": 6,
     "D": 5,
-    "E": 7,
+    "E": 29,
     "RUN": 69
   },
   "fields": {
@@ -1662,9 +1662,27 @@
       "unobtained_in_reference_city": true,
       "declared_in": "D_landuse.json"
     },
+    "E.bus.signal_delay_share": {
+      "layer": "E",
+      "units": "share",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
     "E.coupling.outer_loop_tolerance_s": {
       "layer": "E",
       "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.lightrail.extension_detour_factor": {
+      "layer": "E",
+      "units": "factor",
       "type": "number",
       "source_in_reference_city": "assumed",
       "sweep_required": true,
@@ -1722,6 +1740,186 @@
       "type": "number",
       "source_in_reference_city": "definition",
       "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s0.heavy_rail_detour_factor": {
+      "layer": "E",
+      "units": "factor",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s0.station_dwell_s": {
+      "layer": "E",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s1.first_hour": {
+      "layer": "E",
+      "units": "hour_of_day",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s1.headway_s": {
+      "layer": "E",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s1.last_hour": {
+      "layer": "E",
+      "units": "hour_of_day",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s1.shuttle_dwell_s": {
+      "layer": "E",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s1.shuttle_speed_kmh": {
+      "layer": "E",
+      "units": "km_per_hour",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s2b.lr_segment_count": {
+      "layer": "E",
+      "units": "segments",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s2b.signal_delay_removed_share": {
+      "layer": "E",
+      "units": "share",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s2c.signal_delay_removed_share": {
+      "layer": "E",
+      "units": "share",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s3.brt_dwell_s": {
+      "layer": "E",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s3.brt_speed_kmh": {
+      "layer": "E",
+      "units": "km_per_hour",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.s3.headway_s": {
+      "layer": "E",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.schedule.bus_route_type": {
+      "layer": "E",
+      "units": "gtfs_route_type",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.schedule.min_segment_s": {
+      "layer": "E",
+      "units": "seconds",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.schedule.weekend_headway_factor": {
+      "layer": "E",
+      "units": "factor",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.vehicle.emu_accel_ms2": {
+      "layer": "E",
+      "units": "metres_per_second_squared",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.vehicle.emu_decel_ms2": {
+      "layer": "E",
+      "units": "metres_per_second_squared",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.vehicle.tram_accel_ms2": {
+      "layer": "E",
+      "units": "metres_per_second_squared",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "E_scenario.json"
+    },
+    "E.vehicle.tram_decel_ms2": {
+      "layer": "E",
+      "units": "metres_per_second_squared",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
       "unobtained_in_reference_city": false,
       "declared_in": "E_scenario.json"
     },
