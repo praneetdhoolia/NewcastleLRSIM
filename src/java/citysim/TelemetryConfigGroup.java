@@ -1,5 +1,6 @@
 package citysim;
 
+import org.matsim.core.config.Config;
 import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
@@ -23,7 +24,20 @@ public final class TelemetryConfigGroup extends ReflectiveConfigGroup {
 
     public static final String NAME = "telemetry";
 
-    private double liveIntervalS = 3600.0;
+    /**
+     * Sentinel meaning "the config never set it", NOT a usable interval.
+     *
+     * <p>This field held {@code 3600.0} — exactly the value
+     * {@code RUN.telemetry.live_interval_s} declares. A Java default that
+     * EQUALS its registry value is this repository's signature defect in its
+     * worst form: it is right by accident, every test passes, and it silently
+     * stops being right the moment anyone sweeps the field, because a config
+     * that failed to write the parameter would run on this number and report
+     * success. {@link #checkConsistency} now refuses that run instead.
+     */
+    private static final double UNSET = -1.0;
+
+    private double liveIntervalS = UNSET;
 
     public TelemetryConfigGroup() {
         super(NAME);
@@ -52,5 +66,26 @@ public final class TelemetryConfigGroup extends ReflectiveConfigGroup {
     @StringSetter("liveIntervalS")
     public void setLiveIntervalS(final double value) {
         this.liveIntervalS = value;
+    }
+
+    /**
+     * Refuse a telemetry module that carries no interval.
+     *
+     * <p>The config is BUILT from the registry by
+     * {@code src/registry/param_config.py}, so a missing parameter means the
+     * binding was lost — and the one thing that must not happen then is for the
+     * run to continue on a number nobody chose.
+     */
+    @Override
+    public void checkConsistency(final Config config) {
+        super.checkConsistency(config);
+        if (this.liveIntervalS <= 0.0) {
+            throw new IllegalStateException(
+                    "telemetry.liveIntervalS was never set. It is declared as "
+                    + "RUN.telemetry.live_interval_s and written into the config "
+                    + "by src/registry/param_config.py; this class keeps no "
+                    + "usable default, because a default equal to the declared "
+                    + "value is right by accident.");
+        }
     }
 }

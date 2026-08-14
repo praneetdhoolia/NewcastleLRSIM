@@ -112,12 +112,34 @@ def check_fields(city_dir, name, doc):
     except registry.RegistryError as e:
         check(False, '%s: registry loads (%s)' % (name, e))
         return
-    missing = sorted(set(required) - set(fields))
+    # A field pinned to a MODE by its tool binding is required only of a city
+    # that runs that mode. Refusing a three-mode city for not declaring bike
+    # parameters it has no bike to apply them to is the contract being wrong,
+    # not the city - and required_fields.json derives the pin rather than
+    # anyone judging it, because the mode name is in the binding.
+    modes = set(doc.get('modes', []) if doc else [])
+    not_applicable = {k for k, spec in required.items()
+                      if spec.get('required_if_mode')
+                      and spec['required_if_mode'] not in modes}
+    applicable = set(required) - not_applicable
+
+    missing = sorted(applicable - set(fields))
     extra = sorted(set(fields) - set(required))
     for k in missing[:15]:
         check(False, '%s: required field not declared: %s (%s)'
               % (name, k, required[k]['units']))
-    check(not missing, '%s: all %d required fields declared' % (name, len(required)))
+    check(not missing, '%s: all %d required fields declared%s'
+          % (name, len(applicable),
+             '' if not not_applicable else
+             ' (%d not applicable: this city does not run %s)'
+             % (len(not_applicable),
+                ', '.join(sorted({required[k]['required_if_mode']
+                                  for k in not_applicable})))))
+    declared_foreign = sorted(not_applicable & set(fields))
+    check(not declared_foreign,
+          '%s: no field is declared for a mode this city does not run%s'
+          % (name, '' if not declared_foreign else
+             ': %s' % ', '.join(declared_foreign[:5])))
     if extra:
         check(True, '%s: %d field(s) declared beyond the contract - regenerate '
                     'required_fields.json if they are meant to be required: %s'

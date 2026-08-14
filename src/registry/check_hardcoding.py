@@ -592,6 +592,69 @@ def _numeric_constants(tree):
     return by_line
 
 
+# --------------------------------------------------------------------------
+# 8. Java-side defaults that shadow a declared value
+# --------------------------------------------------------------------------
+# A MATSim ConfigGroup field is a config parameter when a @StringSetter names
+# it. Its Java initialiser is the value used IF THE CONFIG NEVER SETS IT - so a
+# default equal to the declared value is the worst case the handover brief
+# names: right by accident, every test passing, and silently wrong the moment
+# anyone sweeps the field, because a config that lost the binding would run on
+# the Java number and report success.
+JAVA_FIELD = re.compile(
+    r'private\s+(?:static\s+)?(?:final\s+)?(?:double|int|long|float|boolean|String)\s+'
+    r'(\w+)\s*=\s*([^;]+);')
+JAVA_SETTER = re.compile(r'@StringSetter\("([^"]+)"\)')
+
+
+def _java_literal(text):
+    """The Java initialiser as a Python value, or None if it is not a literal."""
+    raw = text.strip().rstrip('LlFfDd') if text.strip()[-1:] in 'LlFfDd' else text.strip()
+    if raw.startswith('"') and raw.endswith('"'):
+        return raw[1:-1]
+    if raw in ('true', 'false'):
+        return raw == 'true'
+    try:
+        return float(raw) if '.' in raw or 'e' in raw.lower() else int(raw)
+    except ValueError:
+        return None
+
+
+def java_shadow_defaults(corpus, fields):
+    """A Java config default that EQUALS the value its registry field declares."""
+    by_param = {}
+    for key, f in fields.items():
+        if not isinstance(f, dict):
+            continue
+        for target in str(f.get('matsim_param') or '').split(','):
+            target = target.strip()
+            if target and '[' not in target:
+                by_param[target.split('.')[-1]] = (key, f.get('value'))
+
+    out = []
+    for path, text in sorted(corpus.items()):
+        if not path.endswith('.java'):
+            continue
+        params = set(JAVA_SETTER.findall(text))
+        for m in JAVA_FIELD.finditer(text):
+            name, raw = m.group(1), m.group(2)
+            if name not in params or name not in by_param:
+                continue
+            value = _java_literal(raw)
+            if value is None:
+                continue
+            key, declared = by_param[name]
+            same = value == declared
+            if isinstance(declared, list) and len(declared) == 1:
+                same = value == declared[0]
+            if isinstance(declared, (int, float)) and isinstance(value, (int, float)):
+                same = abs(float(value) - float(declared)) < 1e-9
+            if same:
+                out.append((rel(path), text[:m.start()].count('\n') + 1,
+                            name, raw.strip(), key))
+    return out
+
+
 def coordinates(corpus):
     """A line whose literals include both a plausible latitude and longitude.
 
@@ -720,6 +783,7 @@ def audit():
         template_literals=template_literals(corpus),
         script_decisions=script_decisions(corpus, fields),
         coordinates=coordinates(corpus),
+        java_shadow_defaults=java_shadow_defaults(corpus, fields),
         inert_bindings=[(k,) for k in inert],
     )
     if error:
@@ -773,7 +837,12 @@ def main():
         print('     %s:%-5d %s' % (f, ln, txt))
     print('     %d\n' % len(led['coordinates']))
 
-    print('6. INERT BINDINGS - the field is declared, resolves, and moving it '
+    print('6. JAVA DEFAULTS THAT EQUAL THEIR DECLARED VALUE - right by accident')
+    for f, ln, name, raw, key in led['java_shadow_defaults']:
+        print('     %s:%-5d %-22s = %-12s shadows %s' % (f, ln, name, raw, key))
+    print('     %d\n' % len(led['java_shadow_defaults']))
+
+    print('7. INERT BINDINGS - the field is declared, resolves, and moving it '
           'changes NOTHING')
     for (key,) in led['inert_bindings']:
         print('     %s' % key)
@@ -782,7 +851,7 @@ def main():
     print('     %d of %d bound field(s) proven to reach the config by changing '
           'them\n' % (n_reaching, n_reaching + len(led['inert_bindings'])))
 
-    print('7. STALE EXCEPTIONS - a STRUCTURAL entry whose symbol is gone')
+    print('8. STALE EXCEPTIONS - a STRUCTURAL entry whose symbol is gone')
     for (key,) in led['stale_structural']:
         print('     %s' % key)
     print('     %d of %d structural exception(s) no longer name anything'

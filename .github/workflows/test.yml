@@ -73,6 +73,24 @@ jobs:
       - name: No value is decided in a script
         run: python src/registry/check_hardcoding.py --strict
 
+  city_agnostic:
+    name: a second city runs the framework unchanged (G2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install the JSON Schema validator
+        run: pip install jsonschema
+      # G2 said "structurally in place, never exercised" for the whole life of
+      # the restructure. This exercises it: a second city is built from the
+      # reference city's declarations under a different identity, and the
+      # assertions are DIFFERENCES - a config that merely parsed would pass even
+      # if every value in it belonged to the reference city. It needs no data.
+      - name: Build a city the framework has never seen and emit its config
+        run: python tests/check_city_agnostic.py
+
   provenance:
     name: provenance + decision-record presence
     runs-on: ubuntu-latest

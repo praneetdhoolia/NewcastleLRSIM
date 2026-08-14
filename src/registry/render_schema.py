@@ -38,6 +38,7 @@ import ast
 import io
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -60,16 +61,39 @@ SWEPT_SOURCES = registry.SWEPT_SOURCES
 TYPES = {bool: 'boolean', int: 'number', float: 'number', str: 'string',
          list: 'array', dict: 'object', type(None): 'null'}
 
+# A tool binding may pin a field to ONE MODE - `modeParams[bike].constant`,
+# `teleportedModeParameters[walk].beelineDistanceFactor`. Such a field is
+# required only of a city that runs that mode, which is the narrowing this
+# document's own caveat says is "not done". It is done for modes now, because
+# modes are the one case that can be DERIVED rather than judged: the mode name
+# is in the binding. A three-mode city was refused as incomplete for not
+# declaring bike parameters it has no bike to apply them to.
+TOOL_BINDINGS = ('matsim_param', 'sumo_param', 'pt2matsim_osm_param',
+                 'pt2matsim_mapper_param')
+_SELECTOR = re.compile(r'\[([^\]]+)\]')
+
+
+def required_mode(field, modes):
+    """The mode a field's binding pins it to, or None if it applies to all."""
+    known = set(modes)
+    for bind in TOOL_BINDINGS:
+        for sel in _SELECTOR.findall(str(field.get(bind) or '')):
+            if sel != '*' and sel in known:
+                return sel
+    return None
+
 
 # --------------------------------------------------------------------------
 # required_fields.json
 # --------------------------------------------------------------------------
 def build_fields():
     fields, origin = registry.load_registry()
+    modes = _city.descriptor().get('modes', [])
     out = {}
     for key in sorted(fields):
         f = fields[key]
         value = f.get('value')
+        mode = required_mode(f, modes)
         out[key] = {
             'layer': key.split('.')[0],
             'units': f.get('units'),
@@ -79,6 +103,8 @@ def build_fields():
             'unobtained_in_reference_city': f.get('status') == 'unobtained',
             'declared_in': origin[key].split('/')[-1],
         }
+        if mode:
+            out[key]['required_if_mode'] = mode
     by_layer = {}
     for key, spec in out.items():
         by_layer[spec['layer']] = by_layer.get(spec['layer'], 0) + 1
@@ -97,9 +123,12 @@ def build_fields():
                      "value type; WHY a particular city chose a particular value belongs "
                      "in that city's docs/reference/CONFIG_REFERENCE.md."),
         'caveat': ('`required` means the reference city declares it and the framework '
-                   'will not run without it. It does NOT mean every city needs it: an '
-                   'intervention-specific field is meaningless to a city without that '
-                   'intervention. Narrowing this set per model layer is not done.'),
+                   'will not run without it. A field carrying `required_if_mode` is '
+                   'required ONLY of a city that runs that mode - the one narrowing '
+                   'that can be DERIVED, because the mode name is in the tool binding. '
+                   'The rest is not narrowed: an intervention-specific field is still '
+                   'listed for a city that has no such intervention, and omitting one '
+                   'must be justified rather than assumed.'),
         'n_fields': len(out),
         'n_by_layer': dict(sorted(by_layer.items())),
         'fields': out,

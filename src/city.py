@@ -33,7 +33,24 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 CITIES_DIR = os.path.join(REPO, 'cities')
 
-CITY = os.environ.get('CITYSIM_CITY', 'newcastle')
+# Environment variables the FRAMEWORK reserves for itself. They select and
+# locate a city; they are not registry field overrides, and the resolver must
+# skip them when it reads `CITYSIM_*` from the environment.
+#
+# It did not. Setting CITYSIM_CITY to anything at all - INCLUDING ITS OWN
+# DEFAULT - made every `registry.load()` raise "env CITYSIM_CITY matches no
+# registry field", so the city selector documented in README.md, docs/README.md
+# and .claude/CLAUDE.md could not be used. Nobody had set it: one city, and the
+# default is applied when the variable is absent. The bug surfaced the first
+# time a second city was actually exercised.
+DEFAULT_CITY = 'newcastle'
+CITY_ENV = 'CITYSIM_CITY'
+RESERVED_ENV = (CITY_ENV, 'CITYSIM_REPO')
+
+# `or` rather than a get() default: an EMPTY variable is not a city, and it
+# resolved to `cities/` itself - which then failed several hundred lines
+# later with 'no registry fields found', naming a directory nobody set.
+CITY = os.environ.get(CITY_ENV, '').strip() or DEFAULT_CITY
 CITY_DIR = os.path.join(CITIES_DIR, CITY)
 
 SCHEMA_DIR = os.path.join(REPO, 'config', 'schema')

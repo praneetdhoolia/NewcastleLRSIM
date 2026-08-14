@@ -172,10 +172,17 @@ def validate(fields=None, strict_schema=True):
 # resolution
 # --------------------------------------------------------------------------
 def _env_overrides():
-    """CITYSIM_A_LIGHTRAIL_DWELL_FIXED_S -> A.lightrail.dwell_fixed_s, by matching."""
+    """CITYSIM_A_LIGHTRAIL_DWELL_FIXED_S -> A.lightrail.dwell_fixed_s, by matching.
+
+    Framework variables are skipped: they SELECT a city, they do not override a
+    value in one. The skip list is `city.RESERVED_ENV` rather than a literal
+    here, because the two copies had already disagreed - this function excluded
+    only CITYSIM_REPO, so setting CITYSIM_CITY (the documented city selector,
+    even to its own default) made every load raise "matches no registry field".
+    """
     out = {}
     for name, raw in os.environ.items():
-        if not name.startswith(ENV_PREFIX) or name == ENV_PREFIX + 'REPO':
+        if not name.startswith(ENV_PREFIX) or name in _city.RESERVED_ENV:
             continue
         out[name[len(ENV_PREFIX):]] = raw
     return out

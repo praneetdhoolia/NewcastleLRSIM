@@ -1,5 +1,6 @@
 package citysim;
 
+import org.matsim.core.config.Config;
 import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
@@ -23,11 +24,17 @@ public final class ParkingConfigGroup extends ReflectiveConfigGroup {
 
     public static final String GROUP_NAME = "parking";
 
+    // Every default here is NEUTRAL - it means "charge nothing" - except one,
+    // which used to be `chargedModes = "car"`: exactly what
+    // A.parking.charged_modes declares. A default equal to its registry value
+    // is right by accident, and it would keep charging cars if the binding that
+    // writes the parameter were ever lost. Empty now, and checkConsistency
+    // refuses a priced run that never named a mode.
     private String priceFile = "";
     private double maxStayMinutes = 0.0;
     private double chargedStartHour = 0.0;
     private double chargedEndHour = 0.0;
-    private String chargedModes = "car";
+    private String chargedModes = "";
     private String exemptActivityTypes = "";
 
     public ParkingConfigGroup() {
@@ -121,4 +128,25 @@ public final class ParkingConfigGroup extends ReflectiveConfigGroup {
     public void setExemptActivityTypes(final String value) {
         this.exemptActivityTypes = value == null ? "" : value.trim();
     }
+
+    /**
+     * A priced run must say WHICH MODES it charges.
+     *
+     * <p>The config is BUILT from the registry, so an empty mode list beside a
+     * price file means the binding was lost - and a run that silently charges
+     * nobody looks exactly like a correct run, which is how parking price sat
+     * declared and unread from P1 until issue #33.
+     */
+    @Override
+    public void checkConsistency(final Config config) {
+        super.checkConsistency(config);
+        if (!this.priceFile.isEmpty() && this.chargedModes.trim().isEmpty()) {
+            throw new IllegalStateException(
+                    "parking.priceFile is set but parking.chargedModes is empty, "
+                    + "so nothing would be charged. chargedModes is declared as "
+                    + "A.parking.charged_modes and written into the config by "
+                    + "src/registry/param_config.py.");
+        }
+    }
+
 }
