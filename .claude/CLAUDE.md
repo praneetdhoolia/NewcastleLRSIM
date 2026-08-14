@@ -174,7 +174,15 @@ more transparent about its assumptions than the business case it examines.
 | `python tests/check_manifest.py` | CI (`.github/workflows/test.yml`) + local | committed files only |
 | `python -m compileall -q src tests` | CI | nothing |
 | JSON validity of provenance / scenario / params files | CI | nothing |
+| `python src/registry/check_hardcoding.py` | local, **before every commit** | committed files only |
 | `python tests/check_package.py` | **local only** | the full ~2.3 GiB package |
+
+**`check_hardcoding.py` is the ledger for the rule above it: every value declared,
+nothing decided in a script.** It reports declared-but-unwired fields, config
+template literals, numeric constants in the build layer, and coordinates typed
+into code. It reports rather than fails by default — the count is currently **95**
+and is worked down, not silenced. `--strict` exits 1 and is the eventual gate.
+**If your change adds an item, the change is not finished.**
 
 CI deliberately runs nothing that downloads a source dataset or executes a scenario:
 those depend on ABS/TfNSW/Overpass availability and on compute, not on the diff. Run

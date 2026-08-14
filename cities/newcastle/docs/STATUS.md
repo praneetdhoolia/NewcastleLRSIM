@@ -73,7 +73,28 @@ start, at near-zero CPU with zero log output, confirmed by MATSim's own
 not under OneDrive. It did not recur in ~400 iterations. Unattributed — do not
 assume it is gone.
 
-### ⚠ Declared values that reach nothing — found, NOT yet fixed
+### ⚠ The hardcoding ledger — 95 items, audited and NOT yet fixed
+
+```
+python src/registry/check_hardcoding.py            report
+python src/registry/check_hardcoding.py --strict   exit 1 if anything is found
+```
+
+Committed this session and city-agnostic. **37** declared-but-unwired fields ·
+**44** MATSim config-template literals · **11** numeric constants in the build
+layer · **3** coordinates typed into a script. The full ledger, ordered by what
+changes a result, is §2 of
+[`NEXT_AGENT_BRIEF.md`](handover/NEXT_AGENT_BRIEF.md); the highest-value items
+are below. Two entries — `DETOUR_FACTOR` and `DWELL_CHARGING` — are **deliberate**
+divergences pinned by `legacy_symbol`; leave them.
+
+Three that are not merely unwired but **undeclared anywhere**:
+`BrainExpBeta = 1.0` (the logit scale — it governs how sharply agents respond to
+utility differences), `learningRate = 1.0`, and `lateArrival = -18.0` util/h.
+And `fractionOfIterationsToDisableInnovation` is hardcoded `0.8` in the template
+while `RUN.replanning.fraction_to_disable_innovation` is read **only** by
+`summarise_run.py` to report the cutoff back — **the value the whole relaxation
+measurement hinges on decides nothing.**
 
 The issue #12 / #21 / #33 defect class again, in the run-input builder. These
 registry fields are read by **no code at all**; `build_matsim_run_inputs.py`
