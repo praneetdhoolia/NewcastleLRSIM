@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 294 fields are made of
+## What the 292 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 25 | follows from another registry field by identity |
 | `literature` | 35 | a published value, not specific to this city |
 | `assumed` | 122 | chosen without direct empirical support |
-| `definition` | 87 | fixed by the formulation, not an empirical quantity |
+| `definition` | 85 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 273 | usable point value |
+| `active` | 271 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -885,9 +885,9 @@ Probability that a tour of each purpose departs in each hour 0-23. ONE HUNDRED A
 
 #### `B.activity.detour_factor`
 
-Straight-line to network distance, routed over the observed A1 road graph. Replaces an assumed 1.30. The build script keeps a 1.30 fallback labelled 'assumed - C2 factors file not found'; that fallback is now this field.
+Straight-line to network distance, routed over the observed A1 road graph. Replaces an assumed 1.30. The build script keeps a 1.30 fallback labelled 'assumed - C2 factors file not found'; that fallback is now this field. The build script no longer keeps its own copy: it READS THIS FIELD as the fallback when params/C2_network_factors.json is absent, so the two values that check_legacy_drift.py existed to compare are now one value.
 
-***measured** · status **active** · DECISIONS.md §9.2 · was `src/build/build_activity_chains.py:DETOUR_FACTOR`*
+***measured** · status **active** · DECISIONS.md §9.2*
 
 > **Sweep basis.** the interquartile range of the per-pair ratios over 551 population-weighted zone pairs
 
@@ -1648,7 +1648,7 @@ Frontage-level retail vacancy. NOT OBTAINED and not currently consumed by any me
 
 ## Scenario configuration (E1)
 
-*`cities/newcastle/registry/E_scenario.json` - 29 fields*
+*`cities/newcastle/registry/E_scenario.json` - 27 fields*
 
 The scenario matrix and the coupling controls. Per-scenario variant references stay in scenarios/S*.json, which bind a scenario to its network, schedule, land use, parking, signals, demand and parameter sets; this layer holds the values those configs share.
 
@@ -1657,8 +1657,6 @@ The scenario matrix and the coupling controls. Per-scenario variant references s
 | `E.bus.signal_delay_share` | `0.5` | share | `assumed` | 0.3 - 1 |
 | `E.coupling.outer_loop_tolerance_s` | `5.0` | seconds | `assumed` | **held fixed** |
 | `E.lightrail.extension_detour_factor` | `1.15` | factor | `assumed` | 1 - 1.4 |
-| `E.matrix.base_year` | `2026` | year | `definition` | - |
-| `E.matrix.crs` | `EPSG:28356` | enum | `definition` | - |
 | `E.matrix.day_types` | `["WEEKDAY", "SAT", "SUN"]` | enum | `definition` | - |
 | `E.matrix.reference_scenario` | `S2` | enum | `definition` | - |
 | `E.matrix.scenario_ids` | `["S0", "S1", "S2", "S2a", "S2b", "S2c", "S3", "S4", "S5", "S6"]` | enum | `definition` | - |
@@ -1709,18 +1707,6 @@ Path-length multiplier on the beeline between stops of a light rail EXTENSION (S
 ***assumed** · status **active** · DECISIONS.md §4.3, 9.34, 15*
 
 > **Sweep basis.** how much longer a street-running extension is than the straight line between its stops. Higher than the reserved-alignment factor because a tram on a street follows the street. Nothing measures it for an extension that does not exist.
-
-#### `E.matrix.base_year`
-
-Base year, using 2021 Census marginals with HTS 2024/25 behaviour.
-
-***definition** · status **active** · DECISIONS.md §1*
-
-#### `E.matrix.crs`
-
-GDA94 / MGA Zone 56, metres. The proposal label GDA2020 was corrected.
-
-***definition** · status **active** · DECISIONS.md §2.6*
 
 #### `E.matrix.day_types`
 

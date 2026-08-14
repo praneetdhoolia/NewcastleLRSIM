@@ -131,8 +131,17 @@ def build_config(src_dir, run_dir, scenario, day, fraction, seed, overrides, cfg
         scaled = []
     else:
         n_in, n_out = subsample_plans(plans_src, plans_dst, fraction, seed)
-        scaled = scale_transit_capacity(veh_src, veh_dst, fraction,
-                                        cfg.get('RUN.sample.transit_capacity_floor'))
+        # The switch DECIDES this now. It was declared as "not optional in
+        # practice - at a 10% sample an unscaled bus carries 700 real people, so
+        # capacity never binds and crowding silently disappears" and then read
+        # by nothing, which is the failure it warns about.
+        if cfg.get('RUN.sample.transit_capacity_scaling'):
+            scaled = scale_transit_capacity(
+                veh_src, veh_dst, fraction,
+                cfg.get('RUN.sample.transit_capacity_floor'))
+        else:
+            shutil.copyfile(veh_src, veh_dst)
+            scaled = []
 
     # The parking price table sits beside the scenario network, one per scenario.
     # Checked rather than assumed: a config that lost its price file would run

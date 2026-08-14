@@ -29,12 +29,21 @@ from registry import extract_legacy_constants as legacy   # noqa: E402
 # Fields whose registry value is deliberately NOT the legacy literal, with the
 # reason. Each one is a value the project decided to change; the constant is
 # still in the source only because that script has not been migrated.
+# EMPTY, AND THAT IS THE POINT. Both entries are retained with a `_removed_`
+# prefix so the reasoning survives review, but neither names a live field:
+#
+#   B.activity.detour_factor - the build script now reads the field as its
+#     fallback, so there is no second copy to diverge from.
+#   A.lightrail.dwell_charging_s - it never carried a `legacy_symbol`, so this
+#     entry compared NOTHING while the handover brief told the next agent the
+#     constant was pinned and should be left alone. The constant is gone: the
+#     baseline sweep point comes from the reference scenario's overlay.
 EXPECTED_DIVERGENCE = {
-    'B.activity.detour_factor': (
+    '_removed_B.activity.detour_factor': (
         'the build script keeps 1.30 as a fallback labelled "assumed - C2 factors file '
         'not found"; the registry carries the MEASURED 1.3376 that C2 supplies at load '
         '(DECISIONS.md 9.2)'),
-    'A.lightrail.dwell_charging_s': (
+    '_removed_A.lightrail.dwell_charging_s': (
         'the registry declares this UNOBTAINED with no point value; the build script '
         'literal 20.0 is the baseline sweep point, which now lives in the scenario '
         'overlays (DECISIONS.md 0, 4.3)'),

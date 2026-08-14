@@ -721,8 +721,16 @@ def main():
     out['S2a'] = summarise(s2a, 'S2a')
 
     # S2b - full transit signal priority (75% of signal delay removed)
-    saving = (SIGNAL_DELAY_PER_INT * N_CORRIDOR_INTERSECTIONS
-              * CFG.get('E.s2b.signal_delay_removed_share') / N_LR_SEGMENTS)
+    # A.lightrail.tsp_enabled says WHETHER priority applies and
+    # E.s2b.signal_delay_removed_share says what it is worth. Every one of the
+    # ten scenario overlays set tsp_enabled and NOTHING READ IT, so S2b - the
+    # scenario that exists to price signal priority - was distinguished from S2
+    # only by a literal 0.75 in this expression.
+    s2b_cfg = _registry.load(scenario='S2b')
+    saving = 0.0
+    if s2b_cfg.get('A.lightrail.tsp_enabled'):
+        saving = (SIGNAL_DELAY_PER_INT * N_CORRIDOR_INTERSECTIONS
+                  * s2b_cfg.get('E.s2b.signal_delay_removed_share') / N_LR_SEGMENTS)
     s2b = scale_lr_runtime(base, delta_per_segment_s=-saving)
     write_feed(renumber_sequences(s2b), os.path.join(OUT, 'S2b.zip'))
     out['S2b'] = summarise(s2b, 'S2b')

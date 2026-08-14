@@ -53,24 +53,6 @@
         "src/build/build_activity_chains.py"
       ]
     },
-    "E.matrix.base_year": {
-      "value": 2026,
-      "units": "year",
-      "source": "definition",
-      "sweep": null,
-      "status": "active",
-      "decisions_ref": "1",
-      "description": "Base year, using 2021 Census marginals with HTS 2024/25 behaviour."
-    },
-    "E.matrix.crs": {
-      "value": "EPSG:28356",
-      "units": "enum",
-      "source": "definition",
-      "sweep": null,
-      "status": "active",
-      "decisions_ref": "2.6",
-      "description": "GDA94 / MGA Zone 56, metres. The proposal label GDA2020 was corrected."
-    },
     "E.replication.n_replications": {
       "value": 30,
       "units": "count",

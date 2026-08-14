@@ -156,9 +156,15 @@ P_INTERMEDIATE_SWEEP = (0.10, 0.35)
 # over the observed A1 road graph and takes the aggregate ratio. Loaded from
 # params/C2_network_factors.json; the fallback below is only used if that file
 # is missing, and the build says so when it falls back.
-DETOUR_FACTOR = 1.30
-DETOUR_SWEEP = (1.20, 1.40)
-DETOUR_SOURCE = 'assumed - C2 factors file not found'
+# The fallback is the DECLARED field, not a literal beside it. Both carried the
+# same quantity and only one of them was compared with anything: the field held
+# the measured 1.3376 while this held 1.30, pinned by `legacy_symbol` so
+# check_legacy_drift.py could see the divergence - but a divergence recorded is
+# still two copies. There is one now, and the sweep comes from the field's own
+# `sweep` key rather than from a tuple typed beside it.
+DETOUR_FACTOR = CFG.get('B.activity.detour_factor')
+DETOUR_SWEEP = tuple(CFG.sweep('B.activity.detour_factor'))
+DETOUR_SOURCE = '%s - C2 factors file not found, using the declared value'     % CFG.source('B.activity.detour_factor')
 NETWORK_FACTORS = _city.path('params/C2_network_factors.json')
 
 # Mean activity duration in minutes by purpose (carried from P1, DECISIONS 9).

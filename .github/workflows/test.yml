@@ -57,6 +57,22 @@ jobs:
       - name: Every city satisfies the contract
         run: python src/registry/check_city.py --all
 
+  hardcoding:
+    name: zero hardcoding (declared, wired, and proven to reach)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      # THE GATE. Every controllable value is declared, every declared field
+      # either reaches the model or carries a written reason, and every field
+      # bound to a tool parameter is proven to reach it by changing the value
+      # and watching the emitted config change. It needs no data: the configs
+      # are emitted in memory and nothing is run.
+      - name: No value is decided in a script
+        run: python src/registry/check_hardcoding.py --strict
+
   provenance:
     name: provenance + decision-record presence
     runs-on: ubuntu-latest
@@ -79,5 +95,17 @@ jobs:
           for f in cities/*/scenarios/*.json cities/*/params/*.json cities/*/overlays/*/*.json config/schema/*.json; do
             python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8')); print('PASS  ' + sys.argv[1])" "$f"
           done
-      - name: DECISIONS.md is present and non-trivial (proposal 8.1 requires it)
-        run: test -s docs/DECISIONS.md && test "$(wc -l < docs/DECISIONS.md)" -gt 50
+      # The path is per city since the restructure moved each study's records
+      # under cities/<city>/docs/. This step pointed at the old docs/DECISIONS.md
+      # and had been FAILING on every push since, which is the same class of
+      # defect the rest of this change is about: a check that cannot see what it
+      # claims to check.
+      - name: Every city's DECISIONS.md is present and non-trivial (proposal 8.1)
+        run: |
+          shopt -s nullglob
+          found=0
+          for f in cities/*/docs/DECISIONS.md; do
+            found=1
+            test -s "$f" && test "$(wc -l < "$f")" -gt 50 && echo "PASS  $f"
+          done
+          test "$found" = 1

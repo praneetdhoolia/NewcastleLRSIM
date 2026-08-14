@@ -4,14 +4,14 @@
   "contract": "Every key below must be declared by any city, with the stated units and value type. A field whose source is measured, derived, literature or assumed MUST additionally carry a sweep, a held_fixed rule or a derived_from identity - field.schema.json enforces that, and check_city.py tests it.",
   "no_prose": "Field DESCRIPTIONS are deliberately absent. They are the reference city's own wording and would put one city's prose - its suburbs, its agencies, its datasets - inside the portable half of the contract. What a city must supply is a key, its units and its value type; WHY a particular city chose a particular value belongs in that city's docs/reference/CONFIG_REFERENCE.md.",
   "caveat": "`required` means the reference city declares it and the framework will not run without it. It does NOT mean every city needs it: an intervention-specific field is meaningless to a city without that intervention. Narrowing this set per model layer is not done.",
-  "n_fields": 294,
+  "n_fields": 292,
   "n_by_layer": {
     "A": 92,
     "B": 38,
     "C": 55,
     "CAL": 6,
     "D": 5,
-    "E": 29,
+    "E": 27,
     "RUN": 69
   },
   "fields": {
@@ -1803,24 +1803,6 @@
       "type": "number",
       "source_in_reference_city": "assumed",
       "sweep_required": true,
-      "unobtained_in_reference_city": false,
-      "declared_in": "E_scenario.json"
-    },
-    "E.matrix.base_year": {
-      "layer": "E",
-      "units": "year",
-      "type": "number",
-      "source_in_reference_city": "definition",
-      "sweep_required": false,
-      "unobtained_in_reference_city": false,
-      "declared_in": "E_scenario.json"
-    },
-    "E.matrix.crs": {
-      "layer": "E",
-      "units": "enum",
-      "type": "string",
-      "source_in_reference_city": "definition",
-      "sweep_required": false,
       "unobtained_in_reference_city": false,
       "declared_in": "E_scenario.json"
     },

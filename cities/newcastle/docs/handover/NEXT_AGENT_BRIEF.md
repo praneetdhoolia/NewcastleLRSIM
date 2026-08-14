@@ -27,8 +27,10 @@ If nothing is running and you need the iteration count (#5):
 python run.py --run-config convergence_pilot_25pct --tag conv1000_25pct_<what>
 ```
 
-**~13 h alone on this machine.** 1000 iterations, innovation off at 800, leaving
-200 iterations of measurable post-innovation drift per mode.
+**~16 h alone on this machine** - MEASURED at 58 s/iteration over the 43
+iterations the dead arm completed, not the ~13 h this brief previously stated.
+1000 iterations, innovation off at 800, leaving 200 iterations of measurable
+post-innovation drift per mode.
 
 **RUN ONE ARM AT A TIME.** Three arms (1% + 10% + 25%) were tried together and
 the machine paged: three declared heaps total 78 GiB against 63.5 GiB of RAM,
@@ -95,7 +97,7 @@ Three things follow, and they are not negotiable:
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§2  ★ THE HARDCODING LEDGER — 95 ITEMS, AND IT IS THE FIRST WORK
+§2  ★ THE HARDCODING LEDGER — DONE. IT IS ZERO, AND `--strict` GATES CI
 ═══════════════════════════════════════════════════════════════════════════════
 
 ```bash
@@ -103,88 +105,61 @@ python src/registry/check_hardcoding.py            # report
 python src/registry/check_hardcoding.py --strict   # exit 1 if anything is found
 ```
 
-Committed this session, city-agnostic, and it names no place. **Current count:
-95** — 37 unwired fields, 44 template literals, 11 numeric constants, 3
-coordinates. Work it down. `--strict` is the gate you are aiming at.
+**This section used to say 95 items and "it is the first work". Both are now
+historical.** The honest starting count was **185** — the audit was measuring
+the wrong things — and it is **0**. Read `STATUS.md` for the table and
+`DECISIONS.md` §14 (15 Aug) for the reasoning. What a new agent needs:
 
-### 2.1 The five that change a result — fix these first
+1. **There is no config template.** `src/registry/param_config.py` BUILDS the
+   MATSim config and pt2matsim's two from fields carrying a `matsim_param` /
+   `pt2matsim_*_param` binding. To add a MATSim parameter, **declare a field
+   with a binding** — do not add a literal, because there is nowhere to put one
+   and `closure()` fails the build if you find one.
+2. **`run_matsim.py` emits, it does not patch.** A run overlay now reaches every
+   declared field, not the six the old patcher rewrote.
+3. **Reach is proven, not claimed.** `check_hardcoding` question 6 changes each
+   bound value and diffs the emitted config: **69 of 69 reach**. This is the
+   rule in §1 turned into a test. Keep it passing.
+4. **Two committed registers, each entry with a written reason**:
+   `STRUCTURAL` (18 — an HTTP status, a gzip level, decimal places) and
+   `PENDING_CONSUMER` (7 — declared ahead of the phase that will read them,
+   each naming its issue). Both are pruned automatically when they go stale.
+   **A model value must never be added to `STRUCTURAL`.**
 
-| What | Where | Why it matters |
-|---|---|---|
-| **`fractionOfIterationsToDisableInnovation = "0.8"`** | [`build_matsim_run_inputs.py`](../../../../src/build/build_matsim_run_inputs.py) L628, hardcoded in the config template | `RUN.replanning.fraction_to_disable_innovation` exists and is read **only by `summarise_run.py`, to report the cutoff back from the config snapshot**. The field decides nothing. **This is the value the entire relaxation measurement hinges on** |
-| **`STRATEGIES = [('ChangeExpBeta', 0.70), ('ReRoute', 0.15), ('SubtourModeChoice', 0.10), ('TimeAllocationMutator', 0.05)]`** | same file, L712 | Exactly duplicates `RUN.replanning.weights`, which **nothing reads**. Strategy weights govern how far co-evolution can move mode share. The comment beside it calls the mode-choice weight "swept" — **it is not swept** |
-| **`BrainExpBeta = 1.0`, `learningRate = 1.0`** | template L614–615 | **No registry field exists at all.** `BrainExpBeta` is the logit scale — it governs how sharply agents respond to utility differences. Undeclared, unswept |
-| **`lateArrival = -18.0`, `earlyDeparture = 0.0`, `waiting = 0.0`** | template L618–620 | **No registry field.** These are behavioural scoring penalties in util/h |
-| **`maxLinkLength = 500.0`** | [`build_matsim_network.py`](../../../../src/build/build_matsim_network.py) L210 | Network construction parameter, decided in the script |
+### ⚠ Two things THIS BRIEF told you that were wrong
 
-### 2.2 Declared, and shadowed by a literal that currently matches
+- **§2.7 said `DWELL_CHARGING = 20.0` was pinned by `legacy_symbol` and should
+  be left alone.** It carried none. `check_legacy_drift.py` never compared it,
+  its `EXPECTED_DIVERGENCE` entry compared nothing, and it **pinned an
+  `unobtained` input in a script** — the one refusal the registry exists to
+  make. Fixed: it takes the baseline sweep point from the reference scenario's
+  overlay.
+- **§7 said 12 open issues and "#36 closed".** #36 is **OPEN**. There are 13.
+  `STATUS.md` was right.
 
-Right by accident. Sweeping any of them changes nothing.
+### What the fix exposed, and what it changed
 
-`RUN.controler.first_iteration` (L596 `"0"`) · `RUN.controler.compression_type`
-(L601 `"gzip"`) · `RUN.qsim.start_time_h` (L604 `"00:00:00"`) ·
-`RUN.qsim.end_time_h` (L605 `"30:00:00"`) · `RUN.qsim.main_mode` (L609 `"car"`) ·
-`RUN.controler.write_plans_interval` and `RUN.replanning.max_agent_plan_memory`
-(substituted — but from `main()`'s **Python defaults**, `plan_memory=5`, not from
-the registry).
-
-### 2.3 Coordinates in a script — a direct hard-constraint violation
-
-```
-cities/newcastle/build/build_scenario_schedules.py:301  (-32.92404, 151.75908)
-cities/newcastle/build/build_scenario_schedules.py:399  (-32.92433, 151.75943)   INTERCHANGE_LL
-cities/newcastle/build/build_scenario_schedules.py:400  (-32.92230, 151.69440)   JHH_LL
-```
-
-`.claude/CLAUDE.md` is absolute: *"Never put a place name, a coordinate or a
-hand-drawn extent in a script."* A typed-in rectangle cannot be wrong in a way
-anyone notices — the OSM harvest box clipped **87 of 1,500 core SA1s** out of the
-road network and nobody saw it for three phases. These belong in
-`cities/<city>/geometry/` or the registry.
-
-### 2.4 The seed exists in nine copies
-
-`RUN.machine.seed = 20260810` is declared. The literal `20260810` also appears in
-`build_matsim_plans.py:67`, `measure_network_factors.py:61`,
-`build_scenario_configs.py:36`, and as an argparse default in four more places.
-**Determinism is the project's headline claim and it rests on a value with nine
-copies.**
-
-### 2.5 Sweeps typed beside the value they bound
-
-`DAY_PURPOSE_MIX_SWEEP`, `ACT_DURATION_SWEEP`, `TYPICAL_DURATION_SWEEP`,
-`P_SECOND_STOP_SWEEP`, `DETOUR_SWEEP`, `PERFORMING_SWEEP`,
-`MONETARY_DISTANCE_RATE_SWEEP`, `SUBTOUR_MODE_CHOICE_WEIGHT_SWEEP`,
-`PRE_LR_LANES_SWEEP`, `EXTENSION_LANE_TAKE_SWEEP`, `EXTERNAL_INTERACTION_SWEEP`,
-`SAT_TO_SUN_SWEEP`. The registry field schema **has a `sweep` key** — that is
-where a sweep belongs. A sweep range in a script cannot be resolved, overlaid or
-varied by a run overlay.
-
-### 2.6 Large literal tables in scripts
-
-`DEPART` (144 numbers, departure-time profiles, comment says "Assumed,
-NSW-typical shapes") · `WAY_DEFAULTS` (54) · `SEED_MODE_SPLIT` and
-`SEED_MODE_SPLIT_INFORMED` (9 each) · `TYPICAL_DURATION_S` (12). Some duplicate
-registry fields (`A.road.speed_default`, `A.road.lanes_default`,
-`A.road.capacity_default`) — **check before assuming, they may be a second copy.**
-
-### 2.7 Two guarded exceptions — leave them alone
-
-`DETOUR_FACTOR = 1.3` and `DWELL_CHARGING = 20.0` are pinned by
-`legacy_symbol` and listed in `check_legacy_drift.py`'s `EXPECTED_DIVERGENCE`
-with reasons. They are **deliberate**, tested divergences. Do not "fix" them
-without reading §9.2 and §0/§4.3.
-
-### 2.8 How to do this work safely
-
-**Fixing §2.1/§2.2 edits the builder and requires regenerating all 30 run-input
-sets**, which invalidates any run in flight (§3.5, one build per comparison).
-**Do it with the B0 batch, which regenerates them anyway.** Do not do it under a
-running pilot.
-
-**And beware the near-miss that nearly caught me:** `c1['weights']` in the same
-builder is a **different quantity** — behavioural betas (`beta_ivt`,
-`beta_wait`), not strategy weights. §8's second half is about exactly this.
+- **Four fields were bound to a parameter of a different kind** — an exponent
+  to a factor, a time ratio to a util/hour rate, a window dict to two scalar
+  hours, a duration table with no clock format. The emitter found each by
+  refusing to write it.
+- **`0.75` was the S2b intervention.** "Full transit signal priority" removes
+  75% of corridor signal delay, and that share sat as a bare literal in an
+  arithmetic expression — a form no module-level constant scan can see.
+  `A.lightrail.tsp_enabled` reached nothing while all ten scenario overlays set
+  it. Both declared and wired.
+- **The S1 and S3 alignments were 22 typed coordinates**, with the S3 list a
+  copy of the S1 list. They are in `cities/<city>/geometry/`, and S3 is now
+  expressed as which S1 stops it omits.
+- **`make_bus_shuttle(speed_kmh=28.0, dwell_s=15.0)` were dead defaults** — the
+  S1 call site passed 26.0 and 18.0.
+- ⚠ **ONE MODEL VALUE CHANGED.** The network builder held a second copy of the
+  road class defaults which had **drifted on six classes in both directions**
+  (motorway 100 v 110, trunk 80 v 60, plus three links and `service`). One copy
+  now, taking the declared speed. **The next network build changes on those six
+  classes** — expected, and #32 rebuilds it anyway.
+- **CI had been failing since the city restructure**: the provenance job tested
+  `docs/DECISIONS.md`, which moved to `cities/<city>/docs/`.
 
 ---
 
@@ -259,11 +234,10 @@ the regeneration cost once.**
 
 | Order | Task | Issue | Effort | Notes |
 |---|---|---|---|---|
-| **H0.1** | §2.1 — the five that change a result | — | ~1 day | Declare `BrainExpBeta`, `learningRate`, `lateArrival`, `earlyDeparture`, `waiting`, `maxLinkLength`; wire `fraction_to_disable_innovation` and `RUN.replanning.weights`. **Prove reach by changing each value and watching the config change** |
-| **H0.2** | §2.2 — the shadowed literals | — | hours | Substitute from the resolver; delete the literal |
-| **H0.3** | §2.3 — coordinates out of scripts | — | hours | Into `cities/<city>/geometry/`. Derive from a tag or boundary if you can |
-| **H0.4** | §2.4/§2.5 — one seed, sweeps into `sweep` | — | ~1 day | |
-| **H0.5** | §2.6 — the literal tables | — | ~1 day | **Check for duplication against `A.road.*` first** |
+| ~~H0.1–H0.5~~ | **DONE 15 Aug.** Ledger 185 → **0**; `--strict` gates CI | — | took ~1 day | The config is BUILT from the registry, so the literals have nowhere to live. 69 of 69 bound fields **proven** to reach by changing them. See §2 |
+| **H0.6** | **Delete the dead pilot** | — | minutes | `results/conv1000_25pct_postrestructure/` has no `_run.json`. Delete it and its timing series together |
+| **H0.7** | Derive `E.s2b.lr_segment_count` from the mapped feed | — | ~1 h | It is declared at 5.0 and the feed knows its own segment count. If they disagree, S2b removes the wrong TOTAL delay |
+| **H0.8** | Derive the JHH anchor from the OSM POI | #32 | ~1 h | `cities/newcastle/geometry/scenario_alignments.json` says so itself. Needs the re-harvest |
 | **B0.1** | Re-run the OSM harvest | **#32** | hours | `python cities/newcastle/extract/overpass.py`. Resumes from cached tiles |
 | **B0.2** | Rebuild the layer chain | #32 | ~a day | `build_network_layers` → `attach_gradient` → `attach_speed_zones` → `build_corridor_road_attributes` → `build_matsim_network` → `build_landuse_parking` → `build_zone_attractions` |
 | **B0.3** | **VERIFY before building on it** | #32 | ~1 h | Every layer **LARGER** than its `osm_pre_issue32/` counterpart; `osm_tiles.verify()` passes; **the 87 core SA1s / 31,940 agents are now INSIDE the road network** — check explicitly, it is the whole point |
@@ -369,11 +343,11 @@ cities/newcastle/            registry overlays extract build geometry docs
 | `cities/newcastle/networks/osm/` | **EMPTY.** #32 re-harvest never run |
 | `osm_pre_issue32/` | 10 layers, 179 MB, **THE ONLY COPY. DO NOT DELETE** |
 | Manifest | **376 files**, city-relative paths |
-| Registry | **211 fields** — 90 assumed, 51 definition, 28 literature, 21 measured, 17 derived, 4 observed; **7 carry no value**; 198 active, 6 unobtained, 5 placeholder, 2 computed |
-| Hardcoding ledger | **95 items** (`check_hardcoding.py`) |
+| Registry | **292 fields** — 90 assumed, 51 definition, 28 literature, 21 measured, 17 derived, 4 observed; **7 carry no value**; 198 active, 6 unobtained, 5 placeholder, 2 computed |
+| Hardcoding ledger | **0 items**, `--strict` gates CI. Honest baseline was 185 |
 | Run inputs | 30 scenario × day-type sets, all carrying `telemetry` |
-| `results/` | 1 pilot in flight, or empty |
-| Open issues | **12** — #5 #9 #14 #20 #24 #28 #29 #30 #31 #32 #34 #37 (#36 closed) |
+| `results/` | the 25% pilot DIED at iteration 43/1000 and must be deleted |
+| Open issues | **13** — #5 #9 #14 #20 #24 #28 #29 #30 #31 #32 #34 #36 #37. **#36 IS OPEN** |
 | **Results** | **NONE. Nothing in this repository is an output of the model.** |
 
 ### Bootstrap, in this order

@@ -310,8 +310,7 @@
       "sweep_basis": "the interquartile range of the per-pair ratios over 551 population-weighted zone pairs",
       "status": "active",
       "decisions_ref": "9.2",
-      "legacy_symbol": "src/build/build_activity_chains.py:DETOUR_FACTOR",
-      "description": "Straight-line to network distance, routed over the observed A1 road graph. Replaces an assumed 1.30. The build script keeps a 1.30 fallback labelled 'assumed - C2 factors file not found'; that fallback is now this field."
+      "description": "Straight-line to network distance, routed over the observed A1 road graph. Replaces an assumed 1.30. The build script keeps a 1.30 fallback labelled 'assumed - C2 factors file not found'; that fallback is now this field. The build script no longer keeps its own copy: it READS THIS FIELD as the fallback when params/C2_network_factors.json is absent, so the two values that check_legacy_drift.py existed to compare are now one value."
     },
     "B.activity.days_per_week": {
       "value": {

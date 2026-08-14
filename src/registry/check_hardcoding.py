@@ -148,6 +148,13 @@ def key_uses(corpus, keys):
     out = {}
     for path, text in sorted(corpus.items()):
         r = rel(path)
+        # An audit does not get to cite itself as evidence. This module names
+        # keys in PENDING_CONSUMER and MEASUREMENT_OWNED_KEYS to EXCUSE them,
+        # and counting those mentions as reads marked all seven pending fields
+        # wired - which emptied the unwired list and made the gate pass for the
+        # worst possible reason. Same exclusion the other four scans already use.
+        if r in SELF_REFERENTIAL:
+            continue
         literals = set()
         if path.endswith('.py'):
             try:
@@ -175,11 +182,205 @@ def key_uses(corpus, keys):
         for key in keys:
             if key in literals:
                 out.setdefault(key, set()).add(r)
+        # A key BUILT at the call site, e.g.
+        # `CFG.get('C.constraint.trip_length_km.%s' % mode)`. The docstring of
+        # this audit has always conceded that a field may legitimately be read
+        # by prefix; conceding it and then not detecting it reported eleven
+        # measured constraint fields as unwired while a builder read every one.
+        for pattern in _key_patterns(literals):
+            for key in keys:
+                if pattern.match(key):
+                    out.setdefault(key, set()).add(r)
     return out
 
 
+def _key_patterns(literals):
+    """Regexes for string literals that CONSTRUCT a key rather than being one.
+
+    Only literals that already look like a registry key are considered - at
+    least two dotted segments and a placeholder - so an unrelated format string
+    cannot start matching fields.
+    """
+    out = []
+    for text in literals:
+        if text.count('.') < 2:
+            continue
+        if '%s' not in text and '%d' not in text and '{}' not in text:
+            continue
+        # Split on the placeholders FIRST and escape only the literal parts.
+        # Escaping the whole string and then substituting does not work: since
+        # Python 3.7 re.escape leaves `%` alone, so `\%s` never matches and the
+        # eleven measured constraint fields kept reporting as unwired while a
+        # builder read every one of them.
+        parts = re.split(r'(%s|%d|\{\})', text)
+        # A placeholder stands for ONE key segment, so it must not match a dot.
+        # Allowing dots made 'B.counts.%s' match D.retail.vacancy_rate and every
+        # other field, which silently emptied the unwired list - a checker that
+        # passes because its pattern is too greedy is worse than no checker.
+        body = ''.join(r'\w+' if p in ('%s', '{}')
+                       else (r'\d+' if p == '%d' else re.escape(p))
+                       for p in parts)
+        try:
+            out.append(re.compile('^' + body + '$'))
+        except re.error:
+            continue
+    return out
+
+
+def schema_referenced_keys():
+    """Field keys named by the portable config schema rather than by code.
+
+    `RUN.replanning.subpopulations` is read through the `repeat_over` clause of
+    config/schema/param_config.json - the emitter never spells the key in
+    Python. A field wired through a declaration is wired.
+    """
+    found = set()
+    path = os.path.join(REPO, 'config', 'schema', 'param_config.json')
+    if not os.path.exists(path):
+        return found
+
+    def walk(node):
+        if isinstance(node, dict):
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+        elif isinstance(node, str):
+            found.add(node)
+    walk(json.load(io.open(path, encoding='utf-8')))
+    return found
+
+
+def identity_referenced_keys(fields):
+    """Field keys named inside another field's `derived_from` identity.
+
+    A field that is an INPUT to a declared identity participates in the model
+    through that identity. `C.vot.trip_weighted` is the trip-weighted value of
+    time: nothing spells its key, and three computed scoring fields name it as
+    the quantity they are derived from.
+    """
+    found = set()
+    for f in fields.values():
+        if not isinstance(f, dict):
+            continue
+        found.update((f.get('derived_from') or {}).get('fields') or [])
+    return found
+
+
+# --------------------------------------------------------------------------
+# Fields DECLARED AHEAD OF THE CODE THAT WILL CONSUME THEM, each named against
+# the phase or issue that will wire it.
+#
+# An unwired field is not a hardcoded value - it is the opposite - but the
+# handover brief is right that it is still a defect: "a declared field that
+# nothing reads is worse than no field, because it looks like the model is
+# configurable when it is not". The cure is not to hide it. It is to say WHEN
+# it becomes real, so an entry here is a commitment with an owner rather than a
+# tolerated gap, and a NEW unwired field with no entry fails the gate.
+# --------------------------------------------------------------------------
+PENDING_CONSUMER = {
+    'B.activity.weekend_to_weekday':
+        'measured from the RMS hourly counts, which carry dates. Deliverable '
+        '0b folds it into the day-type shape; nothing reads it until the SAT '
+        'and SUN demand is rebuilt on it',
+    'B.counts.heavy_vehicle_share':
+        'issue #24. The measured 6.52% heavy share is the basis of the freight '
+        'layer, and no freight is generated yet - the model has no trucks to '
+        'apply it to',
+    'B.counts.vehicles_per_car_leg':
+        'issue #20. Converts modelled legs to vehicles for comparison against '
+        'observed counts, and count-based calibration is blocked until the '
+        'boundary through traffic lands - calibrate.py enforces that',
+    'B.counts.vehicles_per_ride_leg':
+        'issue #20, the ride half of the same conversion',
+    'C.constraint.passenger_per_driver':
+        'issue #31. It bounds how many passengers one driver may carry, and '
+        'the constraint that would enforce it is not adopted: eqasim\'s '
+        'PassengerConstraint is a trip-level biconditional that consults no '
+        'driver, and adopting it would pin the ride share to the B2 seed',
+    'D.retail.vacancy_rate':
+        'P6, and UNOBTAINED. Hypothesis B2 depends on it, no frontage-level '
+        'retail audit is published for the corridor, so it is swept rather '
+        'than pinned and nothing consumes it before P6',
+    'RUN.sumo.outer_loop_max_iterations':
+        'P5. SUMO has been built six times and simulated zero times, '
+        'deliberately, so the MATSim-SUMO outer loop it bounds has never run',
+}
+
 TOOL_BINDINGS = ('matsim_param', 'sumo_param',
                  'pt2matsim_osm_param', 'pt2matsim_mapper_param')
+
+# --------------------------------------------------------------------------
+# Numbers that are NOT model values, each with the reason it stays in code.
+#
+# This is the same device as `check_legacy_drift.EXPECTED_DIVERGENCE`: a
+# deliberate exception is recorded in a file under version control, with a
+# written justification, rather than silently filtered. An entry here is a
+# claim - "this number decides nothing about the transport system" - and it is
+# reviewable precisely because it had to be written down.
+#
+# Keyed by "path:SYMBOL". A MODEL VALUE MUST NEVER BE ADDED HERE. If you cannot
+# state why a number is not a modelling choice in one sentence, it is one.
+# --------------------------------------------------------------------------
+STRUCTURAL = {
+    'src/analyse/run_view.py:RAMP_MIN':
+        'a display scale: the narrowest and widest a congestion ramp is drawn. '
+        'The live view reads the run and never writes to it, so no number here '
+        'can reach a result',
+    'src/analyse/run_view.py:RAMP_MAX':
+        'the other end of the same display scale',
+    'src/analyse/run_view.py:_send(code)':
+        'an HTTP status code. The default 200 is the HTTP specification, not a '
+        'transport parameter',
+    'src/analyse/replay_events.py:--step':
+        'replay animation step in seconds - how often the REPLAY PAGE redraws a '
+        'finished run. It reads events already written and changes nothing',
+    'src/analyse/replay_events.py:--keep-every':
+        'replay decimation, for page size only',
+    'src/analyse/replay_events.py:--horizon-h':
+        'how much of the simulated day the replay page draws. The day window '
+        'itself is RUN.qsim.end_time_h, which IS declared',
+    'src/analyse/replay_events.py:--net-sample':
+        'how many network links the replay page draws, for page size only',
+    'src/calibrate/report.py:pct(nd)':
+        'decimal places in a printed percentage',
+    'src/build/build_data_dictionary.py:sniff(n)':
+        'how many rows of a CSV are read to infer its column types. A property '
+        'of the file reader, not of the data',
+    'src/build/det_io.py:gzip_writer(compresslevel)':
+        'gzip compression level. FIXED FOR DETERMINISM rather than chosen for a '
+        'model reason: the level changes the bytes, so it is pinned and must '
+        'not vary. It affects file size, never content',
+    'src/build/measure_osm_defaults.py:MIN_TAGGED':
+        'the minimum tagged-edge count before an observed class median replaces '
+        'an assumed default. It governs HOW A MEASUREMENT IS TAKEN, not what '
+        'the model consumes - the values it produces are what enter the '
+        'registry, each with its own observed sweep. The reasoning is written '
+        'above the constant',
+    'src/build/build_matsim_network.py:--workers':
+        'process count for the OSM merge. Throughput only - unlike '
+        'RUN.machine.threads, which partitions the mobsim network and IS part '
+        'of a run identity',
+    'src/build/build_matsim_network.py:--threads':
+        'a build-time override for the mapper thread count, which otherwise '
+        'comes from RUN.machine.threads',
+    'src/run/run_matsim.py:setp(count)':
+        'how many regex matches to replace. A re.sub argument',
+    'src/registry/param_config.py:SECONDS_PER_UNIT':
+        'how many seconds are in an hour and a minute. The definition of the '
+        'units themselves, not a value about any city',
+    'cities/newcastle/build/build_sumo_corridor.py:_indent(level)':
+        'XML pretty-printing indent depth',
+    'cities/newcastle/build/build_scenario_schedules.py:'
+    'scale_lr_runtime(delta_per_intermediate_s)':
+        'a NEUTRAL default of zero: "change nothing unless a caller asks". Each '
+        'caller passes the scenario delta it means, and those deltas are '
+        'declared (E.s2b.signal_delay_removed_share and its siblings)',
+    'cities/newcastle/build/build_scenario_schedules.py:'
+    'scale_lr_runtime(delta_per_segment_s)':
+        'the other neutral zero of the same function',
+}
 
 
 def is_bound(field):
@@ -205,17 +406,65 @@ def unwired(fields, uses):
     return [(k, fields[k].get('source'), fields[k].get('status'))
             for k in sorted(fields)
             if isinstance(fields[k], dict) and not is_bound(fields[k])
-            and k not in uses]
+            and k not in uses and k not in PENDING_CONSUMER]
+
+
+def pending(fields, uses):
+    """Unwired fields that carry a written reason and the phase that will wire them."""
+    return [(k, PENDING_CONSUMER[k]) for k in sorted(PENDING_CONSUMER)
+            if k in fields and k not in uses and not is_bound(fields[k])]
+
+
+def stale_pending(fields, uses):
+    """A PENDING_CONSUMER entry for a field that is now wired, or is gone.
+
+    The register is a promise that something will read the field. When it does,
+    the promise is kept and the entry must go - otherwise the list grows into a
+    permanent excuse, which is what any allowlist becomes if nothing prunes it.
+    """
+    return sorted(k for k in PENDING_CONSUMER
+                  if k not in fields or k in uses or is_bound(fields.get(k, {})))
+
+
+# Layers whose fields BELONG to the measurement apparatus: how the calibration
+# loop searches, how the live view polls, how flat a mode-share trace must be
+# before a run is called settled. A field here being read only by src/analyse or
+# src/calibrate is correct, not a defect - so it is reported for visibility and
+# not counted against the gate. Anything else read only there is printed back
+# after a run while deciding nothing, which is the trap.
+MEASUREMENT_OWNED_PREFIXES = ('CAL.', 'RUN.monitor.', 'RUN.relaxation.')
+
+# Individual fields that belong to the measurement apparatus without sharing a
+# prefix with it. Each states why.
+MEASUREMENT_OWNED_KEYS = {
+    'B.counts.station_match_radius_m':
+        'the radius that joins an observed traffic count station to a network '
+        'link. It decides what the VALIDATION compares, never what the model '
+        'simulates, so being read only by src/analyse is correct',
+}
 
 
 def report_only(fields, uses):
-    """A field only the measurement layer reads: printed back, never applied."""
-    out = []
+    """A field only the measurement layer reads: printed back, never applied.
+
+    Returns (defects, owned). A bound field is excluded from both: it reaches its
+    tool through the binding, so where its key happens to be spelled in code
+    says nothing about whether it decides anything - the perturbation probe
+    answers that, and answers it better.
+    """
+    defects, owned = [], []
     for key in sorted(uses):
+        if is_bound(fields[key]):
+            continue
         where = {p for p in uses[key] if not is_test(p)}
-        if where and all(is_measurement(p) for p in where):
-            out.append((key, fields[key].get('source'), sorted(where)))
-    return out
+        if not where or not all(is_measurement(p) for p in where):
+            continue
+        row = (key, fields[key].get('source'), sorted(where))
+        if key.startswith(MEASUREMENT_OWNED_PREFIXES) or key in MEASUREMENT_OWNED_KEYS:
+            owned.append(row)
+        else:
+            defects.append(row)
+    return defects, owned
 
 
 # --------------------------------------------------------------------------
@@ -256,7 +505,30 @@ def template_literals(corpus):
 # --------------------------------------------------------------------------
 # 4. values decided in code
 # --------------------------------------------------------------------------
-def script_decisions(corpus):
+def stale_structural(corpus):
+    """A STRUCTURAL entry naming a symbol that no longer exists.
+
+    An allowlist that outlives what it excuses is how an exception quietly
+    becomes a blanket. Each entry is checked against the scanner's own
+    findings, so deleting a constant deletes its excuse with it.
+    """
+    seen = set()
+    for p in sorted(corpus):
+        r = rel(p)
+        if not p.endswith('.py') or r in SELF_REFERENTIAL or is_test(r):
+            continue
+        try:
+            for d in _legacy.scan_decisions(p):
+                seen.add('%s:%s' % (r, d['name']))
+        except SyntaxError:
+            continue
+    return sorted(k for k in STRUCTURAL if k not in seen)
+
+
+def script_decisions(corpus, fields):
+    pinned = {str(f.get('legacy_symbol', '')).rsplit(':', 1)[-1]
+              for f in fields.values()
+              if isinstance(f, dict) and f.get('legacy_symbol')}
     out = []
     for p in sorted(corpus):
         r = rel(p)
@@ -268,6 +540,15 @@ def script_decisions(corpus):
             continue
         for d in found:
             if d['kind'] != 'parameter':
+                continue
+            if '%s:%s' % (r, d['name']) in STRUCTURAL:
+                continue
+            if d['name'] in pinned:
+                # Pinned to its registry field by `legacy_symbol` and compared
+                # with it on every run of check_legacy_drift.py. Two copies of a
+                # number, but not two UNCOMPARED copies - which is the thing
+                # that bites. Accounted for by a different committed check
+                # rather than excused here.
                 continue
             out.append((r, d['line'], d['form'], d['name'], d['value'],
                         d['n_numbers']))
@@ -411,18 +692,27 @@ def audit():
             pass
     fields, _ = _registry.load_registry()
     uses = key_uses(corpus, set(fields))
+    # Two more ways a field reaches the model without its key being spelled in
+    # Python: named by the portable config schema, or named as an input to
+    # another field's declared derived_from identity.
+    for key in schema_referenced_keys() | identity_referenced_keys(fields):
+        if key in fields:
+            uses.setdefault(key, set()).add('config/schema/param_config.json')
     reaching, inert, error = config_reach()
+    defects, owned = report_only(fields, uses)
     led = dict(
         unwired=unwired(fields, uses),
-        report_only=report_only(fields, uses),
+        report_only=defects,
+        stale_structural=[(k,) for k in stale_structural(corpus)],
+        stale_pending=[(k,) for k in stale_pending(fields, uses)],
         template_literals=template_literals(corpus),
-        script_decisions=script_decisions(corpus),
+        script_decisions=script_decisions(corpus, fields),
         coordinates=coordinates(corpus),
         inert_bindings=[(k,) for k in inert],
     )
     if error:
         led['reach_probe_failed'] = [(error,)]
-    return corpus, fields, led, len(reaching)
+    return corpus, fields, led, len(reaching), owned, pending(fields, uses)
 
 
 def main():
@@ -433,7 +723,7 @@ def main():
                     help='write the ledger as JSON as well as printing it')
     a = ap.parse_args()
 
-    corpus, fields, led, n_reaching = audit()
+    corpus, fields, led, n_reaching, owned, pending_rows = audit()
 
     print('city %s - %d declared field(s), %d source file(s)\n'
           % (_city.CITY, len(fields), len(corpus)))
@@ -442,6 +732,13 @@ def main():
     for key, src, status in led['unwired']:
         print('     %-46s source=%-11s status=%s' % (key, src, status))
     print('     %d\n' % len(led['unwired']))
+
+    print('   DECLARED AHEAD OF ITS CONSUMER - unwired, with a written reason')
+    for key, why in pending_rows:
+        print('     %-46s %s' % (key, why[:72]))
+    print('     %d  (not counted: each names the phase or issue that will wire '
+          'it, and a NEW unwired field with no reason fails the gate)\n'
+          % len(pending_rows))
 
     print('2. REPORT-ONLY - read only by the measurement layer, decides nothing')
     for key, src, where in led['report_only']:
@@ -472,6 +769,16 @@ def main():
         print('     PROBE FAILED (not a pass): %s' % why)
     print('     %d of %d bound field(s) proven to reach the config by changing '
           'them\n' % (n_reaching, n_reaching + len(led['inert_bindings'])))
+
+    print('7. STALE EXCEPTIONS - a STRUCTURAL entry whose symbol is gone')
+    for (key,) in led['stale_structural']:
+        print('     %s' % key)
+    print('     %d of %d structural exception(s) no longer name anything'
+          % (len(led['stale_structural']), len(STRUCTURAL)))
+    for (key,) in led['stale_pending']:
+        print('     %s is now wired - drop its PENDING_CONSUMER entry' % key)
+    print('     %d of %d pending-consumer entr(ies) are kept promises to prune\n'
+          % (len(led['stale_pending']), len(PENDING_CONSUMER)))
 
     total = sum(len(v) for v in led.values())
     print('TOTAL %d item(s). A number in a script is a modelling choice nobody '
