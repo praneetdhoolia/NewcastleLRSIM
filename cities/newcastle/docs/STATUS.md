@@ -41,41 +41,66 @@ pt2matsim, which makes every existing run incomparable
 | Committed data package | **376 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes |
 | Input registry | **211 fields** — 90 assumed, 51 definition, 28 literature, 21 measured, 17 derived, 4 observed; **7 carry no value** and the resolver refuses to invent one |
 | Run inputs assembled | **30** scenario × day-type sets, all carrying the `telemetry` module |
-| Runs on disk | **3 convergence pilots in flight** (below). The 8 superseded runs are **deleted** — 14.5 GiB reclaimed; they were unreadable by `fit.py` after the `newcastle_lga_pct` → `target_lga_pct` rename |
+| Runs on disk | **1 convergence pilot in flight** (below), 25% only. The 8 superseded runs are deleted (14.5 GiB — unreadable by `fit.py` after the `newcastle_lga_pct` → `target_lga_pct` rename), and so are the 3 crash-interrupted ones (13.3 GiB). **A run with no `_run.json` is not a result and is not kept.** |
 | Open issues | **13** — #5 #9 #14 #20 #24 #28 #29 #30 #31 #32 #34 #36 #37 |
 | **Results** | **None. No scenario has been run to a reportable state, and nothing in this repository is an output of the model.** |
 
-### Convergence pilots in flight — issue #5, all three fractions
+### Convergence pilot in flight — issue #5, 25% only
 
-Launched **before** the B0 batch, deliberately and against the ordering below.
-That ordering still stands for **mode share**: these run on the CURRENT demand,
+`convergence_pilot_25pct` → `conv1000_25pct_postrestructure`, S2 × WEEKDAY,
+1000 iterations, 8 threads, seed 20260810, innovation off at 800. It prints its
+own view url when it starts.
+
+Running **before** the B0 batch, deliberately and against the ordering below.
+That ordering still stands for **mode share**: it runs on the CURRENT demand,
 which B0 replaces, so **no mode share, count or fit statistic may be read from
-them**. What survives B0 is the *iteration count* to relaxation, which is the
-only thing they are being read for.
+it**. What survives B0 is the *iteration count* to relaxation, which is the only
+thing it is being read for.
 
-| Arm | Overlay | Tag | View |
-|---|---|---|---|
-| 1% | `convergence_pilot_1pct` | `conv1000_1pct_postrestructure` | `127.0.0.1:8732` |
-| 10% | `convergence_pilot_10pct` | `conv1000_postrestructure` | `127.0.0.1:8731` |
-| 25% | `convergence_pilot_25pct` — **new** | `conv1000_25pct_postrestructure` | `127.0.0.1:8733` |
+**A three-arm attempt (1% + 10% + 25% concurrently) was lost to a machine
+crash** and every partial reading was deleted — a run without a `_run.json`
+is not a result and was not kept. That attempt is worth recording for one
+reason: the three declared heaps total 78 GiB on a 63.5 GiB machine, Windows
+grew the pagefile from 8.1 to 19.1 GiB to carry it, and the 10% arm's median
+iteration went from ~19 s alone to ~42 s alongside the others. **Do not run the
+three arms together.** Iteration count survives contention; iteration duration
+does not, and the `convergence_pilot_25pct` overlay description says so too.
 
-All three: S2 × WEEKDAY, 1000 iterations, 8 threads, seed 20260810, innovation
-off at 800.
+**One unexplained event, from the lost 10% arm.** Iteration 4 took **2,415 s**
+against a ~20 s median — 37 minutes between `PersonPrepareForSim` and QSim
+start, at near-zero CPU with zero log output, confirmed by MATSim's own
+`realT=2237s at simT=0.0s`. Not CPU, not GC, not the monitor, and the repo is
+not under OneDrive. It did not recur in ~400 iterations. Unattributed — do not
+assume it is gone.
 
-**Their wall-clock timings are not a throughput benchmark.** The three declared
-heaps total 78 GiB on a 63.5 GiB machine, so the box is knowingly
-over-subscribed and Windows grew the pagefile from 8.1 to 19.1 GiB to carry it.
-The 10% arm's median iteration went from ~19 s alone to ~42 s alongside the
-others. Iteration **count** is unaffected; iteration **duration** is worthless
-here. Recorded in the `convergence_pilot_25pct` overlay description too, so it
-travels with the run.
+### ⚠ Declared values that reach nothing — found, NOT yet fixed
 
-**One unexplained event.** Iteration 4 of the 10% arm took **2,415 s** against a
-~20 s median — 37 minutes between `PersonPrepareForSim` and QSim start, at
-near-zero CPU with zero log output, confirmed by MATSim's own `realT=2237s at
-simT=0.0s`. Not CPU, not GC, not the monitor, and the repo is not under OneDrive.
-It has not recurred in ~400 iterations since. Unattributed — do not assume it is
-gone.
+The issue #12 / #21 / #33 defect class again, in the run-input builder. These
+registry fields are read by **no code at all**; `build_matsim_run_inputs.py`
+writes the same numbers as literals, and every literal currently **matches** its
+registry value — so they are right by accident, and sweeping any of them would
+change nothing.
+
+| Field | What actually decides it |
+|---|---|
+| `RUN.replanning.weights` | `STRATEGIES = [('ChangeExpBeta', 0.70), ...]`, [`build_matsim_run_inputs.py`](../../../src/build/build_matsim_run_inputs.py) L712 |
+| `RUN.controler.first_iteration` | literal `value="0"`, L596 |
+| `RUN.controler.compression_type` | literal `value="gzip"`, L601 |
+| `RUN.qsim.start_time_h` | literal `value="00:00:00"`, L604 |
+| `RUN.qsim.end_time_h` | literal `value="30:00:00"`, L605 |
+| `RUN.qsim.main_mode` | literal `value="car"`, L609 |
+| `RUN.controler.write_plans_interval`, `RUN.replanning.max_agent_plan_memory` | substituted, but from `main()`'s Python defaults (`plan_memory=5`), not from the registry |
+
+`RUN.replanning.weights` is the one that matters: the strategy weights govern how
+far co-evolution can move mode share, and the comment beside `STRATEGIES` calls
+the mode-choice weight "swept". It is not swept — nothing reads the field.
+
+**Not fixed here on purpose.** The fix edits the builder and requires
+regenerating all 30 run-input sets, which would invalidate the pilot now in
+flight (§3.5, one build per comparison). Do it with the B0 batch, which
+regenerates them anyway. **Beware the near-miss**: `c1['weights']` in the same
+builder is a different quantity — behavioural betas (`beta_ivt`, `beta_wait`),
+not strategy weights.
 
 ## Phase progress
 
