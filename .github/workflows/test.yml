@@ -68,8 +68,15 @@ jobs:
       # THE GATE. Every controllable value is declared, every declared field
       # either reaches the model or carries a written reason, and every field
       # bound to a tool parameter is proven to reach it by changing the value
-      # and watching the emitted config change. It needs no data: the configs
-      # are emitted in memory and nothing is run.
+      # and watching the emitted config change. It needs no bulk data: the
+      # configs are emitted in memory and nothing is run. The reach probe does
+      # derive the scoring block the way a real run would - through the
+      # run-input builder, whose HTS purpose-share step reads a COMMITTED csv
+      # with pandas - so pandas is the one dependency the probe carries.
+      # Without it the probe reports PROBE FAILED and the gate exits 1, which
+      # is the failure this job showed on its first CI execution.
+      - name: Install the probe's one dependency
+        run: pip install pandas
       - name: No value is decided in a script
         run: python src/registry/check_hardcoding.py --strict
 
