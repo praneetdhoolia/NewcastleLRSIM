@@ -1,0 +1,9 @@
+{
+  "overlay": "default_25pct",
+  "description": "The overlay a bare `python run.py` selects: S2 x WEEKDAY at 25%, 1000 iterations, on the declared thread count and seed. 25% is the working P4 fraction - fraction sensitivity has flattened there (1%->10% moved car +14.8 pp, 10%->25% only +1.6 pp; the machine ceiling is ~40% in 63.5 GiB) and 1% is unusable outright (DECISIONS.md 9.10, 9.12). 1000 iterations is the 9.7 working horizon: 100 and 250 are both MEASURED too low, innovation switches off at 800 leaving 200 iterations of measurable post-innovation drift. THE ITERATION COUNT REMAINS PROVISIONAL: RUN.controler.last_iteration is unobtained and issue #5 re-measures relaxation on the rebuilt inputs - this overlay selects a sweep member so a default run is a candidate modelling run, it does not settle the field. Expect roughly 16 h of wall clock at the pre-rebuild timing (56-58 s/iteration at 25%) and a ~40 GiB heap; re-measure both on the rebuilt, larger network before trusting them. Run ONE arm at a time - concurrent large runs paged the machine and contaminated every duration. NOTHING THIS PRODUCES IS A RESULT until the model has a calibrated base (docs/STATUS.md); for a plumbing test use --run-config smoke.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 1000,
+    "RUN.machine.xmx": "40g"
+  }
+}

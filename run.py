@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """Run a scenario. The one command this repository needs a newcomer to know.
 
-    python run.py                            a smoke run: S2, weekday, 1%, 2 iterations
+    python run.py                            the default run: S2, weekday, 25%, 1000 iterations
+    python run.py --run-config smoke         a plumbing test: 1%, 2 iterations
     python run.py --list                     what can be run: scenarios, day types, overlays
     python run.py --dry-run                  resolve every input and print it; execute nothing
     python run.py --run-config ride_fix_10pct        a committed run overlay
@@ -9,16 +10,17 @@
 
 This is a front door, not a second harness. Everything below it is
 `src/run/run_matsim.py`, which owns the run identity, the subsample, the config
-patching and the run record; this module adds argument defaults, a dry run, a
+emission and the run record; this module adds argument defaults, a dry run, a
 listing and the metric extraction that would otherwise be a second command.
 
-**It will not invent an iteration count.** `RUN.controler.last_iteration` is
-declared `unobtained` in the registry (DECISIONS.md 9.7: 100 and 250 are both
-MEASURED to be too low, and no justified value has been established), so a bare
-`python run.py` does not quietly pick one. It selects the committed `smoke`
-overlay, which sets 2 iterations, and says so in terms that cannot be mistaken
-for a result. Any run you intend to read must name its own overlay or pass
-`--iterations`.
+**It still does not invent an iteration count.** `RUN.controler.last_iteration`
+is declared `unobtained` in the registry (DECISIONS.md 9.7: 100 and 250 are
+both MEASURED to be too low, and no justified value has been established), so a
+bare `python run.py` does not quietly pick one in code. It selects the
+committed `default_25pct` overlay - 25% sample, 1000 iterations, the 9.7
+working horizon - which names its sweep member and its provenance like any
+other overlay, and the banner below says exactly what was chosen and why it is
+provisional (issue #5). Expect ~16 hours of wall clock.
 
 **Nothing this produces is a result** until the model has a calibrated base;
 see docs/STATUS.md.
@@ -34,21 +36,22 @@ for sub in ('run', 'analyse', 'registry', ''):
 import registry                      # noqa: E402
 import run_matsim                    # noqa: E402
 
-DEFAULT_OVERLAY = 'smoke'
+DEFAULT_OVERLAY = 'default_25pct'
 
-SMOKE_BANNER = """
+DEFAULT_BANNER = """
 +---------------------------------------------------------------------------+
-|  SMOKE RUN - a plumbing test, NOT a modelling run.                         |
+|  DEFAULT RUN - the committed `default_25pct` overlay.                      |
 |                                                                            |
-|  No overlay and no --iterations were given, and the registry declares       |
-|  RUN.controler.last_iteration UNOBTAINED, so this falls back to the         |
-|  committed `smoke` overlay: 1% sample, 2 iterations.                        |
+|  No overlay and no --iterations were given, so this runs S2 x WEEKDAY at   |
+|  a 25% sample for 1000 iterations (the DECISIONS.md 9.7 working horizon).  |
+|  Expect roughly 16 HOURS of wall clock and a ~40 GiB heap. Run ONE large   |
+|  run at a time - concurrent arms paged this machine once already.          |
 |                                                                            |
-|  NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT. No mode share, no         |
-|  patronage, no count and no fit statistic from it may be quoted or          |
-|  compared. Two iterations is three orders of magnitude short of relaxation. |
+|  The iteration count is PROVISIONAL: RUN.controler.last_iteration is       |
+|  unobtained, and issue #5 re-measures relaxation on the rebuilt inputs.    |
+|  NOTHING THIS PRODUCES IS A RESULT until the model has a calibrated base.  |
 |                                                                            |
-|  For a real run, name an overlay (--run-config) or pass --iterations.       |
+|  For a quick plumbing test instead:  python run.py --run-config smoke      |
 +---------------------------------------------------------------------------+
 """
 
@@ -127,11 +130,11 @@ def main():
 
     # The one defaulting decision this script makes, and it is made loudly.
     run_config = a.run_config
-    smoke = False
+    defaulted = False
     if run_config is None and a.iterations is None:
         run_config = DEFAULT_OVERLAY
-        smoke = True
-        print(SMOKE_BANNER)
+        defaulted = True
+        print(DEFAULT_BANNER)
 
     overrides = registry.parse_set(a.config_set)
     for flag, key in (('fraction', 'RUN.sample.fraction'),
@@ -178,8 +181,10 @@ def main():
 
     print('\nrun directory: %s' % run_dir)
     print('live/replay view:  python src/analyse/run_view.py --run %s' % run_dir)
-    if smoke:
-        print('\nreminder: this was a SMOKE run. It is not a result.')
+    if defaulted:
+        print('\nreminder: this ran under the default_25pct overlay. Its '
+              'iteration count is provisional (issue #5), and nothing is a '
+              'result until the model has a calibrated base.')
     return 0
 
 

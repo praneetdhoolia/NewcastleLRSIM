@@ -17,7 +17,8 @@ inspectable.
 ```bash
 python run.py --list        # what is runnable: scenarios, day types, run overlays
 python run.py --dry-run     # resolve every input, print it, execute nothing
-python run.py               # a SMOKE run: S2, weekday, 1% sample, 2 iterations
+python run.py               # the DEFAULT run: S2, weekday, 25% sample, 1000 iterations (~16 h)
+python run.py --run-config smoke   # a plumbing test: 1% sample, 2 iterations
 ```
 
 A real run names its own overlay, or its own iteration count:
@@ -37,12 +38,16 @@ python run.py --scenario S3 --day SAT --fraction 0.10 --iterations 1000 --tag s3
 | `--set KEY=VALUE` | a raw MATSim config override, e.g. `ride.constant=-3.4` |
 | `--dry-run` `--list` `--no-metrics` `--force` | resolve-only, list, skip metric extraction, ignore an existing run record |
 
-**`run.py` will not invent an iteration count.** `RUN.controler.last_iteration` is
-declared `unobtained` in the registry — 100 and 250 are both *measured* to be too low
-and no justified value has been established — so a bare `python run.py` falls back to
-the committed `smoke` overlay (2 iterations) and says loudly that nothing it produces
-is a result. That refusal is the house style: an input nobody has measured never
-acquires a point value by being read.
+**`run.py` still does not invent an iteration count in code.**
+`RUN.controler.last_iteration` is declared `unobtained` in the registry — 100 and 250
+are both *measured* to be too low and no justified value has been established — so a
+bare `python run.py` falls back to the committed `default_25pct` overlay: 25% sample,
+1,000 iterations (the `DECISIONS.md` §9.7 working horizon), selected as a named sweep
+member with its provenance in the overlay file, and announced by a banner that says
+the count stays provisional until issue #5 re-measures relaxation. Nothing it
+produces is a result until the model has a calibrated base. The refusal is still the
+house style: the point value lives in a committed, justified overlay, never in the
+script.
 
 After a run:
 
