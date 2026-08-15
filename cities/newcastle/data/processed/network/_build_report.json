@@ -1,0 +1,21 @@
+{
+  "road_edges": 50182,
+  "road_km": 11434.4,
+  "road_imputed": {
+    "num_lanes": 38090,
+    "lane_width_m": 49729,
+    "kerbside_use": 49298,
+    "speed_limit_kmh": 28046
+  },
+  "footway_edges": 40195,
+  "footway_km": 7920.4,
+  "footway_imputed": {
+    "width_m": 39547,
+    "lighting": 39770
+  },
+  "signals": 1337,
+  "crossings": 10677,
+  "turn_restrictions": 1546,
+  "parking_facilities": 8479,
+  "parking_with_osm_capacity": 4880
+}

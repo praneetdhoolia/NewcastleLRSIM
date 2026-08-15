@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/city.schema.json",
+  "title": "City descriptor",
+  "description": "What a city must declare before any of its inputs can be built or run. This is the identity half of the input contract; `required_fields.json` is the value half and `layers.json` is the artefact half. The rule this schema exists to enforce is the repository's oldest hard constraint: a study extent is DERIVED from a boundary dataset and a named selector, never typed in as a rectangle. A typed rectangle cannot be wrong in a way anyone notices - one clipped 87 of 1,500 core SA1s out of the road network and survived three phases.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "jurisdiction",
+    "crs",
+    "base_year",
+    "seed",
+    "boundary",
+    "zone_system",
+    "modes",
+    "day_types",
+    "mode_share_target",
+    "adapters",
+    "sources"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "description": "Bumped only when this schema changes in a way an existing city descriptor would fail."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "The directory name under cities/ and the value of the city selector environment variable."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human name of the modelled region. NOT a suburb of it - naming a five-LGA region after one suburb is how this project acquired a stale codename."
+    },
+    "description": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": "object",
+      "description": "Which country's and which agency's open data the adapters speak. This is what decides whether an adapter can be reused or must be written.",
+      "required": [
+        "country",
+        "statistical_agency",
+        "transport_agency"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "country": {
+          "type": "string"
+        },
+        "subdivision": {
+          "type": "string"
+        },
+        "statistical_agency": {
+          "type": "string"
+        },
+        "transport_agency": {
+          "type": "string"
+        }
+      }
+    },
+    "crs": {
+      "type": "object",
+      "description": "The projected CRS every metric layer is expressed in. State the datum: EPSG:28356 is GDA94, and EPSG:7856 is its GDA2020 counterpart - this repository carried the wrong datum label in four documents at once.",
+      "required": [
+        "epsg",
+        "datum",
+        "units"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "epsg": {
+          "type": "integer"
+        },
+        "datum": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "string"
+        },
+        "units": {
+          "enum": [
+            "m",
+            "ft"
+          ]
+        }
+      }
+    },
+    "base_year": {
+      "type": "integer",
+      "minimum": 1900,
+      "maximum": 2200
+    },
+    "seed": {
+      "type": "integer",
+      "description": "The one seed everything synthetic derives from. Must equal B.population.seed in the registry."
+    },
+    "boundary": {
+      "type": "object",
+      "description": "How the study extent is DERIVED. `selector` names features in `dataset`; it is never a bounding box. `bbox` is deliberately not a property of this schema - if a harvest needs one, it is computed from the resolved boundary at run time and printed so it can be checked.",
+      "required": [
+        "dataset",
+        "level",
+        "selector",
+        "external_tier"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dataset": {
+          "type": "string",
+          "description": "The boundary dataset the selector resolves against, e.g. an ABS ASGS edition."
+        },
+        "level": {
+          "type": "string",
+          "description": "The administrative level the selector names, e.g. LGA."
+        },
+        "selector": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Named features forming the core study area."
+        },
+        "external_tier": {
+          "type": "object",
+          "description": "The boundary treatment beyond the core: what is retained, at what zone level, and why. A model with no external tier still declares one, with an empty selector and a stated reason.",
+          "required": [
+            "level",
+            "selector",
+            "reason"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "level": {
+              "type": "string"
+            },
+            "selector": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "zone_system": {
+      "type": "object",
+      "description": "Which zone geography each side of a trip is modelled at.",
+      "required": [
+        "residence",
+        "workplace"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "residence": {
+          "type": "string"
+        },
+        "external": {
+          "type": "string"
+        },
+        "workplace": {
+          "type": "string"
+        }
+      }
+    },
+    "modes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "The mode vocabulary. Must match RUN.mode_choice.modes in the registry - a mode named here and absent there reaches nothing."
+    },
+    "day_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Day types modelled. Each needs an overlay under overlays/day/."
+    },
+    "mode_share_target": {
+      "type": "object",
+      "description": "WHICH GEOGRAPHY the observed mode share refers to, named explicitly. This is a schema property because getting it wrong is silent and inverts a headline: this project holds two mode-share series over different populations, and reading the wrong one flipped a result.",
+      "required": [
+        "source",
+        "geography",
+        "filter_value",
+        "column"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "geography": {
+          "type": "string"
+        },
+        "column": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "filter_value": {
+          "type": "string",
+          "description": "The literal the observed series is filtered on - the value that appears in the data, not the prose name. The city name was typed into three framework modules as a constant before this field existed."
+        }
+      }
+    },
+    "intervention": {
+      "type": "object",
+      "description": "The thing being tested counterfactually. Optional: a city may be modelled with no intervention at all, as a base only.",
+      "required": [
+        "name",
+        "base_scenario"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "opened": {
+          "type": "string"
+        },
+        "base_scenario": {
+          "type": "string"
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "adapters": {
+      "type": "object",
+      "description": "The acquisition scripts under this city's extract/ directory, and what each one lands. These are jurisdiction-specific BY NATURE - the framework does not pretend otherwise. Paths are city-relative.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "script",
+          "produces"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "script": {
+            "type": "string"
+          },
+          "produces": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Every upstream data source and its licence. The licence boundary must stay visible: a share-alike layer merged into a permissive artefact without a note is a licence breach that no test can see.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "licence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "licence": {
+            "type": "string"
+          },
+          "share_alike": {
+            "type": "boolean"
+          },
+          "provides": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "unobtained": {
+      "type": "array",
+      "description": "Inputs this city could not obtain, each with the reason and the field that sweeps in its place. Declared here so a reader sees the gaps in the same file as the claims - and so `check_city.py` can refuse a city that pins one to a point value.",
+      "items": {
+        "type": "object",
+        "required": [
+          "input",
+          "reason",
+          "handled_by"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "input": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "handled_by": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

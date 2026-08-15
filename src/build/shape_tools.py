@@ -26,10 +26,17 @@ Determinism: adjacency lists are sorted by edge id, the priority queue breaks
 ties on node id, and no dict iteration order reaches a result. Repeat runs
 produce byte-identical output.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
-import math
 import heapq
 import collections
 
@@ -37,16 +44,31 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from osm_parse import parse, haversine
 
-ROAD_EDGES = 'data/processed/network/A1_road_edges.csv'
-ROAD_GEOM = 'data/processed/network/A1_road_geometry.jsonl'
-FOOTWAYS_OSM = 'networks/osm/newcastle_footways.osm'
-RAILWAYS_OSM = 'networks/osm/newcastle_railways.osm'
+# Model inputs come from cities/<city>/registry/, not from literals here. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
+ROAD_EDGES = _city.path('data/processed/network/A1_road_edges.csv')
+ROAD_GEOM = _city.path('data/processed/network/A1_road_geometry.jsonl')
+FOOTWAYS_OSM = _city.path('networks/osm/footways.osm')
+RAILWAYS_OSM = _city.path('networks/osm/railways.osm')
+
+# The window searched for the surviving harbour-side strip of the former rail
+# corridor. Declared in cities/<city>/geometry/analysis_extents.json rather than
+# typed here; the ORDER is (south, north, west, east), matching the comparison
+# in _osm_named_ways. Value-identical to the tuple it replaced.
+_HS = _city.extent('harbourside_corridor_search')
+_HARBOURSIDE_BBOX = (_HS['s'], _HS['n'], _HS['w'], _HS['e'])
 
 # A route is allowed to leave the named corridor, but pays for it. The penalty
 # is a cost multiplier on off-corridor edges: high enough that a parallel back
 # street is never preferred to the named street, low enough that a genuine gap
 # (a roundabout, an unnamed slip, a bridge deck) is still bridgeable.
-OFF_CORRIDOR_PENALTY = 12.0
+OFF_CORRIDOR_PENALTY = CFG.get('A.corridor.off_corridor_penalty')
 
 # Classes a tram or a bus can plausibly run in. Service ways and tracks are
 # excluded so a route cannot cut through a car park or a fire trail.
@@ -57,7 +79,8 @@ RUNNING_CLASSES = frozenset((
 ))
 
 
-def densify(pts, step_m=25.0):
+def densify(pts, step_m=None):
+    step_m = CFG.get('A.corridor.densify_step_m') if step_m is None else step_m
     """Interpolate a polyline so no leg is longer than step_m."""
     if len(pts) < 2:
         return list(pts)
@@ -76,7 +99,8 @@ def polyline_length_m(pts):
     return sum(haversine(a, b) for a, b in zip(pts, pts[1:]))
 
 
-def dedupe(pts, tol_m=1.0):
+def dedupe(pts, tol_m=None):
+    tol_m = CFG.get('A.corridor.dedupe_tolerance_m') if tol_m is None else tol_m
     """Drop consecutive near-duplicate points; GTFS consumers dislike them."""
     out = []
     for p in pts:
@@ -115,7 +139,16 @@ class RoadGraph:
                 if pts and len(pts) >= 2:
                     ways.append((r['edge_id'], (r['name'] or '').strip(), pts))
         ways.sort(key=lambda w: w[0])
+        self._build(ways)
 
+    def _build(self, ways):
+        """Adjacency, node index and lookup grid from [(id, name, points)].
+
+        Split out of __init__ so a subclass can assemble `ways` from a
+        different set of layers - measure_network_factors.ActiveGraph unions
+        the A6 active edges with the roads a pedestrian may use - without
+        duplicating the graph construction or changing it.
+        """
         self.adj = collections.defaultdict(list)
         self.node_xy = {}
         for eid, name, pts in ways:
@@ -137,7 +170,9 @@ class RoadGraph:
         for k in self._grid:
             self._grid[k].sort()
 
-    def nearest_node(self, latlon, max_rings=8):
+    def nearest_node(self, latlon, max_rings=None):
+        max_rings = (CFG.get('A.corridor.nearest_node_max_rings')
+                     if max_rings is None else max_rings)
         """Nearest graph node to a coordinate, searched outward by grid ring."""
         klat, klon = int(latlon[0] * 200), int(latlon[1] * 200)
         best, bestd = None, float('inf')
@@ -246,7 +281,7 @@ def harbourside_corridor(west_anchor, east_anchor):
     and the surviving path - is interpolated. Both halves are reported.
     """
     ways = _osm_named_ways(FOOTWAYS_OSM, 'Foreshore Footpath',
-                           bbox=(-32.930, -32.920, 151.770, 151.795))
+                           bbox=_HARBOURSIDE_BBOX)
     obs = []
     for _, pts in ways:
         obs += pts
@@ -263,7 +298,7 @@ def harbourside_corridor(west_anchor, east_anchor):
     return densify(chain, 20.0), observed_m, total_m
 
 
-POI_CSV = 'data/processed/landuse/D1_poi.csv'
+POI_CSV = _city.path('data/processed/landuse/D1_poi.csv')
 
 
 def road_intersection(name_a, name_b):

@@ -1,0 +1,20 @@
+{
+  "overlay": "S2a",
+  "description": "Light rail with charging dwell REMOVED. Isolates the wire-free decision (secondary question S-a): what the late 35m urban amenity package cost in run time. Zero is outside the 10-35 s sweep BY DESIGN - the sweep is the range of plausible values for a system that charges, and this scenario is the counterfactual in which it does not.",
+  "applies_to": {
+    "scenario": [
+      "S2a"
+    ]
+  },
+  "set": {
+    "A.lightrail.dwell_charging_s": 0.0,
+    "A.lightrail.tsp_enabled": false,
+    "A.signals.scats_phasing": "proxy_no_priority"
+  },
+  "allow_outside_sweep": [
+    "A.lightrail.dwell_charging_s"
+  ],
+  "justification": {
+    "A.lightrail.dwell_charging_s": "S2a is DEFINED as the no-charging-dwell counterfactual (proposal 4.3). Setting it to zero is the scenario, not a parameter choice, and the difference S2 minus S2a is the reported quantity for S-a."
+  }
+}

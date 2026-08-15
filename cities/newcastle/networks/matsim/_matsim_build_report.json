@@ -1,0 +1,434 @@
+{
+  "base_network": {
+    "bytes": 6694664,
+    "km": 27125.8,
+    "links": 181892,
+    "links_by_mode": {
+      "bus": 168060,
+      "car": 168033,
+      "light_rail": 107,
+      "pt": 39282,
+      "rail": 13626,
+      "taxi": 9,
+      "train": 10617
+    },
+    "nodes": 84242
+  },
+  "crs": "EPSG:28356",
+  "determinism_check": [
+    {
+      "feed": "S2",
+      "route_link_sequence_identical_pct": 82.264,
+      "stop_facilities": [
+        4171,
+        4178
+      ],
+      "stop_link_assignment_identical_pct": 100.0,
+      "transit_routes": [
+        1714,
+        1714
+      ]
+    }
+  ],
+  "gtfs_day_param": "all",
+  "road_variants": {
+    "net_base2026": {
+      "banned_turns_dropped": false,
+      "bytes": 6634028,
+      "identical_to_base": true,
+      "links_touched": {},
+      "patch_rows": 0
+    },
+    "net_base2026_broadmeadow_extension": {
+      "banned_turns_dropped": false,
+      "bytes": 6636008,
+      "identical_to_base": false,
+      "links_touched": {
+        "kerbside_use": 305,
+        "num_lanes_per_dir": 183
+      },
+      "patch_rows": 134
+    },
+    "net_base2026_hunter_st_full_capacity": {
+      "banned_turns_dropped": true,
+      "bytes": 6634020,
+      "identical_to_base": false,
+      "links_touched": {
+        "banned_turns_removed": 8,
+        "kerbside_use": 59,
+        "num_lanes_per_dir": 54
+      },
+      "patch_rows": 40
+    },
+    "net_base2026_jhh_extension": {
+      "banned_turns_dropped": false,
+      "bytes": 6637186,
+      "identical_to_base": false,
+      "links_touched": {
+        "kerbside_use": 502,
+        "num_lanes_per_dir": 284
+      },
+      "patch_rows": 240
+    }
+  },
+  "schedules": {
+    "S0": {
+      "artificial_link_refs": 2871,
+      "artificial_share_pct": 0.54,
+      "departures": 3770,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S0.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 15.8,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 441
+      },
+      "network_bytes": 6462158,
+      "route_link_fingerprint": "52c7e2ae35f4b49e5924a90dda013da300b0fdfbbd848e51ab817a1b4389167d",
+      "route_link_refs": 531574,
+      "schedule_bytes": 1964120,
+      "stop_facilities": 4188,
+      "stop_link_fingerprint": "fbc7ddbd5db4797baebb0d69140dd1d124d04a388ed755ac6444ec1f90568847",
+      "stops_with_link": 4188,
+      "stops_without_link": 0,
+      "transit_lines": 289,
+      "transit_routes": 1720
+    },
+    "S1": {
+      "artificial_link_refs": 2227,
+      "artificial_share_pct": 0.42,
+      "departures": 4251,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S1.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 17.7,
+      "modes": {
+        "bus": 1279,
+        "ferry": 2,
+        "rail": 433
+      },
+      "network_bytes": 6461899,
+      "route_link_fingerprint": "dee9022ed6547729d234a76c5f3d6f9bbb722b2ec3bd0ef46d41073da872944e",
+      "route_link_refs": 531284,
+      "schedule_bytes": 1961140,
+      "stop_facilities": 4199,
+      "stop_link_fingerprint": "99e91f5b9c81d07966f2f7d30e77b4e62a87de90cd9a3e459bcc87111cc940d9",
+      "stops_with_link": 4199,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2": {
+      "artificial_link_refs": 2247,
+      "artificial_share_pct": 0.42,
+      "departures": 4269,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S2.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 17.0,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 6464071,
+      "route_link_fingerprint": "0698802cc25d5b70e8cfbd9ece950fe637b3684dd4dd3b2c30473e87bab131d6",
+      "route_link_refs": 531036,
+      "schedule_bytes": 1976560,
+      "stop_facilities": 4197,
+      "stop_link_fingerprint": "66f65217df6f63f6db9a6c07c161e6e1d9c1a840ca325047f5c2ed3a54e3dd84",
+      "stops_with_link": 4197,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2a": {
+      "artificial_link_refs": 2247,
+      "artificial_share_pct": 0.42,
+      "departures": 4269,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S2a.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.5,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 6464071,
+      "route_link_fingerprint": "0698802cc25d5b70e8cfbd9ece950fe637b3684dd4dd3b2c30473e87bab131d6",
+      "route_link_refs": 531036,
+      "schedule_bytes": 1976974,
+      "stop_facilities": 4197,
+      "stop_link_fingerprint": "66f65217df6f63f6db9a6c07c161e6e1d9c1a840ca325047f5c2ed3a54e3dd84",
+      "stops_with_link": 4197,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2b": {
+      "artificial_link_refs": 2227,
+      "artificial_share_pct": 0.42,
+      "departures": 4269,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S2b.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.7,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 6464006,
+      "route_link_fingerprint": "9a30ae20ff93520804559bf28c238a6326b950750a61403460e4a469f0db0494",
+      "route_link_refs": 530758,
+      "schedule_bytes": 1997559,
+      "stop_facilities": 4198,
+      "stop_link_fingerprint": "0f0d063df3893756993995496239067a9632e586eed02c576e9f6e3de96c70ee",
+      "stops_with_link": 4198,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S2c": {
+      "artificial_link_refs": 2227,
+      "artificial_share_pct": 0.42,
+      "departures": 4269,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S2c.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.5,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 6463971,
+      "route_link_fingerprint": "38b17601f3f8af4fbeb20321a631eb9a887b6ad8ef519c5207ee42d559ef50db",
+      "route_link_refs": 531182,
+      "schedule_bytes": 1988363,
+      "stop_facilities": 4197,
+      "stop_link_fingerprint": "0b12d1f6022c073fd38164de92a3c601853ba3c997a4a0ec5893c9e03a2b2b74",
+      "stops_with_link": 4197,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S3": {
+      "artificial_link_refs": 2247,
+      "artificial_share_pct": 0.42,
+      "departures": 4431,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S3.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.6,
+      "modes": {
+        "bus": 1279,
+        "ferry": 2,
+        "rail": 433
+      },
+      "network_bytes": 6462000,
+      "route_link_fingerprint": "1725331560bd090f4afa59f5f0ab4feb1f4c92722c54c76d6fafffbffb7a70b2",
+      "route_link_refs": 530988,
+      "schedule_bytes": 2012247,
+      "stop_facilities": 4197,
+      "stop_link_fingerprint": "1500ac263b1ee3e4c5d6317bcf9c97b20e87fd192d97160b97c86e82a5062493",
+      "stops_with_link": 4197,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "S4": {
+      "artificial_link_refs": 2247,
+      "artificial_share_pct": 0.42,
+      "departures": 4269,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S4.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.7,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 3
+      },
+      "network_bytes": 6464338,
+      "route_link_fingerprint": "36b0fe77a72471f504faa56d8e85e61d9cce3e2b57e7c91a6deafd7f59ba2550",
+      "route_link_refs": 530694,
+      "schedule_bytes": 1975946,
+      "stop_facilities": 4200,
+      "stop_link_fingerprint": "fd31cb0d7e1bc0272790a276c4c733fe6f1de5ac275ea592fe2578147e3be5d7",
+      "stops_with_link": 4200,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1715
+    },
+    "S5": {
+      "artificial_link_refs": 2247,
+      "artificial_share_pct": 0.42,
+      "departures": 4269,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S5.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.8,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 3
+      },
+      "network_bytes": 6464634,
+      "route_link_fingerprint": "16b7a4abbd1c3012bb2941ccd51b0d638ffc68498ded833eb65a7e1a802f108f",
+      "route_link_refs": 531418,
+      "schedule_bytes": 1954710,
+      "stop_facilities": 4205,
+      "stop_link_fingerprint": "fed7e4c81a9f6ebfd67016b9f20a9be1752a06f3cf94c0a779608d2c540df02a",
+      "stops_with_link": 4205,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1715
+    },
+    "S6": {
+      "artificial_link_refs": 2227,
+      "artificial_share_pct": 0.42,
+      "departures": 3719,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/scenarios/S6.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 14.9,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433
+      },
+      "network_bytes": 6461963,
+      "route_link_fingerprint": "486088e09449e009ac1b1c2709a7bea88e73821293ea0e3cb975ec2ed3ad8cb6",
+      "route_link_refs": 530757,
+      "schedule_bytes": 1976614,
+      "stop_facilities": 4187,
+      "stop_link_fingerprint": "513091d52e5a0fb50fd6d80055b73992c63406c2bf3d4f3b767f187f831b9c1c",
+      "stops_with_link": 4187,
+      "stops_without_link": 0,
+      "transit_lines": 289,
+      "transit_routes": 1712
+    },
+    "base2026": {
+      "artificial_link_refs": 2247,
+      "artificial_share_pct": 0.42,
+      "departures": 4269,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/base2026.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.2,
+      "modes": {
+        "bus": 1277,
+        "ferry": 2,
+        "rail": 433,
+        "tram": 2
+      },
+      "network_bytes": 6464071,
+      "route_link_fingerprint": "0698802cc25d5b70e8cfbd9ece950fe637b3684dd4dd3b2c30473e87bab131d6",
+      "route_link_refs": 531036,
+      "schedule_bytes": 1971464,
+      "stop_facilities": 4197,
+      "stop_link_fingerprint": "66f65217df6f63f6db9a6c07c161e6e1d9c1a840ca325047f5c2ed3a54e3dd84",
+      "stops_with_link": 4197,
+      "stops_without_link": 0,
+      "transit_lines": 290,
+      "transit_routes": 1714
+    },
+    "era1_pre2014_reconstructed": {
+      "artificial_link_refs": 2920,
+      "artificial_share_pct": 0.63,
+      "departures": 5387,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/era1_pre2014_reconstructed.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.6,
+      "modes": {
+        "bus": 1129,
+        "ferry": 2,
+        "rail": 155
+      },
+      "network_bytes": 6467873,
+      "route_link_fingerprint": "78d645317ed6079ba18a7b20f47b9c0bf0c08fa4839ab7980c1315e02961baa7",
+      "route_link_refs": 466741,
+      "schedule_bytes": 1893754,
+      "stop_facilities": 5291,
+      "stop_link_fingerprint": "dbdeae228b6cfffb307df30ff7329ec6404682f45152e18b02b4e4ab9e4570b6",
+      "stops_with_link": 5291,
+      "stops_without_link": 0,
+      "transit_lines": 112,
+      "transit_routes": 1286
+    },
+    "era2_2016_rail_truncated": {
+      "artificial_link_refs": 2463,
+      "artificial_share_pct": 0.53,
+      "departures": 5387,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/era2_2016_rail_truncated.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.2,
+      "modes": {
+        "bus": 1129,
+        "ferry": 2,
+        "rail": 155
+      },
+      "network_bytes": 6467639,
+      "route_link_fingerprint": "17a78259f2e552973375fd14c12265c1bc5c141c045c5faa3f959238d55a9f9c",
+      "route_link_refs": 466203,
+      "schedule_bytes": 1916360,
+      "stop_facilities": 5300,
+      "stop_link_fingerprint": "05106ac8df56954950db5a4f1c1ab1db9d633ec085fab91bd2d4245e49d2f6e4",
+      "stops_with_link": 5300,
+      "stops_without_link": 0,
+      "transit_lines": 112,
+      "transit_routes": 1286
+    },
+    "era3_2018_keolis_interchange": {
+      "artificial_link_refs": 1638,
+      "artificial_share_pct": 0.28,
+      "departures": 3967,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/era3_2018_keolis_interchange.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.5,
+      "modes": {
+        "bus": 1513,
+        "ferry": 2,
+        "rail": 472
+      },
+      "network_bytes": 6466457,
+      "route_link_fingerprint": "faf841b3fbcf51d02b92e9b45cd61ef1142fa1a11b8a5fc5cc4d139e4c15168c",
+      "route_link_refs": 591908,
+      "schedule_bytes": 2183756,
+      "stop_facilities": 3256,
+      "stop_link_fingerprint": "383865350ea9152a013230a8f9a8046e71cb623340e39ccf77220562dc7a6667",
+      "stops_with_link": 3256,
+      "stops_without_link": 0,
+      "transit_lines": 197,
+      "transit_routes": 1987
+    },
+    "era4_2019_lr_open": {
+      "artificial_link_refs": 1586,
+      "artificial_share_pct": 0.27,
+      "departures": 4182,
+      "feed": "C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\schedules/era4_2019_lr_open.zip",
+      "gtfs_seconds": 0.0,
+      "mapping_seconds": 16.1,
+      "modes": {
+        "bus": 1457,
+        "ferry": 2,
+        "rail": 483,
+        "tram": 2
+      },
+      "network_bytes": 6470560,
+      "route_link_fingerprint": "233586b03c2c0ef8fd764092369b6e147dec931990410c84ba7b24a928b5cbdd",
+      "route_link_refs": 591482,
+      "schedule_bytes": 2115121,
+      "stop_facilities": 3258,
+      "stop_link_fingerprint": "97a3fefe953d46bdb880a4b4dacb4ed9e04ef338e3e154b94a27ad2204a00e9d",
+      "stops_with_link": 3258,
+      "stops_without_link": 0,
+      "transit_lines": 196,
+      "transit_routes": 1944
+    }
+  },
+  "toolchain": {
+    "jdk": "25.0.4+7",
+    "pt2matsim": "26.6",
+    "sumo": "1.27.1"
+  }
+}

@@ -12,7 +12,8 @@ difference between them is a sample-size effect rather than a sampling one.
 and the fleet carries `seats` with `standingRoomInPersons=0` (Bus 70, Tram 180).
 At a 10% sample an unscaled bus carries 70 sampled agents, i.e. 700 real ones,
 so capacity never binds and crowding silently disappears. Seats are therefore
-scaled by the same fraction, with a floor of 1 so no vehicle becomes unusable.
+scaled by the same fraction, with a floor of `RUN.sample.transit_capacity_floor`
+seats so no vehicle becomes unusable.
 
 Nothing here reads a validation target, let alone a holdout one.
 """
@@ -23,11 +24,22 @@ import os
 import re
 
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                '..', 'build'))
+_HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(_HERE, '..', 'build'))
+sys.path.insert(0, os.path.join(_HERE, '..'))
 from det_io import gzip_writer  # noqa: E402
+import registry                 # noqa: E402
 
-SEED = 20260810
+# The seed is NOT a literal here. It resolved from the registry, so there is one
+# copy of it and changing it is a declared change - two copies of a number is the
+# drift this package cannot absorb (DECISIONS.md 15). run_matsim.py passes
+# RUN.machine.seed explicitly; this default only serves a standalone invocation.
+SEED = registry.load().get('RUN.machine.seed')
+# Nor is the capacity floor. It was a literal `1` here while the registry
+# declared RUN.sample.transit_capacity_floor and swept it 1-4, so the sweep
+# moved a number the code never read - a declared parameter reaching nothing,
+# the issue 21 defect class (issue 12).
+CAPACITY_FLOOR = registry.load().get('RUN.sample.transit_capacity_floor')
 PERSON_RE = re.compile(r'<person id="([^"]+)"')
 # <ns0:capacity seats="70" standingRoomInPersons="0"> - both numbers are scaled,
 # so a fleet that had standing room would scale too, though this one has none.
@@ -62,17 +74,20 @@ def subsample_plans(src, dst, fraction, seed=SEED):
     return n_in, n_out
 
 
-def scale_transit_capacity(src, dst, fraction):
+def scale_transit_capacity(src, dst, fraction, floor=None):
     """Scale every vehicle type's seat count by the sample fraction."""
+    if floor is None:
+        floor = CAPACITY_FLOOR
     with gzip.open(src, 'rt', encoding='utf-8') as f:
         xml = f.read()
     scaled = []
 
     def shrink(m):
         before = int(m.group(4))
-        # floor of 1 on a non-zero capacity: a vehicle scaled to zero seats
-        # would refuse every boarding and silently delete the service
-        after = max(1, int(round(before * fraction))) if before else 0
+        # the floor keeps a vehicle usable: one scaled to zero seats would
+        # refuse every boarding and silently delete the service. It is
+        # RUN.sample.transit_capacity_floor, not a literal.
+        after = max(floor, int(round(before * fraction))) if before else 0
         scaled.append((m.group(2), before, after))
         return m.group(1) + m.group(2) + m.group(3) + str(after) + m.group(5)
 

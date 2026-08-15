@@ -1,0 +1,26 @@
+{
+  "roads": {
+    "n": 50182,
+    "sampled": 50182,
+    "nodata": 0,
+    "abs_gradient_pct": {
+      "mean": 3.68,
+      "p50": 2.03,
+      "p90": 9.2,
+      "p99": 25.0,
+      "max": 25.0
+    }
+  },
+  "footways": {
+    "n": 40195,
+    "sampled": 40195,
+    "nodata": 0,
+    "abs_gradient_pct": {
+      "mean": 4.17,
+      "p50": 1.71,
+      "p90": 12.06,
+      "p99": 25.0,
+      "max": 25.0
+    }
+  }
+}

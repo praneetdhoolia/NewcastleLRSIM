@@ -1,0 +1,60 @@
+{
+  "poi_total": 26864,
+  "poi_in_cbd": 3846,
+  "poi_by_group": {
+    "retail": 1467,
+    "tourism": 799,
+    "amenity": 12555,
+    "food": 1069,
+    "leisure": 7213,
+    "civic": 677,
+    "landuse": 2647,
+    "health": 259,
+    "office": 178
+  },
+  "buildings_cbd": 13096,
+  "cbd_gross_floor_area_m2": 5629193.0,
+  "frontage_segments": 498,
+  "frontage_by_street": {
+    "Hunter Street": 108,
+    "Scott Street": 64,
+    "Darby Street": 50,
+    "Honeysuckle Drive": 52,
+    "Wharf Road": 42,
+    "King Street": 125,
+    "Beaumont Street": 57
+  },
+  "frontage_retail_m2_by_street": {
+    "Beaumont Street": 15670.0,
+    "Darby Street": 16444.0,
+    "Honeysuckle Drive": 10872.0,
+    "Hunter Street": 52270.0,
+    "King Street": 21876.0,
+    "Scott Street": 33812.0,
+    "Wharf Road": 1634.0
+  },
+  "parking_facilities": 8479,
+  "parking_capacity_imputed": 3599,
+  "parking_by_price_band": {
+    "free": 3083,
+    "priced_2_plus": 1507,
+    "priced_under_1": 3502,
+    "priced_1_to_2": 387
+  },
+  "parking_spaces_by_price_band": {
+    "free": 129377,
+    "priced_2_plus": 25045,
+    "priced_under_1": 33461,
+    "priced_1_to_2": 22670
+  },
+  "parking_price": {
+    "threshold_pctile": 90.0,
+    "saturation_pctile": 99.0,
+    "threshold_jobs_km2": 1529.8,
+    "saturation_jobs_km2": 7327.3,
+    "core_zones": 1500,
+    "zones_priced": 160,
+    "core_zones_priced": 150,
+    "price_aud_hr_max": 3.2
+  }
+}

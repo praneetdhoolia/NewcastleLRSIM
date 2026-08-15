@@ -1,0 +1,10 @@
+{
+  "overlay": "convergence_pilot_1pct",
+  "description": "Issue #5 pilot: how many iterations does relaxation actually need? Two 250-iteration runs were still drifting after innovation was switched off (DECISIONS.md 9.7), so 250 is a lower bound and nothing above it has been measured. This run quadruples the horizon to 1000 iterations at the same fraction, threads and seed as ride_sufficiency_1pct so the drift curve is like for like and the only thing that changed is how long it was allowed to run. With fraction_to_disable_innovation at 0.8 the innovation cut-off falls at iteration 800, leaving 200 post-innovation iterations in which per-mode drift can be measured rather than inferred. IT IS A PILOT, NOT THE ANSWER: it runs on the CURRENT demand, which the deliverable 0d work will replace, so the number it yields sizes the later run programme and does not settle RUN.controler.last_iteration. That field stays UNOBTAINED. NOT A RESULT: no mode share, count comparison or fit statistic may be read from a run whose demand is known to be missing through traffic, work-related business travel and freight.",
+  "set": {
+    "RUN.sample.fraction": 0.01,
+    "RUN.controler.last_iteration": 1000,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "12g"
+  }
+}

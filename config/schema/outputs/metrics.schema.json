@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/outputs/metrics.schema.json",
+  "title": "_metrics.json - modelled quantities",
+  "description": "Written by src/analyse/extract_metrics.py. MODELLED QUANTITIES ONLY: this document reads no validation target, so it cannot see the 67/143 split and cannot leak a holdout value. Scoring is src/calibrate/fit.py.",
+  "type": "object",
+  "required": [
+    "run",
+    "scenario",
+    "day",
+    "fraction",
+    "iterations",
+    "mode_share",
+    "pt",
+    "counts",
+    "corrections"
+  ],
+  "properties": {
+    "run": {
+      "type": "string",
+      "description": "Run directory name; the run identity."
+    },
+    "scenario": {
+      "type": "string",
+      "enum": [
+        "S0",
+        "S1",
+        "S2",
+        "S2a",
+        "S2b",
+        "S2c",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ]
+    },
+    "day": {
+      "type": "string",
+      "enum": [
+        "WEEKDAY",
+        "SAT",
+        "SUN"
+      ]
+    },
+    "fraction": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1.0,
+      "description": "Sample fraction. Every extensive quantity below is scaled by it."
+    },
+    "iterations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "overrides": {
+      "type": "object"
+    },
+    "mode_share": {
+      "type": "object",
+      "description": "Linked main-mode share. The calibration target is ONE LGA and the model covers several, so the LGA-of-residence split is not optional - see DECISIONS.md 12.1.",
+      "required": [
+        "all_residents_trips",
+        "target_lga_trips",
+        "target_lga_pct"
+      ],
+      "properties": {
+        "all_residents_trips": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_lga_trips": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_lga_pct": {
+          "type": "object",
+          "description": "Percent by MATSim mode, summing to 100.",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          }
+        },
+        "all_residents_pct": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      }
+    },
+    "pt": {
+      "type": "object",
+      "description": "Boardings by line, scaled to full population by 1/fraction.",
+      "required": [
+        "total_pt_boardings",
+        "light_rail_boardings"
+      ],
+      "properties": {
+        "total_pt_boardings": {
+          "type": "number",
+          "minimum": 0
+        },
+        "light_rail_boardings": {
+          "type": "number",
+          "minimum": 0
+        },
+        "by_line": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "lr_share_of_pt_legs": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Hypothesis A1's metric: light rail person-legs over TOTAL PT person-legs across the whole study area. This is NOT the observed 20.8% figure, which is light rail over (light rail + NISC 1 bus) TAPS and is an UPPER BOUND on A1. Never calibrate A1 against 20.8%."
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": [
+        "stations"
+      ],
+      "properties": {
+        "stations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "station_key",
+              "modelled_vehicles"
+            ],
+            "properties": {
+              "station_key": {
+                "type": [
+                  "string",
+                  "integer"
+                ]
+              },
+              "modelled_vehicles": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "links": {
+                "type": "array"
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "corrections": {
+      "type": "object",
+      "description": "The comparison-time corrections, carried WITH the metrics so a fit can never be reported without them. They apply to the comparison, not to the model.",
+      "required": [
+        "vehicles_per_leg",
+        "heavy_vehicle_share"
+      ],
+      "properties": {
+        "vehicles_per_leg": {
+          "type": "object"
+        },
+        "heavy_vehicle_share": {
+          "type": "object"
+        }
+      }
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

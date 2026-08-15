@@ -1,0 +1,808 @@
+{
+  "layer": "C",
+  "title": "Behavioural parameters (C1)",
+  "description": "Proposal 6.2 calls this the layer that decides the answer. It is also the layer with no Newcastle measurement in it: of the twenty distinct parameters, ten are assumed, eight are literature and two are definitional. Everything here is therefore either swept or explicitly held fixed under a stated rule - see the sweep and held_fixed keys. The per-segment C1 table (30 sets = 5 segments x 6 purposes) is generated from these fields by src/build/build_params.py; the registry holds the parameters, the CSV holds their expansion.",
+  "decisions_ref": "8",
+  "fields": {
+    "C.vot.by_purpose": {
+      "value": {
+        "HW": 18.6,
+        "HE": 9.3,
+        "HS": 15.2,
+        "HO": 15.2,
+        "WB": 55.4,
+        "NHB": 15.2
+      },
+      "units": "AUD_2026_per_hour",
+      "source": "literature",
+      "sweep": {
+        "proportional": 0.3,
+        "basis": "DECISIONS.md 8.3 sweeps VOT by plus or minus 30% on every purpose"
+      },
+      "status": "active",
+      "decisions_ref": "8.3",
+      "proposal_ref": "A/C1, 6.2",
+      "description": "Value of travel time by trip purpose, ATAP PV2 / TfNSW Economic Parameter Values conventions. NOT a Newcastle measurement. MATSim scoring cannot carry per-purpose VOT, so the run inputs collapse this to a trip-weighted 16.96 AUD/h - see C.vot.trip_weighted and DECISIONS.md 9.3.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
+    "C.vot.concession_factor": {
+      "value": 0.75,
+      "units": "ratio",
+      "source": "literature",
+      "sweep": [
+        0.6,
+        0.9
+      ],
+      "status": "active",
+      "decisions_ref": "8.3",
+      "description": "Multiplier on VOT for concession, student and car-unavailable segments."
+    },
+    "C.vot.car_unavailable_walk_factor": {
+      "value": 1.15,
+      "units": "ratio",
+      "source": "assumed",
+      "sweep": [
+        1.0,
+        1.3
+      ],
+      "sweep_basis": "chosen. 1.0 is the arm in which car availability does not change how walking is valued.",
+      "status": "active",
+      "decisions_ref": "8.3, 9.32",
+      "description": "Multiplier on the walk and wait time weights for the car-unavailable segment, who face them without an alternative. Applied to every weight whose name carries `walk`.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
+    "C.transfer.penalty_sweep_grid": {
+      "value": [
+        3.0,
+        5.0,
+        6.5,
+        8.0,
+        10.0,
+        12.0,
+        15.0
+      ],
+      "units": "minutes_equivalent",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.32",
+      "proposal_ref": "3.4 S-d",
+      "description": "The points at which C.transfer.beta_transfer_penalty_min is sampled for the mandatory sensitivity grid. A sampling design, not an empirical quantity - which is why it is a definition rather than a swept value. Denser near the base than at the ends because the policy answer turns over in the middle of the range. check_package.py asserts the endpoints match the declared sweep and that the base is a member, so the grid cannot drift away from the range it is supposed to cover.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
+    "C.walk.max_considered_m": {
+      "value": 2500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        1500.0,
+        4000.0
+      ],
+      "sweep_basis": "chosen. Proposal 6.3 forbids a THRESHOLD on the decay curve; this is the outer distance at which the curve is still evaluated, not a cut-off applied to behaviour.",
+      "status": "active",
+      "decisions_ref": "8.4, 9.32",
+      "proposal_ref": "6.3",
+      "description": "Outer distance over which the walk-access decay curve is evaluated. NOT a catchment threshold: proposal 6.3 forbids one, because a 400 m cut-off treats a person at 401 m as identical to one at 2 km and flatters fixed-route modes.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
+    "C.vot.trip_weighted": {
+      "value": 16.96,
+      "units": "AUD_2026_per_hour",
+      "source": "derived",
+      "sweep": {
+        "proportional": 0.3,
+        "basis": "inherits the C.vot.by_purpose sweep"
+      },
+      "status": "computed",
+      "decisions_ref": "9.3",
+      "description": "The single VOT MATSim actually scores with, trip-weighted across purposes. This is what C1 per-purpose structure degrades to in translation, and is one of the three things DECISIONS.md 9.3 records as lost."
+    },
+    "C.transfer.beta_transfer_penalty_min": {
+      "value": 8.0,
+      "units": "minutes_equivalent",
+      "source": "assumed",
+      "sweep": [
+        3.0,
+        15.0
+      ],
+      "sweep_basis": "proposal 6.2 forbids a literature default and requires every finding to be reported as a curve across this range; the grid crosses 3, 5, 6.5, 8, 10, 12, 15",
+      "status": "active",
+      "decisions_ref": "8.1",
+      "proposal_ref": "6.2, 3.4 S-d",
+      "baseline_ref": "params/C1_sensitivity_sweep_grid.csv:is_baseline",
+      "description": "Behavioural penalty for an interchange, ON TOP of the measured Newcastle Interchange walk time (mean 112 s, max 284 s over 51 stop pairs). The whole policy question is whether forcing a transfer at Wickham is worth the CBD distribution it buys: 5 min gives a broadly favourable result, 12 min a net disbenefit for external origins. NO HEADLINE MAY BE REPORTED AT A SINGLE VALUE. It is assumed rather than estimated only because journey-linked Opal is unobtained."
+    },
+    "C.walk.decay_beta_per_m": {
+      "value": 0.0018,
+      "units": "per_metre",
+      "source": "assumed",
+      "sweep": [
+        0.001,
+        0.003
+      ],
+      "status": "active",
+      "decisions_ref": "8.2",
+      "proposal_ref": "6.3",
+      "description": "Negative-exponential distance decay on walk access. Weight 0.49 at 400 m, 0.24 at 800 m, 0.12 at 1200 m, considered to 2500 m. NO 400 m THRESHOLD IS USED ANYWHERE: proposal 6.3 is explicit that a cut-off treats a person at 401 m as identical to one at 2 km and systematically flatters fixed-route modes."
+    },
+    "C.walk.decay_form": {
+      "value": "negative_exponential",
+      "units": "enum",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "negative_exponential",
+          "cumulative_gaussian"
+        ],
+        "basis": "DECISIONS.md 8.2 provides a cumulative-Gaussian alternative, mu 700 m, sigma 420 m"
+      },
+      "status": "active",
+      "decisions_ref": "8.2",
+      "description": "Functional form of the walk access decay."
+    },
+    "C.walk.gaussian_mu_m": {
+      "value": 700.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        500.0,
+        900.0
+      ],
+      "status": "active",
+      "decisions_ref": "8.2",
+      "description": "Alternative-form parameter, used only when decay_form is cumulative_gaussian."
+    },
+    "C.walk.gaussian_sigma_m": {
+      "value": 420.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        300.0,
+        550.0
+      ],
+      "status": "active",
+      "decisions_ref": "8.2",
+      "description": "Alternative-form parameter, used only when decay_form is cumulative_gaussian."
+    },
+    "C.time_weights.beta_walk_access": {
+      "value": 2.0,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.5,
+        2.5
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on walk access time relative to in-vehicle time."
+    },
+    "C.time_weights.beta_walk_egress": {
+      "value": 2.0,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.5,
+        2.5
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on walk egress time relative to in-vehicle time."
+    },
+    "C.time_weights.beta_walk_mode": {
+      "value": 1.04,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.0,
+        1.3
+      ],
+      "sweep_basis": "bracketed by the two conventions actually in use: Open Berlin, Kelheim and Hamburg price walk time equal to car (1.00) and Duesseldorf at 1.15, while Melbourne AToM estimates 1.04 on Australian revealed preference. No published calibrated MATSim scenario exceeds 1.15.",
+      "status": "active",
+      "decisions_ref": "8.4, 9.28",
+      "description": "Weight on WALK-AS-A-MODE travel time relative to in-vehicle time. DISTINCT FROM beta_walk_access, which is the appraisal weight on walking to a PT stop INSIDE a PT journey and must never be used here: doing so priced a whole walking trip at 2x car time, put the walk-bike indifference distance at 174 m against an observed mean walk trip of 700 m, and produced a 0.13% walk share against 13.4% (9.28). Value from Melbourne AToM, estimated on VISTA n=14,959, the only calibrated Australian agent-based model."
+    },
+    "C.time_weights.beta_bike_mode": {
+      "value": 1.21,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.0,
+        1.3
+      ],
+      "sweep_basis": "same bracket as beta_walk_mode. AToM estimates 1.21 for cycling; Kelheim uses 1.50 and Leipzig 1.92, so 1.0-1.3 is the conservative end of published practice.",
+      "status": "active",
+      "decisions_ref": "8.4, 9.28",
+      "description": "Weight on BIKE travel time relative to in-vehicle time. Value from Melbourne AToM, estimated on VISTA n=14,959. MUST BE >= C.time_weights.beta_walk_mode: cycling time being dearer per hour than walking time is the finding of 9.28, not an incidental ordering - the model had it inverted (walk 2.0, bike 1.3) and that inversion conceded every short trip to bike. Replaces a bare literal 1.3 typed into src/build/build_matsim_run_inputs.py that carried no registry field, no source, no sweep and no consumer while governing bike's mode share."
+    },
+    "C.time_weights.beta_wait": {
+      "value": 2.0,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        1.5,
+        2.5
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on wait time relative to in-vehicle time."
+    },
+    "C.time_weights.beta_headway": {
+      "value": 0.5,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        0.35,
+        0.65
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on service headway."
+    },
+    "C.time_weights.beta_reliability": {
+      "value": 1.3,
+      "units": "ratio_to_ivt",
+      "source": "literature",
+      "sweep": [
+        0.8,
+        1.8
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Weight on travel time variability."
+    },
+    "C.time_weights.beta_ivt": {
+      "value": 1.0,
+      "units": "ratio_to_ivt",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "In-vehicle time is the numeraire the other weights are expressed against."
+    },
+    "C.crowding.seated_multiplier": {
+      "value": 1.0,
+      "units": "ratio",
+      "source": "literature",
+      "sweep": [
+        1.0,
+        1.15
+      ],
+      "status": "active",
+      "decisions_ref": "8.4, 9.3",
+      "description": "Crowding multiplier, seated. NOT carried into MATSim scoring (DECISIONS.md 9.3)."
+    },
+    "C.crowding.standing_multiplier": {
+      "value": 1.45,
+      "units": "ratio",
+      "source": "literature",
+      "sweep": [
+        1.2,
+        1.8
+      ],
+      "status": "active",
+      "decisions_ref": "8.4, 9.3",
+      "description": "Crowding multiplier, standing. NOT carried into MATSim scoring (DECISIONS.md 9.3), and the transit fleet carries standingRoomInPersons=0, so standing does not occur in the current fleet at all."
+    },
+    "C.gradient.uphill_penalty_per_pct": {
+      "value": 0.09,
+      "units": "utils_per_percent_grade",
+      "source": "assumed",
+      "sweep": [
+        0.05,
+        0.14
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "proposal_ref": "6.3",
+      "description": "Asymmetric gradient cost on active-mode edges. Proposal 6.3 requires uphill and downhill to be different costs; material in Newcastle East and The Hill."
+    },
+    "C.gradient.downhill_penalty_per_pct": {
+      "value": 0.02,
+      "units": "utils_per_percent_grade",
+      "source": "assumed",
+      "sweep": [
+        0.0,
+        0.05
+      ],
+      "status": "active",
+      "decisions_ref": "8.4",
+      "description": "Asymmetric gradient cost, downhill."
+    },
+    "C.asc.car_driver": {
+      "value": 0.0,
+      "units": "utils",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "The reference alternative. Fixed at zero by definition."
+    },
+    "C.asc.bus": {
+      "value": -1.05,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0."
+    },
+    "C.asc.light_rail": {
+      "value": -0.75,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0. This is the constant the effect under test runs through; it is never fitted."
+    },
+    "C.asc.rail": {
+      "value": -0.65,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0."
+    },
+    "C.asc.walk": {
+      "value": 0.35,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold fixed, or constrain them and report the constraint. Proposal 9 names ASC absorption as the PRIMARY threat to validity: calibrating mode constants to observed patronage fits away the effect under test.",
+        "decisions_ref": "8.5",
+        "departure_requires": "a departure logged in DECISIONS.md BEFORE results are seen"
+      },
+      "status": "active",
+      "decisions_ref": "8.5",
+      "description": "Alternative-specific constant relative to car driver = 0."
+    },
+    "C.asc.cycle": {
+      "value": -1.35,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as the 8.5 prior; a solve over [-4.0, -1.35] is to be constrained against the OBSERVED walk and bike trip lengths already measured into C.constraint.trip_length_km.*, never against a mode share and never against a patronage level. This is not ASC absorption: the constant opened is CYCLE, asc_light_rail, asc_bus and asc_rail stay at their 8.5 priors, and no hypothesis in proposal 3 turns on it.",
+        "decisions_ref": "8.5, 9.28",
+        "departure_requires": "the constrained solve must run AFTER the 9.28 scoring repair, never before - calibrating a constant against a known structural error is the failure proposal 9 names as the primary threat to validity"
+      },
+      "status": "placeholder",
+      "decisions_ref": "8.5, 9.28",
+      "targets": "C.constraint.trip_length_km.bike",
+      "description": "Cycle alternative-specific constant relative to car driver = 0. Status is placeholder because the 8.5 prior is known too weak - AToM's estimated walk-to-bike ASC gap is 3.418 against this model's 1.70 - and the constrained solve has not been built. The point value is deliberately NOT hand-moved: substituting one unjustified number for another is exactly what 8.5 exists to prevent."
+    },
+    "C.asc.car_passenger": {
+      "value": -0.85,
+      "units": "utils",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the second branch DECISIONS.md 8.5 permits - constrain and report the constraint - with the constraining quantity measured. It is not ASC absorption: the constrained constant is car passenger, the constraining quantity is how many people fit in a car, and asc_light_rail, asc_bus and asc_rail stay at their 8.5 priors.",
+        "decisions_ref": "8.5, 9.8",
+        "departure_requires": "re-solving once the iteration count is settled - the current solve ran at a fixed 250-iteration protocol which DECISIONS.md 9.7 shows is NOT equilibrium, so the value is PROVISIONAL (issue 9)"
+      },
+      "status": "placeholder",
+      "decisions_ref": "8.5, 9.8",
+      "targets": "C.constraint.passenger_per_driver",
+      "description": "Car-passenger constant. The shipped -0.85 is the 8.5 prior; the solved value is written by src/calibrate/solve_asc_ride.py. Status is placeholder because the solve is provisional until the iteration count is settled."
+    },
+    "C.constraint.vehicle_occupancy": {
+      "value": 1.3503,
+      "units": "persons_per_vehicle",
+      "source": "measured",
+      "sweep": [
+        1.2493,
+        1.394
+      ],
+      "sweep_basis": "the observed spread across all 7 survey years in the file, not a chosen interval",
+      "status": "active",
+      "decisions_ref": "9.8",
+      "description": "Newcastle LGA vehicle occupancy, HTS 2024/25 driver and passenger trip counts. Both quantities are ratios of two published counts; neither is a modelling choice. The unconstrained model produced 5.52 people per vehicle."
+    },
+    "C.constraint.passenger_per_driver": {
+      "value": 0.3503,
+      "units": "ratio",
+      "source": "derived",
+      "sweep": [
+        0.2493,
+        0.394
+      ],
+      "status": "active",
+      "decisions_ref": "9.8",
+      "description": "Occupancy minus one. The quantity C.asc.car_passenger is solved against."
+    },
+    "C.constraint.trip_length_km.bike": {
+      "value": 5.2,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          3.1,
+          5.2
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"other\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for bike (HTS \"other\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_time_min.bike": {
+      "value": 19.2,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          15.7,
+          19.4
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"other\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for bike (HTS \"other\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_length_km.car": {
+      "value": 10.2,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          6.6,
+          10.8
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle driver\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for car (HTS \"vehicle driver\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_time_min.car": {
+      "value": 17.2,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          14.5,
+          17.6
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle driver\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for car (HTS \"vehicle driver\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_length_km.pt": {
+      "value": 23.4,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          15.9,
+          24.5
+        ],
+        "basis": "the observed spread across all 3 survey years in the file for HTS category \"public transport\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for pt (HTS \"public transport\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_time_min.pt": {
+      "value": 34.4,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          30.7,
+          37.7
+        ],
+        "basis": "the observed spread across all 3 survey years in the file for HTS category \"public transport\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for pt (HTS \"public transport\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_length_km.ride": {
+      "value": 9.8,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          5.6,
+          9.8
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle passenger\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for ride (HTS \"vehicle passenger\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_time_min.ride": {
+      "value": 15.5,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          12.2,
+          15.5
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"vehicle passenger\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for ride (HTS \"vehicle passenger\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_length_km.walk": {
+      "value": 0.7,
+      "units": "kilometres_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          0.7,
+          1.1
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"walk only\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip length for walk (HTS \"walk only\"), Newcastle LGA, from the TRIP_AVG_DISTANCE column - published, and used by nothing until 9.13. It answers what mode share cannot: whether a mode is used over the RANGE it is used for in reality. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.constraint.trip_time_min.walk": {
+      "value": 12.3,
+      "units": "minutes_per_trip",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          10.6,
+          14.8
+        ],
+        "basis": "the observed spread across all 7 survey years in the file for HTS category \"walk only\", not a chosen interval"
+      },
+      "status": "active",
+      "decisions_ref": "9.13",
+      "description": "Observed mean trip duration for walk (HTS \"walk only\"), Newcastle LGA. Paired with trip length it separates a mode used for the wrong DISTANCES from one that is simply too slow. A CONSTRAINT, NOT A VALIDATION TARGET: the 67/143 split is pre-registered and this is not part of it. fit.py reports it beside the fit and never counts it into one, exactly as vehicle occupancy is handled. Compare on Newcastle LGA BOTH SIDES - a five-LGA modelled mean against this published Newcastle mean is a geography error that flatters or damns a mode by accident. Measured by src/calibrate/measure_mode_constraints.py into params/C4_mode_constraints.json, which is what fit.py reads; this declaration is pinned to that artefact by check_package.py so the two cannot drift."
+    },
+    "C.nesting.pt_coefficient": {
+      "value": 0.65,
+      "units": "dimensionless",
+      "source": "assumed",
+      "sweep": [
+        0.5,
+        0.95
+      ],
+      "status": "placeholder",
+      "decisions_ref": "8.6, 9.3",
+      "description": "Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING - MATSim scores plans, it does not evaluate a nested logit. DECISIONS.md 9.3 records this as lost in translation. Status is placeholder: the value is declared but nothing consumes it, and it must not be reported as if the model used it."
+    },
+    "C.nesting.private_coefficient": {
+      "value": 0.8,
+      "units": "dimensionless",
+      "source": "assumed",
+      "sweep": [
+        0.5,
+        0.95
+      ],
+      "status": "placeholder",
+      "decisions_ref": "8.6, 9.3",
+      "description": "Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING - MATSim scores plans, it does not evaluate a nested logit. DECISIONS.md 9.3 records this as lost in translation. Status is placeholder: the value is declared but nothing consumes it, and it must not be reported as if the model used it."
+    },
+    "C.nesting.active_coefficient": {
+      "value": 0.7,
+      "units": "dimensionless",
+      "source": "assumed",
+      "sweep": [
+        0.5,
+        0.95
+      ],
+      "status": "placeholder",
+      "decisions_ref": "8.6, 9.3",
+      "description": "Nested-logit nest coefficient. SPECIFIED IN C1 BUT NOT PRESENT IN MATSim SCORING - MATSim scores plans, it does not evaluate a nested logit. DECISIONS.md 9.3 records this as lost in translation. Status is placeholder: the value is declared but nothing consumes it, and it must not be reported as if the model used it."
+    },
+    "C.scoring.performing_utils_per_h": {
+      "value": 6.0,
+      "units": "utils_per_hour",
+      "source": "literature",
+      "sweep": [
+        4.0,
+        8.0
+      ],
+      "status": "active",
+      "decisions_ref": "9.3",
+      "matsim_param": "scoring.performing",
+      "description": "Marginal utility of performing an activity. A property of the MATSim scoring formulation, not an observable quantity of Newcastle. The effective cost of travel time is performing plus the absolute marginalUtilityOfTraveling, which is how the 16.96 AUD/h VOT is reproduced: 6.0 + 10.9608.",
+      "consumers": [
+        "src/registry/param_config.py"
+      ]
+    },
+    "C.scoring.marginal_utility_of_money": {
+      "value": 1.0,
+      "units": "utils_per_AUD",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.3",
+      "matsim_param": "scoring.marginalUtilityOfMoney",
+      "description": "Sets the utility numeraire to AUD. Definitional, not empirical.",
+      "consumers": [
+        "src/registry/param_config.py"
+      ]
+    },
+    "C.scoring.monetary_distance_rate": {
+      "value": {
+        "car": -0.00018,
+        "ride": -0.00018,
+        "pt": 0.0,
+        "walk": 0.0,
+        "bike": 0.0
+      },
+      "units": "AUD_per_metre",
+      "source": "derived",
+      "sweep": [
+        -0.00025,
+        -0.00012
+      ],
+      "sweep_basis": "applies to the car entry only; ride follows it by the identity above, and pt, walk and bike remain zero because no vehicle operating cost is borne by their traveller",
+      "status": "active",
+      "decisions_ref": "9.8, 9.13, 9.17",
+      "matsim_param": "scoring.modeParams[*].monetaryDistanceRate",
+      "description": "Vehicle operating cost per metre AS PERCEIVED BY THE TRAVELLER MAKING THE CHOICE. RIDE CARRIES THE CAR RATE (DECISIONS.md 9.17, the 8.5 departure for issue 16). It was zero, derived from an aggregate-cost identity that governs system accounting rather than individual choice; the 9.13 trip-length constraint then measured modelled ride:car trip length at 1.372 against an observed 0.961, which is what a mode with no marginal distance cost produces. This is NOT a move of asc_car_passenger, which stays constrained to observed occupancy at -0.85 and is held fixed under 8.5: proposal 9 names ASC absorption as the primary threat to validity, and correcting a mis-specified distance rate is the opposite of absorbing that error into a constant.",
+      "consumers": [
+        "src/registry/param_config.py"
+      ],
+      "derived_from": {
+        "fields": [
+          "C.scoring.monetary_distance_rate"
+        ],
+        "identity": "a kilometre in a car costs the same kilometre whether you are in the driver seat or beside it, so ride carries the car rate. This SUPERSEDES the 9.8 identity that set ride to zero: that identity - a vehicle operating cost is paid once, so charging both occupants makes AGGREGATE cost 1.35x the real one - is a statement about system cost accounting, and monetaryDistanceRate is the cost PERCEIVED BY ONE PERSON weighing one alternative. The 9.13 trip length constraint falsified the old treatment: modelled ride to car trip length was 1.372 against an observed 0.961, widening with sample fraction - the signature a zero marginal distance cost produces. See DECISIONS.md 9.17"
+      }
+    },
+    "C.scoring.activity_typical_duration_s": {
+      "value": {
+        "home": 43200,
+        "work": 28800,
+        "education": 21600,
+        "shopping": 3600,
+        "other": 7200,
+        "business": 3600,
+        "escort": 300
+      },
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25
+      },
+      "status": "active",
+      "decisions_ref": "9.3, 9.15",
+      "matsim_param": "scoring.activityParams[*].typicalDuration",
+      "matsim_format": "hh:mm:ss",
+      "description": "MATSim typical activity duration per activity type. THIS DICTIONARY IS THE ACTIVITY VOCABULARY: the config carries one activityParams block per key here, so an activity type absent from it is unscored and an agent performing it earns nothing. MATSim reads the duration as a clock string, which is why this field declares its format - the value is seconds, because seconds is what it is. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.",
+      "consumers": [
+        "src/registry/param_config.py"
+      ]
+    },
+    "C.scoring.activity_minimal_duration_s": {
+      "value": 900,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        300,
+        1800
+      ],
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "MATSim minimalDuration for a scored activity. Applied as min(this, typical duration) so it can never exceed the typical duration of a short activity: an escort drop-off has a typical duration of 5 minutes and a 15-minute floor over it would be self-contradictory. The APPLIED per-activity result is C.scoring.activity_minimal_applied_s; this is the ceiling it is taken against.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "C.scoring.activity_minimal_applied_s": {
+      "value": null,
+      "units": "seconds",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.15",
+      "matsim_param": "scoring.activityParams[*].minimalDuration",
+      "matsim_format": "hh:mm:ss",
+      "derived_from": {
+        "fields": [
+          "C.scoring.activity_minimal_duration_s",
+          "C.scoring.activity_typical_duration_s"
+        ],
+        "identity": "minimalDuration[a] = min(C.scoring.activity_minimal_duration_s, C.scoring.activity_typical_duration_s[a]), per activity type a"
+      },
+      "description": "The minimal duration actually written per activity type. Computed rather than declared because it is not free: it is a floor taken against each activity's own typical duration, and a floor above the typical duration would hold a vehicle at a drop-off."
+    },
+    "C.scoring.mode_constant": {
+      "value": null,
+      "units": "utils",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "8.5, 9.8",
+      "matsim_param": "scoring.modeParams[*].constant",
+      "derived_from": {
+        "fields": [
+          "C.asc.car_driver",
+          "C.asc.car_passenger",
+          "C.asc.bus",
+          "C.asc.walk",
+          "C.asc.cycle"
+        ],
+        "identity": "constant[m] = the C1 alternative-specific constant for the mode m maps to, translated in src/build/build_matsim_run_inputs.py: car<-asc_car_driver, ride<-asc_car_passenger, pt<-asc_bus, walk<-asc_walk, bike<-asc_cycle"
+      },
+      "description": "The MATSim alternative-specific constant per scored mode. Computed, because C1 is a nested-logit specification over named alternatives and MATSim scores over its own mode vocabulary - the mapping between them is the translation, and it is stated here rather than left implicit in a builder. The C.asc.* fields remain the declared quantities and are what a calibration moves; DECISIONS.md 8.5 holds them fixed."
+    },
+    "C.scoring.marginal_utility_of_traveling": {
+      "value": null,
+      "units": "utils_per_hour",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.28",
+      "matsim_param": "scoring.modeParams[*].marginalUtilityOfTraveling_util_hr",
+      "derived_from": {
+        "fields": [
+          "C.scoring.performing_utils_per_h",
+          "C.vot.trip_weighted",
+          "C.scoring.marginal_utility_of_money",
+          "C.time_weights.beta_ivt",
+          "C.time_weights.beta_walk_mode",
+          "C.time_weights.beta_bike_mode"
+        ],
+        "identity": "marginalUtilityOfTraveling[m] = performing - trip_weighted_VOT * beta[m] * marginalUtilityOfMoney, the conventional MATSim identity. beta is 1.0 for car and ride, beta_ivt for pt, beta_walk_mode for walk and beta_bike_mode for bike"
+      },
+      "description": "The MATSim per-mode marginal utility of travel time. COMPUTED, NOT DECLARED: the beta_* fields are RATIOS to in-vehicle time and this parameter is a UTILITY RATE PER HOUR. beta_walk_mode and beta_bike_mode were bound straight to this parameter until the config emitter was built, which would have written the ratio 1.04 into a util/hour rate - the same class of error as an exponent bound to a factor, and invisible while the config was a hand-written template."
+    },
+    "C.scoring.waiting_pt": {
+      "value": null,
+      "units": "utils_per_hour",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.28",
+      "matsim_param": "scoring.waitingPt",
+      "derived_from": {
+        "fields": [
+          "C.scoring.performing_utils_per_h",
+          "C.vot.trip_weighted",
+          "C.scoring.marginal_utility_of_money",
+          "C.time_weights.beta_wait"
+        ],
+        "identity": "waitingPt = performing - trip_weighted_VOT * beta_wait * marginalUtilityOfMoney, the same identity as the per-mode travel rate applied to the waiting weight"
+      },
+      "description": "Disutility of waiting for public transport, per hour. Distinct from RUN.scoring.waiting, which is general waiting and is a declared value: this one is derived from the C1 wait weight. Confusing the two is the DECISIONS.md 9.28 defect class."
+    },
+    "C.scoring.utility_of_line_switch": {
+      "value": null,
+      "units": "utils",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.32",
+      "matsim_param": "scoring.utilityOfLineSwitch",
+      "derived_from": {
+        "fields": [
+          "C.transfer.penalty_min",
+          "C.vot.trip_weighted",
+          "C.scoring.marginal_utility_of_money"
+        ],
+        "identity": "utilityOfLineSwitch = -(C.transfer.penalty_min / 60) * trip_weighted_VOT * marginalUtilityOfMoney"
+      },
+      "description": "The scoring penalty for changing transit line, ON TOP of the walk and wait MATSim already simulates. Computed from the declared transfer penalty, which is SWEPT 3-15 min because the estimate proposal 7.2 asks for is not possible from this package (deliverable 8, DECISIONS.md 9.32). Every headline that touches interchange is bound to a curve across that sweep, and this is the parameter the sweep moves."
+    }
+  }
+}

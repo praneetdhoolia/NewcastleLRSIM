@@ -1,0 +1,14 @@
+{
+  "overlay": "S2",
+  "description": "Light rail as built - wire-free, current signal arrangement. The reference case for every comparison. Charging dwell is selected at its baseline sweep point; the field itself remains unobtained.",
+  "applies_to": {
+    "scenario": [
+      "S2"
+    ]
+  },
+  "set": {
+    "A.lightrail.dwell_charging_s": 20.0,
+    "A.lightrail.tsp_enabled": false,
+    "A.signals.scats_phasing": "proxy_no_priority"
+  }
+}

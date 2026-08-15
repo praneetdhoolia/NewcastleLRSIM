@@ -38,6 +38,66 @@ jobs:
       - name: Every committed data file matches its MANIFEST.csv hash and size
         run: python tests/check_manifest.py
 
+  city:
+    name: city contract (schema, required fields, artefacts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install the JSON Schema validator
+        run: pip install jsonschema
+      # The portable contract is GENERATED from the reference city, so it cannot be
+      # allowed to drift from it - the same rule CONFIG_REFERENCE.md is held to.
+      - name: The input contract is current
+        run: python src/registry/render_schema.py --check
+      # Needs no data: the artefact half is reported, not failed, because a city
+      # part-way through its build is a normal state.
+      - name: Every city satisfies the contract
+        run: python src/registry/check_city.py --all
+
+  hardcoding:
+    name: zero hardcoding (declared, wired, and proven to reach)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      # THE GATE. Every controllable value is declared, every declared field
+      # either reaches the model or carries a written reason, and every field
+      # bound to a tool parameter is proven to reach it by changing the value
+      # and watching the emitted config change. It needs no bulk data: the
+      # configs are emitted in memory and nothing is run. The reach probe does
+      # derive the scoring block the way a real run would - through the
+      # run-input builder, whose HTS purpose-share step reads a COMMITTED csv
+      # with pandas - so pandas is the one dependency the probe carries.
+      # Without it the probe reports PROBE FAILED and the gate exits 1, which
+      # is the failure this job showed on its first CI execution.
+      - name: Install the probe's one dependency
+        run: pip install pandas
+      - name: No value is decided in a script
+        run: python src/registry/check_hardcoding.py --strict
+
+  city_agnostic:
+    name: a second city runs the framework unchanged (G2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install the JSON Schema validator
+        run: pip install jsonschema
+      # G2 said "structurally in place, never exercised" for the whole life of
+      # the restructure. This exercises it: a second city is built from the
+      # reference city's declarations under a different identity, and the
+      # assertions are DIFFERENCES - a config that merely parsed would pass even
+      # if every value in it belonged to the reference city. It needs no data.
+      - name: Build a city the framework has never seen and emit its config
+        run: python tests/check_city_agnostic.py
+
   provenance:
     name: provenance + decision-record presence
     runs-on: ubuntu-latest
@@ -51,14 +111,26 @@ jobs:
       - name: Committed provenance records are valid JSON
         run: |
           shopt -s nullglob
-          for f in data/raw/provenance_*.json schedules/raw/provenance.json data/MANIFEST.json; do
+          for f in cities/*/data/raw/provenance_*.json cities/*/schedules/raw/provenance.json cities/*/data/MANIFEST.json; do
             python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8')); print('PASS  ' + sys.argv[1])" "$f"
           done
       - name: Scenario configs and parameter files are valid JSON
         run: |
           shopt -s nullglob
-          for f in scenarios/*.json params/*.json; do
+          for f in cities/*/scenarios/*.json cities/*/params/*.json cities/*/overlays/*/*.json config/schema/*.json; do
             python -c "import json,sys; json.load(open(sys.argv[1], encoding='utf-8')); print('PASS  ' + sys.argv[1])" "$f"
           done
-      - name: DECISIONS.md is present and non-trivial (proposal 8.1 requires it)
-        run: test -s DECISIONS.md && test "$(wc -l < DECISIONS.md)" -gt 50
+      # The path is per city since the restructure moved each study's records
+      # under cities/<city>/docs/. This step pointed at the old docs/DECISIONS.md
+      # and had been FAILING on every push since, which is the same class of
+      # defect the rest of this change is about: a check that cannot see what it
+      # claims to check.
+      - name: Every city's DECISIONS.md is present and non-trivial (proposal 8.1)
+        run: |
+          shopt -s nullglob
+          found=0
+          for f in cities/*/docs/DECISIONS.md; do
+            found=1
+            test -s "$f" && test "$(wc -l < "$f")" -gt 50 && echo "PASS  $f"
+          done
+          test "$found" = 1

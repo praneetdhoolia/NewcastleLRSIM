@@ -1,0 +1,1405 @@
+{
+  "layer": "A",
+  "title": "Network supply (A1-A6)",
+  "description": "Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.",
+  "decisions_ref": "3, 4, 5, 6",
+  "fields": {
+    "A.road.lanes_default": {
+      "value": {
+        "busway": 1,
+        "living_street": 1.0,
+        "motorway": 2.0,
+        "motorway_link": 1.0,
+        "primary": 2.0,
+        "primary_link": 1.0,
+        "residential": 1.0,
+        "road": 1,
+        "secondary": 1.0,
+        "secondary_link": 1.0,
+        "service": 1.0,
+        "tertiary": 1.0,
+        "tertiary_link": 1,
+        "trunk": 2.0,
+        "trunk_link": 1.0,
+        "unclassified": 1.0
+      },
+      "units": "lanes_per_direction",
+      "source": "measured",
+      "sweep": [
+        1.0,
+        3.0
+      ],
+      "sweep_basis": "the union of the observed interquartile ranges across the 13 classes with at least 30 tagged edges - an observed spread, not a chosen interval",
+      "status": "active",
+      "decisions_ref": "9.33",
+      "description": "Fallback lane count where OSM carries no lanes tag. Applied only to edges with no observation - DECISIONS.md 2.5 corrected the proposal premise that the corridor is 75-98% imputed: as-built trunk lane counts are observed in OSM for 87.5% of corridor trunk edges. Full class table is in the build script; the registry overrides per class. MEASURED from the observed OSM lanes tag, halved on two-way ways over this extract: 13 of 16 classes carry at least 30 tagged edges and take their own median; busway, road, tertiary_link keep the assumed value for want of coverage and say so in params/C2_osm_defaults.json, which carries the per-class counts and quantiles.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ]
+    },
+    "A.road.speed_default": {
+      "value": {
+        "busway": 50,
+        "living_street": 10.0,
+        "motorway": 110.0,
+        "motorway_link": 80.0,
+        "primary": 60.0,
+        "primary_link": 60.0,
+        "residential": 50.0,
+        "road": 50,
+        "secondary": 60.0,
+        "secondary_link": 60.0,
+        "service": 25.0,
+        "tertiary": 50.0,
+        "tertiary_link": 40,
+        "trunk": 60.0,
+        "trunk_link": 60.0,
+        "unclassified": 50.0
+      },
+      "units": "km_per_hour",
+      "source": "measured",
+      "sweep": [
+        10.0,
+        110.0
+      ],
+      "status": "active",
+      "decisions_ref": "9.33",
+      "description": "Fallback free-flow speed where OSM carries no maxspeed tag. MEASURED from the observed OSM maxspeed tag over this extract: 13 of 16 classes carry at least 30 tagged edges and take their own median; busway, road, tertiary_link keep the assumed value for want of coverage and say so in params/C2_osm_defaults.json, which carries the per-class counts and quantiles.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ],
+      "sweep_basis": "the union of the observed interquartile ranges across the 13 classes with at least 30 tagged edges - an observed spread, not a chosen interval"
+    },
+    "A.road.speed_zone_clip_margin_m": {
+      "value": 2000.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        500.0,
+        5000.0
+      ],
+      "sweep_basis": "chosen. Wide enough that a road crossing the LGA boundary keeps its zone, narrow enough not to carry the rest of the state.",
+      "status": "active",
+      "decisions_ref": "9.34",
+      "description": "Margin around the dissolved LGA boundary when clipping the statewide Speed Zones layer. A MARGIN on a derived boundary, not an extent: the boundary comes from zones_LGA.gpkg, so a new city clips to its own.",
+      "consumers": [
+        "cities/newcastle/extract/extract_speed_zones.py"
+      ]
+    },
+    "A.road.speed_zone_match_m": {
+      "value": 10.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        5.0,
+        20.0
+      ],
+      "sweep_basis": "MEASURED, not chosen: agreement with the OSM maxspeed tag where both exist holds at 73-77% out to 5 m and 72% to 10 m, then collapses to 30% at 10-20 m and 15% at 20-40 m. Beyond 10 m the nearest line is a different road.",
+      "status": "active",
+      "decisions_ref": "9.34",
+      "description": "Maximum distance from a road edge to a Speed Zone line for the regulated speed to be adopted. Output DOES vary across it - unlike the SCATS join radius, which is held fixed because nothing varies - so it is swept.",
+      "consumers": [
+        "src/build/attach_speed_zones.py"
+      ]
+    },
+    "A.road.speed_zone_excluded_classes": {
+      "value": [
+        "service"
+      ],
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34",
+      "description": "Road classes that do NOT take a regulated speed zone. `service` is driveways, car-park aisles and alleys: TfNSW does not speed-zone them, so the nearest zone line belongs to the arterial they run beside. Measured agreement with OSM on service roads is 37% against 83% on residential - the join is not wrong there, it is matching a different road. Excluding by OSM class is portable; excluding by measured agreement would be fitting the join to its own validation.",
+      "consumers": [
+        "src/build/attach_speed_zones.py"
+      ]
+    },
+    "A.osm.harvest_margin_m": {
+      "value": 5000.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        2000.0,
+        15000.0
+      ],
+      "sweep_basis": "chosen. Wide enough that a trip leaving the study area still has road to leave on, narrow enough that the harvest stays a study area rather than a state.",
+      "status": "active",
+      "decisions_ref": "9.35",
+      "description": "Margin around the DISSOLVED LGA boundary for the OSM harvest. The extent is derived from zones_LGA.gpkg, never typed: the rectangle this replaced cut 0.30 degrees off the west and 0.26 off the east of the declared study area, putting 87 of 1,500 core SA1s and 31,940 agents outside the road network for three phases (issue #32).",
+      "consumers": [
+        "cities/newcastle/extract/overpass.py"
+      ]
+    },
+    "A.osm.buildings_margin_m": {
+      "value": 3500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        2000.0,
+        6000.0
+      ],
+      "sweep_basis": "chosen. At 3,500 m the derived extent CONTAINS the rectangle it replaced, which needed 3,217 m, so no building previously harvested is lost; all seven pre-registered frontage comparators lie within 1,161 m of a light rail stop.",
+      "status": "active",
+      "decisions_ref": "9.35",
+      "description": "Margin around the observed light rail STOP SET for the CBD building harvest, which feeds the D1 frontage segments hypothesis B1 is measured on. Anchored on the stops in the GTFS feed rather than a drawn rectangle - the stops are observed, available before any OSM harvest, and exist for any city with a corridor. Issue #34.",
+      "consumers": [
+        "cities/newcastle/extract/overpass.py"
+      ]
+    },
+    "A.road.capacity_default": {
+      "value": {
+        "motorway": 2000,
+        "trunk": 1800,
+        "primary": 1600,
+        "secondary": 1400,
+        "tertiary": 1200,
+        "unclassified": 1000,
+        "residential": 800,
+        "living_street": 300,
+        "service": 400,
+        "motorway_link": 1500,
+        "trunk_link": 1400,
+        "primary_link": 1200,
+        "secondary_link": 1100,
+        "tertiary_link": 1000,
+        "road": 1000,
+        "busway": 1200
+      },
+      "units": "vehicles_per_hour_per_lane",
+      "source": "assumed",
+      "sweep": [
+        300,
+        2200
+      ],
+      "status": "active",
+      "decisions_ref": "3.2",
+      "description": "Saturation flow by road class. Never observed; a class-level convention.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ]
+    },
+    "A.corridor.trunk_buffer_m": {
+      "value": 60.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        40.0,
+        100.0
+      ],
+      "status": "active",
+      "decisions_ref": "3.4",
+      "description": "Distance from the alignment within which a road edge is classified corridor trunk.",
+      "consumers": [
+        "cities/newcastle/build/build_corridor_road_attributes.py"
+      ]
+    },
+    "A.corridor.cross_buffer_m": {
+      "value": 40.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        25.0,
+        60.0
+      ],
+      "status": "active",
+      "decisions_ref": "3.4",
+      "description": "Distance within which a turn restriction or cross street is treated as on the corridor. At 40 m, 10 of the 1,385 resolved restrictions fall on the alignment, against the 14 E1 assumed.",
+      "consumers": [
+        "cities/newcastle/build/build_corridor_road_attributes.py"
+      ]
+    },
+    "A.corridor.parallel_buffer_m": {
+      "value": 1500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        1000.0,
+        2500.0
+      ],
+      "status": "active",
+      "decisions_ref": "3.4",
+      "description": "Distance within which a road is treated as a parallel route that may absorb diverted traffic.",
+      "consumers": [
+        "cities/newcastle/build/build_corridor_road_attributes.py"
+      ]
+    },
+    "A.corridor.pre_lr_lanes_per_dir": {
+      "value": 2,
+      "units": "lanes_per_direction",
+      "source": "assumed",
+      "sweep": [
+        1,
+        2
+      ],
+      "sweep_basis": "both values are plausible from the historical record; neither is observed",
+      "status": "active",
+      "decisions_ref": "3.4",
+      "proposal_ref": "3.3 B3",
+      "description": "Hunter/Scott cross-section BEFORE the light rail. THIS IS THE COUNTERFACTUAL HYPOTHESIS B3 RESTS ON and it is assumed, not observed. It must be reported as swept and never as a point estimate.",
+      "consumers": [
+        "cities/newcastle/build/build_corridor_road_attributes.py"
+      ]
+    },
+    "A.corridor.extension_lane_take": {
+      "value": 1,
+      "units": "lanes",
+      "source": "assumed",
+      "sweep": [
+        0,
+        1
+      ],
+      "status": "active",
+      "decisions_ref": "3.4",
+      "description": "Lanes removed per direction where an S4/S5 extension runs in the carriageway.",
+      "consumers": [
+        "cities/newcastle/build/build_corridor_road_attributes.py"
+      ]
+    },
+    "A.corridor.off_corridor_penalty": {
+      "value": 12.0,
+      "units": "dimensionless_cost_multiplier",
+      "source": "assumed",
+      "sweep": [
+        6.0,
+        20.0
+      ],
+      "status": "active",
+      "decisions_ref": "3.4",
+      "description": "Routing penalty that keeps a reconstructed alignment on observed geometry.",
+      "consumers": [
+        "src/build/shape_tools.py"
+      ]
+    },
+    "A.signals.scats_phasing": {
+      "value": null,
+      "units": "phase_plan",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "proxy_no_priority",
+          "proxy_partial_priority",
+          "proxy_full_priority"
+        ],
+        "basis": "proposal 7.2 fallback: infer effective signal delay from GTFS-Realtime run-time distributions and treat cycle time and priority as SWEPT parameters rather than fixed inputs"
+      },
+      "status": "unobtained",
+      "decisions_ref": "0, 5, 13",
+      "proposal_ref": "6.2, 7.2",
+      "baseline_ref": "scenarios/S2.json:signal_variant_ref",
+      "description": "SCATS phase data for the Hunter/Scott corridor. NOT OBTAINED - a formal TfNSW request is outstanding. It determines corridor run time more than any other single input: the swing between no priority and full priority is 38% (S2 vs S2b). Every program in the SUMO corridor is labelled timing_source=assumed. THIS FIELD HAS NO POINT VALUE AND THE RESOLVER WILL NOT INVENT ONE: select a sweep member explicitly."
+    },
+    "A.signals.delay_per_intersection_s": {
+      "value": 26.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        15.0,
+        40.0
+      ],
+      "status": "active",
+      "decisions_ref": "5",
+      "description": "Proxy signal delay per corridor intersection, used to decompose scheduled run time in the absence of SCATS phasing. Downstream of A.signals.scats_phasing.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_schedules.py"
+      ]
+    },
+    "A.signals.n_corridor_intersections": {
+      "value": 14,
+      "units": "count",
+      "source": "observed",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "5",
+      "description": "Signalised intersections on the corridor. All 14 match a signalised junction in every SUMO road variant and every realised cycle lands within 1 s of its A2 value.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_schedules.py"
+      ]
+    },
+    "A.signals.min_green_s": {
+      "value": 6.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        4.0,
+        10.0
+      ],
+      "status": "active",
+      "decisions_ref": "5",
+      "description": "Minimum green time in a generated SUMO signal program.",
+      "consumers": [
+        "cities/newcastle/build/build_sumo_corridor.py"
+      ]
+    },
+    "A.signals.junction_match_m": {
+      "value": 60.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        30.0,
+        100.0
+      ],
+      "status": "active",
+      "decisions_ref": "5",
+      "description": "Radius for matching an A2 intersection to a SUMO junction.",
+      "consumers": [
+        "cities/newcastle/build/build_sumo_corridor.py"
+      ]
+    },
+    "A.lightrail.dwell_charging_s": {
+      "value": null,
+      "units": "seconds_per_intermediate_stop",
+      "source": "assumed",
+      "sweep": [
+        10.0,
+        35.0
+      ],
+      "sweep_basis": "DECISIONS.md 4.3; the shipped scenario descriptions use 20 s as the baseline sweep point, which lives in the scenario config, not on this field",
+      "status": "unobtained",
+      "decisions_ref": "0, 4.3, 13",
+      "proposal_ref": "6.2, 3.4 S-a",
+      "baseline_ref": "params/C1_sensitivity_sweep_grid.csv:is_baseline",
+      "description": "Supercapacitor charging dwell added at each intermediate stop. NOT MEASURED - a few hours of field observation at Civic or Crown Street would resolve it (DECISIONS.md 13 priority 2). Worth about 11% of end-to-end run time, and it is the subject of secondary question S-a: the marginal cost of the wire-free decision, taken with a late 35m urban amenity package. Modelled as a SEPARATE ADDITIVE TERM so it can be toggled independently of boarding dwell (S2 vs S2a). THIS FIELD HAS NO POINT VALUE."
+    },
+    "A.lightrail.dwell_sweep_grid": {
+      "value": [
+        0.0,
+        10.0,
+        20.0,
+        35.0
+      ],
+      "units": "seconds_per_intermediate_stop",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.32",
+      "proposal_ref": "3.4 S-a",
+      "description": "The points at which the UNOBTAINED A.lightrail.dwell_charging_s is sampled for the sensitivity grid. A sampling design, not a value for the field, which stays null and unpinned. The 0 s member is NOT a sweep point of the unobtained quantity - it is the charging-dwell-disabled arm, the S2 vs S2a toggle that makes the wire-free decision's marginal cost separable. The remaining members lie inside the declared sweep, and check_package.py asserts it.",
+      "consumers": [
+        "src/build/build_params.py"
+      ]
+    },
+    "A.lightrail.dwell_fixed_s": {
+      "value": 8.0,
+      "units": "seconds_per_stop",
+      "source": "assumed",
+      "sweep": [
+        5.0,
+        15.0
+      ],
+      "status": "active",
+      "decisions_ref": "4.4",
+      "description": "Boarding and alighting dwell, separate from charging dwell.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_schedules.py"
+      ]
+    },
+    "A.lightrail.capacity_total": {
+      "value": 270,
+      "units": "persons_per_vehicle",
+      "source": "observed",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "4.1, 9.18",
+      "description": "Maximum capacity of the CAF Urbos 100 as published, and the figure DECISIONS.md 4.1 records. The mapped fleet carried 180 seats with no standing room, which is pt2matsim generic tram default and reconciles with neither the published maximum nor the assumed seated figure (issue 18)."
+    },
+    "A.lightrail.capacity_seated": {
+      "value": 60,
+      "units": "persons_per_vehicle",
+      "source": "assumed",
+      "sweep": {
+        "interval": [
+          50,
+          80
+        ],
+        "basis": "The seated/standing split of the Urbos 100 is NOT published; only the 270 maximum is. 60 is the class-typical figure already recorded in DECISIONS.md 4.1 for a 33 m five-module 100% low-floor LRV, and the interval spans the seating layouts that class carries. Swept because it is assumed, never pinned."
+      },
+      "status": "active",
+      "decisions_ref": "4.1, 9.18",
+      "description": "Seats on a light rail vehicle. Only the split is assumed - the total it is taken from is observed."
+    },
+    "A.lightrail.capacity_standing": {
+      "value": 210,
+      "units": "persons_per_vehicle",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "4.1, 9.18",
+      "description": "Standing room on a light rail vehicle. Not a free value: it is whatever the published maximum leaves once seats are taken out. Before this existed, no vehicle in the fleet had standing room at all, so the C1 crowding multipliers could never apply in any scenario (issue 18).",
+      "derived_from": {
+        "fields": [
+          "A.lightrail.capacity_total",
+          "A.lightrail.capacity_seated"
+        ],
+        "identity": "capacity_standing = capacity_total - capacity_seated"
+      }
+    },
+    "A.transit.bus_capacity_seated": {
+      "value": 44,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "sweep": {
+        "interval": [
+          40,
+          51
+        ],
+        "basis": "the two Volvo models Newcastle actually runs: B12BLE 44 seated, B10B 51 seated (DECISIONS.md 9.21). Not a chosen interval - it is the observed spread of the fleet in service."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Seats on a Newcastle bus. Published Volvo B12BLE figure. The mapped fleet carried pt2matsim's generic 70 seats, overstating seats by about 59% (issue 18)."
+    },
+    "A.transit.bus_capacity_standing": {
+      "value": 18,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "sweep": {
+        "interval": [
+          14,
+          22
+        ],
+        "basis": "the published B12BLE standing figure plus or minus the usual crush-load tolerance; standing capacity is a rating, not a count, and no Newcastle-specific figure exists."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Standing room on a Newcastle bus. Published B12BLE figure, 44 + 18 = 62 total. Before issue 18 NO vehicle in the fleet had standing room, so the C1 crowding multipliers were inert by construction."
+    },
+    "A.transit.ferry_capacity_total": {
+      "value": 200,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "held_fixed": {
+        "rule": "A published vessel capacity is a fact about the boat, not a behavioural parameter, and sweeping it would assert an uncertainty that does not exist. Both Stockton ferries carry the same published figure.",
+        "decisions_ref": "9.21, 9.30",
+        "departure_requires": "a different vessel entering service on the Stockton route"
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Published capacity of the Stockton ferries MV Shortland and MV Hunter. The mapped fleet carried 250 seats and no standing room, overstating by 25%."
+    },
+    "A.transit.ferry_capacity_seated": {
+      "value": 149,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "held_fixed": {
+        "rule": "Published seated capacity, held on the same reasoning as the total: it is a fact about the vessel. This is the ONLY vehicle in the fleet whose seated/standing split is published - tram and rail both have an assumed, swept seated share because only their totals are.",
+        "decisions_ref": "9.21, 9.30",
+        "departure_requires": "a different vessel entering service on the Stockton route"
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Published seated capacity of the Stockton ferries. Unlike rail and light rail, the ferry split IS published, so neither half is assumed."
+    },
+    "A.transit.ferry_capacity_standing": {
+      "value": 51,
+      "units": "persons_per_vehicle",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Standing room on a Stockton ferry. Whatever the published total leaves once the published seats are taken out - both halves are published, so this identity carries no assumption.",
+      "derived_from": {
+        "fields": [
+          "A.transit.ferry_capacity_total",
+          "A.transit.ferry_capacity_seated"
+        ],
+        "identity": "ferry_capacity_standing = ferry_capacity_total - ferry_capacity_seated"
+      }
+    },
+    "A.transit.rail_capacity_total": {
+      "value": 146,
+      "units": "persons_per_vehicle",
+      "source": "literature",
+      "sweep": {
+        "interval": [
+          146,
+          177
+        ],
+        "basis": "the two railcar classes on the Hunter Line: a two-car Hunter set is 77 (HM) + 69 (HMT) = 146, a two-car Endeavour set 95 (LE) + 82 (TE) = 177 (DECISIONS.md 9.21). The interval is the observed spread of stock in service, not a chosen range."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Capacity of a two-car Hunter Line set. The mapped fleet carried pt2matsim's generic 400 seats with no standing room - overstating a two-car set by roughly 2.7x, which is part of why transit capacity never binds (DECISIONS.md 9.12, issue 18)."
+    },
+    "A.transit.rail_capacity_seated": {
+      "value": 98,
+      "units": "persons_per_vehicle",
+      "source": "assumed",
+      "sweep": {
+        "interval": [
+          80,
+          120
+        ],
+        "basis": "the seated/standing split of the Hunter and Endeavour railcars is NOT published; only the per-car capacity is. 98 is two thirds of the 146 total, the class-typical proportion for a regional railcar with vestibules, and the interval spans the layouts that class carries. Swept because it is assumed, never pinned."
+      },
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Seats on a two-car Hunter Line set. Only the SPLIT is assumed - the total it comes from is published."
+    },
+    "A.transit.rail_capacity_standing": {
+      "value": 48,
+      "units": "persons_per_vehicle",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "9.21, 9.30",
+      "description": "Standing room on a two-car Hunter Line set. Not a free value: whatever the published total leaves once seats are taken out.",
+      "derived_from": {
+        "fields": [
+          "A.transit.rail_capacity_total",
+          "A.transit.rail_capacity_seated"
+        ],
+        "identity": "rail_capacity_standing = rail_capacity_total - rail_capacity_seated"
+      }
+    },
+    "A.lightrail.line_speed_kmh": {
+      "value": 40.0,
+      "units": "km_per_hour",
+      "source": "assumed",
+      "sweep": [
+        30.0,
+        50.0
+      ],
+      "status": "active",
+      "decisions_ref": "4.2",
+      "description": "Light rail running speed between stops, used in the run-time decomposition.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_schedules.py"
+      ]
+    },
+    "A.lightrail.corridor_speed_kmh": {
+      "value": 60.0,
+      "units": "km_per_hour",
+      "source": "assumed",
+      "sweep": [
+        40.0,
+        70.0
+      ],
+      "status": "active",
+      "decisions_ref": "4.2",
+      "description": "Design speed on the reserved corridor sections.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_schedules.py"
+      ]
+    },
+    "A.lightrail.tsp_enabled": {
+      "value": false,
+      "units": "boolean",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          false,
+          true
+        ],
+        "basis": "S2 runs without priority, S2b with full priority - the 38% swing"
+      },
+      "status": "active",
+      "decisions_ref": "5",
+      "proposal_ref": "3.4 S-b",
+      "description": "Transit signal priority on the corridor. Downstream of A.signals.scats_phasing."
+    },
+    "A.transit.interchange_radius_m": {
+      "value": 250,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        150,
+        400
+      ],
+      "status": "active",
+      "decisions_ref": "11",
+      "description": "Radius within which two stops are treated as one interchange for transfer generation.",
+      "consumers": [
+        "src/build/build_gtfs_extras.py"
+      ]
+    },
+    "A.transit.walk_speed_ms": {
+      "value": 1.25,
+      "units": "metres_per_second",
+      "source": "literature",
+      "sweep": [
+        1.0,
+        1.4
+      ],
+      "status": "active",
+      "decisions_ref": "11",
+      "description": "Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05.",
+      "consumers": [
+        "src/build/build_gtfs_extras.py"
+      ]
+    },
+    "A.transit.era1_line_speed_kmh": {
+      "value": 60.0,
+      "units": "km_per_hour",
+      "source": "assumed",
+      "sweep": [
+        45.0,
+        75.0
+      ],
+      "status": "active",
+      "decisions_ref": "11",
+      "description": "Heavy rail line speed in the reconstructed pre-2014 era. No 2014 public timetable has been obtained to validate this (DECISIONS.md 13 priority 8).",
+      "consumers": [
+        "cities/newcastle/build/build_era1_reconstruction.py"
+      ]
+    },
+    "A.transit.era1_station_dwell_s": {
+      "value": 30.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        20.0,
+        45.0
+      ],
+      "status": "active",
+      "decisions_ref": "11",
+      "description": "Heavy rail station dwell in the reconstructed pre-2014 era.",
+      "consumers": [
+        "cities/newcastle/build/build_era1_reconstruction.py"
+      ]
+    },
+    "A.transit.s0_join_tolerance_m": {
+      "value": 1500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        800.0,
+        2500.0
+      ],
+      "status": "active",
+      "decisions_ref": "3.4",
+      "description": "Tolerance for joining the retained heavy rail alignment to the observed network in S0.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_schedules.py"
+      ]
+    },
+    "A.transit.sbc_extension_km": {
+      "value": 6.65,
+      "units": "kilometres",
+      "source": "observed",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "3.4",
+      "description": "Broadmeadow extension length as STATED in the Strategic Business Case. The alignment routed over observed OSM centreline is 7.00 km, 5.3% longer. The model uses the routed geometry; this field records the published figure.",
+      "consumers": [
+        "cities/newcastle/build/build_scenario_schedules.py"
+      ]
+    },
+    "A.parking.capacity_default": {
+      "value": {
+        "onstreet": 12,
+        "offstreet_public": 60,
+        "offstreet_private": 40
+      },
+      "units": "spaces_per_facility",
+      "source": "assumed",
+      "sweep": [
+        5,
+        100
+      ],
+      "status": "active",
+      "decisions_ref": "6",
+      "description": "Fallback capacity where a parking facility carries none. 4,861 of 7,710 facilities carry an observed capacity.",
+      "consumers": [
+        "cities/newcastle/build/build_landuse_parking.py"
+      ]
+    },
+    "A.parking.occupancy_profile": {
+      "value": [
+        0.1,
+        0.08,
+        0.07,
+        0.06,
+        0.08,
+        0.14,
+        0.28,
+        0.46,
+        0.6,
+        0.66,
+        0.7,
+        0.72,
+        0.73,
+        0.72,
+        0.7,
+        0.66,
+        0.58,
+        0.46,
+        0.36,
+        0.3,
+        0.26,
+        0.22,
+        0.17,
+        0.13
+      ],
+      "units": "occupancy_ratio_by_hour",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25
+      },
+      "status": "active",
+      "decisions_ref": "6",
+      "description": "Hourly occupancy profile, applied to EVERY parking facility. Assumed: parking meter transactions and occupancy counts were not obtained (DECISIONS.md 13 priority 6-adjacent). It replaced four hand-typed per-zone profiles that rested on no observation and reached no consumer (DECISIONS.md 9.31).",
+      "consumers": [
+        "cities/newcastle/build/build_landuse_parking.py"
+      ]
+    },
+    "A.parking.price_threshold_pctile": {
+      "value": 90.0,
+      "units": "percentile",
+      "source": "assumed",
+      "sweep": [
+        80.0,
+        95.0
+      ],
+      "sweep_basis": "chosen, not observed: no Newcastle meter-transaction or paid-zone boundary dataset exists to fit the threshold against. The range spans the top quintile to the top twentieth of zones.",
+      "status": "active",
+      "decisions_ref": "9.31",
+      "description": "Job-density percentile at which paid parking begins. Read against the CITY'S OWN core-zone job-density distribution, so a new city computes its own threshold and no extent is ever typed. Newcastle p90 = 1,500.9 jobs/km2, which prices 150 of 1,500 core zones.",
+      "consumers": [
+        "cities/newcastle/build/build_landuse_parking.py"
+      ]
+    },
+    "A.parking.price_saturation_pctile": {
+      "value": 99.0,
+      "units": "percentile",
+      "source": "assumed",
+      "sweep": [
+        95.0,
+        99.5
+      ],
+      "sweep_basis": "chosen. Must exceed price_threshold_pctile; the builder rejects an inversion rather than dividing by a negative span.",
+      "status": "active",
+      "decisions_ref": "9.31",
+      "description": "Job-density percentile at which the parking price reaches price_aud_hr_max. Newcastle p99 = 8,710.5 jobs/km2. Between threshold and saturation the price rises linearly; above saturation it is clamped.",
+      "consumers": [
+        "cities/newcastle/build/build_landuse_parking.py"
+      ]
+    },
+    "A.parking.price_aud_hr_max": {
+      "value": 3.2,
+      "units": "AUD_per_hour",
+      "source": "assumed",
+      "sweep": [
+        1.6,
+        4.8
+      ],
+      "sweep_basis": "+/-50% of the point value. Assumed, NOT observed: City of Newcastle publishes no meter tariff in this package, and the OSM fee=yes tag is unusable - 452 of its 472 facilities are University of Newcastle car parks (DECISIONS.md 9.31).",
+      "status": "active",
+      "decisions_ref": "9.31",
+      "description": "Parking price in the densest employment zone, in 2026 AUD per hour. The ceiling of the density ramp, not a citywide rate.",
+      "consumers": [
+        "cities/newcastle/build/build_landuse_parking.py"
+      ]
+    },
+    "A.parking.max_stay_min": {
+      "value": 120.0,
+      "units": "minutes",
+      "source": "assumed",
+      "sweep": [
+        60.0,
+        180.0
+      ],
+      "sweep_basis": "+/-50% of the point value.",
+      "status": "active",
+      "decisions_ref": "9.31",
+      "description": "Maximum charged parking duration. DOUBLES AS THE CHARGE CAP: the charge is price x min(duration, max_stay), so a stay longer than this is UNDER-charged rather than penalised. That is a declared modelling choice, not an oversight - modelling over-stay enforcement would need an infringement rate nobody has measured here.",
+      "matsim_param": "parking.maxStayMinutes",
+      "consumers": [
+        "src/registry/param_config.py"
+      ]
+    },
+    "A.parking.charged_start_hour": {
+      "value": null,
+      "units": "hour_of_day",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.31",
+      "matsim_param": "parking.chargedStartHour",
+      "derived_from": {
+        "fields": [
+          "A.parking.charged_hours_by_day_type"
+        ],
+        "identity": "chargedStartHour = A.parking.charged_hours_by_day_type[day][0], or 0.0 when that day type declares no window"
+      },
+      "description": "Hour at which parking begins to be charged, for the day type this config is being emitted for. Computed rather than declared because the choice of day is not a registry value - it is which of the thirty run-input sets is being written. A day type with no window resolves to a zero-length window, which the Java handler reads as `charge nothing`; expressing a free day that way rather than with a separate flag keeps one code path."
+    },
+    "A.parking.charged_end_hour": {
+      "value": null,
+      "units": "hour_of_day",
+      "source": "derived",
+      "status": "computed",
+      "decisions_ref": "9.31",
+      "matsim_param": "parking.chargedEndHour",
+      "derived_from": {
+        "fields": [
+          "A.parking.charged_hours_by_day_type"
+        ],
+        "identity": "chargedEndHour = A.parking.charged_hours_by_day_type[day][1], or 0.0 when that day type declares no window"
+      },
+      "description": "Hour at which parking stops being charged, for the day type this config is being emitted for. See A.parking.charged_start_hour: an end at or before the start means the day is free."
+    },
+    "A.parking.charged_hours_by_day_type": {
+      "value": {
+        "WEEKDAY": [
+          8.0,
+          18.0
+        ],
+        "SAT": [
+          8.0,
+          13.0
+        ],
+        "SUN": null
+      },
+      "units": "hour_of_day",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25,
+        "basis": "chosen. A null window means no charge on that day type and is not swept - a Sunday that is free cannot be 25% free."
+      },
+      "status": "active",
+      "decisions_ref": "9.31",
+      "description": "The window in which parking is charged, per day type. IT IS A WINDOW PER DAY TYPE, NOT THE TWO PARAMETERS: this field carried matsim_param parking.chargedStartHour, parking.chargedEndHour until the config emitter was built, which would have written the whole dictionary into both scalars. The per-day scalars are A.parking.charged_start_hour and A.parking.charged_end_hour, selected from this by the day type the config is being emitted for. Assumed, and stated rather than left implicit: A5_parking_facilities.csv already asserted 'Mon-Fri 08:00-18:00; Sat 08:00-13:00; else free' in its price_schedule string, where it reached nothing. Without a window, SUN - one of the three day types - would be charged at weekday meter rates.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "A.parking.charged_modes": {
+      "value": [
+        "car"
+      ],
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.31",
+      "description": "Leg modes that occupy a parking space and are charged for it. Fixed by the formulation, not an empirical quantity: only the driver parks the vehicle. Charging `ride` as well would bill one car twice - the same double-count DECISIONS.md 9.17 removed from the per-km rate.",
+      "matsim_param": "parking.chargedModes",
+      "consumers": [
+        "src/registry/param_config.py"
+      ]
+    },
+    "A.parking.exempt_activity_types": {
+      "value": [
+        "home"
+      ],
+      "units": "enum",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          [
+            "home"
+          ],
+          []
+        ],
+        "basis": "the alternative arm charges parking at every activity including home, which is the behaviour this field exists to rule out."
+      },
+      "status": "active",
+      "decisions_ref": "9.31",
+      "description": "Activity types at which a parked car is not charged. Home is exempt because residential parking is off-street private or permit, and because charging it would levy the max-stay cap on every agent who drives home each night - a standing penalty on living in a dense zone rather than a price on a travel choice. Activity types are generic to any city's chain builder, so this carries no place name.",
+      "matsim_param": "parking.exemptActivityTypes",
+      "consumers": [
+        "src/registry/param_config.py"
+      ]
+    },
+    "A.active.footway_width_default": {
+      "value": {
+        "bridleway": 2.0,
+        "corridor": 2.0,
+        "cycleway": 2.0,
+        "footway": 2.0,
+        "path": 1.0,
+        "pedestrian": 6.0,
+        "steps": 1.5,
+        "track": 2.5
+      },
+      "units": "metres",
+      "source": "measured",
+      "sweep": [
+        0.5,
+        3.0
+      ],
+      "status": "active",
+      "decisions_ref": "9.33",
+      "description": "Fallback footway width. Footway widths were not obtained for Newcastle. MEASURED from the observed OSM width tag over this extract: 3 of 8 classes carry at least 30 tagged edges and take their own median; bridleway, corridor, pedestrian, steps, track keep the assumed value for want of coverage and say so in params/C2_osm_defaults.json, which carries the per-class counts and quantiles.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ],
+      "sweep_basis": "the union of the observed interquartile ranges across the 3 classes with at least 30 tagged edges - an observed spread, not a chosen interval"
+    },
+    "A.signals.scats_match_radius_m": {
+      "value": 60,
+      "units": "metres",
+      "source": "assumed",
+      "held_fixed": {
+        "rule": "A data-join tolerance, not a model parameter. It decides which observed TfNSW signal is the same physical intersection as a clustered OSM one, and no behaviour, run time or score reads it - only the identity written into scats_site_id. It is held fixed rather than swept because a sweep could not change the join: all 14 corridor intersections match inside 26 m, so every radius from the 45 m OSM clustering distance up to about 100 m yields the identical assignment, and widening it past that would begin attaching an intersection to its neighbour rather than resolving a real ambiguity. Declaring a sweep interval over which the output is constant would be the defect this project has already hit three times.",
+        "decisions_ref": "9.24",
+        "departure_requires": "a re-measured match-distance distribution showing a corridor intersection falling outside this radius, or a corridor extension into an area where signals sit closer together than the radius"
+      },
+      "status": "active",
+      "decisions_ref": "9.24",
+      "description": "Radius within which an intersection in A2_signal_control_corridor.csv is matched to a signal in the TfNSW Traffic Lights Location inventory, to recover its SCATS site number and installation date. The corridor intersections are clusters of OSM traffic-signal nodes and carry no identifier of their own; the TfNSW inventory is the only observed source of both. Measured match distances on the 14 corridor intersections range from 1 to 26 m.",
+      "consumers": [
+        "cities/newcastle/build/build_corridor_layers.py"
+      ]
+    },
+    "A.road.lane_width_default_m": {
+      "value": 3.5,
+      "units": "metres",
+      "source": "measured",
+      "sweep": [
+        2.5,
+        4.5
+      ],
+      "sweep_basis": "the interquartile range of per-lane widths over 265 edges carrying both a width and a lanes tag - an observed spread",
+      "status": "active",
+      "decisions_ref": "9.33",
+      "description": "Per-lane carriageway width where OSM carries no width, applied to 99.2% of road edges. It had NO registry field: build_network_layers.py carried a bare 3.2. Derived as width/lanes on the 265 edges carrying both tags. The width tag ALONE is the whole carriageway and stands at 6.5 m; writing that into a per-lane field would double every carriageway in the model.",
+      "consumers": [
+        "src/build/build_network_layers.py"
+      ]
+    },
+    "A.transit.corridor_mode_label": {
+      "value": "lr",
+      "units": "enum",
+      "source": "observed",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.35",
+      "description": "The modes_served label the corridor under study carries in A3_stop_extras.csv, read from the GTFS feed. Declared rather than typed into the harvester so the corridor extent is derived from an observed stop set; a city whose feed labels its corridor differently changes this one value.",
+      "consumers": [
+        "cities/newcastle/extract/overpass.py"
+      ]
+    },
+    "A.osm.harvest_tile_deg": {
+      "value": 0.4,
+      "units": "degrees",
+      "source": "assumed",
+      "sweep": [
+        0.2,
+        0.8
+      ],
+      "sweep_basis": "MEASURED as a ceiling, not chosen: the whole corrected extent in one query returns 504 Gateway Timeout from the endpoint, twice on the roads layer, while the 0.85 x 0.65 degree rectangle it replaced always succeeded. 0.4 keeps every tile well inside what is known to work.",
+      "status": "active",
+      "decisions_ref": "9.35",
+      "description": "Maximum side of an Overpass harvest tile. The corrected study extent is 2.02x the rectangle it replaced and will not fetch in one request, so each layer is tiled and merged, de-duplicating by element id because Overpass returns a whole way when any part of it matches.",
+      "consumers": [
+        "cities/newcastle/extract/overpass.py"
+      ]
+    },
+    "A.osm.harvest_attempts": {
+      "value": 12,
+      "units": "count",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.35",
+      "description": "Attempts per harvest tile before it is given up on, rotating across the Overpass mirrors. An acquisition retry budget, not a model input - it cannot change a result, only whether the download finishes. 12 gives each of the three mirrors four tries, which is what the roads layer needed.",
+      "consumers": [
+        "cities/newcastle/extract/overpass.py"
+      ]
+    },
+    "A.network.keep_paths": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.keepPaths",
+      "description": "Whether every intermediate OSM node becomes a MATSim node. False collapses a way between junctions into one link, which is what a mobsim needs: keeping paths multiplies link count without adding a decision point, and MATSim queues form per link."
+    },
+    "A.network.keep_tags_as_attributes": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.keepTagsAsAttributes",
+      "description": "Whether OSM tags survive onto the MATSim link. TRUE IS LOAD-BEARING: the E1 road variants are re-applied to a scenario network by osm:way:id, which exists on the link only because this is true (DECISIONS.md 9.3)."
+    },
+    "A.network.keep_ways_with_public_transit": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.keepWaysWithPublicTransit",
+      "description": "Retain a way carrying a public transit route even when its class would otherwise be dropped. False would delete bus-only links and strand the routes mapped onto them."
+    },
+    "A.network.max_link_length_m": {
+      "value": 500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        200.0,
+        2000.0
+      ],
+      "sweep_basis": "no measurement bears on it: it trades link count against the spatial resolution of a queue. The lower bound is about a city block, the upper long enough that a rural link is not split for its own sake. Swept because link length changes where congestion can form.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.maxLinkLength",
+      "description": "Longest MATSim link before a way is split. Decided in the network builder as a literal until this change, which made a network-construction parameter invisible to every sweep."
+    },
+    "A.network.parse_turn_restrictions": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.parseTurnRestrictions",
+      "description": "Whether OSM turn restrictions become MATSim disallowed next links. The base network carries 1,240 of them and the E1 variants add banned turn movements on the corridor, so the road-space externality of proposal 3.3 depends on this being true."
+    },
+    "A.network.scale_max_speed": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.scaleMaxSpeed",
+      "description": "Whether pt2matsim scales the OSM maxspeed by its own factor. False: free speed comes from the TfNSW regulated speed zones - the legal instrument - and from A.road.speed_default where no zone applies, not from a tool default."
+    },
+    "A.network.write_crs": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.writeCRS",
+      "description": "Write the coordinate system into the network file, so a downstream reader cannot mistake the projection. This repository carried the wrong datum label in four documents at once (DECISIONS.md 2.6)."
+    },
+    "A.network.freespeed_factor": {
+      "value": 1.0,
+      "units": "factor",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_osm_param": "OsmConverter.wayDefaultParams[*].freespeedFactor",
+      "description": "Multiplier applied to a way default free speed. One, because the free speed is taken from the regulated speed instrument and a factor over it would be an undeclared second opinion about the same quantity."
+    },
+    "A.schedule_mapping.bounded_search": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.boundedSearch",
+      "description": "Bound the link-candidate search by distance rather than searching the whole network per stop. Off, the mapping of 15 feeds does not finish in usable time."
+    },
+    "A.schedule_mapping.candidate_distance_multiplier": {
+      "value": 1.6,
+      "units": "factor",
+      "source": "assumed",
+      "sweep": [
+        1.2,
+        2.5
+      ],
+      "sweep_basis": "pt2matsim documents no calibrated value. Too low and a stop on the far side of a dual carriageway finds no candidate; too high and it maps onto a parallel road. The package reports 0 unmapped stops and an artificial link share of 0.4-0.6%, which is evidence the current value works, not that it is optimal.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.candidateDistanceMultiplier",
+      "description": "How far beyond the nearest candidate link the mapper keeps looking, as a multiple of that distance."
+    },
+    "A.schedule_mapping.max_link_candidate_distance_m": {
+      "value": 90.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        50.0,
+        150.0
+      ],
+      "sweep_basis": "the distance a stop may sit from the link that serves it. The corridor measurement that bears on it is the 112 s interchange walk (DECISIONS.md 9.32); 50 m is tight for a divided road and 150 m starts admitting the wrong street.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.maxLinkCandidateDistance, PublicTransitMapping.transportModeAssignment[*].maxLinkCandidateDistance",
+      "description": "Furthest a stop may be from a candidate link. Written to BOTH the module default and every transport-mode assignment, which is why it is one field: two copies drifting apart would map bus and rail to different tolerances silently."
+    },
+    "A.schedule_mapping.max_travel_cost_factor": {
+      "value": 5.0,
+      "units": "factor",
+      "source": "assumed",
+      "sweep": [
+        2.0,
+        10.0
+      ],
+      "sweep_basis": "how much longer than the direct path a mapped route may be before the mapper inserts an artificial link instead. It controls the artificial link share directly, which the package reports at 0.4-0.6%.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.maxTravelCostFactor",
+      "description": "Ceiling on a mapped route path cost relative to the direct path. Raising it maps more of a route onto real road; lowering it produces more artificial link, on which no car ever queues."
+    },
+    "A.schedule_mapping.mode_specific_rules": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.modeSpecificRules",
+      "description": "Whether pt2matsim applies its own per-mode routing rules. False: the mode-to-network assignment is declared in A.schedule_mapping.transport_mode_assignment instead, where it can be read."
+    },
+    "A.schedule_mapping.modes_to_keep_on_cleanup": {
+      "value": [
+        "car"
+      ],
+      "units": "mode_names",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.modesToKeepOnCleanUp",
+      "description": "Network modes preserved when the mapper removes links no route uses. Car is kept because the road network is the thing being modelled; removing it to suit a schedule would delete the study."
+    },
+    "A.schedule_mapping.n_link_threshold": {
+      "value": 6,
+      "units": "links",
+      "source": "assumed",
+      "sweep": [
+        3,
+        12
+      ],
+      "sweep_basis": "how many candidate links a stop keeps before the router chooses. Fewer is faster and can miss the right link at a complex junction; more is slower with diminishing return. No measurement bears on it.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.nLinkThreshold, PublicTransitMapping.transportModeAssignment[*].nLinkThreshold",
+      "description": "Candidate links retained per stop. Written to both the module default and every transport-mode assignment, for the same reason as the candidate distance."
+    },
+    "A.schedule_mapping.network_router": {
+      "value": "SpeedyALT",
+      "units": "router_name",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.networkRouter",
+      "description": "Which least-cost path router the mapper uses. A TOOLCHAIN CHOICE AND THEREFORE A MODEL CHOICE: pt2matsim mapping is already not reproducible run to run (DECISIONS.md 3.5, about 18% of route link sequences differ between identical builds), and changing the router changes that distribution."
+    },
+    "A.schedule_mapping.remove_not_used_stop_facilities": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.removeNotUsedStopFacilities",
+      "description": "Drop stop facilities no mapped route serves. True keeps schedule and network consistent; a stranded facility is a stop no vehicle can call at."
+    },
+    "A.schedule_mapping.routing_with_candidate_distance": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.routingWithCandidateDistance",
+      "description": "Include the stop-to-link distance in the mapping cost, so a nearer link is preferred among otherwise equal paths."
+    },
+    "A.schedule_mapping.schedule_freespeed_modes": {
+      "value": [
+        "artificial"
+      ],
+      "units": "mode_names",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.scheduleFreespeedModes",
+      "description": "Modes whose link free speed is set from the SCHEDULE rather than from the road. Artificial links only: a tram on a real street must feel that street, and that trams and buses traverse congested links is a stated property of this model."
+    },
+    "A.schedule_mapping.thread_chunk_size": {
+      "value": 100,
+      "units": "routes",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.threadChunkSize",
+      "description": "How many routes a mapper thread takes at once. Throughput only - it does not change which link a route maps to."
+    },
+    "A.schedule_mapping.travel_cost_type": {
+      "value": "linkLength",
+      "units": "cost_basis",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.travelCostType",
+      "description": "Whether the mapper minimises link LENGTH or link TRAVEL TIME. Length, so a mapped path follows the geometry the timetable describes rather than the fastest road: a tram pushed onto a parallel arterial because it is quicker would put transit on the wrong street."
+    },
+    "A.schedule_mapping.strict_link_rule": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "pt2matsim_mapper_param": "PublicTransitMapping.transportModeAssignment[*].strictLinkRule",
+      "description": "Whether a route may ONLY use links carrying its declared network modes. False allows an artificial link where no permitted link exists, which is what keeps the unmapped-stop count at zero; true would strand routes rather than report them."
+    },
+    "A.network.routable_subnetworks": {
+      "value": {
+        "car": [
+          "car"
+        ],
+        "bus": [
+          "bus",
+          "car"
+        ],
+        "rail": [
+          "rail",
+          "light_rail"
+        ]
+      },
+      "units": "mode_names_by_subnetwork",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Which transport modes each routable subnetwork admits, as subnetworkMode -> allowedTransportModes. A vocabulary the network is defined over rather than a value to tune: the bus subnetwork admits car because buses run in traffic, and that is the property making transit feel congestion.",
+      "pt2matsim_osm_param": "OsmConverter.routableSubnetwork[*].allowedTransportModes"
+    },
+    "A.schedule_mapping.transport_mode_assignment": {
+      "value": {
+        "bus": [
+          "car",
+          "bus"
+        ],
+        "rail": [
+          "rail"
+        ],
+        "light_rail": [
+          "light_rail",
+          "tram",
+          "car"
+        ],
+        "tram": [
+          "light_rail",
+          "tram",
+          "car"
+        ],
+        "ferry": [
+          "artificial"
+        ]
+      },
+      "units": "network_modes_by_schedule_mode",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Which network modes may carry each schedule mode, as scheduleMode -> networkModes. LIGHT RAIL AND TRAM ADMIT CAR DELIBERATELY: the Newcastle line runs in the Hunter Street carriageway, so its links are shared with traffic and the tram is delayed by it. Ferry maps to artificial because no water network is modelled.",
+      "pt2matsim_mapper_param": "PublicTransitMapping.transportModeAssignment[*].networkModes"
+    },
+    "A.network.railway_speed_default_kmh": {
+      "value": {
+        "rail": 160.0,
+        "light_rail": 70.0,
+        "tram": 70.0
+      },
+      "units": "km_per_hour",
+      "source": "assumed",
+      "sweep": [
+        40.0,
+        180.0
+      ],
+      "sweep_basis": "line speed on reserved rail alignment where no regulated speed zone applies. The Hunter Line is a 160 km/h class alignment and Australian street-running light rail is limited to about 70; both are class defaults rather than measurements of this corridor, and A.lightrail.line_speed_kmh is the measured corridor quantity.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Default free speed for a RAILWAY class way, where A.road.speed_default does not apply because the class is not a road. Split out of the network builder table, which held speeds for road and railway classes together and had drifted from A.road.speed_default on six road classes."
+    },
+    "A.network.railway_lane_capacity_veh_h": {
+      "value": 9999.0,
+      "units": "vehicles_per_hour",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Lane capacity written for a railway link. A SENTINEL MEANING UNCONSTRAINED, not a measurement: rail headway is governed by the signalling system and the timetable, neither of which a MATSim link capacity represents. It must stay far above any plausible flow so the queue never binds on a rail link."
+    },
+    "A.network.way_default_oneway": {
+      "value": {
+        "motorway": true,
+        "motorway_link": true
+      },
+      "units": "boolean_by_way_class",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Way classes whose DEFAULT direction is one way, used where OSM carries no explicit oneway tag. A class absent from this map defaults to two way. Motorway and its links only: every other class is bidirectional unless the data says otherwise."
+    },
+    "A.corridor.attribute_search_cutoff_m": {
+      "value": 2000.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        500.0,
+        5000.0
+      ],
+      "sweep_basis": "how far the corridor attribute builder searches for a matching way before giving up. Wide enough to find a parallel service road, narrow enough not to reach the next suburb.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Search cutoff when attributing corridor road attributes to a way. A keyword default on two functions until this change."
+    },
+    "A.corridor.densify_step_m": {
+      "value": 25.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        5.0,
+        50.0
+      ],
+      "sweep_basis": "spacing at which a polyline is resampled before geometric comparison. Finer resolves a kerb line; coarser is faster and can cut a curve. It sets the resolution of every corridor geometry comparison, so it is swept rather than fixed.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Step length used when densifying a shape for geometric matching. The SAME NUMBER was a keyword default in two places - src/build/shape_tools.py and the corridor attribute builder - with no link between them."
+    },
+    "A.corridor.dedupe_tolerance_m": {
+      "value": 1.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        5.0
+      ],
+      "sweep_basis": "how close two consecutive shape points must be before one is dropped. GTFS consumers dislike near-duplicates; too large a tolerance starts removing real geometry.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Tolerance for dropping consecutive near-duplicate points from a shape."
+    },
+    "A.corridor.nearest_node_max_rings": {
+      "value": 8,
+      "units": "rings",
+      "source": "assumed",
+      "sweep": [
+        3,
+        20
+      ],
+      "sweep_basis": "how far the spatial index expands when no node is found in the first cell. Too few and an anchor off the graph finds nothing; too many is slow. No measurement bears on it.",
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Maximum grid rings searched when snapping a coordinate to the nearest road-graph node."
+    },
+    "A.corridor.report_sample_n": {
+      "value": 12,
+      "units": "edges",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "How many corridor edges the builder prints as a worked sample. REPORTING ONLY - it changes what a person reads, never what the model computes - and it is declared so that claim is checkable rather than asserted."
+    },
+    "A.corridor.shape_coverage_tolerance_m": {
+      "value": 500.0,
+      "units": "metres",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.34, 15",
+      "description": "Distance within which a stop counts as covered by its route shape, for the coverage figure the schedule builder reports. A REPORTING tolerance: it decides what the build prints about itself, not what any vehicle does."
+    }
+  }
+}

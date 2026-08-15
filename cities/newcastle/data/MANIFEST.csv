@@ -1,0 +1,392 @@
+path,stage,bytes,rows,produced_by,source,source_url,licence,retrieved,sha256
+data/raw/_osm_fetch.log,raw,539,,,,,,,34650b9503db5b75d0b1f3a446d283319b05a483a0155c16aed9fccb4dcc5d3e
+data/raw/_s3_historical_gtfs_listing.txt,raw,6209826,,,,,,,b00abef076427693c54faf49963a622157c93606b932c787f4d3c32ab4c6393a
+data/raw/provenance_abs_dem.json,raw,6258,,,,,,,995509b1f3f97ea7c42c13c31ee1f57ea015aa206ff124ee87109d983871f94e
+data/raw/provenance_open_data.json,raw,11257,,,,,,,37e280a7808f53003a37c4789c52682ca95d3aa90d44cccc6ef9e3a99dcec2f6
+data/raw/boundaries/DZN_2021_AUST_GDA2020_SHP.zip,raw,62160137,9,cities/newcastle/extract/fetch_abs_dem.py,ABS Destination Zones 2021 (workplace geography),https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/DZN_2021_AUST_GDA2020_SHP.zip,CC-BY 4.0,2026-08-16,40c867bb50c9816d7fae54f75c2641b32db78a4c910ddd4a43a7727fc0ddb417
+data/raw/boundaries/LGA_2021_AUST_GDA2020_SHP.zip,raw,39858973,9,cities/newcastle/extract/fetch_abs_dem.py,ABS LGA 2021 boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/LGA_2021_AUST_GDA2020_SHP.zip,CC-BY 4.0,2026-08-16,3b42e527d3fb946fec937ed6f76b8cad9882047b46188295988c3bcaab90b99a
+data/raw/boundaries/SA1_2021_AUST_SHP_GDA2020.zip,raw,100630598,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA1 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA1_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-16,177adac8fcc931355318984471e0e6ac76b42d1119acf3c4e3842a7c6f25ed18
+data/raw/boundaries/SA2_2021_AUST_SHP_GDA2020.zip,raw,50678443,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA2 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA2_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-16,c4dc5bac209f01177eaa0715d27f32cdb09ab5784fb82979741556d2f8e6d148
+data/raw/boundaries/SA3_2021_AUST_SHP_GDA2020.zip,raw,35980764,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA3 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA3_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-16,05215ddc3a577373aa929038cad4cd0fddf910d2f62dbc36cc9c628b5e0a6a32
+data/raw/census/2021_GCP_SA1_for_NSW_short-header.zip,raw,124600647,129,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 General Community Profile, SA1, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_GCP_SA1_for_NSW_short-header.zip,CC-BY 4.0,2026-08-16,c33220ea825e8849affc2024f97fd4c3cdb2d8bdd7431f2c91f6c3ce7965ca93
+data/raw/census/2021_GCP_SA2_for_NSW_short-header.zip,raw,14761508,129,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 GCP, SA2, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_GCP_SA2_for_NSW_short-header.zip,CC-BY 4.0,2026-08-16,f59a123df5cbdb70439bafd66eb931881c8c962ad696c8c1d55dd772c76938bc
+data/raw/census/2021_PEP_SA1_for_NSW_short-header.zip,raw,86202163,78,cities/newcastle/extract/fetch_abs_dem.py,,,,,a9147cd46f5c2ed19b31b25793839f855aa720084870053f4760c85a56fe94c0
+data/raw/census/2021_PEP_SA2_for_NSW_short-header.zip,raw,10394702,78,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 Place of Enumeration Profile, SA2, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_PEP_SA2_for_NSW_short-header.zip,CC-BY 4.0,2026-08-16,451db76943125d7e6b5a38bc22843f9090094c34833d7cd3b056a0838e6e0da0
+data/raw/census/2021_WPP_SA2_for_NSW_short-header.zip,raw,10277085,98,cities/newcastle/extract/fetch_abs_dem.py,,,,,f3a0522d5772e50e2f3b315787421ecb9f8f32e43c26d69ff960c9219256f39c
+data/raw/counts/rms_documentation.pdf,raw,1648844,,cities/newcastle/extract/fetch_open_data.py,NSW traffic volume counts documentation,https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/13d061b1-1606-49b5-b182-d36ce0801f14/download/rms-dataset-documentation-nsw-traffic-volume-counts_0.pdf,CC-BY 4.0,2026-08-12,97983a8d3faae1f084408bd2896f7224a47704d21c9f663445573b6915cee074
+data/raw/counts/rms_hourly_permanent.zip,raw,871235013,5,cities/newcastle/extract/fetch_open_data.py,"NSW road traffic counts hourly, permanent stations",https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/bca06c7e-30be-4a90-bc8b-c67428c0823a/download/road_traffic_counts_hourly_permanent.zip,CC-BY 4.0,2026-08-12,skipped_large
+data/raw/counts/rms_station_reference.csv,raw,774192,1783,cities/newcastle/extract/fetch_open_data.py,NSW road traffic count station reference,https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/c65ad7b4-0257-4cc6-953e-5299ac8d27ba/download/road_traffic_counts_station_reference.csv,CC-BY 4.0,2026-08-12,bea9249941c27ae8ebd4c724e8bffd6c6ddfa1db149dff6dc9ca7db777374ffd
+data/raw/counts/rms_yearly_summary.csv,raw,49320218,275821,cities/newcastle/extract/fetch_open_data.py,NSW road traffic counts yearly summary (AADT),https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/cba9a012-c305-414e-b848-f0e3aad18d97/download/road_traffic_counts_yearly_summary.csv,CC-BY 4.0,2026-08-12,f2b4f6b1bd15e90374c487a8814bfa9e4150bcb7e13410e5099d0df580f36c0f
+data/raw/dem/Copernicus_DSM_COG_10_S33_00_E150_00_DEM.tif,raw,45551917,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S33E150 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S33_00_E150_00_DEM/Copernicus_DSM_COG_10_S33_00_E150_00_DEM.tif,ESA / open,2026-08-16,592b412e79f7185350fea4371eabf92602155ca2366df05bc001af2c57ba9f87
+data/raw/dem/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif,raw,46923232,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S33E151 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S33_00_E151_00_DEM/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif,ESA / open,2026-08-16,5a758a39d86b673167581a78494b9a0bb911b5df57a72fc90b2890da622065e5
+data/raw/dem/Copernicus_DSM_COG_10_S33_00_E152_00_DEM.tif,raw,15920354,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S33E152 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S33_00_E152_00_DEM/Copernicus_DSM_COG_10_S33_00_E152_00_DEM.tif,ESA / open,2026-08-16,d5e8a5bec2180feb22deb9dfd08324e106b4ad5f1c0faff889ccba8642a6bb44
+data/raw/dem/Copernicus_DSM_COG_10_S34_00_E150_00_DEM.tif,raw,46978700,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S34E150 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S34_00_E150_00_DEM/Copernicus_DSM_COG_10_S34_00_E150_00_DEM.tif,ESA / open,2026-08-16,9c3979e63a959a7dcf668b0a88b7557c48f6d02b10bbe9589eae34babda83dab
+data/raw/dem/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif,raw,20882213,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S34E151 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S34_00_E151_00_DEM/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif,ESA / open,2026-08-16,6e20871096986cd00fc3903ea95670a0d83860236a0e4f1360ac9ac67def485d
+data/raw/hts/hts_by_lga_2009-10_to_2019-20.xlsx,raw,171511,,cities/newcastle/extract/fetch_open_data.py,NSW Household Travel Survey by LGA 2009/10-2019/20,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/2bc7603b-6bba-456d-9a81-e560d8a0f5ce/download/data-by-lga-2009-to-2019_revised-release-feb-2026.xlsx,CC-BY 4.0,2026-08-12,4e280c6b3ae486ea64d7d7a786fff39a9d80c0e134b9a9328f8352149d223a34
+data/raw/hts/hts_by_lga_2020-21_to_2024-25.xlsx,raw,140991,,cities/newcastle/extract/fetch_open_data.py,NSW Household Travel Survey by LGA 2020/21-2024/25,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/8b0a7e54-9dea-43c3-9804-5e2917bf4f1f/download/data-by-lga-2020_21-to-2024_25.xlsx,CC-BY 4.0,2026-08-12,21b8cb5ca2fc689dfee6a7a5a71198e047e9fe6e2ef3203a1bcf6d35484177a7
+data/raw/hts/hts_by_sa3_2009-10_to_2019-20.xlsx,raw,560261,,cities/newcastle/extract/fetch_open_data.py,NSW Household Travel Survey by SA3 2009/10-2019/20,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/75b3e41c-18e6-499d-948d-de735fd8e308/download/data-by-sa3-2009-to-2019_revised-release-feb-2026.xlsx,CC-BY 4.0,2026-08-12,35bb2e40139be6f6331b9cb56e2d25356d64a691ac7ef2cff2d33398f47c4a28
+data/raw/hts/hts_by_sa3_2020-21_to_2024-25.xlsx,raw,166975,,cities/newcastle/extract/fetch_open_data.py,NSW Household Travel Survey by SA3 2020/21-2024/25,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/e95e31d5-64ed-44f1-b845-250498849758/download/data-by-sa3-2020_21-to-2024_25.xlsx,CC-BY 4.0,2026-08-12,4a3257d3ad830e008d62ff7ff7f91169678d39e8c294cfd295a33d2b46adbe8d
+data/raw/hts/hts_data_document_2009_2019.pdf,raw,306302,,cities/newcastle/extract/fetch_open_data.py,HTS data documentation 2009-2019,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/8c440e30-09b2-4c70-99ed-74a250fb55f9/download/hts-data-document-2009_2019.pdf,CC-BY 4.0,2026-08-12,18531d1e3c41b26ed91fd6ccd83db01c6453b288fe43452d06f6f311f8944821
+data/raw/hts/hts_data_document_2020_2024.pdf,raw,327209,,cities/newcastle/extract/fetch_open_data.py,HTS data documentation 2020-2024,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/5a0ac96e-4562-4ffe-bb96-beb0cb0dca89/download/hts-data-document-2020_2024.pdf,CC-BY 4.0,2026-08-12,69fde85959d2cde452fe34c885051395b67dad24febd60fd6780f9452808aa75
+data/raw/opal/all_modes_trips.csv,raw,265365,6899,cities/newcastle/extract/fetch_open_data.py,TfNSW Opal Trips - All Modes,https://opendata.transport.nsw.gov.au/data/dataset/c92c0418-8678-4e39-9c34-70be8c35f7ef/resource/c77b83d7-cdcd-4a0e-9b12-fcc159727589/download/all_modes.csv,CC-BY 4.0,2026-08-12,adb9d043f3177d0e81210a812700eb73546772e9757b167828c7146cbc9dbfec
+data/raw/opal/all_modes_trips_legacy.csv,raw,199305,5589,cities/newcastle/extract/fetch_open_data.py,TfNSW Opal Trips - All Modes (legacy methodology epoch),https://opendata.transport.nsw.gov.au/data/dataset/c92c0418-8678-4e39-9c34-70be8c35f7ef/resource/75df8157-3eab-4cf1-a877-86ce7c08af26/download/all-modes_legacy.csv,CC-BY 4.0,2026-08-12,d1d91fd06f81ee2dccfc93825f9caafd6b29bc4dcc345ec077db6fd32139d445
+data/raw/opal/bus_trips_by_contract_area_legacy.csv,raw,332528,1228,cities/newcastle/extract/fetch_open_data.py,"TfNSW Opal bus trips by contract area (legacy, pre-2024 methodology)",https://opendata.transport.nsw.gov.au/data/dataset/e63d778f-46dd-4ea1-b832-ef917876ce5a/resource/9862b4f1-37d9-495a-97b6-0c867fa91d83/download/bus-card-type_48.csv,CC-BY 4.0,2026-08-12,700f4735d70b7c0df7f7c38fe7c96efe13e3dada3673ba5b4bc372a79f5f999b
+data/raw/opal/bus_trips_by_contract_region.csv,raw,2042766,37444,cities/newcastle/extract/fetch_open_data.py,TfNSW Opal Trips - Bus by contract region,https://opendata.transport.nsw.gov.au/data/dataset/e63d778f-46dd-4ea1-b832-ef917876ce5a/resource/6095c2b7-8649-4244-902d-4e62c8ea87d9/download/bus.csv,CC-BY 4.0,2026-08-12,8c3b754bd6136ce74e166c996cc92d4fbe527c565cb15bf7625817f94050f00e
+data/raw/opal/lightrail_trips_by_line_cardtype.csv,raw,2874866,70196,cities/newcastle/extract/fetch_open_data.py,"TfNSW Opal Trips - Light Rail (NRT, by month/line/card type)",https://opendata.transport.nsw.gov.au/data/dataset/6641ea76-4818-4e38-864f-4e3cb6bb98ee/resource/2bb651a0-eb15-4729-8dd5-9891b3708e6d/download/lightrail.csv,CC-BY 4.0,2026-08-12,44a8496c6d2db97f48d71df80bc9a4166afe1c356cb435569451e58f36b16a29
+data/raw/opal/lightrail_trips_by_tapon_station.csv,raw,1716544,34374,cities/newcastle/extract/fetch_open_data.py,TfNSW Opal Light Rail trips by tap-on station (to Jun 2024; pre series break),https://opendata.transport.nsw.gov.au/data/dataset/6641ea76-4818-4e38-864f-4e3cb6bb98ee/resource/80b57af2-dc41-49c0-bb54-e0d7fa5214f6/download/lightrail-june-2024.csv,CC-BY 4.0,2026-08-12,a8069a32dc0f2551d0c81f8ab08d0a9a0d8475cdbd230e12f4f19635253e3f18
+data/raw/opal/opal_tap_documentation.pdf,raw,493027,,cities/newcastle/extract/fetch_open_data.py,Open Opal Data documentation,https://opendata.transport.nsw.gov.au/data/dataset/4789edda-acb9-4eba-acc1-327db1a13843/resource/a148d2c0-bf82-44f8-904b-124f20e8a7bb/download/open-opal-data-documentation_0_1.pdf,CC-BY 4.0,2026-08-12,cbc69bca09826eb2136f28c5f31a20c9545faea74e74269b861f123c4bf95d37
+data/raw/opal/station_entries_exits_2016_2023_typical_day.xlsx,raw,183811,,cities/newcastle/extract/fetch_open_data.py,TfNSW Train station entries/exits 2016-2023 typical day,https://opendata.transport.nsw.gov.au/data/dataset/3977df59-a1fa-422e-91ff-cfaeac355cc9/resource/491763fc-82ed-4e44-9fca-8f3285db526e/download/train-station-entries-and-exits-version-2.2.xlsx,CC-BY 4.0,2026-08-12,140480524394b13c4f0aee85d24515c519020bc38554c6f9be9aff9eae05bd26
+data/raw/opal/station_entries_exits_monthly.csv,raw,980339,15706,cities/newcastle/extract/fetch_open_data.py,"TfNSW Train/Metro/LR station monthly usage (Opal batch, from Nov 2024)",https://opendata.transport.nsw.gov.au/data/dataset/3977df59-a1fa-422e-91ff-cfaeac355cc9/resource/f8bb2918-0540-4bb3-9ccf-f7aef04d4249/download/entry_exit.csv,CC-BY 4.0,2026-08-12,289de76e35e381db8855f0620e1555577ae37983d27ecad290771d3804300939
+data/raw/opal/tap_time_loc_20160725-31.csv,raw,8603209,215630,cities/newcastle/extract/fetch_open_data.py,"Opal tap on/off by time and location, 25-31 Jul 2016 (era 2)",https://opendata.transport.nsw.gov.au/data/dataset/4789edda-acb9-4eba-acc1-327db1a13843/resource/ce1e431d-30a2-4f73-b1dd-d1944a203ca3/download/time-loc_20160725-31_2.csv,CC-BY 4.0,2026-08-12,e1ecf135e10d4d76fb8f4e50efaa443ed052a7fe6df575b2bde5aa6934074f7e
+data/raw/opal/tap_time_loc_20160808-14.csv,raw,9013406,225080,cities/newcastle/extract/fetch_open_data.py,"Opal tap on/off by time and location, 8-14 Aug 2016 (era 2)",https://opendata.transport.nsw.gov.au/data/dataset/4789edda-acb9-4eba-acc1-327db1a13843/resource/91a8e531-b2f8-4d0f-9d82-79e45c56ce27/download/time-loc_20160808-14.csv,CC-BY 4.0,2026-08-12,58429edc78c3266ee5830ac623280c3acecc88b6efff393ca72912cd3a9c7a7f
+data/raw/signals/tfnsw_traffic_lights_location.xlsx,raw,366965,,,"TfNSW Traffic Lights Location (statewide signal inventory: SCATS Equipment_ID, cross streets, suburb, install date, coordinates; June 2026)",https://opendata.transport.nsw.gov.au/data/dataset/93ba5c23-f46c-45d7-98ed-96022b7ea626/resource/406ac670-b3ad-4474-9284-c03d444a1aec/download/traffic-lights-location-data-june-2026.xlsx,CC-BY 4.0,2026-08-12,00c8913f1fcb6f790843dd37464c8e609ad1f5475a753ac7739a8dc16d5ec99f
+data/raw/signals/tfnsw_traffic_lights_location_documentation.pdf,raw,225687,,,TfNSW Traffic Lights Location field documentation,https://opendata.transport.nsw.gov.au/data/dataset/93ba5c23-f46c-45d7-98ed-96022b7ea626/resource/b8e2dd7c-c136-4cfd-9d67-fd6107d2a583/download/traffic-lights-location-v1.pdf,CC-BY 4.0,2026-08-12,dde5ac68e28781c3574e68555a8bb2e31698a4ec38800bf4b7d4353f4178ac32
+data/raw/speedzones/Speed_Zones.dbf,raw,436688066,,,,,,,skipped_large
+data/raw/speedzones/Speed_Zones.prj,raw,425,,,,,,,f2e7fb14d55bdd8d6a3bc2c272a48729d8f9d0ad72936e20eae6a9a81c2fccd0
+data/raw/speedzones/Speed_Zones.shp,raw,97790172,,,,,,,2b0e7cb628b8f28a43ef95b862bd07e6eca45e49a4ae4119b0e926e551d301c3
+data/raw/speedzones/Speed_Zones.shx,raw,3579508,,,,,,,028fd0255666eeb8643f305e4e3f8b523f3b44086ae5222e02a161e3dc6dd377
+data/raw/speedzones/provenance_speed_zones.json,raw,805,,,,,,,e0b39fd288507766a7c42a092f8b27749e331756f9973179f402ab69edef1e28
+data/raw/speedzones/speedzones.zip,raw,62453324,4,,,,,,7b86d6ddb3523a3c1bbd4bdacbefd86feba971f177a2a6884cde4312ed91f950
+data/processed/basemap.json,processed,2226971,,,,,,,c12dbb941a5f36df235898027825e2666ee4e29c98f1ee6ac65e80b468cf6483
+data/processed/census/_census_report.json,processed,4309,,cities/newcastle/extract/extract_census.py,,,,,d17cc8959dfe2d708ad8a60ec4c4b445ce986ee9c0f4405472b34bf932a99a34
+data/processed/census/census2021_G01_SA1.csv,processed,549841,1701,cities/newcastle/extract/extract_census.py,,,,,36c8fb6e9a70043bf928997de949ec8fd9167372fe7ae8da98fdffbe8b9e6106
+data/processed/census/census2021_G02_SA1.csv,processed,87023,1701,cities/newcastle/extract/extract_census.py,,,,,0f4f31fc0787b92bfd7299052783dc94fad7ba9c796b115d81df0cd81ad0423a
+data/processed/census/census2021_G04A_SA1.csv,processed,767068,1701,cities/newcastle/extract/extract_census.py,,,,,40484270e22cd1a6b957fb5c9f64882e031b31fcae2684e35dc319a30af61a93
+data/processed/census/census2021_G04B_SA1.csv,processed,424242,1701,cities/newcastle/extract/extract_census.py,,,,,11eec5b39607fc01ce1adc28004916f02a0123217ffa28c81c50e5ffa4302189
+data/processed/census/census2021_G17A_SA1.csv,processed,744687,1701,cities/newcastle/extract/extract_census.py,,,,,32e2ed00d2762de141b49033274388b6df04d16cd95bbc202ae1511cb7dc75e6
+data/processed/census/census2021_G17B_SA1.csv,processed,752902,1701,cities/newcastle/extract/extract_census.py,,,,,8c0c608b4aea0e71ad6919999c12582fd49586030c7e4de8bd97f64ef89cec0b
+data/processed/census/census2021_G17C_SA1.csv,processed,441207,1701,cities/newcastle/extract/extract_census.py,,,,,3c1ea1379d88400de0a354bf042a94e3c52f7e9c1c725ecc1068e3cbdcdf49ba
+data/processed/census/census2021_G34_SA1.csv,processed,69438,1701,cities/newcastle/extract/extract_census.py,,,,,0577b5e19f5422178983bc474d69a2d302031c62065543232325dec8025df0f0
+data/processed/census/census2021_G35_SA1.csv,processed,124795,1701,cities/newcastle/extract/extract_census.py,,,,,6a92ab675ec54bff006ec53d183082656393be91708730f701f6bacbd8b98f95
+data/processed/census/census2021_G36_SA1.csv,processed,186934,1701,cities/newcastle/extract/extract_census.py,,,,,cd2baa1748af1db46341c7ddbffdff19cadc514422da420d26de9793dd00e71e
+data/processed/census/census2021_G43_SA1.csv,processed,385250,1701,cities/newcastle/extract/extract_census.py,,,,,a96a1270837478f218383c64a4588f85859eaec4514fe1d1d0d990daabd93e12
+data/processed/census/census2021_G46A_SA1.csv,processed,778104,1701,cities/newcastle/extract/extract_census.py,,,,,ad6f1b2df212d9d4aaa6ff0423020e5f57d9248de3a3bc3d496f34d1d02dfd1e
+data/processed/census/census2021_G46B_SA1.csv,processed,675907,1701,cities/newcastle/extract/extract_census.py,,,,,3e7306b522f3b80734a073a48e1acb4e7289f28308cea533a4c6fd2428e9e5b2
+data/processed/census/census2021_G54A_SA1.csv,processed,719764,1701,cities/newcastle/extract/extract_census.py,,,,,7a47c18dd4c0e70dcfd6623bc1d330e7ca92a9b8a2037a5450cba18476d9f687
+data/processed/census/census2021_G54B_SA1.csv,processed,729142,1701,cities/newcastle/extract/extract_census.py,,,,,52a8ea21630731798b594c83703a7de96801fe9120fd51d4fdef31ca77a44ae6
+data/processed/census/census2021_G60A_SA1.csv,processed,748498,1701,cities/newcastle/extract/extract_census.py,,,,,22f935e8932897a796b9289c52b79a9909ec4cee4470573d4be6fa6f33cc1c0e
+data/processed/census/census2021_G60B_SA1.csv,processed,402554,1701,cities/newcastle/extract/extract_census.py,,,,,97b5de57d85069306b21fdc889b09bec16358a4bcd727ca8205ad55e51cd93ec
+data/processed/census/census2021_G62_SA1.csv,processed,428161,1701,cities/newcastle/extract/extract_census.py,,,,,4674fcc9f27cf7200e6b6881a0f5b3b18b78317f2dd88a2c16bca60474d80454
+data/processed/census/census2021_W01A_POW_SA2.csv,processed,36650,55,cities/newcastle/extract/extract_census.py,,,,,90a9832f249654e26ada0e40531c41b0d38b54054c9bd82b0d5b37e6a5d7545f
+data/processed/census/census2021_W09A_POW_SA2.csv,processed,31939,55,cities/newcastle/extract/extract_census.py,,,,,97a85f329aa90498dd505d766daee511e6baa6bc26af5b2a9db4982652b6f653
+data/processed/census/census2021_W09B_POW_SA2.csv,processed,30807,55,cities/newcastle/extract/extract_census.py,,,,,6645f2c4b7b41d4713ee619300068a4a19d1d8abf5d7c1d559155f9c45d2e15c
+data/processed/census/census2021_W13_POW_SA2.csv,processed,35257,55,cities/newcastle/extract/extract_census.py,,,,,0b0708bd8a2d24d0b732a358163b1dfb5ec0d9161e35b5bdbe7804a3cddac480
+data/processed/census/census2021_W21A_POW_SA2.csv,processed,29267,55,cities/newcastle/extract/extract_census.py,,,,,4878e29da9a7e819e63bd4b01e916a10d28b447a1140ddad6eb3a88096a12087
+data/processed/census/census2021_W21B_POW_SA2.csv,processed,24169,55,cities/newcastle/extract/extract_census.py,,,,,80a19fa961ed5b2eb10719d791372a2a81de11e41ea36a0cc1101b297230d20e
+data/processed/census/census2021_W22A_POW_SA2.csv,processed,28921,55,cities/newcastle/extract/extract_census.py,,,,,30268897b3d67d27a84d416176ec0ba513aa8b8e58a46882e75656cee907c157
+data/processed/census/census2021_W22B_POW_SA2.csv,processed,30435,55,cities/newcastle/extract/extract_census.py,,,,,ead1ee73e937fcad40ad82bfdc747f55c587cb77d37cd59a25ec12dbec182434
+data/processed/corridor/A2_signal_control_corridor.csv,processed,16244,70,cities/newcastle/build/build_corridor_layers.py,,,,,56967bcfb5aecdc8cd13b8f530c25ccbf4997c189fe94799e5470c098f621310
+data/processed/corridor/A4_segment_runtime_decomposition.csv,processed,988,10,cities/newcastle/build/build_corridor_layers.py,,,,,f0f3d1ea4358592da30a875376c5c4ae0bb5647f300dea447807565434a7a7a0
+data/processed/corridor/A4_stop_dwell_model.csv,processed,1220,6,cities/newcastle/build/build_corridor_layers.py,,,,,efd0e43cf45a175b28530d898f0db43589e4134c43befee932e52ef5cf3f4fe5
+data/processed/corridor/A4_vehicle_spec.csv,processed,733,1,cities/newcastle/build/build_corridor_layers.py,,,,,66621aaacbccf4b2201687e54104e51f0b91069028d8d453c533ab8a827cfb0f
+data/processed/corridor/_corridor_report.json,processed,782,,cities/newcastle/build/build_corridor_layers.py,,,,,628b836b2d2fc61189ed8bba23d1e4dad6e43bc7f4a08a73790b540b33e323de
+data/processed/hts/_hts_report.json,processed,4241,,cities/newcastle/extract/extract_hts.py,,,,,7435c036e63e02ca3fd65cb49b470a6774e2cebb97a21c316898eb09da5a991c
+data/processed/hts/hts_mode.csv,processed,86922,752,cities/newcastle/extract/extract_hts.py,,,,,899ce4fbb44304773db7dc558c59ed905dd9d2fb5af6e007956d8d0b437d10e8
+data/processed/hts/hts_purpose.csv,processed,110427,951,cities/newcastle/extract/extract_hts.py,,,,,6a35feba09a89ddb602973ce1f656c3d394446f915b1df1c11d5674cbc67e0d9
+data/processed/landuse/A5_parking_facilities.csv,processed,2796100,8479,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,85649217b56350039c552bf6ba7dd2f77718cedfba4ab5ecf3753e42a50eef66
+data/processed/landuse/A5_parking_price_zones.csv,processed,134276,1701,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,f023957f35a243dfb7a98c2e68908c34d46fb12143afc4a69e173e86f77ecf4a
+data/processed/landuse/D1_buildings_cbd.csv,processed,934269,13096,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,420d1df263ed5ff3441d896e9375e22c85fd69ad66b90ce2f61d5ca3f1ce57b2
+data/processed/landuse/D1_employment_by_anzsic_POW_SA2.csv,processed,4971,55,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,e4d031b86d255ba9788f41db143f74bd17039aa701979bcf884bcb5ab292fb7e
+data/processed/landuse/D1_frontage_segments.csv,processed,116186,498,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,62d7926ca7c5791f20314e0d2d58c27480f467d16240aece262bdc55eb7f620c
+data/processed/landuse/D1_poi.csv,processed,2400491,26864,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,7d17e8979808f815b7168fdad0cbf76b3818af37f5795af9d7f248d4c3ca2cc0
+data/processed/landuse/D1_zone_attractions_SA1.csv,processed,356428,1701,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,bae940c71839f84bf89ac4ada41f0eb32a86c072e5c11273f16e77c9e0ec3dbf
+data/processed/landuse/_attractions_report.json,processed,1350,,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,3fa5d43230e63be2a3213357a3ed74b0001fe65f6f4ef6e7e89c0a6862f4e4b3
+data/processed/landuse/_landuse_report.json,processed,1402,,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,72cf656f98355cf1f7d60424648052110e862e3bcef49beb0224552d8d23f75e
+data/processed/network/A1_corridor_road_edges.csv,processed,149284,714,src/build/build_network_layers.py + attach_gradient.py,,,,,ce90230f9ef80fc4d48b22820cd2ecdc58e6ea44fc5f63453a33f28777e76d73
+data/processed/network/A1_road_edges.csv,processed,10893422,50182,src/build/build_network_layers.py + attach_gradient.py,,,,,c906f7937697085c810a411e26c2119d4516561fd31bd565e35daa977ffac417
+data/processed/network/A1_road_geometry.jsonl,processed,12497361,50182,src/build/build_network_layers.py + attach_gradient.py,,,,,4054c0e70c055f75ec3a5e2141df679e69ea83bf2cc7809db5e96f8d145ad039
+data/processed/network/A1_road_variant_patches.csv,processed,124061,414,src/build/build_network_layers.py + attach_gradient.py,,,,,94db204e2430a573167193648a1fdd0050fcfef062abc419b3f50df858fc155d
+data/processed/network/A1_speed_zones.gpkg,processed,10280960,,src/build/build_network_layers.py + attach_gradient.py,,,,,0781baf1826bbb4266449b983eb385b26fd0263eee5244d3cce55e6f7cdc52a3
+data/processed/network/A2_crossings_osm.csv,processed,533913,10677,src/build/build_network_layers.py + attach_gradient.py,,,,,0505bc5ed37be95deeb0d483d5aec9c6c0bf5539872803353b26fac70deb2bf7
+data/processed/network/A2_signal_nodes_osm.csv,processed,71846,1337,src/build/build_network_layers.py + attach_gradient.py,,,,,20fcace6baaa822be62fbf62c8eb6a8bb12ffbc7c13db5d0c901f1314a8577b6
+data/processed/network/A2_turn_restrictions_osm.csv,processed,117459,1546,src/build/build_network_layers.py + attach_gradient.py,,,,,c26053e1a7b00a29d77af9d1ad7e5b49d89db979480ea19d53102e69a04baef6
+data/processed/network/A2_turn_restrictions_resolved.csv,processed,166077,1545,src/build/build_network_layers.py + attach_gradient.py,,,,,469d6f243eb8b357c3edfe195e1a12420085758daa3beea43ab55c43affdee4f
+data/processed/network/A5_parking_osm.csv,processed,719666,8479,src/build/build_network_layers.py + attach_gradient.py,,,,,5786c3933ec2c383eacf5ad71aa37742e7042960ac847429927568de69acd98e
+data/processed/network/A6_footway_edges.csv,processed,7846914,40195,src/build/build_network_layers.py + attach_gradient.py,,,,,903f89295415c75ba320d11795f8e2efc12685fb6c3c4468af17089aedb3ddb9
+data/processed/network/A6_footway_geometry.jsonl,processed,11877905,40195,src/build/build_network_layers.py + attach_gradient.py,,,,,4b0639a402452a7e53d78a6c7c1c32b7cb49fe12bdba1805518433e29320e5e8
+data/processed/network/_build_report.json,processed,438,,src/build/build_network_layers.py + attach_gradient.py,,,,,5ec18b6b6138b76a9d802773a2746bce419a351f2bbc6aa8428a551247936e4c
+data/processed/network/_corridor_attributes_report.json,processed,4549,,src/build/build_network_layers.py + attach_gradient.py,,,,,c064775b116c1ceb3e28b6c65d5316036b8d08fdc98ac2bf6609d06fa9ddd013
+data/processed/network/_gradient_report.json,processed,405,,src/build/build_network_layers.py + attach_gradient.py,,,,,a51f40cc04366e48d04d29949743e9802f85a28c79262feac51891d1c28141ad
+data/processed/network/_speed_zone_report.json,processed,1476,,src/build/build_network_layers.py + attach_gradient.py,,,,,5d03136abaa0f3cda4f1eb14fcd2cd62ca0fb222039f8c84691affc1e541d8ee
+data/processed/observed/_slice_report.json,processed,3736,,extract/slice_newcastle.py,,,,,21b6f091b57bf9142b72f5eb08d070ae28c61ea2df8a7f8708be09046c184867
+data/processed/observed/opal_bus_newcastle_hunter.csv,processed,49156,1363,extract/slice_newcastle.py,,,,,59cccc3a1c98ddf8b0643d1ae445d6ae37f7a810a145f5de4eac1260c341ecb2
+data/processed/observed/opal_lr_newcastle_by_month_cardtype.csv,processed,725066,16604,extract/slice_newcastle.py,,,,,7b79e2c59740cded85b721c195106f35d5efc065923da6c7803de8a052b6aa88
+data/processed/observed/opal_lr_newcastle_by_stop.csv,processed,202344,4079,extract/slice_newcastle.py,,,,,fd8e8a9c4c0545ac2be3453b31d0d7b5a8ecb317aa3c9a92edb70662af85fb00
+data/processed/observed/station_entries_exits_newcastle.csv,processed,66006,1092,extract/slice_newcastle.py,,,,,b2673f40d4849c38cecfddbdb18221ea51067490c6205e67cf0feeb0e708b2c9
+data/processed/observed/traffic_aadt.csv,processed,2117673,12231,extract/slice_newcastle.py,,,,,b93a018a64aa1ebba21bfaa1b6570df2e19ab281f9d088e50333010d7f0305a3
+data/processed/observed/traffic_count_stations_newcastle.csv,processed,57702,134,extract/slice_newcastle.py,,,,,19178ec54f02cfbe40e20e301b887a1110ad59bd0d63d7139ce22c94c53b0586
+data/processed/schedule_extras/A3_route_extras.csv,processed,41415,290,src/build/build_gtfs_extras.py,,,,,0c66653be7fe2345c5df6d58f2b00b9cb55cc31f53d1dee6dea8a0fe1ce5cd06
+data/processed/schedule_extras/A3_stop_extras.csv,processed,401658,3873,src/build/build_gtfs_extras.py,,,,,1d22c1b2632863915c218c8d172c172d8d251ca145dbbf37ac3ef57af1eca3a6
+data/processed/schedule_extras/A3_transfer_extras.csv,processed,513828,3584,src/build/build_gtfs_extras.py,,,,,b9ac0bc65b8e022e85615584966bad9b75446838cc1aee2131951ced7cbfa94f
+data/processed/schedule_extras/_extras_report.json,processed,691,,src/build/build_gtfs_extras.py,,,,,3982a2ea663cffabee831c6e0b6dc196c9c0ffe85f3c0a497279d38de5f4c801
+data/processed/validation/_validation_report.json,processed,500,,cities/newcastle/build/build_validation_targets.py,,,,,9d9c374554a1ad719ca82c59c11a649ad9dee3a084058c084f017ba16261cc27
+data/processed/validation/bus_monthly_series.csv,processed,2925,108,cities/newcastle/build/build_validation_targets.py,,,,,12349cf379347f26ada4b1b67e5b6c92bd495d2c9938c2e729f056f3c34127a5
+data/processed/validation/count_station_links.csv,processed,17665,195,cities/newcastle/build/build_validation_targets.py,,,,,cbcc69ee328bd377c969fbe0af183e6fb0ecb2ee287759f5f7153eb6a94fb2ee
+data/processed/validation/lr_monthly_series.csv,processed,2224,89,cities/newcastle/build/build_validation_targets.py,,,,,7111e637d43fc5cd236f50a0d8789a273016879d7cfb583ec119ad8a3069474d
+data/processed/validation/lr_taps_by_stop.csv,processed,205,6,cities/newcastle/build/build_validation_targets.py,,,,,0c62da63ae0a88963060add74a6f0a165f8d3ace10da354068ededeb12ae8024
+data/processed/validation/road_aadt_targets.csv,processed,18485,119,cities/newcastle/build/build_validation_targets.py,,,,,6e01c96dffd984de97923902046cd19e3c7fe111754bffb71322ce76d7ae5495
+data/processed/validation/station_entries_exits_mean.csv,processed,2236,52,cities/newcastle/build/build_validation_targets.py,,,,,bfe827118ee8988d39b9efb296d2bcc099927dab94704b5eb21b8de73281d25b
+data/processed/validation/validation_targets.csv,processed,40585,210,cities/newcastle/build/build_validation_targets.py,,,,,a2bde12b77a1aa7e7f82d8fd878cd18c9382cce9895ecc603d9cc712b72f2b1d
+data/processed/zones/_zones_report.json,processed,967,,cities/newcastle/extract/extract_zones.py,,,,,d0613ea2bd9ea004b9a1057ba01c7661bf854165c6d44b3c558b1cc4fcfad90b
+data/processed/zones/sa1_to_lga.csv,processed,60454,1701,cities/newcastle/extract/extract_zones.py,,,,,e38a2e97011368901235f47be9999645b5b13c0a79fcb755275cd2979ead4e53
+data/processed/zones/zone_lookup_SA1.csv,processed,259724,1701,cities/newcastle/extract/extract_zones.py,,,,,c3328d21309f5e1bace18e8c14b0f370e0e9f51e154c96ceee4d24d19c54d3d7
+data/processed/zones/zones_DZN.csv,processed,62772,265,cities/newcastle/extract/extract_zones.py,,,,,c80b5e131851ab57961477237e3d5aca209a50d7f8114a4f66233cfa28417363
+data/processed/zones/zones_DZN.gpkg,processed,5709824,,cities/newcastle/extract/extract_zones.py,,,,,98da8268a916fec808a6d83acd281d78ce742dd775ba7ac15e775bae89197471
+data/processed/zones/zones_LGA.csv,processed,1197,5,cities/newcastle/extract/extract_zones.py,,,,,1c6149c4727f26e862e27bd358ffdc3e5010d3a60aaf213a9ad7bc03ed71665f
+data/processed/zones/zones_LGA.gpkg,processed,761856,,cities/newcastle/extract/extract_zones.py,,,,,bfbe3b0f752ec9d396acdcdc35ac5dbb61029e7f54f8bf16e3f808f145657373
+data/processed/zones/zones_SA1.csv,processed,495363,1701,cities/newcastle/extract/extract_zones.py,,,,,b7cd2079fc24d9e4b06632f5660f8292891f3e924abaa90215b1b4968d4ba136
+data/processed/zones/zones_SA1.gpkg,processed,6803456,,cities/newcastle/extract/extract_zones.py,,,,,94c0456b3d598524405714552b471359a863515dcc03f735c9ab384baf3a3a45
+data/processed/zones/zones_SA2.csv,processed,15468,55,cities/newcastle/extract/extract_zones.py,,,,,cde31f2e3da1cdf3eab5f4a465507ff4f660882d0b47e42a7b79f0857395d65b
+data/processed/zones/zones_SA2.gpkg,processed,2605056,,cities/newcastle/extract/extract_zones.py,,,,,3d1760bba68c539a58ba2cbfe616e940d2c7851052a2e2fe294fa326b75ab8c8
+data/processed/zones/zones_SA3.csv,processed,1894,7,cities/newcastle/extract/extract_zones.py,,,,,e51b347ea86975c7e4157bf3748dde875029d069a800ca7b14e8f0c71b6aa422
+data/processed/zones/zones_SA3.gpkg,processed,1466368,,cities/newcastle/extract/extract_zones.py,,,,,85797518c5985b64401e296595f591af8d8c2f6f15ff146724d3977820df950b
+schedules/_era1_reconstruction_report.json,processed,915,,cities/newcastle/build/build_era_feeds.py,,,,,6ed5cee6b77723cdf27b4d04f8179b7697c1b4580886fd8f4d035b365a55f89c
+schedules/base2026.zip,processed,9454546,8,cities/newcastle/build/build_era_feeds.py,,,,,b70098811ee26f45bfd3b0ebff6e725d8a6121984b1956869f9e9ad245e639cb
+schedules/era1_pre2014_reconstructed.zip,processed,11150838,7,cities/newcastle/build/build_era_feeds.py,,,,,066396bc3557056586b3c7a77ceb0b8859a7bd723f7378610aa1098e06ab9cf3
+schedules/era2_2016_rail_truncated.zip,processed,11145832,7,cities/newcastle/build/build_era_feeds.py,,,,,d0cb7c0f96bf4b319a960865631c502e443b49b71f84a51a13d061c01d2f9931
+schedules/era3_2018_keolis_interchange.zip,processed,6161429,8,cities/newcastle/build/build_era_feeds.py,,,,,ba7b7dd38d0a55077231cf3d8f8ab2f435363c03049e623f506318e4486f8168
+schedules/era4_2019_lr_open.zip,processed,5846088,8,cities/newcastle/build/build_era_feeds.py,,,,,e9d33c610fcb20239e31429a7a970432f70e0037c6ef27b7e33185fe3221ebb4
+schedules/era_build_summary.json,processed,6789,,cities/newcastle/build/build_era_feeds.py,,,,,cddf6054d45264c548837952ba292c7611f8d71765514548c6d22024e5e04c8b
+schedules/operators.json,processed,1316,,cities/newcastle/build/build_era_feeds.py,,,,,fc88a78e1350961a5267517aef0178c3c571eb17f3176e1e347933fae995487f
+schedules/raw/provenance.json,raw,4793,,cities/newcastle/extract/fetch_gtfs.py,,,,,b2015579ed89a0865b9e0803f96a424f702869efa90f19e26fd758005e9d115a
+schedules/raw/base2026/lightrail.zip,raw,53308,10,cities/newcastle/extract/fetch_gtfs.py,,,,,987777bb6841cc8390f9ee20bece40cc107b99083fa1c5009819e9a4aee5aa6d
+schedules/raw/base2026/nisc001.zip,raw,3459002,9,cities/newcastle/extract/fetch_gtfs.py,,,,,76f701acb32d0c54c31ea40492ae69349612742c577e60ece3faab29f4379a05
+schedules/raw/base2026/nswtrains.zip,raw,39662943,14,cities/newcastle/extract/fetch_gtfs.py,,,,,ec8627698f779043d4bdcefefda58758792ecd4fe61c0a5946a432894fc0929d
+schedules/raw/base2026/regionbuses.zip,raw,6884155,9,cities/newcastle/extract/fetch_gtfs.py,,,,,0b5abc43851700adce7f083ddd390ff8e732000a58dcf0ac6a01be0f6d49a47a
+schedules/raw/base2026/sydneytrains.zip,raw,14499105,11,cities/newcastle/extract/fetch_gtfs.py,,,,,dcbea41e838612c9ec52a7e259e7d4f1c65360ae492d720d54f881e6c8a47dcf
+schedules/raw/era2_2016_rail_truncated/complete.zip,raw,101718167,8,cities/newcastle/extract/fetch_gtfs.py,,,,,aed7ade7c02675048d1da5f33738a5fb4390bb0bbb004bd9d599543603080b34
+schedules/raw/era2_2016_rail_truncated/nswtrains.zip,raw,10214611,10,cities/newcastle/extract/fetch_gtfs.py,,,,,6c458baed9faf887c57926abfc2a84ee581f48201661bf2bb46e5d7b690ffdc5
+schedules/raw/era2_2016_rail_truncated/sydneytrains.zip,raw,7031489,7,cities/newcastle/extract/fetch_gtfs.py,,,,,86d15542464fc55339bf86a27f2f58a0e4783c112eafc344ca339821dd5c4079
+schedules/raw/era3_2018_keolis_interchange/nisc001.zip,raw,5011206,9,cities/newcastle/extract/fetch_gtfs.py,,,,,c599185939f379b36ce7b3ca163149ff20d98f6aa0bcc179aa26d8bacf7645f3
+schedules/raw/era3_2018_keolis_interchange/nswtrains.zip,raw,9328311,10,cities/newcastle/extract/fetch_gtfs.py,,,,,f03cebc8f8c575aa5bb3bf4658d1a1c48d3244046430c5b5ff712879f6c4309e
+schedules/raw/era3_2018_keolis_interchange/sydneytrains.zip,raw,9854740,7,cities/newcastle/extract/fetch_gtfs.py,,,,,df60a66ccdc1ba91df3e852b1638d654e6c0e487927825ddc7b5ff353b671c89
+schedules/raw/era4_2019_lr_open/lightrail.zip,raw,37275,10,cities/newcastle/extract/fetch_gtfs.py,,,,,597a58a524208e50cf5eba54c66769b70eabe63d5c0cf176d6dfb144ddfe5151
+schedules/raw/era4_2019_lr_open/nisc001.zip,raw,4717085,9,cities/newcastle/extract/fetch_gtfs.py,,,,,723a86123958da00e41c72ac88e15786b46c864886cee1b761374776101c6402
+schedules/raw/era4_2019_lr_open/nswtrains.zip,raw,9823981,10,cities/newcastle/extract/fetch_gtfs.py,,,,,5de7913d92aae747c33da3c3e43808172cb144a5cd37e60b33adcacbd25c9c41
+schedules/raw/era4_2019_lr_open/sydneytrains.zip,raw,9911544,7,cities/newcastle/extract/fetch_gtfs.py,,,,,8ecb229d61e48fa1e483e5741f257710f9ab173ebd1ed4d2d0a702824090f0b6
+schedules/scenarios/S0.zip,processed,9479066,8,cities/newcastle/build/build_scenario_schedules.py,,,,,1fdd0fdc5300ecd7cc5900ccf27aa455b97e570520cf0b3b2805c891a0c25f56
+schedules/scenarios/S1.zip,processed,9440435,8,cities/newcastle/build/build_scenario_schedules.py,,,,,22da673988ae8f8884b3a082d035664bb6069da3751246edacd8cee51c24d0f5
+schedules/scenarios/S2.zip,processed,9444269,8,cities/newcastle/build/build_scenario_schedules.py,,,,,43e3ef4ef742ecbb432695da978c7285cd5827f51b05f0289196ec8bc851ac94
+schedules/scenarios/S2a.zip,processed,9444492,8,cities/newcastle/build/build_scenario_schedules.py,,,,,0f6d2c9098b83188b9647fd8783902b40674463418ad88d6bc4b4bf195d0dd56
+schedules/scenarios/S2b.zip,processed,9444204,8,cities/newcastle/build/build_scenario_schedules.py,,,,,1e06f2376ac51b0aef3dae7b29d8c3d6a8b7ac4f62baa13da9c000205e581801
+schedules/scenarios/S2c.zip,processed,9442536,8,cities/newcastle/build/build_scenario_schedules.py,,,,,2b6eca265f028367c385c6c41508e2ec529a09ba44615571146efb6d8aca36ee
+schedules/scenarios/S3.zip,processed,9441425,8,cities/newcastle/build/build_scenario_schedules.py,,,,,dd00d10e1ca52770712834ad08800151465cfc8eaa19779d5a98b1783b63901d
+schedules/scenarios/S4.zip,processed,9456689,8,cities/newcastle/build/build_scenario_schedules.py,,,,,9e56f21e6cd1c9a5139768f31b67b3c4814fa94ab34baebd744d3235e2bba906
+schedules/scenarios/S5.zip,processed,9470864,8,cities/newcastle/build/build_scenario_schedules.py,,,,,b9eb892561dad2693998982714934f68511c9860b58097fbb9409e1fa2b2df9c
+schedules/scenarios/S6.zip,processed,9411374,8,cities/newcastle/build/build_scenario_schedules.py,,,,,8fa2d6af8fa1a5228985c1b799337e6b5f3702005751103a9ce01d5704f7b1b6
+schedules/scenarios/_scenario_schedule_report.json,processed,3399,,cities/newcastle/build/build_scenario_schedules.py,,,,,eebfe1b532aa6a5b4d272abab1d5091611116362a96d9c0e67c3c69cfcd8b81d
+demand/plans/B2_activity_trips_SAT.csv,processed,249790598,1875074,src/build/build_activity_chains.py,,,,,14a0bc6f72542a6e09de18ccb441a7405fd0cd0d0df14abe9185572082619aae
+demand/plans/B2_activity_trips_SUN.csv,processed,210676487,1582289,src/build/build_activity_chains.py,,,,,51e03b71db01210880788380611cd35a621dc7c0fb05c31c316109c203ec1df9
+demand/plans/B2_activity_trips_WEEKDAY.csv,processed,310095082,2267818,src/build/build_activity_chains.py,,,,,d41f04c5c6ebe5b5a84a283ff27c3b7996435510b47c6427ed35cf6ebf6bcba7
+demand/plans/_activity_chains_report.json,processed,13748,,src/build/build_activity_chains.py,,,,,23ff25392a2ff7ec7f0ac3e977df4b01d084580afa342f86dd5a1ac98cd59318
+demand/plans/matsim/_plans_report.json,processed,3723,,src/build/build_matsim_plans.py,,,,,bdc423ae3e7761c9f243a6e1443a6b832fc02e7a816df90fa098f1eeaa190b77
+demand/plans/matsim/population_SAT.xml.gz,processed,32991814,,src/build/build_matsim_plans.py,,,,,36113f90abf907eef660795a0a5ec0b35f33d5af42837217a3529d779f391128
+demand/plans/matsim/population_SUN.xml.gz,processed,28644847,,src/build/build_matsim_plans.py,,,,,a5afcae57a67563dfeb88218ca9cc73ed5d178532bd7f4c44e063c3dd97bb5a8
+demand/plans/matsim/population_WEEKDAY.xml.gz,processed,39686606,,src/build/build_matsim_plans.py,,,,,45d68eb5e4fba0596fd91ea63612824f057f7bafbcd844570eef44d89cca96ad
+demand/population/B1_households.csv,processed,20626173,245738,src/build/build_population.py,,,,,f1913e6359ed76461ff471aa7c8904129942e53350e5f3f8fcec96e668e4c934
+demand/population/B1_synthetic_population.csv,processed,65145139,612668,src/build/build_population.py,,,,,5d877d40c51e5677a747da7b5303a010f4f5f60224d8bb537c21664c504eca5b
+demand/population/_population_report.json,processed,262,,src/build/build_population.py,,,,,bc234a9cc33a850ab194ef0aec09274f5bbc851ff32e45be7835640dcd5037d9
+params/C1_behavioural_parameters.csv,processed,16536,30,src/build/build_params.py,,,,,480edf46705b7380d63053bca39bc22558e730eba023cc83f71941a30b3d0d2a
+params/C1_parameters.json,processed,3905,,src/build/build_params.py,,,,,32d3219a2978b4ac0b273f388ec9aa81621fac42b5fa36e5e0267552832726da
+params/C1_sensitivity_sweep_grid.csv,processed,573,28,src/build/build_params.py,,,,,61075e0ad62ad5a7e2202dfee962a581aff226758e1bc1f7d38263242fc05212
+params/C2_network_factors.json,processed,2978,,src/build/build_params.py,,,,,533bdfdf54e8e74ea05fde6f02f9e719a9c17485c5bdb1a05e1f1b7b027400dd
+params/C2_osm_defaults.json,processed,8777,,src/build/build_params.py,,,,,a27fe43a693cc4e3f10f333e9f53a3bf8816604bbfea7fab5348b54ebde84abd
+params/C3_count_comparison.json,processed,1523,,src/build/build_params.py,,,,,4ebc5a451b9babcfcb60865be4e03cc39760c7f15cf17ec414c116a1c4efc5d3
+params/C4_mode_constraints.json,processed,5914,,src/build/build_params.py,,,,,c262dfd72c27bf682b02c63117be04222863bdaec3d05810b303fddbf0e8afc0
+scenarios/E1_parking_variants.csv,processed,209,2,cities/newcastle/build/build_scenario_configs.py,,,,,141f11e14f90a3d4fdad12a84b094b3d44f8f74725eb066934f494d105101e7b
+scenarios/E1_road_variants.csv,processed,565,4,cities/newcastle/build/build_scenario_configs.py,,,,,f699e93969423e97b54903469105ce617741b84881bb0f4afc20064c5e1a48e9
+scenarios/E1_scenarios.csv,processed,7334,10,cities/newcastle/build/build_scenario_configs.py,,,,,6814a84f5bb16c4be7bee62453516a586c190fd8554abcaae1d48f3eaa84f024
+scenarios/S0.json,processed,1473,,cities/newcastle/build/build_scenario_configs.py,,,,,318445b5d60259654b591cdd25da353429e5d92988c05643bacae6a770ddf612
+scenarios/S1.json,processed,1337,,cities/newcastle/build/build_scenario_configs.py,,,,,59b19052ec56659c6158fd6e20ec1a6a2ccaaeefda30675030d891201ce19194
+scenarios/S2.json,processed,1338,,cities/newcastle/build/build_scenario_configs.py,,,,,c7bad8c994142851eec0873e562a65e44a435800ddfdc54619699d77f90b0534
+scenarios/S2a.json,processed,1339,,cities/newcastle/build/build_scenario_configs.py,,,,,51866f00da1a8f4132cd1ccce5ec75fcffd2610cf2d7b5d8ab3f53e50f9f327d
+scenarios/S2b.json,processed,1383,,cities/newcastle/build/build_scenario_configs.py,,,,,10e44025a7be9bb571532c8afb3e406d7133f5a0064c4e887aa87c1e802a628f
+scenarios/S2c.json,processed,1441,,cities/newcastle/build/build_scenario_configs.py,,,,,5d5697db5c7a7213878286a2ef25b830984bd62f8660f3b4493f36ac932435c9
+scenarios/S3.json,processed,1340,,cities/newcastle/build/build_scenario_configs.py,,,,,2f3ca90c231d757e524ac66c78a181a89add8b4af701419b515e2cb39bf7fadc
+scenarios/S4.json,processed,1351,,cities/newcastle/build/build_scenario_configs.py,,,,,1743c796dbcb51cab005910b11c58543fa6f360a9bf2f8426cbfb47bf4aea4fe
+scenarios/S5.json,processed,1343,,cities/newcastle/build/build_scenario_configs.py,,,,,a9ace48e84b7da4dba47d7139208335b10c330f22c5fa97007ca670228cff012
+scenarios/S6.json,processed,1293,,cities/newcastle/build/build_scenario_configs.py,,,,,757ec3bb7a9e434d791b3ea3dcbbb7b8cdbd3a5483f182916b0c0324e714b4a4
+scenarios/matsim/_run_inputs_report.json,processed,35277,,src/build/build_matsim_run_inputs.py,,,,,00dd5ede0a1eca4ff3367455039c8588ace5205a5b24b6630623ed2a532de3e8
+scenarios/matsim/S0/network.xml.gz,processed,6430052,,src/build/build_matsim_run_inputs.py,,,,,309511acfa6e1f17cfba7389e789b381a338b3237739fd264307090b344ba0c0
+scenarios/matsim/S0/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S0/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S0/SAT/transitSchedule.xml.gz,processed,607608,,src/build/build_matsim_run_inputs.py,,,,,c94008d56fa46709bfafd82f3659570609e471be30923a60a0322eea36ac2aad
+scenarios/matsim/S0/SAT/transitVehicles.xml.gz,processed,3579,,src/build/build_matsim_run_inputs.py,,,,,cc0b88899e9265f228b05fbd70ca87c6167c6525dcd3cab0ae67af39ea72e52c
+scenarios/matsim/S0/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S0/SUN/transitSchedule.xml.gz,processed,478980,,src/build/build_matsim_run_inputs.py,,,,,e6b3b3e505fd9c20fd2b8c1eb93517581a5f3d7d5b19b989c6236947da2d39e1
+scenarios/matsim/S0/SUN/transitVehicles.xml.gz,processed,3233,,src/build/build_matsim_run_inputs.py,,,,,52470e567e53114b371bc722f0366cab43aa8d0f7c6cb63cf3575ff40ac2ffaf
+scenarios/matsim/S0/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S0/WEEKDAY/transitSchedule.xml.gz,processed,1433918,,src/build/build_matsim_run_inputs.py,,,,,9be1740ede5e880992679014fd7484cf009e7fa74b12a32d7eda44ee1fdbf5e3
+scenarios/matsim/S0/WEEKDAY/transitVehicles.xml.gz,processed,6202,,src/build/build_matsim_run_inputs.py,,,,,0f65372251e839fb937c6ec09dcc60af06297468c842d78055d1c5b83d84ba1b
+scenarios/matsim/S1/network.xml.gz,processed,6429774,,src/build/build_matsim_run_inputs.py,,,,,c82eec20581007edf7167856c50a693c8142cf05fa0c54ef33816a4f3ed194ea
+scenarios/matsim/S1/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S1/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S1/SAT/transitSchedule.xml.gz,processed,594356,,src/build/build_matsim_run_inputs.py,,,,,c994768806476f43e1ef1dde35f5ed4483be42e402c17754ec00c753aaa63685
+scenarios/matsim/S1/SAT/transitVehicles.xml.gz,processed,3993,,src/build/build_matsim_run_inputs.py,,,,,af1539bf64386200869c601f207516cbe91327b88379e9f1795efcd31e238a95
+scenarios/matsim/S1/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S1/SUN/transitSchedule.xml.gz,processed,498616,,src/build/build_matsim_run_inputs.py,,,,,ed500bb28a2510e2c1d514b0a5ff0a86d6a97420b7450d7d22cd2f9a736448c8
+scenarios/matsim/S1/SUN/transitVehicles.xml.gz,processed,3625,,src/build/build_matsim_run_inputs.py,,,,,9cb0694f722ac9b5a5c731bfadf88f00ede92c85f8317a7c6df279045ff916e6
+scenarios/matsim/S1/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S1/WEEKDAY/transitSchedule.xml.gz,processed,1433413,,src/build/build_matsim_run_inputs.py,,,,,fd7e5f306a852e66e1763d496ef86dffd4f7ffc831d831ee792f765098a35aff
+scenarios/matsim/S1/WEEKDAY/transitVehicles.xml.gz,processed,6855,,src/build/build_matsim_run_inputs.py,,,,,b73b66c4811aaec53b61bac6fbc21778623cf8f24b95e0b962112a96ffc76a2b
+scenarios/matsim/S2/network.xml.gz,processed,6432118,,src/build/build_matsim_run_inputs.py,,,,,d3b73a7ec5be84ef916b55c1cf8668d686aefdac6f75ffc74edc8208378ca77a
+scenarios/matsim/S2/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S2/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S2/SAT/transitSchedule.xml.gz,processed,591278,,src/build/build_matsim_run_inputs.py,,,,,d31a03b455ad0f43227417e276f8cc643c9608c0d8df4ab1a9e25f301f428c81
+scenarios/matsim/S2/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
+scenarios/matsim/S2/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S2/SUN/transitSchedule.xml.gz,processed,483932,,src/build/build_matsim_run_inputs.py,,,,,d486ad847f45e0dbb92f2b1bdbd152ae6881ee22f3445b5c4042d443aae2f093
+scenarios/matsim/S2/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
+scenarios/matsim/S2/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S2/WEEKDAY/transitSchedule.xml.gz,processed,1458012,,src/build/build_matsim_run_inputs.py,,,,,7f25a9ee565632ecab45c702e41d63cecd8fd2327fe89dedca74a5ce5ea70513
+scenarios/matsim/S2/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
+scenarios/matsim/S2a/network.xml.gz,processed,6432118,,src/build/build_matsim_run_inputs.py,,,,,d3b73a7ec5be84ef916b55c1cf8668d686aefdac6f75ffc74edc8208378ca77a
+scenarios/matsim/S2a/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S2a/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S2a/SAT/transitSchedule.xml.gz,processed,600123,,src/build/build_matsim_run_inputs.py,,,,,8d14ca3468f2eeef137e119549e9ba3487276d97cf532789d818c552e4fad474
+scenarios/matsim/S2a/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
+scenarios/matsim/S2a/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S2a/SUN/transitSchedule.xml.gz,processed,493845,,src/build/build_matsim_run_inputs.py,,,,,f15c518e9e581417624d349312468ec893f483be2be3fb6a91c01f221d478251
+scenarios/matsim/S2a/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
+scenarios/matsim/S2a/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S2a/WEEKDAY/transitSchedule.xml.gz,processed,1445513,,src/build/build_matsim_run_inputs.py,,,,,6fcde6ae98823c7f036118d9e0f2033c9a942991edff2a344aac919767cf47e7
+scenarios/matsim/S2a/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
+scenarios/matsim/S2b/network.xml.gz,processed,6432089,,src/build/build_matsim_run_inputs.py,,,,,5e93318415c6d02f67e767ac512c9be78f295e3550aef6d13902374be2b0098f
+scenarios/matsim/S2b/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S2b/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S2b/SAT/transitSchedule.xml.gz,processed,600740,,src/build/build_matsim_run_inputs.py,,,,,af61c9949cdbf9279b7f2a0dbd37eb208cfbecfd25411a2f22822f27c043fbf2
+scenarios/matsim/S2b/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
+scenarios/matsim/S2b/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S2b/SUN/transitSchedule.xml.gz,processed,485494,,src/build/build_matsim_run_inputs.py,,,,,7b8d1edbef12ff39c893973769125f3525a25f31a38078a5e2601a227b101ed6
+scenarios/matsim/S2b/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
+scenarios/matsim/S2b/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S2b/WEEKDAY/transitSchedule.xml.gz,processed,1454339,,src/build/build_matsim_run_inputs.py,,,,,e68fb46b8eabac85e8a36fe4f2fa082ec2cd564975c284f26204c48ec6e35411
+scenarios/matsim/S2b/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
+scenarios/matsim/S2c/network.xml.gz,processed,6432069,,src/build/build_matsim_run_inputs.py,,,,,0392f01bbcbda86855f70bb94b5b57767cbaaf0f3f93d7686468cdb03c78d550
+scenarios/matsim/S2c/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S2c/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S2c/SAT/transitSchedule.xml.gz,processed,598139,,src/build/build_matsim_run_inputs.py,,,,,e9b8d7ff9e0af1e56f1d82c45abd992c4833a56d7ede4ae1f32fbf5c27f17d1c
+scenarios/matsim/S2c/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
+scenarios/matsim/S2c/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S2c/SUN/transitSchedule.xml.gz,processed,498208,,src/build/build_matsim_run_inputs.py,,,,,8eab2c44371ce4507a74135a6874ec1ac4e7d37a2dd5f7b0ddca4ee1f7214ef0
+scenarios/matsim/S2c/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
+scenarios/matsim/S2c/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S2c/WEEKDAY/transitSchedule.xml.gz,processed,1449289,,src/build/build_matsim_run_inputs.py,,,,,b55e2b28ab2d7f762e0938c1511d84e7dffef13510603e407d5d8d71083b93e5
+scenarios/matsim/S2c/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
+scenarios/matsim/S3/network.xml.gz,processed,6429842,,src/build/build_matsim_run_inputs.py,,,,,c93c3aeaebd9dbf43f48779e128d1f6ab0297058a0d05e13b48ca5046466ffeb
+scenarios/matsim/S3/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S3/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S3/SAT/transitSchedule.xml.gz,processed,623627,,src/build/build_matsim_run_inputs.py,,,,,39e9a5acbea9c3434d8e16e08bd67b844b375ee3f968e4139f9522f919d68e51
+scenarios/matsim/S3/SAT/transitVehicles.xml.gz,processed,4144,,src/build/build_matsim_run_inputs.py,,,,,ba24a42f8c600a0a87c3e6b62bdd713a7c6d9493c10d56f8de7df5a5f8af365a
+scenarios/matsim/S3/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S3/SUN/transitSchedule.xml.gz,processed,485896,,src/build/build_matsim_run_inputs.py,,,,,9c0dc619c2633b5883db60c36cfe5c9bfa47dc9729e80522f723b7b11f74c390
+scenarios/matsim/S3/SUN/transitVehicles.xml.gz,processed,3769,,src/build/build_matsim_run_inputs.py,,,,,8b123d7dbd6da8c97042c33e7fac4c534fbf62843f8e732907861d0b5d2aa635
+scenarios/matsim/S3/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S3/WEEKDAY/transitSchedule.xml.gz,processed,1458389,,src/build/build_matsim_run_inputs.py,,,,,7555a39b0dc57fa79daa8c04470e3f8294a1156c232f6f2b441b6659b7d17198
+scenarios/matsim/S3/WEEKDAY/transitVehicles.xml.gz,processed,7124,,src/build/build_matsim_run_inputs.py,,,,,fdb16a1ad8b5d72c7435f3dcb439c50eba9579bd2e962a82234343b5cb9820ee
+scenarios/matsim/S4/network.xml.gz,processed,6434560,,src/build/build_matsim_run_inputs.py,,,,,c6f8c50834655d5ee0d6b37b087fe42059cdbd42223edb4b8f64cad034c14cb1
+scenarios/matsim/S4/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S4/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S4/SAT/transitSchedule.xml.gz,processed,609602,,src/build/build_matsim_run_inputs.py,,,,,15c9cfe0ac91a11d242395bca660300dd216a333bcd493970b5c3cec85a3fab0
+scenarios/matsim/S4/SAT/transitVehicles.xml.gz,processed,4097,,src/build/build_matsim_run_inputs.py,,,,,12044e4017e66151ad9664aa22cdd2a7741097bdbbd17e968840b861cf6419d7
+scenarios/matsim/S4/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S4/SUN/transitSchedule.xml.gz,processed,495740,,src/build/build_matsim_run_inputs.py,,,,,ac9a37b8c1a02bfea1501e32a622194f02016187a77cbc83c978794d99753d60
+scenarios/matsim/S4/SUN/transitVehicles.xml.gz,processed,3745,,src/build/build_matsim_run_inputs.py,,,,,9e753f9f71625bb128f24d146f2c7b2d7776735b9124fb2de5272288cbffa0cb
+scenarios/matsim/S4/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S4/WEEKDAY/transitSchedule.xml.gz,processed,1448429,,src/build/build_matsim_run_inputs.py,,,,,c030331faae171352387f4c8a32e8cbd5525c59f5aca916ab22b10ccc000a519
+scenarios/matsim/S4/WEEKDAY/transitVehicles.xml.gz,processed,7050,,src/build/build_matsim_run_inputs.py,,,,,04a6365b74247d796ef23743ee00988ca92a8f2e0382e3806920b1132a81e0fd
+scenarios/matsim/S5/network.xml.gz,processed,6436262,,src/build/build_matsim_run_inputs.py,,,,,b0f81760e76f21b9cebb6a0fb9d36bca114d2aa91954687458543aea438181a0
+scenarios/matsim/S5/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S5/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S5/SAT/transitSchedule.xml.gz,processed,615092,,src/build/build_matsim_run_inputs.py,,,,,fbe6e0c5aab6a81afb6da17ae7a305a15f4929e5e08f0ddaf2efa29bc29f47cf
+scenarios/matsim/S5/SAT/transitVehicles.xml.gz,processed,4097,,src/build/build_matsim_run_inputs.py,,,,,12044e4017e66151ad9664aa22cdd2a7741097bdbbd17e968840b861cf6419d7
+scenarios/matsim/S5/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S5/SUN/transitSchedule.xml.gz,processed,489939,,src/build/build_matsim_run_inputs.py,,,,,bac9c8cdac72f07e0b9536b5501378ecccf85af0f91c18c4357a0f583e5a6a11
+scenarios/matsim/S5/SUN/transitVehicles.xml.gz,processed,3745,,src/build/build_matsim_run_inputs.py,,,,,9e753f9f71625bb128f24d146f2c7b2d7776735b9124fb2de5272288cbffa0cb
+scenarios/matsim/S5/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S5/WEEKDAY/transitSchedule.xml.gz,processed,1427206,,src/build/build_matsim_run_inputs.py,,,,,6caf57cc292dd236b3fb32eeae625b93934ac8c4865c6eb4b5ca43e1bb1191dd
+scenarios/matsim/S5/WEEKDAY/transitVehicles.xml.gz,processed,7050,,src/build/build_matsim_run_inputs.py,,,,,04a6365b74247d796ef23743ee00988ca92a8f2e0382e3806920b1132a81e0fd
+scenarios/matsim/S6/network.xml.gz,processed,6429846,,src/build/build_matsim_run_inputs.py,,,,,c05a5f46e59f565fd6cfcca28e962d9e8384a8057dc6e7464c13fc386877951f
+scenarios/matsim/S6/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
+scenarios/matsim/S6/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
+scenarios/matsim/S6/SAT/transitSchedule.xml.gz,processed,605147,,src/build/build_matsim_run_inputs.py,,,,,cb35f34049aa055902b7373cbecb61f2b8494a88c3c6e7e419b13116cf79a5d7
+scenarios/matsim/S6/SAT/transitVehicles.xml.gz,processed,3522,,src/build/build_matsim_run_inputs.py,,,,,2a819a17efa902533fafd39744a75e54032fda135afa1aefc602edb7e94e9b44
+scenarios/matsim/S6/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
+scenarios/matsim/S6/SUN/transitSchedule.xml.gz,processed,491312,,src/build/build_matsim_run_inputs.py,,,,,d827dd7e0488318d36a777b30cd634bf65db73c4b54fcf4e338ea074f38adcc1
+scenarios/matsim/S6/SUN/transitVehicles.xml.gz,processed,3180,,src/build/build_matsim_run_inputs.py,,,,,c502789baa6e25ddefc58c63bdb3dbcb8a29a05ee63adaa5ce61d580138bfb05
+scenarios/matsim/S6/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
+scenarios/matsim/S6/WEEKDAY/transitSchedule.xml.gz,processed,1441954,,src/build/build_matsim_run_inputs.py,,,,,b711b193e23fdf7dbe677184ca05852c82920917b215abf23223b264868dbe6c
+scenarios/matsim/S6/WEEKDAY/transitVehicles.xml.gz,processed,6148,,src/build/build_matsim_run_inputs.py,,,,,82f344e436c88ccd2d347a61a0694923545432637db1db94ae776da7ccbb792d
+networks/osm/boundaries.osm,raw,9944320,,cities/newcastle/extract/overpass.py,,,,,4fc8d940416c5c684c369ac9affbc35da48f3e44b3c75fa23136cc4bf6a6f7f5
+networks/osm/buildings_cbd.osm,raw,9009917,,cities/newcastle/extract/overpass.py,,,,,ca2a79c0c10ba04c29a108faa02be68b14a292a9b8296e3ba8859135ca35487d
+networks/osm/footways.osm,raw,36098295,,cities/newcastle/extract/overpass.py,,,,,96b2f1f13864baf863c62b629cf015852f42c31e28e8afe0c2e2045820bbd71c
+networks/osm/green.osm,raw,16396551,,cities/newcastle/extract/overpass.py,,,,,ce6fb5c4436af3a520c39f35c18fc9c7371d395b3dd0d9c1c0e2b723b9a15f4a
+networks/osm/parking.osm,raw,5592281,,cities/newcastle/extract/overpass.py,,,,,8e1cc72557d139e5efc5ca0583d197b61299b51ada481f2fc8257fb55ebe4f82
+networks/osm/poi.osm,raw,54268545,,cities/newcastle/extract/overpass.py,,,,,14be96dd2fe55fe2fc5ed070feda6b8367026be5004e04bc665d7bc88220569a
+networks/osm/railways.osm,raw,20653113,,cities/newcastle/extract/overpass.py,,,,,04c0fbfd2629b40960a768fa661fdc1bfee4ee03a15dcd561b6ddaab3e9c9fbb
+networks/osm/roads.osm,raw,42011840,,cities/newcastle/extract/overpass.py,,,,,2a5f4309472e3198065bd4f012e5354c5fe0cfc94aac10dac5a73ae55c095362
+networks/osm/signals.osm,raw,3250042,,cities/newcastle/extract/overpass.py,,,,,499ace3fe648b553527d3a2db1586936c625d6cce4b97c479248d3b42a7def0b
+networks/osm/water.osm,raw,12324895,,cities/newcastle/extract/overpass.py,,,,,c7dbfeb3f92749ca4eeaabd940419f7ec72d8badd2232d8499fa3620ae09ed92
+networks/matsim/_matsim_build_report.json,processed,14378,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,9f2543275d66597b5abfcc76ff6bb9b9b24bc5c0964d4e0f71e31447361f7af4
+networks/matsim/base/network.xml.gz,processed,6694664,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,a1f0f8ad964fa280b01d33f9e287514a8eb0e20d62eb45b6d2d76be970f02360
+networks/matsim/schedules/base2026/network.xml.gz,processed,6464071,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0cc3e56fbe80c637980b2b402f0761fdddc2687123f214357a7d9610848321eb
+networks/matsim/schedules/base2026/transitSchedule.xml.gz,processed,1971464,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,ac0ba3b2ac28a75ea944617ea12b7c87181995c59074ad2e2ee6771774ca0beb
+networks/matsim/schedules/base2026/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
+networks/matsim/schedules/era1_pre2014_reconstructed/network.xml.gz,processed,6467873,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c78befc29a22a6ff4569581ef39e8f934649ebb4f1ff4858d64db0fa53b201e7
+networks/matsim/schedules/era1_pre2014_reconstructed/transitSchedule.xml.gz,processed,1893754,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,63caa78b87f47226e6b5eb376d4576ab701e2b1f278d346096ae2c4e85cc2371
+networks/matsim/schedules/era1_pre2014_reconstructed/transitVehicles.xml.gz,processed,14899,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,869ab36d5e8ff384b803cd45f810cf6574daea69553c718c96a787693f4f39a9
+networks/matsim/schedules/era2_2016_rail_truncated/network.xml.gz,processed,6467639,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,17616582c1917257593d3485cbe20be38c1d79d984b85a7b1ae6518183588b09
+networks/matsim/schedules/era2_2016_rail_truncated/transitSchedule.xml.gz,processed,1916360,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,5dd3c7521a6f5e4489c2db498b5cf58c8d2e0b6f02375893070efe02f6901242
+networks/matsim/schedules/era2_2016_rail_truncated/transitVehicles.xml.gz,processed,14899,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,869ab36d5e8ff384b803cd45f810cf6574daea69553c718c96a787693f4f39a9
+networks/matsim/schedules/era3_2018_keolis_interchange/network.xml.gz,processed,6466457,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,078aa769c168dc54be3e31409641b4e0936159803748c5f04a3ec4e76f465213
+networks/matsim/schedules/era3_2018_keolis_interchange/transitSchedule.xml.gz,processed,2183756,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,96d600ee4fd8ead717666a1c53dbc8a092e877255fd08d745d08901997241a97
+networks/matsim/schedules/era3_2018_keolis_interchange/transitVehicles.xml.gz,processed,11055,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,1ad2fa14e6b9aeae3df522df3b0f7305e57f461ac4da978dd55eec1118633288
+networks/matsim/schedules/era4_2019_lr_open/network.xml.gz,processed,6470560,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,4067c86ec0d70be699d6767cb957a539dbf06087735677cee635d76a366b6ea5
+networks/matsim/schedules/era4_2019_lr_open/transitSchedule.xml.gz,processed,2115121,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e4b1ea89d8c158e9d1d935c692a4c9a459d7db92151a4154b4af462e8cd1ba57
+networks/matsim/schedules/era4_2019_lr_open/transitVehicles.xml.gz,processed,11808,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b41c70cc20e04ca547f78eb192d5ac2750e3ae16fac460c1b4ea5aa4b41f0c83
+networks/matsim/schedules/S0/network.xml.gz,processed,6462158,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,beca1fa5c0d6d5ec413f6315eec2200bc0ff6963a312dc436122b022b31fc0db
+networks/matsim/schedules/S0/transitSchedule.xml.gz,processed,1964120,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c7954986ea126d95aeefbb0ea6c7b343d0dfca65ebe3f1097e1309ca4f2c2b74
+networks/matsim/schedules/S0/transitVehicles.xml.gz,processed,10728,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,d6946293bbabf0107839d8e58d7ea6dda9cbb3ff63e634eb46a0a3a9dd72830c
+networks/matsim/schedules/S1/network.xml.gz,processed,6461899,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,3a843a2f458e62f95b33b0fda6d214722e3b698d9a73325b9ce259980738152d
+networks/matsim/schedules/S1/transitSchedule.xml.gz,processed,1961140,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,3e49d3d84a88b6ab01fddef1a145b1a13c5d23b46db73340bb73f062c6167bc6
+networks/matsim/schedules/S1/transitVehicles.xml.gz,processed,11998,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b5725a47ca416a9b1b10cad0f709fa683bbb20978566fa526317a520027f979e
+networks/matsim/schedules/S2/network.xml.gz,processed,6464071,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0cc3e56fbe80c637980b2b402f0761fdddc2687123f214357a7d9610848321eb
+networks/matsim/schedules/S2/transitSchedule.xml.gz,processed,1976560,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b31e17bef5f70add948ab275783eaf003514e3274f3fa52258f4f63ad8727838
+networks/matsim/schedules/S2/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
+networks/matsim/schedules/S2a/network.xml.gz,processed,6464071,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0cc3e56fbe80c637980b2b402f0761fdddc2687123f214357a7d9610848321eb
+networks/matsim/schedules/S2a/transitSchedule.xml.gz,processed,1976974,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c9222c73bbc47111669bdc08c62b4d8c10114219d51321be1f228c2cf9b03a81
+networks/matsim/schedules/S2a/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
+networks/matsim/schedules/S2b/network.xml.gz,processed,6464006,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,33e11af60ba03e1a7cf8e022fa5832c15aaebff65325182f894eee7ef5e49071
+networks/matsim/schedules/S2b/transitSchedule.xml.gz,processed,1997559,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,9a155d64463aa31bb30774e4633bd5a4557bb76b269ef1a2cd4d06543b3773fb
+networks/matsim/schedules/S2b/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
+networks/matsim/schedules/S2c/network.xml.gz,processed,6463971,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,620c6262fbdfbcadf8f896fd3a4203bc5c8d07090f2068e30a53f4912e5c5198
+networks/matsim/schedules/S2c/transitSchedule.xml.gz,processed,1988363,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,7c066d4d50fb5d6c29c4c6547c9dda665d6f0cc4a8babab60cfa41c10c4725bb
+networks/matsim/schedules/S2c/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
+networks/matsim/schedules/S3/network.xml.gz,processed,6462000,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,9bc8deb959ef6bd31ed641219b975458ee7ec4c822a0dc6fef81d0823a1a1949
+networks/matsim/schedules/S3/transitSchedule.xml.gz,processed,2012247,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,80f1eb9dcf70b5ec1dd2a621dcad89d545f8ef22a117087387fb0e2eeb6dde3b
+networks/matsim/schedules/S3/transitVehicles.xml.gz,processed,12492,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,fa1a1c0ddd19efc98797d281acc1521481108251e9a78ea57c6ec9fa33c17828
+networks/matsim/schedules/S4/network.xml.gz,processed,6464338,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,5cdb71bdf738f42a53543a582bdbd9cb65f23b092465a055b12d813039b14b52
+networks/matsim/schedules/S4/transitSchedule.xml.gz,processed,1975946,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e71b4f648fc1f730a59fd4f615e1345b46f165413e9de8e869f4171b2771ea98
+networks/matsim/schedules/S4/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
+networks/matsim/schedules/S5/network.xml.gz,processed,6464634,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,f24073455cf041b2b9f6b5f3a91491b4bd1b97dd1921df43bdf833ea56303045
+networks/matsim/schedules/S5/transitSchedule.xml.gz,processed,1954710,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,304395ac4b94558b60a02af0a6b2c44d12a3434a02dfcb17aed62057df64c8bc
+networks/matsim/schedules/S5/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
+networks/matsim/schedules/S6/network.xml.gz,processed,6461963,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,702437ba162543669b792b02235ee173aea822c62576651cf762fb823ac2cbb2
+networks/matsim/schedules/S6/transitSchedule.xml.gz,processed,1976614,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e081957b94389b45df3a4ccc01a171fb8bb99cc9ae701739683aef86631d39af
+networks/matsim/schedules/S6/transitVehicles.xml.gz,processed,10596,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,4f786707baa4b8e592747f5fe3d142ddecda8675ab64ee250630136b7f8df5a3
+networks/matsim/variants/net_base2026/network.xml.gz,processed,6634028,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,22e58a2808c3327ee4059040c40ed5a81dcf99ebadbbdb647493000204982bf7
+networks/matsim/variants/net_base2026_broadmeadow_extension/network.xml.gz,processed,6636008,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,54edbf16ae293b3ad07f260be987a6099452ad9346fa433e13d535f84610ac00
+networks/matsim/variants/net_base2026_hunter_st_full_capacity/network.xml.gz,processed,6634020,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c8fe5ca6b8b71ed556cb0cd5948458845e24efe3b4398f3ff8fb2ab8b47e6bf1
+networks/matsim/variants/net_base2026_jhh_extension/network.xml.gz,processed,6637186,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e91bc401b66733892c5604fca55f699fa00f21c41afc82f0cdc34e23846c36cc
+networks/sumo/_sumo_build_report.json,processed,23585,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,09a77d0cf6f60f6fe881497759a0e187213d5f1862d76383fd01dbc529d45eb7
+networks/sumo/net_base2026/corridor.net.xml,processed,30304965,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,05c69dbd434f9c45bfe5bd3796356d725714645d3762811ff740a9fba2214245
+networks/sumo/net_base2026/tls_S2_base.add.xml,processed,13118,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,cb838bac94568c763e09996d549402eac19b74928ee9296fa80e24c02f2dd6c4
+networks/sumo/net_base2026/tls_S2b_full_tsp.add.xml,processed,13202,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,850aaae68503a919aa5399408c377825f2d5b7801aee0088fd82d32ab7e3e370
+networks/sumo/net_base2026/tls_S3_brt_priority.add.xml,processed,13244,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,9064ec4d4cba1bd45f381f3e721817995b6f71d4ea6658a752c064b4a4d07042
+networks/sumo/net_base2026_broadmeadow_extension/corridor.net.xml,processed,30119645,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,b2c44d0da093b0bf91f15b1d00d486c4437ed9ccd793720d0033465266a81737
+networks/sumo/net_base2026_broadmeadow_extension/tls_S2_base.add.xml,processed,12707,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,8260bd12a62ce03206e75e53f2f3960a4bdd0afb59d698548785af29fe166b3d
+networks/sumo/net_base2026_hunter_st_full_capacity/corridor.net.xml,processed,30257703,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,40d776d7eea40cc997162b5d37cca78693db432c68df0a8ea89fa1e8fcbb21dc
+networks/sumo/net_base2026_hunter_st_full_capacity/tls_S0_no_tram.add.xml,processed,12963,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,37012c75e97a8b30607161070d3765222067d699db67c5e35f28cc457f5d87df
+networks/sumo/net_base2026_hunter_st_full_capacity/tls_S2c_reserved_alignment.add.xml,processed,13144,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,f3f645dd6f8f518636d0e996beb879d335c48cd5deaa7c672c3f979da127aed4
+networks/sumo/net_base2026_jhh_extension/corridor.net.xml,processed,30013923,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,db69d83d799db801485d46d75a37acfefe9fa05506e4af8e5d20d4e58e923c3a
+networks/sumo/net_base2026_jhh_extension/tls_S2_base.add.xml,processed,12707,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,8260bd12a62ce03206e75e53f2f3960a4bdd0afb59d698548785af29fe166b3d

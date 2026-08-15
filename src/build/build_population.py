@@ -16,6 +16,14 @@ file per day type. See DECISIONS.md 9.
 Everything is seeded. Re-running with the same seed reproduces the population
 exactly; the seed is recorded in the scenario configuration (schema E1).
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -24,49 +32,30 @@ import argparse
 import numpy as np
 import pandas as pd
 
-CEN = 'data/processed/census'
-ZON = 'data/processed/zones'
-LU = 'data/processed/landuse'
-HTS = 'data/processed/hts'
-OUT = 'demand'
+# Model inputs come from cities/<city>/registry/, not from literals here. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
+CEN = _city.path('data/processed/census')
+LU = _city.path('data/processed/landuse')
+OUT = _city.path('demand')
 os.makedirs(os.path.join(OUT, 'population'), exist_ok=True)
 os.makedirs(os.path.join(OUT, 'plans'), exist_ok=True)
 
-AGE_BANDS = [(0, 4), (5, 11), (12, 17), (18, 24), (25, 34), (35, 44),
-             (45, 54), (55, 64), (65, 74), (75, 84), (85, 120)]
+AGE_BANDS = CFG.get('B.population.age_bands')
 BAND_LABEL = ['0-4', '5-11', '12-17', '18-24', '25-34', '35-44',
               '45-54', '55-64', '65-74', '75-84', '85+']
 # NSW driver-licence holding rate by age band (assumed; ABS/TfNSW-typical)
-LICENCE_RATE = [0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]
+LICENCE_RATE = CFG.get('B.population.licence_rate_by_age_band')
 OCCUPATIONS = ['Managers', 'Professionals', 'TechnicTrades_Wrs', 'CommunPersnlSvc_W',
                'ClericalAdminis_W', 'Sales_W', 'Mach_oper_drivers', 'Labourers']
 INCOME_BANDS = ['Neg_Nil', '1_149', '150_299', '300_399', '400_499', '500_649',
                 '650_799', '800_999', '1000_1249', '1250_1499', '1500_1749',
                 '1750_1999', '2000_2999', '3000_more']
-
-PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'NHB']
-HTS_PURPOSE_MAP = {
-    'Commute': 'HW', 'Education/childcare': 'HE', 'Shopping': 'HS',
-    'Personal business': 'HO', 'Social/recreation': 'HO', 'Serve passenger': 'NHB',
-    'Work related business': 'WB', 'Other': 'HO',
-}
-# departure-time profiles: probability by hour 0..23. Assumed, NSW-typical shapes.
-DEPART = {
-    'HW':  [.002, .001, .001, .002, .010, .045, .110, .190, .175, .085, .040, .030,
-            .028, .028, .030, .035, .050, .055, .035, .020, .012, .008, .005, .003],
-    'HE':  [.000, .000, .000, .000, .002, .010, .060, .230, .270, .090, .035, .030,
-            .035, .040, .075, .060, .030, .015, .008, .005, .003, .002, .000, .000],
-    'HS':  [.001, .001, .000, .001, .002, .008, .020, .040, .070, .095, .110, .110,
-            .100, .095, .090, .080, .065, .050, .030, .018, .008, .004, .002, .001],
-    'HO':  [.004, .002, .002, .002, .005, .015, .035, .060, .075, .080, .080, .080,
-            .075, .075, .075, .075, .070, .065, .055, .045, .035, .025, .012, .008],
-    'WB':  [.001, .001, .001, .002, .005, .020, .055, .090, .110, .120, .115, .100,
-            .085, .085, .080, .060, .040, .020, .006, .002, .001, .001, .000, .000],
-    'NHB': [.002, .001, .001, .002, .006, .020, .060, .110, .105, .070, .060, .060,
-            .060, .070, .100, .095, .070, .050, .030, .018, .008, .004, .002, .001],
-}
-# mean activity duration in minutes, by purpose (assumed)
-ACT_DURATION = {'HW': 465, 'HE': 360, 'HS': 45, 'HO': 90, 'WB': 60, 'NHB': 20}
 
 
 def rd(name, **kw):
@@ -117,44 +106,12 @@ def age_sex_dist(row):
     return out
 
 
-def hts_trip_rates():
-    """Trips per person per day by purpose, from the HTS study-area rows."""
-    m = pd.read_csv(os.path.join(HTS, 'hts_mode_newcastle.csv'))
-    p = pd.read_csv(os.path.join(HTS, 'hts_purpose_newcastle.csv'))
-    m['TRIPS_BY_MODE'] = pd.to_numeric(m['TRIPS_BY_MODE'], errors='coerce')
-    p['JOURNEYS_BY_MODE'] = pd.to_numeric(p['JOURNEYS_BY_MODE'], errors='coerce')
-    lm = m[(m.geography == 'lga')]
-    yr = sorted(lm['FINANCIAL_YEAR'].astype(str).unique())[-1]
-    lm = lm[lm['FINANCIAL_YEAR'].astype(str) == yr]
-    lp = p[(p.geography == 'lga') & (p['FINANCIAL_YEAR'].astype(str) == yr)]
-    trips_total = lm['TRIPS_BY_MODE'].sum()
-    # population of the same LGA set, from the zone table
-    z = pd.read_csv(os.path.join(LU, 'D1_zone_attractions_SA1.csv'))
-    pop = z.loc[z.zone_tier == 'core', 'population'].sum()
-    rate_total = trips_total / max(pop, 1)
-    sh = {}
-    for _, r in lp.iterrows():
-        pur = HTS_PURPOSE_MAP.get(str(r['TRAVEL_PURPOSE']).strip().rstrip('*'))
-        if pur and pd.notna(r['JOURNEYS_BY_MODE']):
-            sh[pur] = sh.get(pur, 0.0) + float(r['JOURNEYS_BY_MODE'])
-    tot = sum(sh.values()) or 1.0
-    rates = {k: rate_total * v / tot for k, v in sh.items()}
-    for k in PURPOSES:
-        rates.setdefault(k, 0.0)
-    # mean journey distance by purpose, for the gravity decay
-    dist = {}
-    for _, r in lp.iterrows():
-        pur = HTS_PURPOSE_MAP.get(str(r['TRAVEL_PURPOSE']).strip().rstrip('*'))
-        v = r.get('JOURNEY_AVG_DISTANCE')
-        if pur and pd.notna(v):
-            dist.setdefault(pur, []).append(float(v))
-    dist = {k: float(np.mean(v)) for k, v in dist.items()}
-    for k in PURPOSES:
-        dist.setdefault(k, 8.0)
-    return yr, rate_total, rates, dist
-
-
-def main(seed=20260810, sample=1.0, max_sa1=None):
+def main(seed=None, sample=None, max_sa1=None):
+    # Resolved, not defaulted. The seed is this project's headline determinism
+    # claim and it existed in nine copies; the build sample is ONE, always, and
+    # is a different quantity from the run-time RUN.sample.fraction.
+    seed = CFG.get('B.seed.master') if seed is None else seed
+    sample = CFG.get('B.population.build_sample_share') if sample is None else sample
     rng = np.random.default_rng(seed)
     M = load_marginals()
     key = M['key']
@@ -335,8 +292,9 @@ def main(seed=20260810, sample=1.0, max_sa1=None):
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('--seed', type=int, default=20260810)
-    ap.add_argument('--sample', type=float, default=1.0)
+    ap.add_argument('--seed', type=int, help='override B.seed.master')
+    ap.add_argument('--sample', type=float,
+                    help='override B.population.build_sample_share')
     ap.add_argument('--max-sa1', type=int, default=None)
     a = ap.parse_args()
     main(a.seed, a.sample, a.max_sa1)

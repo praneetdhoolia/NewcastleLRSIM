@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Deterministic gzip output.
+"""Deterministic gzip and zip output.
 
 `gzip.open(path, 'w')` stamps the current wall-clock time into the gzip header,
 so two builds of identical content produce different bytes and therefore
@@ -49,3 +49,27 @@ class _Closing:
                     o.close()
                 except Exception:
                     pass
+
+
+# ---------------------------------------------------------------------------
+# Deterministic zip
+# ---------------------------------------------------------------------------
+# A zip entry carries the file's modification time in its local header, so
+# `ZipFile.writestr(name, data)` stamps the wall clock and two builds of
+# identical content produce different bytes - and therefore different sha256
+# digests in data/MANIFEST.csv. Exactly the gzip problem one container up.
+#
+# `zip_entry` pins every entry to a fixed date, so the archive bytes depend only
+# on the content and the order it is written in.
+
+ZIP_EPOCH = (1980, 1, 1, 0, 0, 0)   # the earliest a zip timestamp can express
+
+
+def zip_entry(name, compress_type=None):
+    """A ZipInfo with a fixed timestamp, for reproducible archives."""
+    import zipfile
+    info = zipfile.ZipInfo(name, date_time=ZIP_EPOCH)
+    info.compress_type = (zipfile.ZIP_DEFLATED if compress_type is None
+                          else compress_type)
+    info.external_attr = 0o644 << 16
+    return info

@@ -12,6 +12,14 @@ Produces (schemas per Appendix A of the proposal):
 Every field imputed rather than observed is counted and reported so the
 imputation rate lands in DECISIONS.md.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -21,27 +29,28 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from osm_parse import parse, way_len, centroid, fnum
 
-OUT = 'data/processed/network'
+# Model inputs come from cities/<city>/registry/, not from literals here. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
+OUT = _city.path('data/processed/network')
 os.makedirs(OUT, exist_ok=True)
 
 # ---- defaults applied where OSM is silent (all recorded in DECISIONS.md) ----
 # speed_limit_kmh by road class: NSW default urban 50, and class-typical above that
-SPEED = {'motorway': 100, 'trunk': 80, 'primary': 60, 'secondary': 60, 'tertiary': 50,
-         'unclassified': 50, 'residential': 50, 'living_street': 10, 'service': 20,
-         'motorway_link': 60, 'trunk_link': 60, 'primary_link': 50, 'secondary_link': 50,
-         'tertiary_link': 40, 'road': 50, 'busway': 50}
+SPEED = CFG.get('A.road.speed_default')
 # lanes per direction
-LANES = {'motorway': 2, 'trunk': 2, 'primary': 2, 'secondary': 1, 'tertiary': 1,
-         'unclassified': 1, 'residential': 1, 'living_street': 1, 'service': 1,
-         'motorway_link': 1, 'trunk_link': 1, 'primary_link': 1, 'secondary_link': 1,
-         'tertiary_link': 1, 'road': 1, 'busway': 1}
+LANES = CFG.get('A.road.lanes_default')
 # mid-block capacity veh/hr/lane, Austroads-style
-CAP = {'motorway': 2000, 'trunk': 1800, 'primary': 1600, 'secondary': 1400,
-       'tertiary': 1200, 'unclassified': 1000, 'residential': 800, 'living_street': 300,
-       'service': 400, 'motorway_link': 1500, 'trunk_link': 1400, 'primary_link': 1200,
-       'secondary_link': 1100, 'tertiary_link': 1000, 'road': 1000, 'busway': 1200}
-FOOT_WIDTH = {'steps': 1.5, 'pedestrian': 6.0, 'footway': 1.8, 'path': 1.5,
-              'cycleway': 2.5, 'track': 2.5, 'corridor': 2.0, 'bridleway': 2.0}
+CAP = CFG.get('A.road.capacity_default')
+FOOT_WIDTH = CFG.get('A.active.footway_width_default')
+# Per-lane width where OSM carries none, which is 99.2% of edges. Was a bare
+# 3.2 in this file and in no registry at all (DECISIONS.md 9.33).
+LANE_WIDTH = CFG.get('A.road.lane_width_default_m')
 
 
 def _write(name, rows):
@@ -73,7 +82,7 @@ def _kerbside(t):
 def build_roads():
     idx = {}
     ways = []
-    for rec in parse('networks/osm/newcastle_roads.osm'):
+    for rec in parse(_city.path('networks/osm/roads.osm')):
         if rec[0] == 'node':
             idx[rec[1]] = (rec[2], rec[3])
         elif rec[0] == 'way' and 'highway' in rec[3]:
@@ -89,7 +98,10 @@ def build_roads():
         sl = fnum(t.get('maxspeed'))
         if sl is None:
             sl = SPEED.get(hw, 50)
+            sl_src = 'imputed_rule'
             imp['speed_limit_kmh'] += 1
+        else:
+            sl_src = 'osm'
         oneway = t.get('oneway') in ('yes', '1', '-1', 'true')
         ln = fnum(t.get('lanes'))
         if ln is None:
@@ -97,17 +109,22 @@ def build_roads():
             imp['num_lanes'] += 1
         elif not oneway:
             ln = max(1.0, ln / 2.0)   # OSM lanes=total both directions
+        # OSM `width` on a road is the whole CARRIAGEWAY, not one lane, so it
+        # is divided by the lane count before it can stand in for a lane width.
         lw = fnum(t.get('width'))
         if lw is None:
-            lw = 3.2
+            lw = LANE_WIDTH
             imp['lane_width_m'] += 1
+        else:
+            raw_lanes = fnum(t.get('lanes'))
+            lw = (lw / raw_lanes) if (raw_lanes and raw_lanes > 0) else LANE_WIDTH
         kerb = _kerbside(t)
         if kerb == 'unknown':
             imp['kerbside_use'] += 1
         rows.append(dict(
             edge_id='w' + wid, from_node=refs[0], to_node=refs[-1], n_nodes=len(refs),
             length_m=round(L, 1), road_class=hw, num_lanes=ln, lane_width_m=lw,
-            speed_limit_kmh=sl, oneway_flag=int(oneway),
+            speed_limit_kmh=sl, speed_limit_source=sl_src, oneway_flag=int(oneway),
             oneway_dir=(-1 if t.get('oneway') == '-1' else 1),
             capacity_veh_hr_lane=CAP.get(hw, 1000), kerbside_use=kerb,
             gradient_pct='', bridge=int('bridge' in t), tunnel=int('tunnel' in t),
@@ -127,7 +144,7 @@ def build_roads():
 def build_footways():
     idx = {}
     ways = []
-    for rec in parse('networks/osm/newcastle_footways.osm'):
+    for rec in parse(_city.path('networks/osm/footways.osm')):
         if rec[0] == 'node':
             idx[rec[1]] = (rec[2], rec[3])
         elif rec[0] == 'way' and ('highway' in rec[3] or 'footway' in rec[3]):
@@ -172,7 +189,7 @@ def build_footways():
 
 def build_signals():
     sig, cross, restr = [], [], []
-    for rec in parse('networks/osm/newcastle_signals.osm'):
+    for rec in parse(_city.path('networks/osm/signals.osm')):
         if rec[0] == 'node':
             _, i, lat, lon, t = rec
             if t.get('highway') == 'traffic_signals':
@@ -202,7 +219,7 @@ def build_signals():
 def build_parking():
     idx = {}
     items = []
-    for rec in parse('networks/osm/newcastle_parking.osm'):
+    for rec in parse(_city.path('networks/osm/parking.osm')):
         if rec[0] == 'node':
             idx[rec[1]] = (rec[2], rec[3])
             items.append(('node', rec[1], [(rec[2], rec[3])], rec[4]))

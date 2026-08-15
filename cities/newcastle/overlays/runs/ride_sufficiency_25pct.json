@@ -1,0 +1,10 @@
+{
+  "overlay": "ride_sufficiency_25pct",
+  "description": "Issue #16 / #17: confirm that the 10% mode share is specification and not a residual small-sample artefact. #17 established that at 1% flow-capacity granularity aborts 1,032 car legs against 4 at 10%, which moved car by ~15 pp and nearly overturned the DECISIONS.md 9.10 conclusion on contaminated evidence. The threshold between 10% and 25% is unmeasured, so the 10% reading is confirmed rather than trusted before a 8.5 departure is logged - a departure cannot be un-logged. 25% is the largest fraction 9.5 measured that leaves headroom on a 63.5 GiB machine. 8 threads matches ride_sufficiency_1pct and ride_sufficiency_10pct exactly; thread count is part of the run identity. NOT A RESULT: 9.7 shows 250 iterations is measurably short of relaxation.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 250,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "40g"
+  }
+}

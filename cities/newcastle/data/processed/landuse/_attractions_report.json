@@ -1,0 +1,61 @@
+{
+  "sa1_zones": 1701,
+  "population_total": 682363,
+  "population_core": 611915,
+  "jobs_total": 296472,
+  "jobs_core": 258987,
+  "jobs_sa2_control_total": 296474,
+  "poi_joined": 25507,
+  "top10_job_sa1": [
+    {
+      "SA1_CODE21": "11103123125",
+      "SA2_NAME21": "Shortland - Jesmond",
+      "jobs": 5446.3
+    },
+    {
+      "SA1_CODE21": "11101120933",
+      "SA2_NAME21": "Glendale - Cardiff - Hillsborough",
+      "jobs": 4864.2
+    },
+    {
+      "SA1_CODE21": "10603112211",
+      "SA2_NAME21": "Raymond Terrace",
+      "jobs": 3628.6
+    },
+    {
+      "SA1_CODE21": "11103122222",
+      "SA2_NAME21": "Adamstown - Kotara",
+      "jobs": 3414.0
+    },
+    {
+      "SA1_CODE21": "11103122913",
+      "SA2_NAME21": "Newcastle - Cooks Hill",
+      "jobs": 3332.8
+    },
+    {
+      "SA1_CODE21": "11103123001",
+      "SA2_NAME21": "Newcastle Port - Kooragang",
+      "jobs": 3070.0
+    },
+    {
+      "SA1_CODE21": "10602161611",
+      "SA2_NAME21": "Rutherford (South) - Telarah",
+      "jobs": 2983.3
+    },
+    {
+      "SA1_CODE21": "10601111215",
+      "SA2_NAME21": "Singleton",
+      "jobs": 2939.6
+    },
+    {
+      "SA1_CODE21": "11103122906",
+      "SA2_NAME21": "Newcastle - Cooks Hill",
+      "jobs": 2739.1
+    },
+    {
+      "SA1_CODE21": "10603112230",
+      "SA2_NAME21": "Raymond Terrace",
+      "jobs": 2668.8
+    }
+  ]
+}

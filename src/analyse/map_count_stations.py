@@ -27,21 +27,36 @@ This reads the station coordinates and the network. **It does not read a
 validation target value**, so it is indifferent to the calibration/holdout split
 and maps all 119 stations alike.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import argparse
 import csv
 import gzip
 import math
 import os
 import re
+import sys
 
 import pyproj
 
-CRS_M = 'EPSG:28356'
+CRS_M = _city.crs()
 TO_M = pyproj.Transformer.from_crs('EPSG:4326', CRS_M, always_xy=True).transform
 
-STATIONS = 'data/processed/validation/road_aadt_targets.csv'
-OUT = 'data/processed/validation/count_station_links.csv'
-DEFAULT_NETWORK = 'scenarios/matsim/S2/network.xml.gz'
+# The match radius is a registry field, not a literal typed here: it decides
+# which road_aadt targets are scorable at all, so it is a lever on the
+# reported fit (issue 19). See B.counts.station_match_radius_m.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry                            # noqa: E402
+
+STATIONS = _city.path('data/processed/validation/road_aadt_targets.csv')
+OUT = _city.path('data/processed/validation/count_station_links.csv')
+DEFAULT_NETWORK = _city.path('scenarios/matsim/S2/network.xml.gz')
 
 NODE_RE = re.compile(r'<node id="([^"]+)"[^>]*x="([-\d.eE]+)"[^>]*y="([-\d.eE]+)"')
 LINK_RE = re.compile(r'<link id="([^"]+)" from="([^"]+)" to="([^"]+)"[^>]*>')
@@ -51,14 +66,31 @@ WAY_NAME_RE = re.compile(r'<attribute name="osm:way:name"[^>]*>([^<]*)</attribut
 
 
 def normalise(name):
-    """Compare road names without punctuation, case or the usual abbreviations."""
+    """Compare road names without punctuation, case or the usual abbreviations.
+
+    A directional qualifier is dropped because OSM carries it and the count
+    station does not: `Werribi Street (West)` and `Werribi Street` are one road
+    counted at one point. `saint` folds to `st` for the same reason `street`
+    does - RMS writes `St James Road`, OSM writes `Saint James Road`.
+    """
     s = (name or '').lower()
-    for a, b in (('street', 'st'), ('road', 'rd'), ('avenue', 'ave'),
-                 ('drive', 'dr'), ('highway', 'hwy'), ('parade', 'pde'),
-                 ('lane', 'ln'), ('place', 'pl'), ('terrace', 'tce'),
-                 ('crescent', 'cres'), ('boulevard', 'blvd')):
+    s = re.sub(r'\([^)]*\)', ' ', s)
+    for a, b in (('saint', 'st'), ('street', 'st'), ('road', 'rd'),
+                 ('avenue', 'ave'), ('drive', 'dr'), ('highway', 'hwy'),
+                 ('motorway', 'mwy'), ('parade', 'pde'), ('lane', 'ln'),
+                 ('place', 'pl'), ('terrace', 'tce'), ('crescent', 'cres'),
+                 ('boulevard', 'blvd')):
         s = re.sub(r'\b%s\b' % a, b, s)
-    return re.sub(r'[^a-z0-9 ]', '', s).strip()
+    return re.sub(r'\s+', ' ', re.sub(r'[^a-z0-9 ]', '', s)).strip()
+
+
+def name_key(name):
+    """`normalise` with spaces removed: `Red Head Road` == `Redhead Road`.
+
+    Applied only as a second naming tier, never to decide between two roads
+    that differ by more than their spacing.
+    """
+    return normalise(name).replace(' ', '')
 
 
 def load_network(path):
@@ -117,6 +149,23 @@ def match(stations, links, radius_m):
             continue
         want = normalise(s.get('road_name') or s.get('name'))
         named = [(d, l) for d, l in near if want and normalise(l['name']) == want]
+        if not named and want:
+            key = name_key(s.get('road_name') or s.get('name'))
+            named = [(d, l) for d, l in near if name_key(l['name']) == key]
+        # A station that NAMES its road may only be matched to a link bearing
+        # that name. Falling back to the nearest differently-named link
+        # attached Raymond Terrace Road (11,810 AADT observed) to a one-lane
+        # 50 km/h Dockyard Road and scored the model against it, which measures
+        # neither road (issue 20). Unmatched-and-named beats matched-and-wrong:
+        # fit.py reports every unscorable target with its reason (issue 19).
+        if want and not named:
+            unmatched.append((s, 'no link named %r within %d m; %d other car '
+                                 'link(s) are in range and were NOT matched, '
+                                 'because a count of one road is not a count '
+                                 'of its neighbour'
+                              % (s.get('road_name') or s.get('name'),
+                                 radius_m, len(near))))
+            continue
         how = 'name_and_proximity' if named else 'proximity_only'
         pool = named or near
         pool.sort(key=lambda t: t[0])
@@ -142,13 +191,19 @@ def match(stations, links, radius_m):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--network', default=DEFAULT_NETWORK)
-    ap.add_argument('--radius', type=float, default=120.0)
+    ap.add_argument('--radius', type=float, default=None,
+                    help='override B.counts.station_match_radius_m; checked '
+                         'against its declared sweep')
     a = ap.parse_args()
+
+    cfg = registry.load(set={'B.counts.station_match_radius_m': a.radius}
+                        if a.radius is not None else None)
+    radius = cfg.get('B.counts.station_match_radius_m')
 
     with open(STATIONS, encoding='utf-8') as f:
         stations = list(csv.DictReader(f))
     links = load_network(a.network)
-    rows, unmatched = match(stations, links, a.radius)
+    rows, unmatched = match(stations, links, radius)
 
     with open(OUT, 'w', encoding='utf-8', newline='') as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
@@ -160,6 +215,7 @@ def main():
     for r in rows:
         by_how[r['matched_by']] = by_how.get(r['matched_by'], 0) + 1
     print('%d car links loaded from %s' % (len(links), a.network))
+    print('match radius %.1f m (B.counts.station_match_radius_m)' % radius)
     print('%d of %d stations matched (%d links); %d unmatched'
           % (len(matched), len(stations), len(rows), len(unmatched)))
     print('  by match quality: %s' % by_how)

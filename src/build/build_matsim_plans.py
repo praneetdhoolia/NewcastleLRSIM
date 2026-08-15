@@ -29,9 +29,16 @@ one mode for the entire day.
 Determinism: one seeded generator, persons consumed in the file's own sorted
 order, so the same B2 reproduces the same plans byte for byte.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
-import gzip
 import json
 import argparse
 import collections
@@ -42,11 +49,27 @@ import pandas as pd
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from det_io import gzip_writer
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+# Whether `ride` is withheld from a person with nobody to drive them. Derived
+# from B1 household composition; see DECISIONS.md 15 and src/java/citysim/.
+RIDE_REQUIRES_DRIVER = CFG.get('B.population.ride_requires_household_driver')
+# Share of persons with a bicycle available. Until this existed, car was the
+# only mode whose ownership was modelled and bike was silently universal -
+# issue #29, DECISIONS.md 9.39. Assumed and swept; 1.0 reproduces the old
+# behaviour.
+BIKE_AVAILABLE_RATE = CFG.get('B.population.bike_available_rate')
+# An external boundary agent is a household-less boundary treatment, not a
+# synthesised person: its attributes are placeholders, and its ride availability
+# follows from having no household at all rather than from an unknown one.
+EXTERNAL_PROFILE = CFG.get('B.external.agent_profile')
+EXTERNAL_RIDE_AVAILABLE = CFG.get('B.external.agent_ride_available')
 
-PLANS = 'demand/plans'
-POP = 'demand/population'
+PLANS = _city.path('demand/plans')
+POP = _city.path('demand/population')
 OUT = os.path.join(PLANS, 'matsim')
-SEED = 20260810
+SEED = CFG.get('B.seed.master')
 DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 
 # Seed mode split: UNINFORMED, uniform over the modes a person can use.
@@ -64,26 +87,32 @@ DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
 # person can actually use, the draw is uniform. This is deliberately a bad guess:
 # it starts the co-evolution far from the observed point so that arriving there
 # is evidence about the model rather than about the seed.
-SEED_MODE_SPLIT = {
-    True:  [('car', 0.20), ('ride', 0.20), ('walk', 0.20), ('pt', 0.20), ('bike', 0.20)],
-    False: [('ride', 0.25), ('walk', 0.25), ('pt', 0.25), ('bike', 0.25)],
-}
-# The uniform seed has no free share to sweep - "uniform over the usable modes"
-# is fully determined by B1 car availability. What is swept instead is the
-# *choice of seed itself*, which is the quantity that could bias the result:
-# the two entries are the two seeds this script can produce, and DECISIONS.md
-# 9.7 reports the measured difference between them.
-SEED_MODE_SWEEP = {'seed_mode': ('uninformed', 'informed')}
-# The informed seed the uniform one replaces. Retained so that "the result does
-# not depend on the seed" is a claim that can be tested by running both, not an
-# assertion (DECISIONS.md 9.6); selected with --seed-mode informed.
-SEED_MODE_SPLIT_INFORMED = {
-    True:  [('car', 0.78), ('ride', 0.10), ('walk', 0.09), ('pt', 0.02), ('bike', 0.01)],
-    False: [('ride', 0.40), ('walk', 0.45), ('pt', 0.09), ('bike', 0.06)],
-}
-HTS_FILE = 'data/processed/hts/hts_mode_newcastle.csv'
+def _seed_table(key):
+    """A declared seed split as the {car_available: [(mode, share)]} form used here.
+
+    JSON has no boolean keys, so the field names the two cases; the mapping back
+    happens once, here, rather than at each of the three call sites.
+    """
+    table = CFG.get(key)
+    return {True: sorted(table['car_available'].items()),
+            False: sorted(table['no_car'].items())}
+
+
+# The uniform seed: deliberately a bad guess, so that arriving at the observed
+# point is evidence about the model rather than about the seed.
+SEED_MODE_SPLIT = _seed_table('B.mode.seed_split')
+# The sweep is over WHICH SEED IS USED, not over the shares - the two entries
+# are the only two seeds this script can produce, and DECISIONS.md 9.7 reports
+# the measured difference between them.
+SEED_MODE_SWEEP = {'seed_mode': tuple(
+    CFG.sweep('B.mode.seed_split_informed')['categorical'])}
+# The informed seed the uniform one replaced, retained so that "the result does
+# not depend on the seed" can be tested rather than asserted (DECISIONS.md 9.6);
+# selected with --seed-mode informed.
+SEED_MODE_SPLIT_INFORMED = _seed_table('B.mode.seed_split_informed')
+HTS_FILE = _city.path('data/processed/hts/hts_mode.csv')
 HTS_YEAR = '2024/25'
-HTS_TARGET_LGA = 'Newcastle'
+HTS_TARGET_LGA = _city.target_lga()
 
 
 def hts_mode_share():
@@ -125,11 +154,15 @@ def hts_mode_share():
 
 # Activity types carried through to the scoring configuration.
 ACT_TYPES = ('home', 'work', 'education', 'shopping', 'other', 'business')
-TYPICAL_DURATION_S = {'home': 12 * 3600, 'work': 8 * 3600, 'education': 6 * 3600,
-                      'shopping': 1 * 3600, 'other': 2 * 3600, 'business': 1 * 3600}
+# A SECOND COPY of C.scoring.activity_typical_duration_s lived here, with six
+# keys against the field's seven - it had no `escort`, the drop-off that comes
+# with the serve-passenger tour purpose. Two tables of the same quantity, one of
+# them silently short.
+TYPICAL_DURATION_S = CFG.get('C.scoring.activity_typical_duration_s')
 # Proportional sweep on every typical duration. Not Newcastle-specific: this is
 # MATSim's scoring shape parameter, not an observable local quantity.
-TYPICAL_DURATION_SWEEP = 0.25
+TYPICAL_DURATION_SWEEP = CFG.sweep(
+    'C.scoring.activity_typical_duration_s')['proportional']
 
 
 def hhmmss(s):
@@ -142,22 +175,76 @@ def esc(v):
             .replace('"', '&quot;'))
 
 
-def load_person_attributes():
-    """car availability, age band and employment, keyed by person id."""
+def load_person_attributes(rng_bike):
+    """car, ride and BIKE availability plus demographics, by person id.
+
+    `rideAvail` is DERIVED, not assumed: a person may be a car passenger only if
+    their household holds at least one vehicle AND contains at least one OTHER
+    licence holder who could actually drive them. MATSim's standard treatment
+    lets any agent be a passenger on any trip, which DECISIONS.md 9.10 measures
+    at 0.72 of legs against an observed 0.206 - 5.9 people in every car.
+
+    `bikeAvail` is ASSUMED, not derived - the census carries no bicycle
+    variable - and is drawn per person at B.population.bike_available_rate from
+    its own seeded stream, so the same seed reproduces the same availability
+    (issue #29, DECISIONS.md 9.39).
+
+    Core MATSim honours `carAvail` but has no equivalent for `ride` or `bike`,
+    so both attributes are consumed by
+    src/java/citysim/AvailabilityModesCalculator.
+    """
     p = pd.read_csv(os.path.join(POP, 'B1_synthetic_population.csv'),
-                    usecols=['person_id', 'age', 'car_available', 'licence_holder',
-                             'employment_status', 'student_status',
+                    usecols=['person_id', 'household_id', 'age', 'car_available',
+                             'licence_holder', 'employment_status', 'student_status',
                              'mobility_impairment_flag'])
+
+    if RIDE_REQUIRES_DRIVER:
+        # licence holders per household, and whether the household has a vehicle
+        drivers = p.groupby('household_id')['licence_holder'].sum()
+        vehicles = p.groupby('household_id')['household_vehicles'].max() \
+            if 'household_vehicles' in p.columns else None
+        if vehicles is None:
+            veh = pd.read_csv(os.path.join(POP, 'B1_households.csv'),
+                              usecols=['household_id', 'household_vehicles'])
+            vehicles = veh.set_index('household_id')['household_vehicles']
+        hh_drivers = p['household_id'].map(drivers).fillna(0).astype(int)
+        hh_vehicles = p['household_id'].map(vehicles).fillna(0).astype(int)
+        # "another" driver: subtract the person's own licence
+        other_drivers = hh_drivers - p['licence_holder'].astype(int)
+        ride_ok = ((hh_vehicles > 0) & (other_drivers > 0)).astype(int)
+    else:
+        ride_ok = pd.Series(1, index=p.index)
+
+    p = p.assign(ride_avail=ride_ok.values,
+                 bike_avail=(rng_bike.random(len(p))
+                             < BIKE_AVAILABLE_RATE).astype(int))
     return {
         int(r.person_id): (int(r.car_available), int(r.age), int(r.licence_holder),
                            str(r.employment_status), str(r.student_status),
-                           int(r.mobility_impairment_flag))
+                           int(r.mobility_impairment_flag), int(r.ride_avail),
+                           int(r.bike_avail))
         for r in p.itertuples()
     }
 
 
-def pick_mode(car_available, u, table_by_avail=None):
+def pick_mode(car_available, u, table_by_avail=None, ride_available=True,
+              bike_available=True):
+    """Draw a seed mode from the modes this person may actually use.
+
+    `ride_available` and `bike_available` matter as much as `car_available`.
+    MATSim's PermissibleModesCalculator governs only NEW mode choices - it never
+    strips a mode from a plan the agent already holds - so seeding a person with
+    a mode they may not use leaves an illegal plan in their memory that
+    ChangeExpBeta can re-select forever. Measured for ride: 4,723 such legs
+    survived 30 iterations before this was fixed.
+    """
     table = (table_by_avail or SEED_MODE_SPLIT)[bool(car_available)]
+    drop = ({'ride'} if not ride_available else set()) | \
+           ({'bike'} if not bike_available else set())
+    if drop:
+        table = [(m, w) for m, w in table if m not in drop]
+        total = sum(w for _, w in table)
+        table = [(m, w / total) for m, w in table]   # renormalise, do not reweight
     x = u()
     c = 0.0
     for mode, p in table:
@@ -207,21 +294,56 @@ def write_day(day, attrs, rng, report, seed_table=None):
         w.write('<population>\n')
         for pid, rows in stream_persons(src):
             rows.sort(key=lambda r: int(r['trip_seq']))
-            external = rows[0]['agent_tier'] == 'external'
-            if external:
-                car_av, age, lic, emp, stu, mob = 1, 40, 1, 'employed_full_time', 'none', 0
+            tier = rows[0]['agent_tier']
+            external = tier in ('external', 'through')
+            if tier == 'through':
+                # A through agent is a boundary-tier vehicle crossing the study
+                # area (issue #20, DECISIONS.md 9.41). Its volume is anchored on
+                # an observed road count, so its mode is locked to car: the
+                # availability calculator returns {car} for it and the seed
+                # never draws. Demographics are the external placeholders.
+                car_av, age, lic, emp, stu, mob = (
+                    1, EXTERNAL_PROFILE['age'], 1,
+                    EXTERNAL_PROFILE['employment_status'],
+                    EXTERNAL_PROFILE['student_status'],
+                    EXTERNAL_PROFILE['mobility_impairment_flag'])
+                ride_av, bike_av = 0, 0
+            elif external:
+                # An external boundary agent has no B1 household, so its
+                # attributes are definitional placeholders (B.external
+                # .agent_profile). Ride availability is NOT one of them and is
+                # not "unknown": a car passenger needs a household vehicle AND
+                # another licence holder to drive them, and a household-less
+                # agent has neither, so ride is unavailable by the same identity
+                # that governs everyone else. Resolving it the other way, which
+                # is what this branch used to do, made 432 of 962 external trips
+                # car-passenger trips with no possible driver (DECISIONS.md 9.15).
+                car_av, age, lic, emp, stu, mob = (
+                    EXTERNAL_PROFILE['car_available'], EXTERNAL_PROFILE['age'],
+                    EXTERNAL_PROFILE['licence_holder'],
+                    EXTERNAL_PROFILE['employment_status'],
+                    EXTERNAL_PROFILE['student_status'],
+                    EXTERNAL_PROFILE['mobility_impairment_flag'])
+                ride_av = int(EXTERNAL_RIDE_AVAILABLE)
+                # a boundary agent is household-less, so no ownership identity
+                # exists to deny bike from; the choice is recorded in
+                # DECISIONS.md 9.39 rather than silently made
+                bike_av = 1
             else:
                 a = attrs.get(pid)
                 if a is None:
                     continue
-                car_av, age, lic, emp, stu, mob = a
+                car_av, age, lic, emp, stu, mob, ride_av, bike_av = a
 
             # one mode per tour keeps chain-based modes conserved from the start
             tour_mode = {}
             for r in rows:
                 tid = int(r['tour_id'])
                 if tid not in tour_mode:
-                    tour_mode[tid] = pick_mode(car_av, u, seed_table)
+                    tour_mode[tid] = ('car' if tier == 'through' else
+                                      pick_mode(car_av, u, seed_table,
+                                                ride_available=bool(ride_av),
+                                                bike_available=bool(bike_av)))
             tours += len(tour_mode)
 
             w.write('\t<person id="%d">\n' % pid)
@@ -238,6 +360,17 @@ def write_day(day, attrs, rng, report, seed_table=None):
                     '%s</attribute>\n' % esc(emp))
             w.write('\t\t\t<attribute name="mobilityImpaired" class="java.lang.String">'
                     '%s</attribute>\n' % ('yes' if mob else 'no'))
+            # consumed by citysim.AvailabilityModesCalculator; absent means
+            # available, so a population without them behaves as before
+            w.write('\t\t\t<attribute name="rideAvail" class="java.lang.String">'
+                    '%s</attribute>\n' % ('always' if ride_av else 'never'))
+            w.write('\t\t\t<attribute name="bikeAvail" class="java.lang.String">'
+                    '%s</attribute>\n' % ('always' if bike_av else 'never'))
+            if tier == 'through':
+                # locks SubtourModeChoice to {car} for this agent - a volume
+                # anchored on a road count must stay on the road
+                w.write('\t\t\t<attribute name="lockedMode" '
+                        'class="java.lang.String">car</attribute>\n')
             w.write('\t\t</attributes>\n')
             w.write('\t\t<plan selected="yes">\n')
 
@@ -289,13 +422,18 @@ def main(seed=SEED, day_types=None, seed_mode='uninformed'):
     os.makedirs(OUT, exist_ok=True)
     rng = np.random.default_rng(seed)
     print('loading person attributes ...', flush=True)
-    attrs = load_person_attributes()
+    # bike availability draws from its own child stream so the mode-seed
+    # stream is not perturbed by the number of persons (issue #29)
+    attrs = load_person_attributes(np.random.default_rng([seed, 1]))
     report = {}
     for d in day_types:
         write_day(d, attrs, rng, report, seed_table)
     meta = dict(seed=seed, seed_mode=seed_mode,
                 seed_mode_split={str(k): v for k, v in seed_table.items()},
                 seed_mode_sweep=SEED_MODE_SWEEP,
+                bike_available_rate=BIKE_AVAILABLE_RATE,
+                bike_available_sweep=list(
+                    CFG.sweep('B.population.bike_available_rate')),
                 hts_mode_share_pct=hts_unlinked,
                 hts_mode_share_pct_source=(
                     'derived from %s, %s, LGA rows: trips-weighted over the five '

@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "id": "newcastle",
+  "name": "Newcastle (NSW) region",
+  "description": "Five local government areas, 4,086 km2, 1,500 core SA1s. Wickham is ONE SUBURB of it, and the name is legitimate only for that suburb's own zones and stops, for Newcastle Interchange at Wickham, and for scenario S1 which starts there.",
+
+  "jurisdiction": {
+    "country": "Australia",
+    "subdivision": "New South Wales",
+    "statistical_agency": "Australian Bureau of Statistics (ABS)",
+    "transport_agency": "Transport for NSW (TfNSW)"
+  },
+
+  "crs": {
+    "epsg": 28356,
+    "datum": "GDA94",
+    "zone": "MGA Zone 56",
+    "units": "m"
+  },
+  "base_year": 2026,
+  "seed": 20260810,
+
+  "boundary": {
+    "dataset": "ABS ASGS Edition 3 (2021) digital boundaries",
+    "level": "LGA",
+    "selector": ["Newcastle", "Lake Macquarie", "Maitland", "Cessnock", "Port Stephens"],
+    "external_tier": {
+      "level": "SA2",
+      "selector": ["Singleton", "Muswellbrook", "Upper Hunter", "Dungog"],
+      "reason": "The remainder of SA4 'Hunter Valley exc Newcastle', retained only as a boundary treatment for Hunter Line through-demand. It is not modelled at SA1 and carries no intra-zonal detail."
+    }
+  },
+
+  "zone_system": {
+    "residence": "SA1",
+    "external": "SA2",
+    "workplace": "DZN"
+  },
+
+  "modes": ["car", "ride", "pt", "bike", "walk"],
+  "day_types": ["WEEKDAY", "SAT", "SUN"],
+
+  "mode_share_target": {
+    "source": "NSW Household Travel Survey",
+    "geography": "Newcastle LGA, both trip ends",
+    "filter_value": "Newcastle",
+    "column": "target_lga_pct",
+    "note": "The LGA series, NOT the all-residents series. The package holds both, they are computed over different populations, and reading the wrong one has inverted a headline. src/calibrate/fit.py reads this key from the metrics document."
+  },
+
+  "intervention": {
+    "name": "Newcastle Light Rail",
+    "opened": "2019-02",
+    "base_scenario": "S2",
+    "scenarios": ["S0", "S1", "S2", "S2a", "S2b", "S2c", "S3", "S4", "S5", "S6"]
+  },
+
+  "adapters": {
+    "osm": {
+      "script": "extract/overpass.py",
+      "produces": ["networks/osm"],
+      "description": "Overpass harvest over a tiled extent DERIVED from the resolved LGA boundary. Never a typed rectangle."
+    },
+    "gtfs": {
+      "script": "extract/fetch_gtfs.py",
+      "produces": ["schedules/raw"],
+      "description": "Era-variant GTFS bundles from the TfNSW historical GTFS S3 archive."
+    },
+    "open_data": {
+      "script": "extract/fetch_open_data.py",
+      "produces": ["data/raw/opal", "data/raw/counts", "data/raw/hts"],
+      "description": "Opal patronage, road traffic counts and Household Travel Survey from the TfNSW Open Data Hub."
+    },
+    "statistical": {
+      "script": "extract/fetch_abs_dem.py",
+      "produces": ["data/raw/boundaries", "data/raw/census", "data/raw/dem"],
+      "description": "ABS ASGS boundaries and 2021 Census DataPacks, plus Copernicus GLO-30 DEM tiles."
+    },
+    "speed_zones": {
+      "script": "extract/extract_speed_zones.py",
+      "produces": ["data/processed/network/A1_speed_zones.gpkg"],
+      "description": "TfNSW regulated speed zones - the legal instrument rather than a mapper's transcription of a sign."
+    },
+    "zones": {
+      "script": "extract/extract_zones.py",
+      "produces": ["data/processed/zones"]
+    },
+    "census": {
+      "script": "extract/extract_census.py",
+      "produces": ["data/processed/census"]
+    },
+    "hts": {
+      "script": "extract/extract_hts.py",
+      "produces": ["data/processed/hts"]
+    },
+    "observed": {
+      "script": "extract/slice_newcastle.py",
+      "produces": ["data/processed/observed"],
+      "description": "Slices the national and statewide open datasets down to the study area."
+    }
+  },
+
+  "sources": [
+    {
+      "name": "TfNSW Open Data Hub - GTFS, Opal, traffic counts, Household Travel Survey, speed zones",
+      "url": "https://opendata.transport.nsw.gov.au/",
+      "licence": "CC-BY 4.0",
+      "share_alike": false,
+      "provides": ["schedules", "data/raw/opal", "data/raw/counts", "data/raw/hts"]
+    },
+    {
+      "name": "Australian Bureau of Statistics - Census DataPacks, ASGS boundaries",
+      "url": "https://www.abs.gov.au/",
+      "licence": "CC-BY 4.0",
+      "share_alike": false,
+      "provides": ["data/raw/census", "data/raw/boundaries"]
+    },
+    {
+      "name": "OpenStreetMap, via Overpass",
+      "url": "https://www.openstreetmap.org/",
+      "licence": "ODbL 1.0",
+      "share_alike": true,
+      "provides": ["networks/osm"]
+    },
+    {
+      "name": "Copernicus GLO-30 Digital Elevation Model",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/",
+      "licence": "ESA, free and open",
+      "share_alike": false,
+      "provides": ["data/raw/dem"]
+    }
+  ],
+
+  "unobtained": [
+    {
+      "input": "SCATS signal phasing",
+      "reason": "Refused by TfNSW policy, documented and citable. The published Traffic Lights Location inventory gives identity, location and install date - no phase plan, cycle time or split.",
+      "handled_by": "sweep",
+      "field": "A.signals.scats_phasing"
+    },
+    {
+      "input": "Journey-linked Opal",
+      "reason": "Not published. Estimating the transfer penalty needs tap-on/tap-off TIMING; every Opal source held is a monthly aggregate and the stop-level tap data is holdout.",
+      "handled_by": "sweep",
+      "field": "B.opal.journey_linked"
+    },
+    {
+      "input": "Measured light rail charging dwell",
+      "reason": "Never measured in the field. Worth 11% of end-to-end corridor run time.",
+      "handled_by": "sweep",
+      "field": "A.lightrail.dwell_charging_s"
+    },
+    {
+      "input": "Retail floorspace and vacancy audit",
+      "reason": "No frontage-level audit is published for the corridor. Hypothesis B2 depends on it.",
+      "handled_by": "sweep",
+      "field": "D.retail.vacancy_rate"
+    },
+    {
+      "input": "A justified MATSim iteration count",
+      "reason": "100 and 250 are both MEASURED to be short of relaxation; no sufficient value has been established. Every run must name its own.",
+      "handled_by": "declared per run",
+      "field": "RUN.controler.last_iteration"
+    },
+    {
+      "input": "A justified SUMO replication count",
+      "reason": "Seed variance across corridor replications has not been measured.",
+      "handled_by": "declared per run",
+      "field": "RUN.sumo.replications"
+    }
+  ]
+}

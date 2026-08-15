@@ -1,0 +1,10 @@
+{
+  "overlay": "WEEKDAY",
+  "description": "The day type every headline comparison uses. 521,502 persons, 2,237,373 legs, 997,332 tours.",
+  "applies_to": {
+    "day_type": [
+      "WEEKDAY"
+    ]
+  },
+  "set": {}
+}

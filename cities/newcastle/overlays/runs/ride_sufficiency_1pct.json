@@ -1,0 +1,10 @@
+{
+  "overlay": "ride_sufficiency_1pct",
+  "description": "Issue #16: does the ride-availability constraint (DECISIONS.md 9.11) move where ride SETTLES, or only how it gets there? 250 iterations at 1%, S2 x WEEKDAY, so the endpoint is directly comparable with the recorded pre-constraint baseline in DECISIONS.md 9.10 (ride 0.7213, car 0.1223 at 1%). 8 threads matches that baseline exactly - thread count is part of the run identity, not a performance knob. NOT A RESULT: 9.7 shows 250 iterations is measurably short of relaxation. This is a diagnostic against a recorded baseline.",
+  "set": {
+    "RUN.sample.fraction": 0.01,
+    "RUN.controler.last_iteration": 250,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "12g"
+  }
+}

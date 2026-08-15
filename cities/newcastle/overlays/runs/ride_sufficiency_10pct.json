@@ -1,0 +1,10 @@
+{
+  "overlay": "ride_sufficiency_10pct",
+  "description": "Issue #16 at 10%, the companion to ride_sufficiency_1pct. Both fractions are required because DECISIONS.md 9.10 established that 1% is NOT representative for car (6.91 pp) or pt (9x), so a mode-share reading at 1% alone cannot answer whether car approaches 0.590. Comparable with the recorded pre-constraint 10% baseline (ride 0.7190, car 0.1913). NOT A RESULT: 250 iterations is measurably short of relaxation.",
+  "set": {
+    "RUN.sample.fraction": 0.10,
+    "RUN.controler.last_iteration": 250,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "26g"
+  }
+}

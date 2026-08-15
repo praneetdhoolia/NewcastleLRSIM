@@ -1,0 +1,103 @@
+{
+  "layer": "CAL",
+  "title": "Calibration (P4 deliverables 4-6)",
+  "description": "What the calibration loop is allowed to move, what it scores itself against, and the guards that stop it fitting more parameters than the data can identify. The objective deliberately excludes traffic counts: DECISIONS.md 9.14 forbids count-based calibration while boundary through traffic is unrepresented, and the loop enforces that rather than remembering it.",
+  "decisions_ref": "9.16",
+  "fields": {
+    "CAL.objective.components": {
+      "value": {
+        "mode_share.mean_abs_pp": 1.0
+      },
+      "units": "weight_per_fit_component",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.16, 12.1",
+      "description": "Dotted paths into _fit.json that form the scalar objective, with their weights. ONE component, and that is not an oversight: patronage scores n=0 in a single day-type run (the contemporary monthly target needs WEEKDAY, SAT and SUN composed over a calendar month, and the rest are a pre-pandemic PT market), and counts are excluded by CAL.objective.include_counts. Mode share is what is left. A component named here that is missing from a fit output is a hard error, never a silent zero.",
+      "consumers": [
+        "src/calibrate/calibrate.py"
+      ]
+    },
+    "CAL.objective.include_counts": {
+      "value": false,
+      "units": "boolean",
+      "source": "derived",
+      "derived_from": {
+        "fields": [
+          "B.external.interaction_rate"
+        ],
+        "identity": "the external tier represents boundary demand from one SA4 to the north-west and no through traffic at all, so every boundary-adjacent count is biased low by construction; tuning core network parameters against those counts would be compensating for demand the model does not contain, which is the count analogue of the ASC absorption proposal 9 names as the primary threat to validity (DECISIONS.md 9.14, 9.15)"
+      },
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.14, 9.15",
+      "description": "Whether traffic counts may enter the calibration objective. FALSE, and the loop refuses to start if it is set true without a recorded departure. Counts are still SCORED and REPORTED on every run; they are simply not optimised against.",
+      "consumers": [
+        "src/calibrate/calibrate.py"
+      ]
+    },
+    "CAL.objective.independent_targets": {
+      "value": 4,
+      "units": "count",
+      "source": "derived",
+      "derived_from": {
+        "fields": [
+          "CAL.objective.components"
+        ],
+        "identity": "five HTS mode-share targets are reported but they are shares of one total and sum to 1, so only four are independent; DECISIONS.md 12.1 reaches the same number from the other direction, that the effective information in the calibration half is roughly four mode-share degrees of freedom plus one patronage level plus the counts"
+      },
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "12.1",
+      "description": "How many independent numbers the objective actually contains. The loop refuses to move more free parameters than this, because a fit of more parameters than data is not a calibration.",
+      "consumers": [
+        "src/calibrate/calibrate.py"
+      ]
+    },
+    "CAL.search.points_per_parameter": {
+      "value": 3,
+      "units": "count",
+      "source": "assumed",
+      "sweep": [
+        3,
+        7
+      ],
+      "status": "active",
+      "decisions_ref": "9.16",
+      "description": "Points evaluated along each parameter's declared sweep interval in one coordinate pass, endpoints included. Three is the smallest number that can show curvature. Each point is a full run, so this multiplies wall clock directly.",
+      "consumers": [
+        "src/calibrate/calibrate.py"
+      ]
+    },
+    "CAL.search.max_rounds": {
+      "value": 3,
+      "units": "count",
+      "source": "assumed",
+      "sweep": [
+        1,
+        6
+      ],
+      "status": "active",
+      "decisions_ref": "9.16",
+      "description": "Maximum coordinate-descent passes over the free parameters. The loop stops earlier if a pass improves the objective by less than CAL.search.convergence_delta.",
+      "consumers": [
+        "src/calibrate/calibrate.py"
+      ]
+    },
+    "CAL.search.convergence_delta": {
+      "value": 0.25,
+      "units": "percentage_points",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        1.0
+      ],
+      "status": "active",
+      "decisions_ref": "9.16",
+      "description": "A coordinate pass that improves the objective by less than this ends the search. In the units of the objective, which is mean absolute mode-share error in percentage points. Below roughly 0.1 pp the search would be chasing seed noise rather than parameter effects, which DECISIONS.md 9.7 measured at the same order.",
+      "consumers": [
+        "src/calibrate/calibrate.py"
+      ]
+    }
+  }
+}

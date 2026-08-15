@@ -21,7 +21,16 @@ import os
 import subprocess
 import sys
 
-MANIFEST = 'data/MANIFEST.csv'
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', 'src'))
+import city  # noqa: E402
+
+# Manifest rows are CITY-RELATIVE (`data/processed/...`), so they are resolved
+# against the city directory rather than the working directory. The same row in
+# two cities' manifests describes the same layer.
+MANIFEST = city.path('data', 'MANIFEST.csv')
+CITY_REL = os.path.relpath(city.CITY_DIR, os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__)))).replace(os.sep, '/')
 CHUNK = 1 << 20
 
 
@@ -38,9 +47,11 @@ def norm(path):
 
 
 def tracked_files():
-    out = subprocess.run(['git', 'ls-files', '-z', 'data/processed'],
+    """Tracked files under this city's processed data, as city-relative paths."""
+    out = subprocess.run(['git', 'ls-files', '-z', CITY_REL + '/data/processed'],
                          capture_output=True, text=True, check=True).stdout
-    return {norm(p) for p in out.split(chr(0)) if p}
+    prefix = CITY_REL + '/'
+    return {norm(p)[len(prefix):] for p in out.split(chr(0)) if p}
 
 
 def main():
@@ -56,7 +67,8 @@ def main():
         for row in csv.DictReader(f):
             path = norm(row['path'])
             manifested.add(path)
-            if not os.path.exists(path):
+            full = city.path(path)
+            if not os.path.exists(full):
                 absent += 1
                 continue
             checked += 1
@@ -64,7 +76,7 @@ def main():
             # digest for files it declined to hash; size is still authoritative there.
             recorded = (row['sha256'] or '').strip()
             if len(recorded) == 64 and all(c in '0123456789abcdef' for c in recorded):
-                actual = sha256(path)
+                actual = sha256(full)
                 if actual != recorded:
                     failures.append('%s: sha256 %s, manifest says %s'
                                     % (path, actual[:16], recorded[:16]))
@@ -72,7 +84,7 @@ def main():
             else:
                 unhashed += 1
             if row['bytes']:
-                size = os.path.getsize(path)
+                size = os.path.getsize(full)
                 if size != int(row['bytes']):
                     failures.append('%s: %d bytes, manifest says %s'
                                     % (path, size, row['bytes']))

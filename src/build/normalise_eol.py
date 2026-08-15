@@ -12,23 +12,40 @@ under data/raw/ that our own extract scripts wrote.
 import os
 import sys
 
+REPO = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))
+
 TEXT_EXT = {'.csv', '.json', '.txt', '.md', '.py', '.html', '.yml', '.yaml',
             '.jsonl', '.cfg', '.ini', '.sh'}
 BINARY_EXT = {'.zip', '.tif', '.tiff', '.pdf', '.xlsx', '.xls', '.gpkg', '.pbf',
               '.png', '.jpg', '.jpeg', '.osm'}
-ROOTS = ['data/processed', 'params', 'scenarios', 'demand', 'docs', 'src', 'tests',
-         '.githooks', '.claude', '.github']
+# Two trees, because the repository holds a framework and one city's instance of
+# it. Paths in CITY_* are relative to cities/<city>/; paths in REPO_* to the root.
+REPO_ROOTS = ['docs', 'src', 'tests', 'config', '.githooks', '.claude', '.github']
+CITY_ROOTS = ['data/processed', 'params', 'scenarios', 'demand', 'extract', 'build',
+              'geometry',
+              'overlays', 'registry']
 # P2 build outputs: the reports are committed, so they are hashed over LF bytes
 # like everything else. The XML networks under them are gitignored bulk.
-ROOTS += ['networks/matsim', 'networks/sumo']
-SINGLE = ['DECISIONS.md', 'README.md', 'STATUS.md', 'CLAUDE.md', '.gitignore',
-          '.gitattributes', 'newcastle-lr-proposal.md',
-          'data/raw/provenance_open_data.json', 'data/raw/provenance_abs_dem.json',
-          'data/raw/_s3_historical_gtfs_listing.txt', 'data/raw/_osm_fetch.log',
-          'schedules/provenance.json', 'schedules/raw/provenance.json',
-          'schedules/era_build_summary.json', 'schedules/_era1_reconstruction_report.json',
-          'schedules/scenarios/_scenario_schedule_report.json',
-          'data/MANIFEST.csv', 'data/MANIFEST.json']
+CITY_ROOTS += ['networks/matsim', 'networks/sumo']
+# DECISIONS.md, STATUS.md and CLAUDE.md are deliberately absent: they live under
+# docs/ and .claude/, both already walked by REPO_ROOTS. README.md and run.py are
+# the only files left at the repo root, so they are the only ones named here.
+REPO_SINGLE = ['README.md', 'run.py', '.gitignore', '.gitattributes']
+CITY_SINGLE = ['data/raw/provenance_open_data.json', 'data/raw/provenance_abs_dem.json',
+               'data/raw/_s3_historical_gtfs_listing.txt', 'data/raw/_osm_fetch.log',
+               'schedules/provenance.json', 'schedules/raw/provenance.json',
+               'schedules/era_build_summary.json',
+               'schedules/_era1_reconstruction_report.json',
+               'schedules/scenarios/_scenario_schedule_report.json',
+               'data/MANIFEST.csv', 'data/MANIFEST.json']
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', 'src'))
+import city as _city  # noqa: E402
+
+ROOTS = [os.path.join(REPO, r) for r in REPO_ROOTS] +         [_city.path(r) for r in CITY_ROOTS]
+SINGLE = [os.path.join(REPO, s) for s in REPO_SINGLE] +          [_city.path(s) for s in CITY_SINGLE]
 
 
 def candidates():

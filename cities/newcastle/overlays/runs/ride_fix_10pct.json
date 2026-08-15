@@ -1,0 +1,10 @@
+{
+  "overlay": "ride_fix_10pct",
+  "description": "The like-for-like test of the issue #28 fix. Configured IDENTICALLY to cordon_escort_10pct and to the pre-fix run S2_WEEKDAY_f01_i250_s20260810 - same fraction, iterations, threads, seed, xmx - so the only difference between the two is the controler binding that gives `ride` congested car travel times instead of free-flow ones. It must be run under a --tag so it lands in its own directory: the pre-fix run is the only baseline that exists, the harness deletes a run directory before repeating it, and the new controler hash would otherwise trigger exactly that. WHY 10% AND NOT 1%: a first attempt at 1% was uninterpretable. DECISIONS.md 15 records that MATSim floors link storage at one vehicle, so a 1% sample produces spurious spillback that inflates car delay - and `ride` is teleported, so it is immune to spillback that `car` is not. That penalises car by construction and widens the very gap the fix is meant to close. The comparison is only valid at the fraction the baseline was run at. NOT A RESULT: 250 iterations is measurably short of relaxation, and the demand still lacks through traffic and freight, so no mode share, count comparison or fit statistic may be read from it. The test is narrow and internal: ride speed against car speed WITHIN MATCHED DISTANCE BINS, because ride legs are longer than car legs and comparing aggregate mean speeds confounds trip-length composition with the defect.",
+  "set": {
+    "RUN.sample.fraction": 0.10,
+    "RUN.controler.last_iteration": 250,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "26g"
+  }
+}

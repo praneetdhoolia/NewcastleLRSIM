@@ -1,0 +1,940 @@
+{
+  "layer": "B",
+  "title": "Demand (B1-B5)",
+  "description": "Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.",
+  "decisions_ref": "9",
+  "fields": {
+    "B.seed.master": {
+      "value": 20260810,
+      "units": "integer_seed",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.1",
+      "description": "The one seed everything synthetic derives from. CLAUDE.md forbids unseeded randomness, wall-clock dependence and dict/set-ordering dependence anywhere in a build script. Changing this changes every synthetic artefact.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.population.age_bands": {
+      "value": [
+        [
+          0,
+          4
+        ],
+        [
+          5,
+          11
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          18,
+          24
+        ],
+        [
+          25,
+          34
+        ],
+        [
+          35,
+          44
+        ],
+        [
+          45,
+          54
+        ],
+        [
+          55,
+          64
+        ],
+        [
+          65,
+          74
+        ],
+        [
+          75,
+          84
+        ],
+        [
+          85,
+          120
+        ]
+      ],
+      "units": "years",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.1",
+      "description": "Age banding for population synthesis. Follows the census table structure.",
+      "consumers": [
+        "src/build/build_population.py"
+      ]
+    },
+    "B.population.licence_rate_by_age_band": {
+      "value": [
+        0,
+        0,
+        0,
+        0.62,
+        0.88,
+        0.93,
+        0.94,
+        0.93,
+        0.88,
+        0.72,
+        0.45
+      ],
+      "units": "probability",
+      "source": "literature",
+      "sweep": {
+        "proportional": 0.1
+      },
+      "status": "active",
+      "decisions_ref": "9.1",
+      "description": "Driver licence holding by age band, aligned to B.population.age_bands.",
+      "consumers": [
+        "src/build/build_population.py"
+      ]
+    },
+    "B.activity.hts_rate_per_person_day": {
+      "value": 3.473,
+      "units": "trips_per_person_per_day",
+      "source": "measured",
+      "sweep": [
+        3.3,
+        3.65
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Observed NSW HTS trip rate the synthesis is calibrated to reproduce. The realised rate is 3.397, 2.2% low.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.act_duration_min": {
+      "value": {
+        "HW": 465,
+        "HE": 360,
+        "HS": 45,
+        "HO": 90,
+        "WB": 60,
+        "NHB": 20,
+        "HX": 5
+      },
+      "units": "minutes",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Mean activity duration by purpose. HX (serve passenger) is a drop-off: the driver does not perform an activity at the destination, so its duration is the dwell, not a stay. No survey in the package measures a drop-off dwell, so it is assumed and carries the same proportional sweep as the rest.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.duration_cv": {
+      "value": 0.3,
+      "units": "coefficient_of_variation",
+      "source": "assumed",
+      "sweep": [
+        0.2,
+        0.45
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Spread of activity duration around its mean.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.p_intermediate_stop": {
+      "value": {
+        "HW": 0.22,
+        "HE": 0.12,
+        "HS": 0.18,
+        "HO": 0.2,
+        "WB": 0.3,
+        "HX": 0.15
+      },
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        0.35
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Probability a tour carries an intermediate stop, by purpose. WATCH THIS ONE: it decides how many sub-tours exist and therefore how freely MATSim mode choice can vary within a day. It is assumed, and it is the demand-side parameter with the most leverage over mode share. 56.7% of persons have more than one tour at the shipped values. HX (serve passenger) chains at the same rate as a discretionary tour: a driver who drops a passenger may link another stop before returning.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.p_second_stop": {
+      "value": 0.25,
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.12,
+        0.4
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Probability of a second intermediate stop, given a first.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.child_tour_retention": {
+      "value": 0.4,
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.25,
+        0.6
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Share of child tours retained as independent tours.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.p_mandatory": {
+      "value": {
+        "WEEKDAY": {
+          "work": 0.78,
+          "education": 0.85
+        },
+        "SAT": {
+          "work": 0.16,
+          "education": 0.03
+        },
+        "SUN": {
+          "work": 0.09,
+          "education": 0.01
+        }
+      },
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.6,
+        0.95
+      ],
+      "sweep_basis": "the work entry is bounded BELOW by the census G62 observed attendance of 0.651, which bounds the sweep and is not allowed to set the value, because census night was August 2021 with 19.2% working from home",
+      "status": "active",
+      "decisions_ref": "2.4, 9.2",
+      "description": "Probability an employed person or student attends on a given day type.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.day_purpose_mix": {
+      "value": {
+        "WEEKDAY": {
+          "HW": 1.0,
+          "HE": 1.0,
+          "HS": 0.9,
+          "HO": 0.9,
+          "WB": 1.0,
+          "HX": 1.0
+        },
+        "SAT": {
+          "HW": 0.25,
+          "HE": 0.05,
+          "HS": 1.6,
+          "HO": 1.5,
+          "WB": 0.15,
+          "HX": 0.7
+        },
+        "SUN": {
+          "HW": 0.18,
+          "HE": 0.02,
+          "HS": 1.0,
+          "HO": 1.6,
+          "WB": 0.1,
+          "HX": 0.5
+        }
+      },
+      "units": "multiplier_on_weekday",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.3
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Weekend purpose mix relative to the weekday. HX (serve passenger) is derived demand - it exists because somebody else has to be somewhere - so it falls at the weekend with the school run without vanishing, because weekend escorting is sport and social rather than education. Like every other entry here it is assumed and swept; the HTS extract in the package carries no day-type dimension to estimate it from. NHB is absent: it is a leg label, not a tour purpose, so it has no day-type mix to carry.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.sat_to_sun_rate": {
+      "value": 1.1875,
+      "units": "ratio",
+      "source": "assumed",
+      "sweep": [
+        1.0,
+        1.45
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12).",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.weekend_to_weekday": {
+      "value": 0.7521,
+      "units": "ratio",
+      "source": "measured",
+      "sweep": [
+        0.709,
+        0.816
+      ],
+      "sweep_basis": "observed across 551 RMS station-years",
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Weekend vs weekday travel, measured from the RMS traffic counts own WEEKDAYS and WEEKENDS periods. Replaces an assumed value that implied 0.825. Vehicle volume, not person trips."
+    },
+    "B.activity.detour_factor": {
+      "value": 1.3376,
+      "units": "ratio",
+      "source": "measured",
+      "sweep": [
+        1.25,
+        1.423
+      ],
+      "sweep_basis": "the interquartile range of the per-pair ratios over 551 population-weighted zone pairs",
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Straight-line to network distance, routed over the observed A1 road graph. Replaces an assumed 1.30. The build script keeps a 1.30 fallback labelled 'assumed - C2 factors file not found'; that fallback is now this field. The build script no longer keeps its own copy: it READS THIS FIELD as the fallback when params/C2_network_factors.json is absent, so the two values that check_legacy_drift.py existed to compare are now one value."
+    },
+    "B.activity.days_per_week": {
+      "value": {
+        "WEEKDAY": 5.0,
+        "SAT": 1.0,
+        "SUN": 1.0
+      },
+      "units": "days",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Days each day type represents when composing a week.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.weekend_departure_shift_h": {
+      "value": {
+        "WEEKDAY": 0,
+        "SAT": 1,
+        "SUN": 1
+      },
+      "units": "hours",
+      "source": "assumed",
+      "sweep": [
+        0,
+        2
+      ],
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Shift applied to the weekday departure profile on weekend day types.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.interaction_rate": {
+      "value": 0.08,
+      "units": "probability",
+      "source": "assumed",
+      "sweep": [
+        0.04,
+        0.15
+      ],
+      "status": "active",
+      "decisions_ref": "9.2, 13",
+      "description": "Rate at which external-tier residents interact with the core. LOCALISABLE BUT NOT YET AVAILABLE: the ABS journey-to-work origin-destination table (SA2 usual residence x SA2 place of work) would settle it. The package holds the place-of-work side but not the pairing. A standard TableBuilder extract, not a formal request (DECISIONS.md 13 priority 11).",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.through_share": {
+      "value": 0.35,
+      "units": "share_of_aadt",
+      "source": "assumed",
+      "sweep": [
+        0.15,
+        0.6
+      ],
+      "sweep_basis": "No through-share survey exists for the study boundary and no journey-linked data can separate through from local traffic at a count station, so the share is assumed and swept wide. The motivating observation is V113 (the M1 at Wyee, 48,016 AADT, a calibration row): the Sydney-Newcastle motorway at the boundary is the road most dominated by through traffic, and the model routed zero vehicles onto it because the demand contained no through movement at all (issue #20).",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "Share of the AADT measured at a cordon-gate calibration count station that is through traffic - vehicles whose journey neither starts nor ends inside the study area. Applied symmetrically: half of the through component enters at the gate and half exits, so the generated inbound volume at gate i is 0.5 x through_share x AADT_i. Seeded from CALIBRATION count rows only; the split filter is structural in the builder and no holdout row is ever read.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.through_corridor_match_km": {
+      "value": 30.0,
+      "units": "km",
+      "source": "assumed",
+      "sweep": [
+        10.0,
+        50.0
+      ],
+      "sweep_basis": "MEASURED MOTIVATION: only one calibration station sits within 2 km of the boundary crossing it measures (the M1 at Wyee, 273 m); the others that observe a boundary corridor sit 16-24 km inside it (Pacific Highway at Tomago, New England Highway at Tarro). Matching by same road NAME along the corridor is what the held data supports; the radius bounds how far along the corridor a station may sit and still anchor the gate. An inland station overstates the boundary volume by its local traffic - absorbed, stated, by the through_share sweep.",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "A boundary-crossing road edge becomes a through-traffic gate only if a calibration count station ON THE SAME NAMED ROAD lies within this distance of the crossing; the nearest such station anchors the gate's volume. Beyond it the corridor is unobserved and generates nothing.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.through_outside_min_m": {
+      "value": 1000.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        300.0,
+        3000.0
+      ],
+      "sweep_basis": "The dissolved study boundary includes the coastline and the harbour, so a road bridging the Hunter River 'crosses the boundary' without leaving the study area - Hannell Street at Wickham is the measured example (nothing of it reaches more than 2 m beyond the polygon), and its station would otherwise seed through traffic entering in central Newcastle. Genuine exits measured on the rebuilt layer put same-named endpoints 1-8 km beyond the boundary while their crossing EDGES often end 31-203 m out, so the evidence is road-level. 1 km separates a departure from a river crossing; the sweep brackets that judgement.",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "A boundary crossing counts as leaving the study area only if some endpoint of its ROAD (any same-named edge within the corridor-match distance of the crossing) lies at least this far beyond the dissolved boundary. Road-level, not edge-level: a motorway's crossing way often ends metres past the polygon while the road continues on further ways. Filters water crossings INSIDE the area (harbour bridges) out of the gate set.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.through_min_separation_km": {
+      "value": 30.0,
+      "units": "km",
+      "source": "assumed",
+      "sweep": [
+        20.0,
+        50.0
+      ],
+      "sweep_basis": "The study area spans roughly 60-90 km. A through trip must actually cross it: two gates a few kilometres apart on the same corridor edge would otherwise exchange 'through' trips that never leave the boundary region. 30 km forces entry and exit to lie on opposite sides; the sweep brackets how strict that requirement is.",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "Minimum straight-line separation between the entry gate and the exit gate for a generated trip to count as through traffic. Exit gates closer than this to the entry are excluded from its destination set.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.day_factor": {
+      "value": {
+        "WEEKDAY": 1.0,
+        "SAT": 0.4,
+        "SUN": 0.3
+      },
+      "units": "multiplier",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.3
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "External boundary demand by day type, relative to the weekday.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.purpose_split": {
+      "value": {
+        "HW": 0.7,
+        "HO": 0.3
+      },
+      "units": "probability",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.2
+      },
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Purpose split for external boundary demand.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.person_id_base": {
+      "value": 900000000,
+      "units": "integer_offset",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Id offset that keeps external agents distinguishable from core agents.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.opal.journey_linked": {
+      "value": null,
+      "units": "dataset",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "tap_sequence_matching_model"
+        ],
+        "basis": "proposal 7.2 fallback: estimate transfer rates from tap-on/tap-off timing at the Interchange using aggregate stop-level data plus a matching model, validated against the published interchange percentages"
+      },
+      "status": "unobtained",
+      "decisions_ref": "0, 13",
+      "proposal_ref": "6.1, 7.2",
+      "description": "Journey-linked Opal. NOT OBTAINED - a formal TfNSW request is outstanding. Proposal 6.1 calls it 'the difference between a good model and a guess'. It is what would let C.transfer.beta_transfer_penalty_min be ESTIMATED rather than swept. Until it lands the transfer penalty stays a curve across 3-15 min."
+    },
+    "B.counts.heavy_vehicle_share": {
+      "value": 0.0652,
+      "units": "share_of_vehicles",
+      "source": "measured",
+      "sweep": [
+        0.0129,
+        0.1529
+      ],
+      "sweep_basis": "the observed range across the 23 stations that carry a classified count",
+      "status": "active",
+      "decisions_ref": "12.2a",
+      "description": "Heavy vehicle share, applied AT COMPARISON TIME to the comparison and not to the model, because the model represents no freight. At the 23 stations with a classified count the station own observed share is used; at the remaining 96 this median is assumed. Only 3 of the 34 calibration stations are classified, so the assumed case is the usual one."
+    },
+    "B.counts.vehicles_per_car_leg": {
+      "value": 1.0,
+      "units": "vehicles_per_leg",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "12.2a",
+      "description": "A car leg contributes one vehicle to a count. Derived from occupancy 1.3503: observed vehicle trips ARE driver trips.",
+      "derived_from": {
+        "fields": [
+          "C.constraint.vehicle_occupancy"
+        ],
+        "identity": "observed vehicle trips ARE driver trips at occupancy 1.3503, so a car leg contributes exactly one vehicle"
+      }
+    },
+    "B.counts.vehicles_per_ride_leg": {
+      "value": 0.0,
+      "units": "vehicles_per_leg",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "12.2a",
+      "description": "A ride leg contributes NO vehicle: the passenger rides in a vehicle already counted. Holds only while the modelled ride:car ratio matches the observed passenger:driver ratio, which is what C.asc.car_passenger is constrained to reproduce. What stays genuinely unmodelled is the escort trip - B2 generates none, so a driver travelling solely to carry someone is absent from both the car legs and the counts explanation (issue 11).",
+      "derived_from": {
+        "fields": [
+          "C.constraint.vehicle_occupancy",
+          "C.asc.car_passenger"
+        ],
+        "identity": "a passenger rides in a vehicle already counted, so a ride leg contributes zero - valid only while the modelled ride:car ratio matches the observed passenger:driver ratio"
+      }
+    },
+    "B.counts.station_match_radius_m": {
+      "value": 120.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        60.0,
+        120.0
+      ],
+      "sweep_basis": "measured on data/processed/validation/count_station_links.csv: the largest ACCEPTED match is 119.7 m, so 120 m is exactly binding. Tightening costs targets at a measured rate - at 100 m six of the 116 matched stations lose their link and at 60 m twenty-three do - which is the lower bound. The upper bound is the current value because loosening cannot gain anything already in the file; whether a larger radius would resolve the three stations that match nothing (issue 10) has NOT been tested, and testing it means re-running the mapper and regenerating a committed artefact.",
+      "status": "active",
+      "decisions_ref": "12.1",
+      "description": "Radius within which a permanent traffic count station may be attached to a network link it is taken to count. It decides which road_aadt targets are scorable at all, so it is a lever on the reported fit, not a plotting tolerance: 189 of 203 link matches are by name AND proximity, 14 by proximity alone. Was a CLI default typed into map_count_stations.py with no provenance and no range (issue 19).",
+      "consumers": [
+        "src/analyse/map_count_stations.py"
+      ]
+    },
+    "B.activity.day_horizon_s": {
+      "value": 108000,
+      "units": "seconds",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.2",
+      "description": "Simulation day horizon, 30 hours. Matches RUN.qsim.end_time_h. No leg may arrive after it; the P1 chains had 1.77% arriving late, latest 36.0 h. The build script writes it as the expression 30 * 3600, which is not a literal and so is not compared by value in the legacy-drift check.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.population.bike_available_rate": {
+      "value": 0.5,
+      "units": "share",
+      "source": "assumed",
+      "sweep": [
+        0.3,
+        1.0
+      ],
+      "sweep_basis": "The census carries no bicycle-ownership variable, so any rate is assumed. The upper bound 1.0 is the previous silent behaviour (bike available to everyone), retained in the sweep so the constraint's own effect is measurable; the lower bound allows for household access well below half. Re-size against the observed 3.2% bike share only AFTER the post-rebuild run re-measures the modelled share - the old 5x was measured on a model that no longer exists (issue #29).",
+      "status": "active",
+      "decisions_ref": "9.39",
+      "description": "Share of synthetic persons with a bicycle available to them. Until this field existed, car was the only mode whose ownership was modelled while bike was silently available to everyone - a structural bias against car in the choice set itself, undeclared anywhere (issue #29, SPEC_AUDIT A3). Drawn deterministically per person in build_matsim_plans.py and consumed by the same availability calculator that enforces rideAvail. External boundary agents keep bike available: they are household-less by construction, so no ownership identity exists to derive a denial from, and the choice is recorded in DECISIONS.md 9.39.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "B.population.ride_requires_household_driver": {
+      "value": true,
+      "units": "boolean",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "8.5, 9.10, 15",
+      "proposal_ref": "9",
+      "derived_from": {
+        "fields": [
+          "B.seed.master"
+        ],
+        "identity": "a person may be a car passenger only if their B1 household holds at least one vehicle AND contains at least one OTHER licence holder who could drive them; computed from B1_synthetic_population.csv household_id, household_vehicles and licence_holder, so it is derived from the synthetic population rather than chosen"
+      },
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ],
+      "description": "Whether `ride` is withheld from a person with nobody to drive them. MATSim's standard treatment lets any agent be a car passenger on any trip; DECISIONS.md 9.10 measures the cost at 0.72 of legs against an observed 0.206, unmoved by a tenfold sample increase, i.e. 5.9 people per car. Core MATSim can restrict `car` per person via `carAvail` but has no equivalent for `ride`, and subtourModeChoice.modes is global, so the fix is a person attribute honoured by a custom PermissibleModesCalculator (src/java/citysim/). Setting this false restores the previous behaviour for comparison. RESIDUAL LIMITATION, stated not hidden: this makes ride available or not per person, it does NOT bind a passenger to a specific driver at a specific time - that is the socnetsim joint-plans contrib (Dubernet & Axhausen), absent from the pinned jar and out of scope."
+    },
+    "B.activity.escort_requires_licence": {
+      "value": true,
+      "units": "boolean",
+      "source": "derived",
+      "derived_from": {
+        "fields": [
+          "B.population.licence_rate_by_age_band"
+        ],
+        "identity": "an escort trip is a trip made in order to convey another person, so the traveller is the driver, and a person without a licence cannot make one; the same identity as B.population.ride_requires_household_driver taken on the driver side rather than the passenger side"
+      },
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Whether a serve-passenger (HX) tour may only be drawn for a licence holder. Consumed where tours are allocated to persons.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.cordon_road_classes": {
+      "value": [
+        "motorway",
+        "trunk",
+        "primary",
+        "secondary",
+        "motorway_link",
+        "trunk_link",
+        "primary_link"
+      ],
+      "units": "osm_highway_class",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Road classes whose network nodes may serve as an external station, that is a cordon entry point. Defines what counts as a road capable of carrying boundary demand into the study area; a residential cul-de-sac is not one.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.agent_profile": {
+      "value": {
+        "car_available": 1,
+        "age": 40,
+        "licence_holder": 1,
+        "employment_status": "employed_full_time",
+        "student_status": "none",
+        "mobility_impairment_flag": 0
+      },
+      "units": "person_attributes",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Placeholder person attributes for an external boundary agent, which has no B1 household. Definitional placeholders for a tier that is a boundary treatment rather than a synthesised population, not estimates of anything. Ride availability is deliberately NOT among them: see B.external.agent_ride_available.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "B.external.agent_ride_available": {
+      "value": false,
+      "units": "boolean",
+      "source": "derived",
+      "derived_from": {
+        "fields": [
+          "B.population.ride_requires_household_driver"
+        ],
+        "identity": "a person may be a car passenger only if their household holds a vehicle AND contains another licence holder; an external boundary agent is household-less by construction, so that condition cannot be satisfied and ride is unavailable. Resolving the same unknown the other way made 432 of 962 external trips car-passenger trips with no possible driver"
+      },
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.15",
+      "description": "Whether an external boundary agent may travel as a car passenger.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "B.activity.departure_profile": {
+      "value": {
+        "HE": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.002,
+          0.01,
+          0.06,
+          0.23,
+          0.27,
+          0.09,
+          0.035,
+          0.03,
+          0.035,
+          0.04,
+          0.075,
+          0.06,
+          0.03,
+          0.015,
+          0.008,
+          0.005,
+          0.003,
+          0.002,
+          0.0,
+          0.0
+        ],
+        "HO": [
+          0.004,
+          0.002,
+          0.002,
+          0.002,
+          0.005,
+          0.015,
+          0.035,
+          0.06,
+          0.075,
+          0.08,
+          0.08,
+          0.08,
+          0.075,
+          0.075,
+          0.075,
+          0.075,
+          0.07,
+          0.065,
+          0.055,
+          0.045,
+          0.035,
+          0.025,
+          0.012,
+          0.008
+        ],
+        "HS": [
+          0.001,
+          0.001,
+          0.0,
+          0.001,
+          0.002,
+          0.008,
+          0.02,
+          0.04,
+          0.07,
+          0.095,
+          0.11,
+          0.11,
+          0.1,
+          0.095,
+          0.09,
+          0.08,
+          0.065,
+          0.05,
+          0.03,
+          0.018,
+          0.008,
+          0.004,
+          0.002,
+          0.001
+        ],
+        "HW": [
+          0.002,
+          0.001,
+          0.001,
+          0.002,
+          0.01,
+          0.045,
+          0.11,
+          0.19,
+          0.175,
+          0.085,
+          0.04,
+          0.03,
+          0.028,
+          0.028,
+          0.03,
+          0.035,
+          0.05,
+          0.055,
+          0.035,
+          0.02,
+          0.012,
+          0.008,
+          0.005,
+          0.003
+        ],
+        "NHB": [
+          0.002,
+          0.001,
+          0.001,
+          0.002,
+          0.006,
+          0.02,
+          0.06,
+          0.11,
+          0.105,
+          0.07,
+          0.06,
+          0.06,
+          0.06,
+          0.07,
+          0.1,
+          0.095,
+          0.07,
+          0.05,
+          0.03,
+          0.018,
+          0.008,
+          0.004,
+          0.002,
+          0.001
+        ],
+        "WB": [
+          0.001,
+          0.001,
+          0.001,
+          0.002,
+          0.005,
+          0.02,
+          0.055,
+          0.09,
+          0.11,
+          0.12,
+          0.115,
+          0.1,
+          0.085,
+          0.085,
+          0.08,
+          0.06,
+          0.04,
+          0.02,
+          0.006,
+          0.002,
+          0.001,
+          0.001,
+          0.0,
+          0.0
+        ]
+      },
+      "units": "probability_by_hour",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.25
+      },
+      "sweep_basis": "the whole profile may be reweighted by a quarter either way per hour, then renormalised. There is no Newcastle observation to bracket it: the HTS held is aggregate and reports journeys by purpose, not departure hour. A proportional sweep is the honest expression of \"NSW-typical shape, magnitude unknown\".",
+      "status": "active",
+      "decisions_ref": "9, 15",
+      "description": "Probability that a tour of each purpose departs in each hour 0-23. ONE HUNDRED AND FORTY-FOUR ASSUMED NUMBERS that decide when every trip in the model happens, and therefore what the peak looks like and where congestion forms. They were a dict literal in src/build/build_activity_chains.py labelled \"assumed, NSW-typical shapes\", which no audit could see because a container is not a scalar and no sweep could reach. HX is a copy of HE and is derived at load rather than declared twice."
+    },
+    "B.mode.seed_split": {
+      "value": {
+        "car_available": {
+          "bike": 0.2,
+          "car": 0.2,
+          "pt": 0.2,
+          "ride": 0.2,
+          "walk": 0.2
+        },
+        "no_car": {
+          "bike": 0.25,
+          "pt": 0.25,
+          "ride": 0.25,
+          "walk": 0.25
+        }
+      },
+      "units": "share_by_mode",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.6, 9.7",
+      "description": "The mode split the co-evolution STARTS from, conditioned only on car availability from B1. UNIFORM OVER THE USABLE MODES AND DELIBERATELY A BAD GUESS: it starts the search far from the observed point so that arriving there is evidence about the model rather than about the seed. It is a definition, not an assumption, because \"uniform over what a person can use\" is fully determined by B1 car availability and has no free share to sweep. What is swept is the CHOICE of seed - see B.mode.seed_split_informed."
+    },
+    "B.mode.seed_split_informed": {
+      "value": {
+        "car_available": {
+          "bike": 0.01,
+          "car": 0.78,
+          "pt": 0.02,
+          "ride": 0.1,
+          "walk": 0.09
+        },
+        "no_car": {
+          "bike": 0.06,
+          "pt": 0.09,
+          "ride": 0.4,
+          "walk": 0.45
+        }
+      },
+      "units": "share_by_mode",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "uninformed",
+          "informed"
+        ]
+      },
+      "sweep_basis": "the sweep is over WHICH SEED IS USED, not over the shares. These are the only two seeds the plan builder can produce, and DECISIONS.md 9.7 reports the measured difference between the runs they produce. That is what makes \"the result does not depend on the seed\" a claim that can be tested rather than asserted (DECISIONS.md 9.6).",
+      "status": "active",
+      "decisions_ref": "9.6, 9.7",
+      "description": "The informed seed the uniform one replaced, retained so the seed-independence claim is testable by running both. Selected with --seed-mode informed. Approximately the observed split, which is exactly why it is NOT the default: seeding at the answer makes reaching the answer uninformative."
+    },
+    "B.network_factors.n_pairs": {
+      "value": 600,
+      "units": "zone_pairs",
+      "source": "assumed",
+      "sweep": [
+        200,
+        5000
+      ],
+      "sweep_basis": "how many population-weighted zone pairs the detour factor is measured over. It is a MONTE CARLO SAMPLE SIZE, so the sweep is about the precision of the measurement rather than about the city: too few pairs and the ratio is noisy, more than a few thousand buys little and costs routing time.",
+      "status": "active",
+      "decisions_ref": "9.2, 15",
+      "description": "Zone pairs routed over the observed road graph to measure B.activity.detour_factor. A keyword default AND an argparse default carrying the same number, neither declared."
+    },
+    "B.network_factors.min_pair_m": {
+      "value": 500.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        100.0,
+        2000.0
+      ],
+      "sweep_basis": "the shortest straight-line separation a measured pair may have. Below it the network detour ratio is dominated by which side of the block each centroid fell on rather than by the road graph, and above it short trips - the ones walk needs - stop being represented.",
+      "status": "active",
+      "decisions_ref": "9.2, 15",
+      "description": "Minimum straight-line distance between two zone centroids for the pair to enter the detour measurement."
+    },
+    "B.network_factors.distance_band": {
+      "value": 0.25,
+      "units": "share",
+      "source": "assumed",
+      "sweep": [
+        0.1,
+        0.5
+      ],
+      "sweep_basis": "width of the distance band a destination is drawn from, as a share either side of the observed trip length. Wide enough that every origin has candidates, narrow enough that the measurement stays at the mode’s own length scale.",
+      "status": "active",
+      "decisions_ref": "9.2, 15",
+      "description": "Half-width of the distance band used when drawing a destination for the network-factor measurement."
+    },
+    "B.population.build_sample_share": {
+      "value": 1.0,
+      "units": "share_of_population",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "15",
+      "description": "Share of the synthetic population BUILT. One, always: this is the build, not the run. Sampling for a run is RUN.sample.fraction, applied by the harness to a full population - and conflating the two would make every run a sample of a sample. Declared so the distinction is visible; it was an argparse default of 1.0 sitting next to a run-time fraction of the same shape."
+    }
+  }
+}

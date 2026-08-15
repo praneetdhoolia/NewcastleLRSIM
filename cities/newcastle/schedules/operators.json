@@ -1,0 +1,36 @@
+{
+  "description": "Per-feed operator, contract and validity metadata for the GTFS extras layer. It was three dicts in src/build/build_gtfs_extras.py, naming this city's transport operators and contract regions inside the framework - a value about one city in code that is supposed to work for a city it has never seen.",
+  "note": "Keyed by the feed prefix the raw GTFS bundles use. A city with different feeds supplies its own file; the framework reads whatever is here and names none of it.",
+  "feeds": {
+    "nisc001": {
+      "operator": "Keolis Downer Hunter (Newcastle Transport)",
+      "contract": "NISC 1",
+      "valid_from": "2017-07-01",
+      "valid_to": ""
+    },
+    "lightrail": {
+      "operator": "Keolis Downer Hunter (Newcastle Transport)",
+      "contract": "NISC 1 (light rail)",
+      "valid_from": "2019-02-17",
+      "valid_to": ""
+    },
+    "regionbuses": {
+      "operator": "Hunter Valley Buses",
+      "contract": "Newcastle Hunter region",
+      "valid_from": "2024-09-01",
+      "valid_to": ""
+    },
+    "sydneytrains": {
+      "operator": "Sydney Trains",
+      "contract": "Intercity",
+      "valid_from": "",
+      "valid_to": ""
+    },
+    "nswtrains": {
+      "operator": "NSW TrainLink",
+      "contract": "Regional",
+      "valid_from": "",
+      "valid_to": ""
+    }
+  }
+}

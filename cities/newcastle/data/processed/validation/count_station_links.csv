@@ -1,0 +1,196 @@
+station_key,split,station_name,road_name,link,link_name,distance_m,matched_by
+55710,calibration,Pacific Highway,Pacific Highway,95461,Pacific Highway,50.2,name_and_proximity
+55710,calibration,Pacific Highway,Pacific Highway,78329,Pacific Highway,97.3,name_and_proximity
+55712,calibration,Pacific Highway,Pacific Highway,109253,Pacific Highway,119.7,name_and_proximity
+55728,holdout,Mccaffrey Drive,Mccaffrey Drive,4151,McCaffrey Drive,92.5,name_and_proximity
+55729,calibration,Pacific Motorway,Pacific Motorway,59599,Pacific Motorway,21.5,name_and_proximity
+55729,calibration,Pacific Motorway,Pacific Motorway,62471,Pacific Motorway,83.7,name_and_proximity
+55733,holdout,Minmi Road,Minmi Road,103099,Minmi Road,16.8,name_and_proximity
+55733,holdout,Minmi Road,Minmi Road,120260,Minmi Road,30.5,name_and_proximity
+55738,holdout,Minmi Road,Minmi Road,95538,Minmi Road,20.1,name_and_proximity
+55738,holdout,Minmi Road,Minmi Road,95542,Minmi Road,37.7,name_and_proximity
+55740,holdout,New England Highway,New England Highway,105101,New England Highway,6.6,name_and_proximity
+55758,holdout,Maitland Road,Maitland Road,157838,Maitland Road,8.2,name_and_proximity
+55758,holdout,Maitland Road,Maitland Road,43348,Maitland Road,23.2,name_and_proximity
+55760,calibration,New England Highway,New England Highway,3142,New England Highway,92.1,name_and_proximity
+55761,holdout,William Bailey Street,William Bailey Street,57948,William Bailey Street,30.2,name_and_proximity
+55761,holdout,William Bailey Street,William Bailey Street,21854,William Bailey Street,75.6,name_and_proximity
+55763,holdout,New England Highway,New England Highway,122678,New England Highway,61.7,name_and_proximity
+55763,holdout,New England Highway,New England Highway,22450,New England Highway,64.5,name_and_proximity
+55767,holdout,New England Highway,New England Highway,54344,New England Highway,5.1,name_and_proximity
+55767,holdout,New England Highway,New England Highway,109116,New England Highway,47.0,name_and_proximity
+55779,calibration,Awaba Road,Awaba Road,39809,Awaba Road,36.3,name_and_proximity
+55781,calibration,Pacific Motorway,Pacific Motorway,104753,Pacific Motorway,72.9,name_and_proximity
+55783,calibration,Pacific Motorway,Pacific Motorway,104753,Pacific Motorway,97.5,name_and_proximity
+55826,calibration,Newcastle Street,Newcastle Street,114335,Newcastle Street,8.4,name_and_proximity
+55826,calibration,Newcastle Street,Newcastle Street,130932,Newcastle Street,27.2,name_and_proximity
+55847,holdout,Charlestown Road,Charlestown Road,120502,Charlestown Road,28.2,name_and_proximity
+55847,holdout,Charlestown Road,Charlestown Road,126760,Charlestown Road,28.6,name_and_proximity
+55856,calibration,Nelson Bay Road,Nelson Bay Road,96674,Nelson Bay Road,32.2,name_and_proximity
+55856,calibration,Nelson Bay Road,Nelson Bay Road,39428,Nelson Bay Road,43.7,name_and_proximity
+55860,calibration,Cessnock Road,Cessnock Road,87296,Cessnock Road,8.8,name_and_proximity
+55863,calibration,Branxton-Toronto Rd,Freemans Drive,83120,Freemans Drive,105.8,name_and_proximity
+55865,holdout,John Renshaw Drive,John Renshaw Drive,61565,John Renshaw Drive,110.0,name_and_proximity
+55869,calibration,Pacific Highway,Pacific Highway,102956,Pacific Highway,34.0,name_and_proximity
+55869,calibration,Pacific Highway,Pacific Highway,102951,Pacific Highway,38.9,name_and_proximity
+55870,calibration,Maitland Road,Maitland Road,36977,Maitland Road,4.2,name_and_proximity
+55870,calibration,Maitland Road,Maitland Road,22065,Maitland Road,5.2,name_and_proximity
+55872,calibration,Lookout Road,Lookout Road,82108,Lookout Road,15.7,name_and_proximity
+55872,calibration,Lookout Road,Lookout Road,102177,Lookout Road,18.3,name_and_proximity
+55874,calibration,Belford Street,Belford Street,92681,Belford Street,10.8,name_and_proximity
+55874,calibration,Belford Street,Belford Street,69617,Belford Street,46.8,name_and_proximity
+55876,calibration,Glebe Road,Glebe Road,112437,Glebe Road,1.4,name_and_proximity
+55878,calibration,Maud Street,Maud Street,14867,Maud Street,7.1,name_and_proximity
+55878,calibration,Maud Street,Maud Street,90967,Maud Street,41.1,name_and_proximity
+55879,calibration,Lake Road,Lake Road,86649,Lake Road,30.0,name_and_proximity
+55879,calibration,Lake Road,Lake Road,86651,Lake Road,30.5,name_and_proximity
+55881,calibration,Hannell Street,Hannell Street,127371,Hannell Street,7.1,name_and_proximity
+55881,calibration,Hannell Street,Hannell Street,103653,Hannell Street,22.7,name_and_proximity
+55883,calibration,Red Head Road,Red Head Road,113025,Redhead Road,46.4,name_and_proximity
+55883,calibration,Red Head Road,Red Head Road,113027,Redhead Road,76.8,name_and_proximity
+55885,calibration,Warners Bay Road,Warners Bay Road,54080,Warners Bay Road,20.1,name_and_proximity
+55885,calibration,Warners Bay Road,Warners Bay Road,63095,Warners Bay Road,41.8,name_and_proximity
+55886,calibration,Croudace Bay Road,Croudace Bay Road,86459,Croudace Bay Road,31.1,name_and_proximity
+55888,calibration,Pacific Motorway,Pacific Motorway,75876,Pacific Motorway,67.3,name_and_proximity
+55888,calibration,Pacific Motorway,Pacific Motorway,555,Pacific Motorway,68.3,name_and_proximity
+55893,holdout,Maitland Street,Maitland Street,132128,Maitland Street,37.4,name_and_proximity
+55893,holdout,Maitland Street,Maitland Street,3094,Maitland Street,43.2,name_and_proximity
+55906,holdout,Pacific Highway,Pacific Highway,80138,Pacific Highway,10.9,name_and_proximity
+55906,holdout,Pacific Highway,Pacific Highway,150316,Pacific Highway,33.0,name_and_proximity
+55908,holdout,Pacific Highway,Pacific Highway,109079,Pacific Highway,10.5,name_and_proximity
+55908,holdout,Pacific Highway,Pacific Highway,109081,Pacific Highway,21.4,name_and_proximity
+55909,holdout,Pacific Highway,Pacific Highway,114943,Pacific Highway,48.7,name_and_proximity
+55909,holdout,Pacific Highway,Pacific Highway,114944,Pacific Highway,51.9,name_and_proximity
+55911,holdout,City Road,City Road,102961,City Road,51.0,name_and_proximity
+55911,holdout,City Road,City Road,13212,City Road,62.7,name_and_proximity
+55913,holdout,City Road,City Road,9946,City Road,37.4,name_and_proximity
+55913,holdout,City Road,City Road,10038,City Road,66.2,name_and_proximity
+55915,holdout,City Road,City Road,136278,City Road,28.9,name_and_proximity
+55915,holdout,City Road,City Road,51470,City Road,58.6,name_and_proximity
+55918,holdout,Parry Street,Parry Street,103392,Parry Street,7.0,name_and_proximity
+55918,holdout,Parry Street,Parry Street,40829,Parry Street,15.6,name_and_proximity
+55922,holdout,Maitland Road,Maitland Road,32504,Maitland Road,30.3,name_and_proximity
+55922,holdout,Maitland Road,Maitland Road,32506,Maitland Road,50.6,name_and_proximity
+55923,holdout,Maitland Road,Maitland Road,14623,Maitland Road,9.0,name_and_proximity
+55923,holdout,Maitland Road,Maitland Road,14621,Maitland Road,18.2,name_and_proximity
+55925,holdout,Maitland Road,Maitland Road,14579,Maitland Road,5.6,name_and_proximity
+55925,holdout,Maitland Road,Maitland Road,91996,Maitland Road,12.2,name_and_proximity
+55927,holdout,Adelaide Street,Adelaide Street,80433,Adelaide Street,4.5,name_and_proximity
+55927,holdout,Adelaide Street,Adelaide Street,80434,Adelaide Street,24.0,name_and_proximity
+55938,holdout,Newcastle Inner City Bypass,Newcastle Inner City Bypass,4633,Newcastle Inner City Bypass,88.2,name_and_proximity
+55938,holdout,Newcastle Inner City Bypass,Newcastle Inner City Bypass,116393,Newcastle Inner City Bypass,114.3,name_and_proximity
+55940,holdout,Charlestown Road,Charlestown Road,97162,Charlestown Road,10.7,name_and_proximity
+55940,holdout,Charlestown Road,Charlestown Road,97160,Charlestown Road,98.1,name_and_proximity
+55941,holdout,Newcastle Inner City Bypass,Newcastle Inner City Bypass,52681,Newcastle Inner City Bypass,22.4,name_and_proximity
+55941,holdout,Newcastle Inner City Bypass,Newcastle Inner City Bypass,52661,Newcastle Inner City Bypass,92.9,name_and_proximity
+55945,holdout,Lookout Road,Lookout Road,43370,Lookout Road,32.7,name_and_proximity
+55945,holdout,Lookout Road,Lookout Road,35862,Lookout Road,47.0,name_and_proximity
+55947,holdout,Croudace Street,Croudace Street,92637,Croudace Street,3.3,name_and_proximity
+55947,holdout,Croudace Street,Croudace Street,92639,Croudace Street,44.1,name_and_proximity
+55949,holdout,Newcastle Road,Newcastle Road,58726,Newcastle Road,12.2,name_and_proximity
+55949,holdout,Newcastle Road,Newcastle Road,43382,Newcastle Road,27.9,name_and_proximity
+55952,calibration,Sandgate Road,Sandgate Road,149978,Sandgate Road,31.6,name_and_proximity
+55952,calibration,Sandgate Road,Sandgate Road,149980,Sandgate Road,110.9,name_and_proximity
+55954,holdout,Wallsend Road,Wallsend Road,15414,Wallsend Road,37.9,name_and_proximity
+55958,calibration,Donald Street,Donald Street,50585,Donald Street,114.9,name_and_proximity
+55958,calibration,Donald Street,Donald Street,24107,Donald Street,115.7,name_and_proximity
+55961,holdout,Paterson Road,Paterson Road,33520,Paterson Road,82.9,name_and_proximity
+55977,holdout,Nelson Bay Road,Nelson Bay Road,143385,Nelson Bay Road,23.5,name_and_proximity
+55978,holdout,Nelson Bay Road,Nelson Bay Road,53222,Nelson Bay Road,92.4,name_and_proximity
+55978,holdout,Nelson Bay Road,Nelson Bay Road,125918,Nelson Bay Road,94.3,name_and_proximity
+55993,holdout,St James Road,St James Road,75112,Saint James Road,21.6,name_and_proximity
+55993,holdout,St James Road,St James Road,75110,Saint James Road,25.9,name_and_proximity
+56012,holdout,Newcastle Road,Newcastle Road,15609,Newcastle Road,9.7,name_and_proximity
+56012,holdout,Newcastle Road,Newcastle Road,42772,Newcastle Road,30.6,name_and_proximity
+56019,holdout,Newcastle Link Road,Newcastle Link Road,52678,Newcastle Link Road,74.1,name_and_proximity
+56023,holdout,Excelsior Parade,Excelsior Parade,150499,Excelsior Parade,9.5,name_and_proximity
+56023,holdout,Excelsior Parade,Excelsior Parade,16103,Excelsior Parade,11.4,name_and_proximity
+56025,holdout,Wangi Road,Wangi Road,122368,Wangi Road,11.9,name_and_proximity
+56025,holdout,Wangi Road,Wangi Road,19562,Wangi Road,29.3,name_and_proximity
+56028,calibration,Macquarie Street,Main Road,66145,Main Road,42.8,name_and_proximity
+56028,calibration,Macquarie Street,Main Road,3118,Main Road,43.0,name_and_proximity
+56039,holdout,Wollombi Road,Wollombi Road,138175,Wollombi Road,35.9,name_and_proximity
+56039,holdout,Wollombi Road,Wollombi Road,138173,Wollombi Road,117.6,name_and_proximity
+56043,holdout,Maitland Road,Maitland Road,121561,Maitland Road,2.9,name_and_proximity
+56043,holdout,Maitland Road,Maitland Road,121559,Maitland Road,29.1,name_and_proximity
+56044,holdout,Lang Street,Lang Street,77012,Lang Street,4.4,name_and_proximity
+56044,holdout,Lang Street,Lang Street,77270,Lang Street,44.4,name_and_proximity
+56053,holdout,Wine Country Drive,Wine Country Drive,108082,Wine Country Drive,33.7,name_and_proximity
+56057,holdout,Vincent Street,Vincent Street,67483,Vincent Street,37.0,name_and_proximity
+56057,holdout,Vincent Street,Vincent Street,65851,Vincent Street,48.1,name_and_proximity
+56064,holdout,Lambton Road,Lambton Road,151304,Lambton Road,6.2,name_and_proximity
+56064,holdout,Lambton Road,Lambton Road,151309,Lambton Road,25.2,name_and_proximity
+56071,holdout,Main Road,Main Road,61104,Main Road,8.2,name_and_proximity
+56071,holdout,Main Road,Main Road,61099,Main Road,9.1,name_and_proximity
+56073,holdout,Main Road,Main Road,20814,Main Road,5.4,name_and_proximity
+56073,holdout,Main Road,Main Road,20819,Main Road,9.5,name_and_proximity
+56075,holdout,Main Road,Main Road,90420,Main Road,13.5,name_and_proximity
+56075,holdout,Main Road,Main Road,20407,Main Road,23.6,name_and_proximity
+56077,calibration,Main Road,Main Road,131566,Main Road,9.7,name_and_proximity
+56077,calibration,Main Road,Main Road,38876,Main Road,21.1,name_and_proximity
+56086,holdout,Tomago Road,Tomago Road,15056,Tomago Road,15.6,name_and_proximity
+56088,holdout,Cabbage Tree Road,Cabbage Tree Road,123882,Cabbage Tree Road,77.8,name_and_proximity
+56088,holdout,Cabbage Tree Road,Cabbage Tree Road,123880,Cabbage Tree Road,103.3,name_and_proximity
+56090,holdout,Stewart Avenue,Stewart Avenue,124938,Stewart Avenue,6.9,name_and_proximity
+56090,holdout,Stewart Avenue,Stewart Avenue,76642,Stewart Avenue,10.1,name_and_proximity
+56091,holdout,Dudley Road,Dudley Road,95588,Dudley Road,0.8,name_and_proximity
+56091,holdout,Dudley Road,Dudley Road,96466,Dudley Road,66.9,name_and_proximity
+56097,holdout,The Esplanade,The Esplanade,146029,The Esplanade,32.2,name_and_proximity
+56097,holdout,The Esplanade,The Esplanade,146034,The Esplanade,35.5,name_and_proximity
+56098,holdout,Hanbury Street,Hanbury Street,56357,Hanbury Street,8.3,name_and_proximity
+56098,holdout,Hanbury Street,Hanbury Street,56355,Hanbury Street,48.7,name_and_proximity
+56111,holdout,Richardson Road,Richardson Road,123082,Richardson Road,9.9,name_and_proximity
+56111,holdout,Richardson Road,Richardson Road,141037,Richardson Road,24.3,name_and_proximity
+56113,holdout,Richardson Road,Richardson Road,111540,Richardson Road,8.8,name_and_proximity
+56113,holdout,Richardson Road,Richardson Road,111542,Richardson Road,110.4,name_and_proximity
+56117,holdout,Medowie Road,Medowie Road,97267,Medowie Road,92.3,name_and_proximity
+56117,holdout,Medowie Road,Medowie Road,97259,Medowie Road,117.5,name_and_proximity
+56120,holdout,Medowie Road,Medowie Road,132760,Medowie Road,7.9,name_and_proximity
+56127,holdout,King Street,King Street,40063,King Street,23.0,name_and_proximity
+56127,holdout,King Street,King Street,66378,King Street,24.9,name_and_proximity
+56135,holdout,Carnley Avenue,Carnley Avenue,7073,Carnley Avenue,17.0,name_and_proximity
+56135,holdout,Carnley Avenue,Carnley Avenue,9176,Carnley Avenue,29.9,name_and_proximity
+56136,holdout,University Drive,University Drive,103876,University Drive,29.2,name_and_proximity
+56136,holdout,University Drive,University Drive,156883,University Drive,32.4,name_and_proximity
+56138,holdout,Bridges Road,Bridges Road,60330,Bridges Road,7.8,name_and_proximity
+56138,holdout,Bridges Road,Bridges Road,138096,Bridges Road,25.7,name_and_proximity
+56142,calibration,John Renshaw Drive,John Renshaw Drive,27834,John Renshaw Drive,5.3,name_and_proximity
+56144,holdout,Wallsend Road,Wallsend Road,61478,Wallsend Road,40.0,name_and_proximity
+56145,holdout,Myall Road,Myall Road,148810,Myall Road,10.5,name_and_proximity
+56145,holdout,Myall Road,Myall Road,148808,Myall Road,45.9,name_and_proximity
+56146,holdout,John Renshaw Drive,John Renshaw Drive,129590,John Renshaw Drive,62.9,name_and_proximity
+56162,calibration,Tourle Street,Tourle Street,101722,Tourle Street,70.9,name_and_proximity
+56162,calibration,Tourle Street,Tourle Street,132248,Tourle Street,71.7,name_and_proximity
+56172,holdout,Freyberg Street,Freyberg Street,31150,Freyberg Street,102.3,name_and_proximity
+56173,holdout,Hillsborough Road,Hillsborough Road,672,Hillsborough Road,17.8,name_and_proximity
+56173,holdout,Hillsborough Road,Hillsborough Road,6979,Hillsborough Road,21.8,name_and_proximity
+56175,holdout,Elizabeth Street,Elizabeth Street,20707,Elizabeth Street,21.7,name_and_proximity
+56175,holdout,Elizabeth Street,Elizabeth Street,20709,Elizabeth Street,23.8,name_and_proximity
+56181,holdout,Griffiths Road,Griffiths Road,101537,Griffiths Road,7.9,name_and_proximity
+56181,holdout,Griffiths Road,Griffiths Road,101524,Griffiths Road,51.2,name_and_proximity
+56183,holdout,Mitchell Avenue,Mitchell Avenue,64545,Mitchell Avenue,81.4,name_and_proximity
+56186,holdout,Lake Road,Lake Road,54023,Lake Road,6.3,name_and_proximity
+56186,holdout,Lake Road,Lake Road,127594,Lake Road,42.9,name_and_proximity
+56191,holdout,Wilkinson Avenue,Wilkinson Avenue,48265,Wilkinson Avenue,7.2,name_and_proximity
+56191,holdout,Wilkinson Avenue,Wilkinson Avenue,48267,Wilkinson Avenue,41.5,name_and_proximity
+56195,holdout,Nelson Bay Road,Nelson Bay Road,154051,Nelson Bay Road,34.7,name_and_proximity
+56196,holdout,Minmi Road,Minmi Road,90632,Minmi Road,13.6,name_and_proximity
+56196,holdout,Minmi Road,Minmi Road,145757,Minmi Road,59.7,name_and_proximity
+56197,holdout,New England Highway,New England Highway,19725,New England Highway,47.3,name_and_proximity
+56197,holdout,New England Highway,New England Highway,3240,New England Highway,59.3,name_and_proximity
+56202,holdout,Grandview Road,Grandview Road,41020,Grandview Road,44.3,name_and_proximity
+56202,holdout,Grandview Road,Grandview Road,41022,Grandview Road,62.8,name_and_proximity
+56206,holdout,Five Islands Road,Five Islands Road,146197,Five Islands Road,95.7,name_and_proximity
+56206,holdout,Five Islands Road,Five Islands Road,84022,Five Islands Road,103.5,name_and_proximity
+56207,holdout,T C Frith Avenue,T C Frith Avenue,63233,T C Frith Avenue,62.4,name_and_proximity
+56208,holdout,Industrial Drive,Industrial Drive,80305,Industrial Drive,25.9,name_and_proximity
+56208,holdout,Industrial Drive,Industrial Drive,33072,Industrial Drive,32.0,name_and_proximity
+56209,holdout,Werribi Street,Werribi Street,36722,Werribi Street (West),19.9,name_and_proximity
+56209,holdout,Werribi Street,Werribi Street,14607,Werribi Street (West),23.0,name_and_proximity
+56210,holdout,Turton Road,Turton Road,146944,Turton Road,10.3,name_and_proximity
+56210,holdout,Turton Road,Turton Road,146864,Turton Road,20.5,name_and_proximity
+56211,holdout,Turton Road,Turton Road,140010,Turton Road,17.3,name_and_proximity
+56211,holdout,Turton Road,Turton Road,134035,Turton Road,17.9,name_and_proximity
+56213,holdout,The Esplanade,The Esplanade,104748,The Esplanade,58.0,name_and_proximity
+56213,holdout,The Esplanade,The Esplanade,104777,The Esplanade,58.8,name_and_proximity
+99990015,calibration,Hunter Expressway,Hunter Expressway,59175,Hunter Expressway,49.4,name_and_proximity

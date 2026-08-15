@@ -1,0 +1,16 @@
+{
+  "overlay": "smoke",
+  "description": "A plumbing test, NOT a modelling run. Two iterations at 1% exists only to prove that the harness loads a scenario, resolves the registry, patches the config, starts MATSim and writes a conforming run record. NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT and no mode share, patronage or count from it may be quoted, compared or fitted: two iterations is three orders of magnitude short of relaxation, and DECISIONS.md 9.7 shows even 250 is too low.",
+  "set": {
+    "RUN.sample.fraction": 0.01,
+    "RUN.controler.last_iteration": 2,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "12g"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7), so the whole range describes candidate MODELLING runs. This overlay is not one: it tests that the pipeline executes. The value is deliberately far below the range so that any output carrying it is obviously not a result, and check_package.py can identify smoke runs by it."
+  }
+}

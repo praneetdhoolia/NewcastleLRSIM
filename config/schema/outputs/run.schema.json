@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/outputs/run.schema.json",
+  "title": "_run.json - the run record",
+  "description": "Written by src/run/run_matsim.py on a successful run, and ONLY on a successful run: its presence is what makes a run resumable, and a run that died leaves none. Everything needed to identify and repeat the run.",
+  "type": "object",
+  "required": [
+    "name",
+    "scenario",
+    "day",
+    "fraction",
+    "iterations",
+    "threads",
+    "seed",
+    "rc",
+    "wall_s"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Run directory name; the run identity."
+    },
+    "scenario": {
+      "type": "string",
+      "enum": [
+        "S0",
+        "S1",
+        "S2",
+        "S2a",
+        "S2b",
+        "S2c",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ]
+    },
+    "day": {
+      "type": "string",
+      "enum": [
+        "WEEKDAY",
+        "SAT",
+        "SUN"
+      ]
+    },
+    "fraction": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1.0,
+      "description": "Sample fraction. Every extensive quantity below is scaled by it."
+    },
+    "iterations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "threads": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "PART OF THE RUN IDENTITY, not a performance knob: MATSim partitions the network by thread count, so two runs that differ only here are not the same run."
+    },
+    "xmx": {
+      "type": "string",
+      "description": "JVM heap, e.g. '14g'."
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "overrides": {
+      "type": "object",
+      "description": "Config overrides applied to this run."
+    },
+    "config_snapshot": {
+      "type": "string",
+      "description": "Relative path to the resolved registry snapshot for this run. A result without one cannot state what inputs produced it."
+    },
+    "rc": {
+      "type": "integer",
+      "description": "Process return code. 0 on success."
+    },
+    "wall_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "median_iteration_s": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "persons_in": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "persons_kept": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "transit_capacity_scaled": {
+      "type": "array",
+      "description": "Per vehicle type: [attribute, before, after]. Empty at fraction 1.0. Seats MUST scale with the sample or a 10% run gives every bus ten times its real capacity and crowding silently disappears."
+    },
+    "controler_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 over the committed source of src/java/citysim, the MATSim entry point this run executed. The run name is built from the scenario and the registry values and cannot see the controler, so without this a result produced before a controler change and one produced after would share a name and be indistinguishable. run_matsim.py refuses to resume a completed run whose recorded hash differs from the current source. Absent from records written before DECISIONS.md 9.26."
+    }
+  },
+  "additionalProperties": true
+}

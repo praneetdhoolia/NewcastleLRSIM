@@ -1,0 +1,12 @@
+{
+  "overlay": "S0",
+  "description": "Heavy rail retained to Newcastle station. THE PRIMARY COUNTERFACTUAL: the line is not cut. No light rail, so the light rail fields are not selected here at all.",
+  "applies_to": {
+    "scenario": [
+      "S0"
+    ]
+  },
+  "set": {
+    "A.lightrail.tsp_enabled": false
+  }
+}

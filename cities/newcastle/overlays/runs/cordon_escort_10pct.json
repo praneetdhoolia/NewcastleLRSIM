@@ -1,0 +1,10 @@
+{
+  "overlay": "cordon_escort_10pct",
+  "description": "The first run on the repaired demand: external boundary demand anchored at cordon crossings instead of at zone centroids lying outside the modelled network, ride withheld from the household-less external tier, and serve-passenger given its own tour purpose instead of being folded into discretionary 'other' (DECISIONS.md 9.15). Configured identically to ride_sufficiency_10pct - same fraction, iterations, threads, seed - so the mode-share and count comparison against it is like for like and isolates the demand change. THIS IS A PLANNED COMPARABILITY BREAK: B2 was regenerated, so all three ride_sufficiency_* runs are historical and no run before this one shares its demand. NOT A RESULT: 250 iterations is measurably short of relaxation (DECISIONS.md 9.7), and no count-based calibration may be read from it while the M1 through-traffic gap stands.",
+  "set": {
+    "RUN.sample.fraction": 0.10,
+    "RUN.controler.last_iteration": 250,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "26g"
+  }
+}

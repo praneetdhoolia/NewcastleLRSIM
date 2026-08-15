@@ -39,6 +39,14 @@ observed HTS trip rate exactly.
 Determinism: one seeded generator, persons visited in sorted id order, zone and
 POI arrays built in sorted order. Same seed reproduces the file byte for byte.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -49,16 +57,38 @@ import collections
 import numpy as np
 import pandas as pd
 
-ZON = 'data/processed/zones'
-LU = 'data/processed/landuse'
-HTS = 'data/processed/hts'
-POP = 'demand/population'
-OUT = 'demand/plans'
+# Model inputs come from cities/<city>/registry/, not from literals here. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
 
-SEED = 20260810
-PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'NHB']
-DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
-DAYS_PER_WEEK = {'WEEKDAY': 5.0, 'SAT': 1.0, 'SUN': 1.0}
+ZON = _city.path('data/processed/zones')
+LU = _city.path('data/processed/landuse')
+HTS = _city.path('data/processed/hts')
+POP = _city.path('demand/population')
+OUT = _city.path('demand/plans')
+
+SEED = CFG.get('B.seed.master')
+# Purposes that choose a destination: each one has an HTS journey distance to
+# calibrate its gravity decay against, and an attractor set to draw from.
+#
+# HX is `serve passenger`: a tour made in order to carry someone else, which the
+# HTS puts at 15.7% of Newcastle journeys, level with commuting. It used to be
+# mapped onto NHB and then folded into the discretionary tours, which preserved
+# the trip *rate* but not the trip *type* - see DECISIONS.md 9.15.
+#
+# NHB is NOT here, and no longer is. It is a *leg* label, not a tour purpose: a
+# non-home-based leg arises only as an intermediate stop, whose destination is
+# drawn with the HS or HO decay. Serve passenger was the only HTS purpose ever
+# mapped to it, so with that moved to HX nothing observed maps to NHB at all,
+# and it has no journey distance to calibrate against. Carrying it here built an
+# attractor index and solved a decay that nothing then drew from.
+PURPOSES = ['HW', 'HE', 'HS', 'HO', 'WB', 'HX']
+DAY_TYPES = CFG.get('E.matrix.day_types')
+DAYS_PER_WEEK = CFG.get('B.activity.days_per_week')
 
 # MATSim activity type per trip purpose. `home` is emitted for the leg that
 # closes a tour; the purpose column still carries the tour purpose.
@@ -81,7 +111,7 @@ ACT_TYPE = {'HW': 'work', 'HE': 'education', 'HS': 'shopping',
 # Sunday: they report one WEEKENDS figure. That ratio alone stays assumed, and
 # is swept. The absolute level is not free either - the shape is rescaled so
 # 5xWEEKDAY + SAT + SUN reproduces the HTS week average exactly.
-SAT_TO_SUN_RATE = 1.1875
+SAT_TO_SUN_RATE = CFG.get('B.activity.sat_to_sun_rate')
 SAT_TO_SUN_SWEEP = (1.00, 1.45)
 
 # How the purpose mix shifts by day type, as a multiplier on the weekday rate
@@ -89,12 +119,8 @@ SAT_TO_SUN_SWEEP = (1.00, 1.45)
 # social rise. Assumed.
 # Swept because the weekend collapse of commute and education is assumed: the
 # multiplier on each weekend purpose may move by this factor either way.
-DAY_PURPOSE_MIX_SWEEP = 0.30
-DAY_PURPOSE_MIX = {
-    'WEEKDAY': {'HW': 1.00, 'HE': 1.00, 'HS': 0.90, 'HO': 0.90, 'WB': 1.00, 'NHB': 1.00},
-    'SAT':     {'HW': 0.25, 'HE': 0.05, 'HS': 1.60, 'HO': 1.50, 'WB': 0.15, 'NHB': 1.10},
-    'SUN':     {'HW': 0.18, 'HE': 0.02, 'HS': 1.00, 'HO': 1.60, 'WB': 0.10, 'NHB': 1.00},
-}
+DAY_PURPOSE_MIX_SWEEP = CFG.sweep('B.activity.day_purpose_mix')['proportional']
+DAY_PURPOSE_MIX = CFG.get('B.activity.day_purpose_mix')
 
 # Probability that a person with the relevant status makes their mandatory tour
 # on a given day type. Assumed, but the weekday work figure is now bounded from
@@ -105,21 +131,22 @@ DAY_PURPOSE_MIX = {
 # sweep instead. The upper bound allows for leave and illness.
 P_MANDATORY_WORK_SWEEP = (None, 0.90)     # lower bound filled from C2 at load
 P_MANDATORY_EDUCATION_SWEEP = (0.70, 0.95)
-P_MANDATORY = {
-    'WEEKDAY': {'work': 0.78, 'education': 0.85},
-    'SAT': {'work': 0.16, 'education': 0.03},
-    'SUN': {'work': 0.09, 'education': 0.01},
-}
+P_MANDATORY = CFG.get('B.activity.p_mandatory')
 
 # Probability a tour includes an intermediate stop, by tour purpose. This is
 # what creates genuine sub-tours, and therefore what lets MATSim's mode choice
 # vary within a day rather than for the whole day at once. Assumed.
-P_INTERMEDIATE_STOP = {'HW': 0.22, 'HE': 0.12, 'HS': 0.18, 'HO': 0.20, 'WB': 0.30}
-P_SECOND_STOP = 0.25          # given a first intermediate stop
+P_INTERMEDIATE_STOP = CFG.get('B.activity.p_intermediate_stop')
+P_SECOND_STOP = CFG.get('B.activity.p_second_stop')
 P_SECOND_STOP_SWEEP = (0.12, 0.40)
+
+# An escort tour is made by the person doing the driving, so a non-licence
+# holder cannot make one. Derived from the same identity as the `ride` driver
+# requirement, taken on the driver side (DECISIONS.md 9.15).
+ESCORT_REQUIRES_LICENCE = CFG.get('B.activity.escort_requires_licence')
 # Share of an under-12's drawn secondary tours that are actually made alone.
 # Applied as per-tour thinning, not as a scaling of the count.
-CHILD_TOUR_RETENTION = 0.4
+CHILD_TOUR_RETENTION = CFG.get('B.activity.child_tour_retention')
 CHILD_TOUR_RETENTION_SWEEP = (0.25, 0.60)
 P_INTERMEDIATE_SWEEP = (0.10, 0.35)
 
@@ -129,37 +156,34 @@ P_INTERMEDIATE_SWEEP = (0.10, 0.35)
 # over the observed A1 road graph and takes the aggregate ratio. Loaded from
 # params/C2_network_factors.json; the fallback below is only used if that file
 # is missing, and the build says so when it falls back.
-DETOUR_FACTOR = 1.30
-DETOUR_SWEEP = (1.20, 1.40)
-DETOUR_SOURCE = 'assumed - C2 factors file not found'
-NETWORK_FACTORS = 'params/C2_network_factors.json'
+# The fallback is the DECLARED field, not a literal beside it. Both carried the
+# same quantity and only one of them was compared with anything: the field held
+# the measured 1.3376 while this held 1.30, pinned by `legacy_symbol` so
+# check_legacy_drift.py could see the divergence - but a divergence recorded is
+# still two copies. There is one now, and the sweep comes from the field's own
+# `sweep` key rather than from a tuple typed beside it.
+DETOUR_FACTOR = CFG.get('B.activity.detour_factor')
+DETOUR_SWEEP = tuple(CFG.sweep('B.activity.detour_factor'))
+DETOUR_SOURCE = '%s - C2 factors file not found, using the declared value'     % CFG.source('B.activity.detour_factor')
+NETWORK_FACTORS = _city.path('params/C2_network_factors.json')
 
 # Mean activity duration in minutes by purpose (carried from P1, DECISIONS 9).
-ACT_DURATION = {'HW': 465, 'HE': 360, 'HS': 45, 'HO': 90, 'WB': 60, 'NHB': 20}
-ACT_DURATION_SWEEP = 0.25       # proportional, applied to every mean duration
-DURATION_CV = 0.30
+ACT_DURATION = CFG.get('B.activity.act_duration_min')
+# Proportional, applied to every mean duration. Taken from the field's own
+# `sweep` key: a sweep range typed beside the value it bounds cannot be
+# resolved, overlaid or varied by a run overlay.
+ACT_DURATION_SWEEP = CFG.sweep('B.activity.act_duration_min')['proportional']
+DURATION_CV = CFG.get('B.activity.duration_cv')
 
 # The day closes. Chains are compressed rather than allowed to run past this.
-DAY_HORIZON_S = 30 * 3600
+DAY_HORIZON_S = CFG.get('B.activity.day_horizon_s')
 
 # Departure-time profiles by purpose, probability by hour 0..23 (carried from
 # P1, DECISIONS 9; assumed, NSW-typical shapes). Weekend tours start later; the
 # shift is applied as a whole-profile roll, and is assumed.
-DEPART = {
-    'HW':  [.002, .001, .001, .002, .010, .045, .110, .190, .175, .085, .040, .030,
-            .028, .028, .030, .035, .050, .055, .035, .020, .012, .008, .005, .003],
-    'HE':  [.000, .000, .000, .000, .002, .010, .060, .230, .270, .090, .035, .030,
-            .035, .040, .075, .060, .030, .015, .008, .005, .003, .002, .000, .000],
-    'HS':  [.001, .001, .000, .001, .002, .008, .020, .040, .070, .095, .110, .110,
-            .100, .095, .090, .080, .065, .050, .030, .018, .008, .004, .002, .001],
-    'HO':  [.004, .002, .002, .002, .005, .015, .035, .060, .075, .080, .080, .080,
-            .075, .075, .075, .075, .070, .065, .055, .045, .035, .025, .012, .008],
-    'WB':  [.001, .001, .001, .002, .005, .020, .055, .090, .110, .120, .115, .100,
-            .085, .085, .080, .060, .040, .020, .006, .002, .001, .001, .000, .000],
-    'NHB': [.002, .001, .001, .002, .006, .020, .060, .110, .105, .070, .060, .060,
-            .060, .070, .100, .095, .070, .050, .030, .018, .008, .004, .002, .001],
-}
-WEEKEND_DEPARTURE_SHIFT_H = {'WEEKDAY': 0, 'SAT': 1, 'SUN': 1}
+DEPART = dict(CFG.get('B.activity.departure_profile'))
+DEPART['HX'] = DEPART['HE']
+WEEKEND_DEPARTURE_SHIFT_H = CFG.get('B.activity.weekend_departure_shift_h')
 
 # POI categories that are street furniture rather than somewhere anyone travels
 # to. Without this, 5,628 parking spaces and 652 benches would out-vote every
@@ -184,11 +208,20 @@ PURPOSE_GROUPS = {
     'HS': ('retail', 'food', 'landuse'),
     'HO': ('leisure', 'tourism', 'food', 'civic', 'health', 'amenity'),
     'WB': ('office', 'civic', 'landuse'),
-    'NHB': ('retail', 'food', 'leisure', 'tourism', 'civic', 'health', 'amenity',
-            'office', 'landuse'),
+    # An escort destination is wherever the escorted person was going. The
+    # dominant and by far the most sharply peaked component is the school run,
+    # so HX draws the same attractors as HE. Escorting to other destinations is
+    # folded into it and inherits its timing; the trip *length* is not inherited
+    # but calibrated to the HTS serve-passenger journey distance like every
+    # other purpose. Stated as a modelling choice in DECISIONS.md 9.15.
+    'HX': ('civic',),
 }
 EDUCATION_CATEGORIES = ('civic:school', 'civic:university', 'civic:college',
                         'civic:kindergarten', 'civic:childcare')
+# Purposes whose destinations are drawn from the education attractor set, and
+# whose zone-level attraction vector is shared rather than separately built.
+EDUCATION_ATTRACTOR_PURPOSES = ('HE', 'HX')
+ATTRACTION_ALIAS = {'HX': 'HE'}
 
 
 def norm(a):
@@ -199,14 +232,27 @@ def norm(a):
 
 
 def hts_rates():
-    """Trip rate and mean journey distance per purpose, from the HTS extract."""
-    pur = pd.read_csv(os.path.join(HTS, 'hts_purpose_newcastle.csv'))
+    """Trip rate and mean journey distance per purpose, from the HTS extract.
+
+    Returns the journey distance twice: aggregated over the five LGAs
+    (journey-weighted, used for the external tier and as the fallback), and per
+    home LGA. The per-LGA table exists because one decay per purpose reproduced
+    the five-LGA mean exactly while missing every LGA's own mean - Newcastle
+    education realised 6.57 km against its observed 3.0 while the aggregate
+    target of 6.44 was hit to two decimals (issue #30, DECISIONS.md 9.40).
+    """
+    pur = pd.read_csv(os.path.join(HTS, 'hts_purpose.csv'))
     pur = pur[(pur.geography == 'lga')]
     yr = sorted(pur.FINANCIAL_YEAR.unique())[-1]
     pur = pur[pur.FINANCIAL_YEAR == yr]
+    # `Serve passenger` was mapped to NHB, and solve_secondary_rates then folded
+    # NHB's weight into HO because a non-home-based leg is not a tour purpose.
+    # That preserved the trip rate and lost the trip type: an escort became a
+    # two-hour discretionary stay made by anyone, rather than a drop-off made by
+    # a driver. It is its own tour purpose now (DECISIONS.md 9.15).
     pmap = {'Commute': 'HW', 'Education/childcare': 'HE', 'Shopping': 'HS',
             'Personal business': 'HO', 'Social/recreation': 'HO',
-            'Serve passenger': 'NHB', 'Work related business': 'WB', 'Other': 'HO'}
+            'Serve passenger': 'HX', 'Work related business': 'WB', 'Other': 'HO'}
     pur['p'] = pur.TRAVEL_PURPOSE.str.rstrip('*').map(pmap)
     pur = pur[pur.p.notna()]
     journeys = pur.groupby('p').JOURNEYS_BY_MODE.sum()
@@ -214,11 +260,16 @@ def hts_rates():
             .apply(lambda d: np.average(d.JOURNEY_AVG_DISTANCE,
                                         weights=d.JOURNEYS_BY_MODE.clip(lower=1)),
                    include_groups=False))
-    demo = pd.read_csv(os.path.join(HTS, 'hts_mode_newcastle.csv'))
+    dist_lga = (pur.groupby(['area_name', 'p'])
+                .apply(lambda d: np.average(d.JOURNEY_AVG_DISTANCE,
+                                            weights=d.JOURNEYS_BY_MODE.clip(lower=1)),
+                       include_groups=False))
+    demo = pd.read_csv(os.path.join(HTS, 'hts_mode.csv'))
     demo = demo[(demo.geography == 'lga') & (demo.FINANCIAL_YEAR == yr)]
     total_trips = demo.TRIPS_BY_MODE.sum()
     share = journeys / journeys.sum()
-    return yr, total_trips, share.to_dict(), dist.to_dict()
+    return (yr, total_trips, share.to_dict(), dist.to_dict(),
+            {(lga, p): float(v) for (lga, p), v in dist_lga.items()})
 
 
 def load_zones():
@@ -238,7 +289,7 @@ def load_poi_by_zone(zones):
                          crs='EPSG:4326').to_crs(zg.crs)
     j = gpd.sjoin(g, zg, how='left', predicate='within')
     j = j[j.SA1_CODE21.notna()]
-    pts = gpd.GeoDataFrame(j, geometry=j.geometry, crs=zg.crs).to_crs('EPSG:28356')
+    pts = gpd.GeoDataFrame(j, geometry=j.geometry, crs=zg.crs).to_crs(_city.crs())
     j = j.assign(x=pts.geometry.x.to_numpy(), y=pts.geometry.y.to_numpy())
 
     bld = pd.read_csv(os.path.join(LU, 'D1_buildings_cbd.csv'))
@@ -246,7 +297,7 @@ def load_poi_by_zone(zones):
                           crs='EPSG:4326').to_crs(zg.crs)
     jb = gpd.sjoin(gb, zg, how='left', predicate='within')
     jb = jb[jb.SA1_CODE21.notna()]
-    bpts = gpd.GeoDataFrame(jb, geometry=jb.geometry, crs=zg.crs).to_crs('EPSG:28356')
+    bpts = gpd.GeoDataFrame(jb, geometry=jb.geometry, crs=zg.crs).to_crs(_city.crs())
     jb = jb.assign(x=bpts.geometry.x.to_numpy(), y=bpts.geometry.y.to_numpy(),
                    category='building:cbd',
                    category_group='building',
@@ -264,7 +315,7 @@ def load_poi_by_zone(zones):
         groups = PURPOSE_GROUPS[purpose]
         sub = allp[allp.category_group.isin(groups) |
                    (allp.category_group == 'building')]
-        if purpose == 'HE':
+        if purpose in EDUCATION_ATTRACTOR_PURPOSES:
             sub = allp[allp.category.isin(EDUCATION_CATEGORIES)]
         by = {}
         for sa1, grp in sub.groupby('SA1_CODE21', sort=True):
@@ -277,12 +328,22 @@ def load_poi_by_zone(zones):
     return store, len(allp)
 
 
-def calibrate_decay(X, Y, ATTR, meandist, prod):
+def calibrate_decay(X, Y, ATTR, meandist, prod, zone_lga=None, meandist_lga=None):
     """Solve the gravity decay so realised mean distance matches the HTS.
 
     P1 set beta = 1/mean-distance directly, which left education and shopping
     60% long and work-related business 22% short. Bisecting on the realised
     expectation instead ties each purpose to its own HTS journey distance.
+
+    One beta per purpose then reproduced the five-LGA aggregate exactly while
+    missing every LGA's own mean - the aggregate hides the heterogeneity the
+    HTS itself publishes (education is 3.0 km for a Newcastle resident and
+    12.9 km for a Port Stephens one; the old build realised 6.57 km for both
+    while hitting its 6.44 aggregate target to two decimals). The decay is now
+    solved per (purpose x home LGA) against that LGA's own HTS row, with the
+    aggregate solve kept as the fallback for suppressed cells and as the decay
+    the external tier uses, since a boundary agent has no home LGA (issue #30,
+    DECISIONS.md 9.40).
     """
     DX = X[None, :] - X[:, None]
     DY = Y[None, :] - Y[:, None]
@@ -290,19 +351,29 @@ def calibrate_decay(X, Y, ATTR, meandist, prod):
     del DX, DY
     out, diag = {}, {}
     pw = norm(prod)
-    for p in PURPOSES:
-        target = max(meandist.get(p, 8.0), 0.8) / DETOUR_FACTOR
-        lo, hi = 0.005, 4.0
+
+    def solve(p, target, rows=None):
+        """Bisect beta so the realised mean over `rows` origins hits target."""
+        w_origin = pw if rows is None else norm(np.where(rows, pw, 0.0))
 
         def realised(beta):
             w = ATTR[p][None, :] * np.exp(-beta * DKM)
             s = w.sum(axis=1, keepdims=True)
             w = np.divide(w, np.where(s > 0, s, 1.0))
-            return float((pw * (w * DKM).sum(axis=1)).sum())
+            return float((w_origin * (w * DKM).sum(axis=1)).sum())
 
+        lo, hi = 0.005, 4.0
         r_lo, r_hi = realised(lo), realised(hi)
-        if not (r_hi <= target <= r_lo):
-            beta = 1.0 / target
+        if target >= r_lo:
+            # even the weakest decay realises shorter trips than observed
+            beta = lo
+        elif target <= r_hi:
+            # unreachable: even the strongest decay overshoots, because the
+            # attractor surface is too sparse near these origins - the closest
+            # achievable beta is hi, and the diag shows the gap honestly (the
+            # Port Stephens shopping cell is the measured case: its attractors
+            # sit inside the clipped #32 harvest)
+            beta = hi
         else:
             for _ in range(40):
                 mid = 0.5 * (lo + hi)
@@ -311,16 +382,42 @@ def calibrate_decay(X, Y, ATTR, meandist, prod):
                 else:
                     hi = mid
             beta = 0.5 * (lo + hi)
-        got = realised(beta)
+        return beta, realised(beta)
+
+    lgas = sorted(set(zone_lga)) if zone_lga is not None else []
+    beta_of_zone = {}
+    for p in PURPOSES:
+        target = max(meandist.get(p, 8.0), 0.8) / DETOUR_FACTOR
+        beta, got = solve(p, target)
         out[p] = beta
         diag[p] = dict(beta=round(beta, 5),
                        target_straight_km=round(target, 2),
                        realised_straight_km=round(got, 2),
                        hts_network_km=round(meandist.get(p, float('nan')), 2),
                        realised_network_km=round(got * DETOUR_FACTOR, 2))
+        by_lga = {}
+        zone_beta = np.full(X.size, beta)
+        for lga in lgas:
+            obs = (meandist_lga or {}).get((lga, p))
+            rows = np.asarray(zone_lga) == lga
+            if obs is None or not rows.any():
+                by_lga[lga] = dict(beta=round(beta, 5), fallback='aggregate',
+                                   hts_network_km=None)
+                continue
+            t_lga = max(obs, 0.8) / DETOUR_FACTOR
+            b_lga, got_lga = solve(p, t_lga, rows)
+            zone_beta[rows] = b_lga
+            by_lga[lga] = dict(beta=round(b_lga, 5),
+                               target_straight_km=round(t_lga, 2),
+                               realised_straight_km=round(got_lga, 2),
+                               hts_network_km=round(obs, 2),
+                               realised_network_km=round(got_lga * DETOUR_FACTOR, 2))
+        if lgas:
+            diag[p]['by_lga'] = by_lga
+        beta_of_zone[p] = zone_beta
     CUM = {}
     for p in PURPOSES:
-        w = ATTR[p][None, :] * np.exp(-out[p] * DKM)
+        w = ATTR[p][None, :] * np.exp(-beta_of_zone[p][:, None] * DKM)
         s = w.sum(axis=1, keepdims=True)
         w = np.divide(w, np.where(s > 0, s, 1.0))
         CUM[p] = np.cumsum(w, axis=1).astype(np.float32)
@@ -374,7 +471,7 @@ def legs_per_tour(purpose):
 
 
 def solve_secondary_rates(day, share, day_rate, employed_frac, student_frac,
-                          child_frac):
+                          child_frac, licence_frac):
     """Tour rates for the secondary purposes, given the mandatory tours.
 
     The target is a *trip* rate, but the model draws *tours*, and a tour is two
@@ -393,17 +490,24 @@ def solve_secondary_rates(day, share, day_rate, employed_frac, student_frac,
     mandatory = (P_MANDATORY[day]['work'] * employed_frac * legs_per_tour('HW')
                  + P_MANDATORY[day]['education'] * student_frac * legs_per_tour('HE'))
     secondary_target = max(0.0, day_rate - mandatory)
-    sec = ('HS', 'HO', 'WB', 'NHB')
+    sec = ('HS', 'HO', 'WB', 'HX')
     denom = sum(w[p] * legs_per_tour(p) for p in sec)
     # under-12 secondary tours are thinned after the Poisson draw, so the solve
     # has to expect fewer legs per unit of lambda than the raw tour rate implies
     thin = 1.0 - child_frac * (1.0 - CHILD_TOUR_RETENTION)
     k = secondary_target / (denom * thin) if denom > 0 and thin > 0 else 0.0
-    # NHB is not a tour purpose - a non-home-based leg only arises as an
-    # intermediate stop - so its weight is folded into the discretionary tours
-    lam = {p: k * w[p] for p in ('HS', 'HO', 'WB')}
-    lam['HO'] += k * w['NHB']
+    # No fold any more. NHB used to carry the serve-passenger share and have it
+    # added to HO, because NHB is not a tour purpose. HX *is* one, and draws its
+    # own tours against the same observed share (DECISIONS.md 9.15).
+    lam = {p: k * w[p] for p in sec}
+    # Only licence holders draw an escort tour, so the per-person rate has to be
+    # raised by that fraction for the *realised* escort legs to reach the
+    # observed serve-passenger share. Without this the tier lands short by the
+    # non-driving fraction of the population, children included.
+    if ESCORT_REQUIRES_LICENCE and licence_frac > 0:
+        lam['HX'] /= licence_frac
     return lam, dict(day_rate_target=round(day_rate, 4),
+                     licence_frac=round(licence_frac, 4),
                      mandatory_legs=round(mandatory, 4),
                      secondary_target_legs=round(secondary_target, 4),
                      child_thinning_factor=round(thin, 4),
@@ -434,7 +538,7 @@ class Uniforms:
 
 
 ACT_OF_PURPOSE = {'HW': 'work', 'HE': 'education', 'HS': 'shopping',
-                  'HO': 'other', 'WB': 'business'}
+                  'HO': 'other', 'WB': 'business', 'HX': 'escort'}
 PURPOSE_OF_ACT = {v: k for k, v in ACT_OF_PURPOSE.items()}
 
 
@@ -496,8 +600,12 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
         tours.append('HW')
     elif person['student'] and u() < P_MANDATORY[day]['education']:
         tours.append('HE')
-    for p in ('HS', 'HO', 'WB'):
+    for p in ('HS', 'HO', 'WB', 'HX'):
         if p == 'WB' and not person['employed']:
+            continue
+        # An escort tour is made *by the driver*: someone without a licence
+        # cannot make one. B.activity.escort_requires_licence.
+        if p == 'HX' and ESCORT_REQUIRES_LICENCE and not person['licence']:
             continue
         n = pre[p]
         if person['age'] < 12 and n:
@@ -589,6 +697,21 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
             r['tour_purpose'] = purpose
         legs += pending
         t_now = arr_home
+
+    # The 30-hour-day cap (issue #37, DECISIONS.md 9.38). The qsim horizon's
+    # tail exists so a late-evening chain can arrive after midnight - hours
+    # 24..horizon are 00:00 onward the FOLLOWING morning. That is only
+    # coherent for a person who is not also travelling in those same
+    # early-morning hours of the modelled day: a departure at 02:00 and
+    # another at 26:00 is one person with two 2 a.m.s. CAP, not wrap: the
+    # colliding late tour is dropped whole, because wrapping it onto the
+    # early morning would create exactly the collision being removed.
+    tail_s = DAY_HORIZON_S - 24 * 3600
+    if legs and any(l['dep_time_s'] < tail_s for l in legs):
+        bad = {l['tour_id'] for l in legs if l['dep_time_s'] >= 24 * 3600}
+        if bad:
+            dropped[1] += len(bad)
+            legs = [l for l in legs if l['tour_id'] not in bad]
     return legs
 
 
@@ -611,19 +734,99 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
 # Share of external-tier residents making a trip into the core on a weekday.
 # Assumed - no journey-linked Opal and no external-tier HTS cell exists to
 # estimate it from.
-EXTERNAL_INTERACTION_RATE = 0.08
+EXTERNAL_INTERACTION_RATE = CFG.get('B.external.interaction_rate')
 EXTERNAL_INTERACTION_SWEEP = (0.04, 0.15)
-EXTERNAL_DAY_FACTOR = {'WEEKDAY': 1.0, 'SAT': 0.40, 'SUN': 0.30}
-EXTERNAL_PURPOSE_SPLIT = {'HW': 0.70, 'HO': 0.30}
-EXTERNAL_PERSON_ID_BASE = 900000000
+EXTERNAL_DAY_FACTOR = CFG.get('B.external.day_factor')
+EXTERNAL_PURPOSE_SPLIT = CFG.get('B.external.purpose_split')
+EXTERNAL_PERSON_ID_BASE = CFG.get('B.external.person_id_base')
+CORDON_ROAD_CLASSES = frozenset(CFG.get('B.external.cordon_road_classes'))
+ROADS = _city.path('data/processed/network/A1_road_edges.csv')
+
+# Through traffic (issue #20, DECISIONS.md 9.41). The radial external tier
+# above sends boundary residents INTO the core and home again; nothing in it
+# ever crosses the study area, so the M1 at Wyee - observed 48,016 AADT,
+# calibration target V113 - carried zero modelled vehicles. Through demand is
+# seeded from the cordon's own observed volumes: a cordon crossing becomes a
+# "gate" when a CALIBRATION count station sits within the declared radius of
+# it, and gates exchange trips whose entry and exit are at least the declared
+# separation apart. The through share of a gate's AADT is unobserved and is
+# assumed and swept, never pinned.
+THROUGH_SHARE = CFG.get('B.external.through_share')
+THROUGH_CORRIDOR_KM = CFG.get('B.external.through_corridor_match_km')
+THROUGH_OUTSIDE_MIN_M = CFG.get('B.external.through_outside_min_m')
+THROUGH_MIN_SEP_KM = CFG.get('B.external.through_min_separation_km')
+AADT_TARGETS = _city.path('data/processed/validation/road_aadt_targets.csv')
+LGA_ZONES = _city.path('data/processed/zones/zones_LGA.gpkg')
 
 
-def external_agents(zones, core, decay, u, day, seq_base):
-    """One home-based tour per boundary agent, from an external SA1 into the core.
+def cordon_nodes(ext):
+    """External stations: where boundary demand enters the modelled network.
+
+    Every one of the 201 external SA1s lies OUTSIDE the five-LGA study area - a
+    median of 21.3 km beyond the boundary and up to 128.7 km - while the road
+    network is clipped to the study area. Placing a trip end at an external zone
+    centroid therefore places it where no modelled road exists, and MATSim's
+    `accessEgressModeToLink` then walks the agent to the edge of the network:
+    a median 2.7 km against the core population's 0.097 km, and 16-50 km in the
+    top three deciles. At 1.05 m/s that is most of a day, so 48% of external car
+    tours never completed and the modes that are teleported door to door - bike
+    and walk, which are charged no access leg at all - won on score. That is the
+    whole of the 96 km bicycle result (DECISIONS.md 9.14, 9.15).
+
+    The standard treatment is an external station: boundary demand enters at the
+    point where its corridor crosses the cordon, on a real link, and the journey
+    outside the study area is simply not modelled. The cordon set is derived, not
+    listed: a node is an external station if it is the nearest node on a road
+    capable of carrying boundary demand to at least one external zone, which by
+    construction puts it on the outward-facing edge of the network. Testing
+    distance to the study-area boundary instead would pick up the coastline,
+    which is a boundary but not a crossing.
+
+    Returns (node_x, node_y) for the cordon set, in EPSG:28356.
+    """
+    xs, ys = [], []
+    seen = set()
+    with open(ROADS, encoding='utf-8') as fh:
+        for r in csv.DictReader(fh):
+            if r['road_class'] not in CORDON_ROAD_CLASSES:
+                continue
+            for nd, la, lo in ((r['from_node'], r['start_lat'], r['start_lon']),
+                               (r['to_node'], r['end_lat'], r['end_lon'])):
+                if nd in seen:
+                    continue
+                seen.add(nd)
+                xs.append(float(lo))
+                ys.append(float(la))
+    import pyproj
+    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    nx, ny = tf.transform(np.asarray(xs), np.asarray(ys))
+    nx = np.asarray(nx, dtype=float)
+    ny = np.asarray(ny, dtype=float)
+    ex = ext['x_mga56'].to_numpy(dtype=float)
+    ey = ext['y_mga56'].to_numpy(dtype=float)
+    keep = set()
+    # chunked so the 201 x ~7,000 distance matrix never materialises whole
+    for i0 in range(0, ex.size, 64):
+        ex_c, ey_c = ex[i0:i0 + 64], ey[i0:i0 + 64]
+        d = np.hypot(nx[None, :] - ex_c[:, None], ny[None, :] - ey_c[:, None])
+        keep.update(int(j) for j in d.argmin(axis=1))
+    idx = np.array(sorted(keep), dtype=int)
+    return nx[idx], ny[idx]
+
+
+def external_agents(zones, core, decay, u, day, seq_base, store, cordon):
+    """One tour per boundary agent, entering the network at an external station.
 
     Destinations are drawn over the core zones only, with the same purpose decay
     the resident population uses, so a boundary trip is not systematically
-    longer or shorter than a resident one of the same purpose.
+    longer or shorter than a resident one of the same purpose, and they are
+    placed on an observed attractor by the same routine the core uses rather
+    than jittered inside the zone.
+
+    The agent's origin is the cordon crossing that minimises
+    d(external zone, cordon) + d(cordon, destination) - the entry that is on the
+    way - so the modelled trip is the in-network portion of the journey and
+    begins on a link. What lies beyond the cordon is outside the model.
     """
     ext = zones[zones.zone_tier == 'external'].reset_index(drop=True)
     if ext.empty:
@@ -644,8 +847,9 @@ def external_agents(zones, core, decay, u, day, seq_base):
         if n <= 0:
             continue
         ex, ey = float(row.x_mga56), float(row.y_mga56)
-        erad = math.sqrt(max(float(row.area_km2), 1e-4) * 1e6 / math.pi) * 0.6
         dkm = np.hypot(CX - ex, CY - ey) / 1000.0
+        # distance from every cordon crossing to this zone, fixed for the zone
+        d_zone_cordon = np.hypot(cordon[0] - ex, cordon[1] - ey)
         cum = {}
         for p in ('HW', 'HO'):
             w = attr[p] * np.exp(-decay[p]['beta'] * dkm)
@@ -658,21 +862,28 @@ def external_agents(zones, core, decay, u, day, seq_base):
             k = int(np.searchsorted(cum[purpose], u()))
             if k >= CX.size:
                 k = CX.size - 1
-            ang = 2.0 * math.pi * u()
-            rr = erad * math.sqrt(u())
-            hx, hy = ex + rr * math.cos(ang), ey + rr * math.sin(ang)
-            ang = 2.0 * math.pi * u()
-            rr = float(CRAD[k]) * math.sqrt(u())
-            dx, dy = float(CX[k]) + rr * math.cos(ang), float(CY[k]) + rr * math.sin(ang)
+            dx, dy, how = place_in_zone(store, purpose, k, float(CX[k]),
+                                        float(CY[k]), float(CRAD[k]), u)
+            # The external station this agent enters through: the crossing that
+            # is on the way, not merely the nearest one to home.
+            j = int((d_zone_cordon
+                     + np.hypot(cordon[0] - dx, cordon[1] - dy)).argmin())
+            hx, hy = float(cordon[0][j]), float(cordon[1][j])
             dist_km = math.hypot(dx - hx, dy - hy) / 1000.0
             t0 = draw_hour(DEPART[purpose], WEEKEND_DEPARTURE_SHIFT_H[day],
                            u) * 3600 + int(3600 * u())
-            tt = int(dist_km / 45.0 * 3600) + 240      # boundary trips are highway
+            # in-network now, so the same seed-plan speed the core tours use
+            tt = int(dist_km / 26.0 * 3600) + 240
             arr = t0 + tt
             dur = int(max(1800, ACT_DURATION[purpose] * 60
                           * (1.0 + DURATION_CV * (2.0 * u() - 1.0))))
             back = arr + dur
             if back + tt > DAY_HORIZON_S:
+                continue
+            # the 30-hour-day cap, single-tour form (issue #37): a return
+            # departing past midnight is fine unless this agent also departed
+            # in the early-morning hours the tail maps onto
+            if t0 < DAY_HORIZON_S - 24 * 3600 and back >= 24 * 3600:
                 continue
             act = ACT_OF_PURPOSE[purpose]
             common = dict(person_id=pid, day_type=day, tour_id=1, party_size=1,
@@ -686,7 +897,7 @@ def external_agents(zones, core, decay, u, day, seq_base):
                              dep_time_s=t0, arr_time_s=arr,
                              straight_dist_km=round(dist_km, 3),
                              activity_duration_s=dur, is_tour_anchor=1,
-                             dest_placement='jitter_external'))
+                             dest_placement=how))
             legs.append(dict(common, trip_seq=2, purpose=purpose,
                              dest_activity_type='home',
                              origin_sa1=CSA[k], dest_sa1=row.SA1_CODE21,
@@ -699,6 +910,175 @@ def external_agents(zones, core, decay, u, day, seq_base):
     return legs, n_agents
 
 
+def through_gates():
+    """Boundary crossings of major roads, anchored on same-corridor counts.
+
+    A gate is a road edge of a cordon-capable class with one endpoint inside
+    the dissolved study boundary and the other at least THROUGH_OUTSIDE_MIN_M
+    beyond it - genuinely leaving the area, not bridging the harbour inside it
+    (Hannell Street's river crossing is the measured false positive). Its
+    volume comes from the nearest CALIBRATION count station on the SAME NAMED
+    road within THROUGH_CORRIDOR_KM: only one boundary corridor has a station
+    at the crossing itself (the M1 at Wyee, 273 m), the rest are measured
+    16-24 km inside, and the name is what carries the corridor identity.
+
+    Reads ONLY split == 'calibration' rows - the filter is structural, ahead of
+    any use, so no holdout row can seed demand. Crossings of the same named
+    road within THROUGH_CORRIDOR_KM of each other collapse to the
+    highest-volume one (two carriageways are one corridor).
+
+    Returns a list of dicts: x, y (EPSG:28356, the inside endpoint), volume
+    (veh/weekday, both directions), road, station_key, station_name.
+    """
+    import geopandas as gpd
+    import pyproj
+    import shapely
+
+    edges = pd.read_csv(ROADS, usecols=['edge_id', 'road_class', 'name',
+                                        'start_lat', 'start_lon',
+                                        'end_lat', 'end_lon'])
+    edges = edges[edges.road_class.isin(CORDON_ROAD_CLASSES)
+                  & edges.name.notna() & (edges.name != '')].reset_index(drop=True)
+    lga = gpd.read_file(LGA_ZONES)
+    if 'zone_tier' in lga.columns:
+        lga = lga[lga.zone_tier == 'core']
+    diss = lga.to_crs(_city.crs()).geometry.union_all()
+    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    sxe, sye = tf.transform(edges.start_lon.to_numpy(dtype=float),
+                            edges.start_lat.to_numpy(dtype=float))
+    exe, eye = tf.transform(edges.end_lon.to_numpy(dtype=float),
+                            edges.end_lat.to_numpy(dtype=float))
+    s_in = shapely.contains(diss, shapely.points(sxe, sye))
+    e_in = shapely.contains(diss, shapely.points(exe, eye))
+    cross = s_in != e_in
+
+    t = pd.read_csv(AADT_TARGETS)
+    t = t[t.split == 'calibration'].copy()
+    t = t.assign(volume=t.weekday_count.fillna(t.all_days_count))
+    t = t[t.volume.notna() & (t.volume > 0)].reset_index(drop=True)
+    t = t.assign(road_key=t.road_name.fillna('').str.strip().str.lower())
+    sx, sy = tf.transform(t.lon.to_numpy(dtype=float), t.lat.to_numpy(dtype=float))
+
+    # Outward evidence is a property of the ROAD, not of the crossing edge: a
+    # motorway's boundary-crossing way often ends a few tens of metres past the
+    # polygon while the road itself continues on further ways (measured: the
+    # Hunter Expressway's crossing edge ends 61 m out, the Pacific Highway's
+    # 31-96 m, while only the M1's happens to run 1.9 km). So the test is
+    # whether ANY same-named endpoint lies at least THROUGH_OUTSIDE_MIN_M
+    # beyond the boundary within corridor-match range of the crossing - which
+    # still rejects Hannell Street, whose river bridge puts nothing more than
+    # 2 m beyond the polygon.
+    out_d_s = np.where(s_in, 0.0,
+                       shapely.distance(diss, shapely.points(sxe, sye)))
+    out_d_e = np.where(e_in, 0.0,
+                       shapely.distance(diss, shapely.points(exe, eye)))
+    name_key = edges['name'].astype(str).str.strip().str.lower().to_numpy()
+
+    gates = []
+    for k in np.flatnonzero(cross):
+        inside_start = bool(s_in[k])
+        row = edges.iloc[k]
+        gx, gy = (sxe[k], sye[k]) if inside_start else (exe[k], eye[k])
+        road_key = str(row['name']).strip().lower()
+        mask = name_key == road_key
+        near = THROUGH_CORRIDOR_KM * 1000.0
+        outward = (((out_d_s[mask] >= THROUGH_OUTSIDE_MIN_M)
+                    & (np.hypot(sxe[mask] - gx, sye[mask] - gy) <= near))
+                   | ((out_d_e[mask] >= THROUGH_OUTSIDE_MIN_M)
+                      & (np.hypot(exe[mask] - gx, eye[mask] - gy) <= near)))
+        if not bool(outward.any()):
+            continue
+        same = t[t.road_key == road_key]
+        if same.empty:
+            continue
+        pos = same.index.to_numpy()
+        d = np.hypot(sx[pos] - gx, sy[pos] - gy)
+        j = int(d.argmin())
+        if float(d[j]) > THROUGH_CORRIDOR_KM * 1000.0:
+            continue
+        st = same.iloc[j]
+        gates.append(dict(x=float(gx), y=float(gy), road=str(row['name']),
+                          volume=float(st.volume),
+                          station_key=str(st.station_key),
+                          station_name=str(st['name']),
+                          station_dist_m=round(float(d[j]), 0),
+                          sa1=''))
+    # collapse same-corridor duplicates (two carriageways, split ways)
+    gates.sort(key=lambda g: (-g['volume'], g['road'], g['x'], g['y']))
+    kept = []
+    for g in gates:
+        if any(k['road'].strip().lower() == g['road'].strip().lower()
+               and math.hypot(k['x'] - g['x'], k['y'] - g['y']) / 1000.0
+               < THROUGH_CORRIDOR_KM for k in kept):
+            continue
+        kept.append(g)
+    kept.sort(key=lambda g: (g['road'], g['x'], g['y']))
+    # a gate's inside endpoint sits in a real zone; carrying that SA1 keeps
+    # every downstream join (metrics, tier analyses) working on through legs
+    if kept:
+        sa1 = gpd.read_file(os.path.join(ZON, 'zones_SA1.gpkg'))
+        sa1 = sa1.to_crs(_city.crs())[['SA1_CODE21', 'geometry']]
+        gpts = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy([g['x'] for g in kept],
+                                        [g['y'] for g in kept]),
+            crs=_city.crs())
+        joined = gpd.sjoin_nearest(gpts, sa1, how='left')
+        codes = joined.groupby(joined.index)['SA1_CODE21'].first()
+        for i, g in enumerate(kept):
+            g['sa1'] = str(codes.get(i, ''))
+    return kept
+
+
+def through_agents(gates, u, day, seq_base):
+    """Through trips: enter at one gate, cross the study area, exit at another.
+
+    One agent is one direction: inbound volume at gate i is half the through
+    component of its AADT (the other half is the same vehicles exiting, which
+    the opposite gate generates as its own inbound). The exit gate is drawn
+    weighted by the candidate gates' observed volumes, restricted to gates at
+    least THROUGH_MIN_SEP_KM away so the trip genuinely crosses the area. The
+    mode is locked to car downstream (build_matsim_plans writes lockedMode) -
+    a volume anchored on a road count must stay on the road.
+    """
+    legs = []
+    n_agents = 0
+    pid = seq_base
+    shift = WEEKEND_DEPARTURE_SHIFT_H[day]
+    for i, gi in enumerate(gates):
+        cand = [(j, gj) for j, gj in enumerate(gates) if j != i
+                and math.hypot(gj['x'] - gi['x'], gj['y'] - gi['y']) / 1000.0
+                >= THROUGH_MIN_SEP_KM]
+        if not cand:
+            continue
+        w = norm([gj['volume'] for _, gj in cand])
+        cum = np.cumsum(w)
+        n = int(round(0.5 * THROUGH_SHARE * gi['volume']
+                      * EXTERNAL_DAY_FACTOR[day]))
+        for _ in range(n):
+            pid += 1
+            n_agents += 1
+            j = int(np.searchsorted(cum, u()))
+            gj = cand[min(j, len(cand) - 1)][1]
+            dist_km = math.hypot(gj['x'] - gi['x'], gj['y'] - gi['y']) / 1000.0
+            # HO is the broadest declared daytime departure profile; through
+            # traffic has no observed profile of its own (DECISIONS.md 9.41)
+            t0 = draw_hour(DEPART['HO'], shift, u) * 3600 + int(3600 * u())
+            tt = int(dist_km / 26.0 * 3600) + 240
+            legs.append(dict(person_id=pid, day_type=day, tour_id=1, trip_seq=1,
+                             party_size=1, tour_purpose='through',
+                             agent_tier='through',
+                             time_flexibility_band='flexible',
+                             purpose='through', dest_activity_type='home',
+                             origin_sa1=gi['sa1'], dest_sa1=gj['sa1'],
+                             origin_x=round(gi['x'], 1), origin_y=round(gi['y'], 1),
+                             dest_x=round(gj['x'], 1), dest_y=round(gj['y'], 1),
+                             dep_time_s=t0, arr_time_s=t0 + tt,
+                             straight_dist_km=round(dist_km, 3),
+                             activity_duration_s=0, is_tour_anchor=1,
+                             dest_placement='cordon'))
+    return legs, n_agents
+
+
 COLUMNS = ['person_id', 'day_type', 'tour_id', 'trip_seq', 'purpose',
            'tour_purpose', 'dest_activity_type', 'origin_sa1', 'dest_sa1',
            'origin_x', 'origin_y', 'dest_x', 'dest_y', 'dep_time_s',
@@ -708,7 +1088,7 @@ COLUMNS = ['person_id', 'day_type', 'tour_id', 'trip_seq', 'purpose',
 
 # The HTS per-person-per-day trip rate for the study-area LGAs, carried from
 # DECISIONS 9 where it was derived from the same tables.
-HTS_RATE_PER_PERSON_DAY = 3.473
+HTS_RATE_PER_PERSON_DAY = CFG.get('B.activity.hts_rate_per_person_day')
 
 
 def main(seed=SEED, max_persons=None, day_types=None):
@@ -725,7 +1105,12 @@ def main(seed=SEED, max_persons=None, day_types=None):
     RAD = np.sqrt(np.maximum(core['area_km2'].to_numpy(dtype=float), 1e-4)
                   * 1e6 / math.pi) * 0.6
     SA1 = core['SA1_CODE21'].to_numpy()
-    ATTR = {p: norm(core['attr_' + p].to_numpy()) for p in PURPOSES}
+    # HX shares HE's zone attraction vector rather than adding a column to the
+    # land-use layer: an escort destination is an education destination, and the
+    # gravity decay is calibrated separately per purpose against the HTS journey
+    # distance, so HX still lands on its own observed 6.4 km.
+    ATTR = {p: norm(core['attr_' + ATTRACTION_ALIAS.get(p, p)].to_numpy())
+            for p in PURPOSES}
     zone_arr = (X, Y, X, Y, RAD, SA1)
 
     day_shape, day_shape_source = load_network_factors()
@@ -734,9 +1119,15 @@ def main(seed=SEED, max_persons=None, day_types=None):
           flush=True)
     print('   [%s]' % day_shape_source, flush=True)
 
-    yr, _total, share, meandist = hts_rates()
+    yr, _total, share, meandist, meandist_lga = hts_rates()
     print('HTS %s | purpose share %s'
           % (yr, {k: round(v, 3) for k, v in share.items()}), flush=True)
+
+    # home LGA per core zone, for the per-LGA decay solve (DECISIONS.md 9.40)
+    s2l = pd.read_csv(os.path.join(ZON, 'sa1_to_lga.csv'),
+                      dtype={'SA1_CODE21': str})
+    lga_of = dict(zip(s2l.SA1_CODE21, s2l.lga_name))
+    zone_lga = np.array([lga_of.get(c, '') for c in core['SA1_CODE21']])
 
     print('joining POIs and CBD buildings to zones ...', flush=True)
     store, n_attractors = load_poi_by_zone(core)
@@ -744,14 +1135,37 @@ def main(seed=SEED, max_persons=None, day_types=None):
     print('   %d attractors; core zones with an attractor, by purpose: %s'
           % (n_attractors, covered), flush=True)
 
-    print('calibrating gravity decay against HTS journey distances ...', flush=True)
+    print('locating external stations (cordon crossings) ...', flush=True)
+    cordon = cordon_nodes(zones[zones.zone_tier == 'external'])
+    print('   %d cordon crossings on %s'
+          % (cordon[0].size, ','.join(sorted(CORDON_ROAD_CLASSES))), flush=True)
+    gates = through_gates()
+    print('   %d through-traffic gates (boundary crossings with a same-road '
+          'calibration count within %.0f km):' % (len(gates), THROUGH_CORRIDOR_KM),
+          flush=True)
+    for g in gates:
+        print('      %-24s <- station %s %s (%.0f veh/day, %.1f km away)'
+              % (g['road'], g['station_key'], g['station_name'], g['volume'],
+                 g['station_dist_m'] / 1000.0), flush=True)
+
+    print('calibrating gravity decay against HTS journey distances, '
+          'per purpose x home LGA ...', flush=True)
     CUM, decay = calibrate_decay(X, Y, ATTR, meandist,
-                                 core['population'].to_numpy(dtype=float))
+                                 core['population'].to_numpy(dtype=float),
+                                 zone_lga=zone_lga, meandist_lga=meandist_lga)
     for p in PURPOSES:
         d = decay[p]
-        print('   %-4s beta=%.4f  realised %5.2f km vs HTS %5.2f km'
+        print('   %-4s aggregate beta=%.4f  realised %5.2f km vs HTS %5.2f km'
               % (p, d['beta'], d['realised_network_km'], d['hts_network_km']),
               flush=True)
+        for lga, dl in sorted(d.get('by_lga', {}).items()):
+            if dl.get('fallback'):
+                print('        %-16s falls back to the aggregate (no HTS cell)'
+                      % lga, flush=True)
+            else:
+                print('        %-16s beta=%.4f  realised %5.2f km vs HTS %5.2f km'
+                      % (lga, dl['beta'], dl['realised_network_km'],
+                         dl['hts_network_km']), flush=True)
 
     hh = pd.read_csv(os.path.join(POP, 'B1_households.csv'),
                      usecols=['household_id', 'home_x_mga56', 'home_y_mga56'])
@@ -762,7 +1176,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
                           dtype={'home_sa1': str},
                           usecols=['person_id', 'household_id', 'home_sa1', 'age',
                                    'employment_status', 'student_status',
-                                   'car_available'])
+                                   'car_available', 'licence_holder'])
     persons = persons.sort_values('person_id', kind='stable')
     if max_persons and max_persons < len(persons):
         # B1 writes persons zone by zone, so head() would draw the whole sample
@@ -782,6 +1196,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
                              .to_numpy().astype('U24'), 'employed')
     stu = (persons.student_status.astype(str).to_numpy() == 'full_time')
     cav = (persons.car_available.to_numpy() == 1)
+    lic = (persons.licence_holder.to_numpy() == 1)
     del persons
 
     employed_frac = float(emp.mean())
@@ -790,6 +1205,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
     # non-employed full-time students
     student_frac = float((stu & ~emp).mean())
     child_frac = float((age < 12).mean())
+    licence_frac = float(lic.mean())
     day_rate = solve_day_rates(HTS_RATE_PER_PERSON_DAY, day_shape)
     stats = dict(seed=seed, hts_year=yr,
                  hts_rate_per_person_day=HTS_RATE_PER_PERSON_DAY,
@@ -813,6 +1229,15 @@ def main(seed=SEED, max_persons=None, day_types=None):
                  act_duration_sweep=ACT_DURATION_SWEEP,
                  external_interaction_rate=EXTERNAL_INTERACTION_RATE,
                  external_interaction_sweep=list(EXTERNAL_INTERACTION_SWEEP),
+                 through_share=THROUGH_SHARE,
+                 through_corridor_match_km=THROUGH_CORRIDOR_KM,
+                 through_outside_min_m=THROUGH_OUTSIDE_MIN_M,
+                 through_min_separation_km=THROUGH_MIN_SEP_KM,
+                 through_gates=[dict(road=g['road'], station=g['station_key'],
+                                     name=g['station_name'],
+                                     volume=g['volume'],
+                                     station_dist_m=g['station_dist_m'])
+                                for g in gates],
                  decay=decay,
                  detour_factor=DETOUR_FACTOR, detour_sweep=list(DETOUR_SWEEP),
                  detour_source=DETOUR_SOURCE,
@@ -830,13 +1255,14 @@ def main(seed=SEED, max_persons=None, day_types=None):
         w.writeheader()
 
         rates, rate_diag = solve_secondary_rates(
-            d, share, day_rate[d], employed_frac, student_frac, child_frac)
+            d, share, day_rate[d], employed_frac, student_frac, child_frac,
+            licence_frac)
         stats.setdefault('rate_solution', {})[d] = rate_diag
         counts = {p: rng.poisson(rates[p], size=n_persons)
-                  for p in ('HS', 'HO', 'WB')}
+                  for p in ('HS', 'HO', 'WB', 'HX')}
 
         n_legs = n_tours = n_travel = 0
-        dropped = [0]
+        dropped = [0, 0]   # [over-horizon, midnight-collision (issue #37)]
         by_purpose = collections.Counter()
         anchors = collections.Counter()
         for i in range(n_persons):
@@ -848,8 +1274,9 @@ def main(seed=SEED, max_persons=None, day_types=None):
                 continue
             person = dict(hx=float(hxy[0]), hy=float(hxy[1]), hzi=hz,
                           age=int(age[i]), employed=bool(emp[i]),
-                          student=bool(stu[i]), cav=bool(cav[i]))
-            pre = {p: int(counts[p][i]) for p in ('HS', 'HO', 'WB')}
+                          student=bool(stu[i]), cav=bool(cav[i]),
+                          licence=bool(lic[i]))
+            pre = {p: int(counts[p][i]) for p in ('HS', 'HO', 'WB', 'HX')}
             legs = build_day(person, d, rates, CUM, store, zone_arr, u, pre,
                              dropped)
             if not legs:
@@ -871,23 +1298,34 @@ def main(seed=SEED, max_persons=None, day_types=None):
                 by_purpose[leg['purpose']] += 1
                 stats['placement'][leg['dest_placement']] += 1
                 w.writerow(leg)
-            anchors[legs[-1]['tour_id']] += 1
+            # the #37 cap can drop the highest-numbered tour, so count the
+            # tours that exist rather than reading the last id
+            ntp = len({l['tour_id'] for l in legs})
+            anchors[ntp] += 1
             n_legs += len(legs)
-            n_tours += legs[-1]['tour_id']
+            n_tours += ntp
         ext_legs, n_ext = external_agents(zones, core, decay, u, d,
-                                          EXTERNAL_PERSON_ID_BASE)
+                                          EXTERNAL_PERSON_ID_BASE, store, cordon)
         for leg in ext_legs:
+            w.writerow(leg)
+        thr_legs, n_thr = through_agents(gates, u, d,
+                                         EXTERNAL_PERSON_ID_BASE + n_ext)
+        for leg in thr_legs:
             w.writerow(leg)
         fh.close()
         stats['by_day'][d] = dict(
             external_agents=n_ext, external_legs=len(ext_legs),
+            through_agents=n_thr, through_legs=len(thr_legs),
             legs=n_legs, tours=n_tours, travelling_persons=n_travel,
             legs_per_person=round(n_legs / max(n_persons, 1), 3),
             tours_per_traveller=round(n_tours / max(n_travel, 1), 3),
             tours_dropped_over_horizon=dropped[0],
+            tours_dropped_midnight_collision=dropped[1],
             by_purpose=dict(by_purpose))
-        print('%-8s %9d legs %8d tours %6.3f legs/person  dropped=%d'
-              % (d, n_legs, n_tours, n_legs / max(n_persons, 1), dropped[0]),
+        print('%-8s %9d legs %8d tours %6.3f legs/person  dropped=%d '
+              'midnight-capped=%d  through=%d'
+              % (d, n_legs, n_tours, n_legs / max(n_persons, 1), dropped[0],
+                 dropped[1], n_thr),
               flush=True)
 
     stats['placement'] = dict(stats['placement'])

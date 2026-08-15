@@ -1,0 +1,14 @@
+{
+  "overlay": "verify_ride",
+  "description": "A 30-iteration diagnostic at 1% that exists only to test whether the ride-availability binding changes behaviour, by comparing the ride trajectory against the recorded pre-fix baseline (ride = 0.3098 at iteration 25, DECISIONS.md 9.10). NOT A RESULT: 30 iterations is two orders of magnitude short of relaxation.",
+  "set": {
+    "RUN.sample.fraction": 0.01,
+    "RUN.controler.last_iteration": 30,
+    "RUN.machine.threads": 10,
+    "RUN.machine.xmx": "12g"
+  },
+  "allow_outside_sweep": ["RUN.controler.last_iteration"],
+  "justification": {
+    "RUN.controler.last_iteration": "The sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence, so the range describes candidate MODELLING runs. This is a behavioural regression test against a recorded baseline at iteration 25, not a modelling run, and the value is deliberately far below the range so any output is obviously not a result."
+  }
+}

@@ -28,6 +28,14 @@ Usage:
     python src/build/build_matsim_network.py --stage schedules --only S2,base2026
     python src/build/build_matsim_network.py --workers 3
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import re
 import sys
@@ -45,37 +53,44 @@ import concurrent.futures as futures
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'setup'))
 import bootstrap_toolchain as tc  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+from registry import param_config as _param_config  # noqa: E402
 
-OUT = 'networks/matsim'
+
+def fwd(path):
+    return path.replace(os.sep, '/')
+
+OUT = _city.path('networks/matsim')
 WORK = os.path.join(OUT, '_work')
-CRS = 'EPSG:28356'
-PATCHES = 'data/processed/network/A1_road_variant_patches.csv'
-E1_ROAD_VARIANTS = 'scenarios/E1_road_variants.csv'
+CRS = _city.crs()
+PATCHES = _city.path('data/processed/network/A1_road_variant_patches.csv')
+E1_ROAD_VARIANTS = _city.path('scenarios/E1_road_variants.csv')
 JAVA_XMX = '-Xmx6g'
 
 # The signals extract is merged for its `type=restriction` relations - the road
 # extract carries none, so without it pt2matsim writes no `disallowedNextLinks`
 # and every banned turn on the corridor would silently vanish from the network.
-OSM_INPUTS = ['networks/osm/newcastle_roads.osm',
-              'networks/osm/newcastle_railways.osm',
-              'networks/osm/newcastle_signals.osm']
+OSM_INPUTS = [_city.path('networks/osm/roads.osm'),
+              _city.path('networks/osm/railways.osm'),
+              _city.path('networks/osm/signals.osm')]
 
 FEEDS = collections.OrderedDict([
-    ('base2026', 'schedules/base2026.zip'),
-    ('era1_pre2014_reconstructed', 'schedules/era1_pre2014_reconstructed.zip'),
-    ('era2_2016_rail_truncated', 'schedules/era2_2016_rail_truncated.zip'),
-    ('era3_2018_keolis_interchange', 'schedules/era3_2018_keolis_interchange.zip'),
-    ('era4_2019_lr_open', 'schedules/era4_2019_lr_open.zip'),
-    ('S0', 'schedules/scenarios/S0.zip'),
-    ('S1', 'schedules/scenarios/S1.zip'),
-    ('S2', 'schedules/scenarios/S2.zip'),
-    ('S2a', 'schedules/scenarios/S2a.zip'),
-    ('S2b', 'schedules/scenarios/S2b.zip'),
-    ('S2c', 'schedules/scenarios/S2c.zip'),
-    ('S3', 'schedules/scenarios/S3.zip'),
-    ('S4', 'schedules/scenarios/S4.zip'),
-    ('S5', 'schedules/scenarios/S5.zip'),
-    ('S6', 'schedules/scenarios/S6.zip'),
+    ('base2026', _city.path('schedules/base2026.zip')),
+    ('era1_pre2014_reconstructed', _city.path('schedules/era1_pre2014_reconstructed.zip')),
+    ('era2_2016_rail_truncated', _city.path('schedules/era2_2016_rail_truncated.zip')),
+    ('era3_2018_keolis_interchange', _city.path('schedules/era3_2018_keolis_interchange.zip')),
+    ('era4_2019_lr_open', _city.path('schedules/era4_2019_lr_open.zip')),
+    ('S0', _city.path('schedules/scenarios/S0.zip')),
+    ('S1', _city.path('schedules/scenarios/S1.zip')),
+    ('S2', _city.path('schedules/scenarios/S2.zip')),
+    ('S2a', _city.path('schedules/scenarios/S2a.zip')),
+    ('S2b', _city.path('schedules/scenarios/S2b.zip')),
+    ('S2c', _city.path('schedules/scenarios/S2c.zip')),
+    ('S3', _city.path('schedules/scenarios/S3.zip')),
+    ('S4', _city.path('schedules/scenarios/S4.zip')),
+    ('S5', _city.path('schedules/scenarios/S5.zip')),
+    ('S6', _city.path('schedules/scenarios/S6.zip')),
 ])
 
 # All three day types are converted into a single schedule ("all"). The era and
@@ -84,44 +99,6 @@ FEEDS = collections.OrderedDict([
 # separate mapped schedules - and the route set that PublicTransitMapper has to
 # map is nearly identical across day types anyway.
 GTFS_DAY_PARAM = 'all'
-
-# ---------------------------------------------------------------------------
-# Way defaults. Capacities are DECISIONS.md 3.2 (Austroads-style, assumed);
-# speeds are the NSW class defaults from build_network_layers.py. freespeed is
-# m/s. Kept here rather than taken from pt2matsim's own defaults so that the
-# MATSim network, the SUMO corridor and A1_road_edges.csv cannot drift apart.
-# ---------------------------------------------------------------------------
-WAY_DEFAULTS = [
-    # osmKey,   osmValue,        lanes, freespeed_kmh, laneCapacity, oneway, modes
-    ('highway', 'motorway',        2, 100, 2000, 'true',  'car'),
-    ('highway', 'motorway_link',   1,  60, 1500, 'true',  'car'),
-    ('highway', 'trunk',           2,  80, 1800, 'false', 'car'),
-    ('highway', 'trunk_link',      1,  60, 1400, 'false', 'car'),
-    ('highway', 'primary',         2,  60, 1600, 'false', 'car'),
-    ('highway', 'primary_link',    1,  50, 1200, 'false', 'car'),
-    ('highway', 'secondary',       1,  60, 1400, 'false', 'car'),
-    ('highway', 'secondary_link',  1,  50, 1100, 'false', 'car'),
-    ('highway', 'tertiary',        1,  50, 1200, 'false', 'car'),
-    ('highway', 'tertiary_link',   1,  40, 1000, 'false', 'car'),
-    ('highway', 'unclassified',    1,  50, 1000, 'false', 'car'),
-    ('highway', 'residential',     1,  50,  800, 'false', 'car'),
-    ('highway', 'living_street',   1,  10,  300, 'false', 'car'),
-    ('highway', 'service',         1,  20,  400, 'false', 'car'),
-    ('highway', 'busway',          1,  50, 1200, 'false', 'car,bus'),
-    ('railway', 'rail',            1, 160, 9999, 'false', 'rail'),
-    ('railway', 'light_rail',      1,  70, 9999, 'false', 'light_rail'),
-    ('railway', 'tram',            1,  70, 9999, 'false', 'light_rail'),
-]
-
-# GTFS route_type -> MATSim schedule mode, then which network modes may carry it.
-MODE_ASSIGNMENT = [
-    ('bus', 'car,bus'),
-    ('rail', 'rail'),
-    ('light_rail', 'light_rail,tram,car'),
-    ('tram', 'light_rail,tram,car'),
-    ('ferry', 'artificial'),
-]
-
 
 def log(msg):
     print('%s  %s' % (time.strftime('%H:%M:%S'), msg), flush=True)
@@ -192,46 +169,97 @@ def merge_osm(dest):
 # ---------------------------------------------------------------------------
 # stage 2: base network
 # ---------------------------------------------------------------------------
-def write_osm_config(path, osm_file, network_out):
-    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
-             '<!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">',
-             '<config>', '\t<module name="OsmConverter" >',
-             '\t\t<param name="keepPaths" value="false" />',
-             '\t\t<param name="keepTagsAsAttributes" value="true" />',
-             '\t\t<param name="keepWaysWithPublicTransit" value="true" />',
-             '\t\t<param name="maxLinkLength" value="500.0" />',
-             '\t\t<param name="osmFile" value="%s" />' % osm_file.replace('\\', '/'),
-             '\t\t<param name="outputCoordinateSystem" value="%s" />' % CRS,
-             '\t\t<param name="outputNetworkFile" value="%s" />' % network_out.replace('\\', '/'),
-             '\t\t<param name="parseTurnRestrictions" value="true" />',
-             '\t\t<param name="scaleMaxSpeed" value="false" />',
-             '\t\t<param name="writeCRS" value="true" />']
-    for modes, sub in (('car', 'car'), ('bus, car', 'bus'), ('rail, light_rail', 'rail')):
-        lines += ['\t\t<parameterset type="routableSubnetwork" >',
-                  '\t\t\t<param name="allowedTransportModes" value="%s" />' % modes,
-                  '\t\t\t<param name="subnetworkMode" value="%s" />' % sub,
-                  '\t\t</parameterset>']
-    for key, val, lanes, kmh, cap, oneway, modes in WAY_DEFAULTS:
-        lines += ['\t\t<parameterset type="wayDefaultParams" >',
-                  '\t\t\t<param name="allowedTransportModes" value="%s" />' % modes,
-                  '\t\t\t<param name="freespeed" value="%.6f" />' % (kmh / 3.6),
-                  '\t\t\t<param name="freespeedFactor" value="1.0" />',
-                  '\t\t\t<param name="laneCapacity" value="%.1f" />' % cap,
-                  '\t\t\t<param name="lanes" value="%.1f" />' % lanes,
-                  '\t\t\t<param name="oneway" value="%s" />' % oneway,
-                  '\t\t\t<param name="osmKey" value="%s" />' % key,
-                  '\t\t\t<param name="osmValue" value="%s" />' % val,
-                  '\t\t</parameterset>']
-    lines += ['\t</module>', '</config>', '']
-    with open(path, 'w', encoding='utf-8', newline='\n') as f:
-        f.write('\n'.join(lines))
-    return path
+def way_defaults(cfg):
+    """The pt2matsim wayDefaultParams, DERIVED from the declared class tables.
+
+    These were a 54-number table in this module, and the comment above it said
+    it was kept here "so that the MATSim network, the SUMO corridor and
+    A1_road_edges.csv cannot drift apart". They had drifted: six road classes
+    carried a different free speed from `A.road.speed_default`, in both
+    directions - motorway 100 against 110, trunk 80 against 60, and
+    motorway_link, primary_link, secondary_link and service besides. Nothing
+    compared them, because a second copy with no `legacy_symbol` is invisible to
+    `check_legacy_drift.py`.
+
+    There is one copy now. Road classes come from `A.road.*_default`, which is
+    what `A1_road_edges.csv` and the SUMO corridor already read; railway classes
+    come from `A.network.railway_*`, because a railway is not a road and folding
+    it into a road table is what allowed the drift to hide.
+    """
+    lanes = cfg.get('A.road.lanes_default')
+    speed = cfg.get('A.road.speed_default')
+    capacity = cfg.get('A.road.capacity_default')
+    rail_speed = cfg.get('A.network.railway_speed_default_kmh')
+    rail_capacity = cfg.get('A.network.railway_lane_capacity_veh_h')
+    oneway = cfg.get('A.network.way_default_oneway')
+    subnets = cfg.get('A.network.routable_subnetworks')
+
+    # Which subnetwork admits a class decides the modes written beside it, so
+    # the two cannot disagree: a busway that admitted `bus` here but sat outside
+    # the bus subnetwork would carry routes the router cannot reach.
+    modes_of = {}
+    for value in list(speed) + list(rail_speed):
+        if value in rail_speed:
+            modes_of[value] = ['rail'] if value == 'rail' else ['light_rail']
+        elif value == 'busway':
+            modes_of[value] = sorted(set(subnets.get('bus', ['car'])))
+        else:
+            modes_of[value] = ['car']
+
+    out = {}
+    for value in sorted(set(speed) | set(rail_speed)):
+        is_rail = value in rail_speed
+        kmh = rail_speed[value] if is_rail else speed[value]
+        out[value] = dict(
+            osmKey='railway' if is_rail else 'highway',
+            lanes=float(1 if is_rail else lanes.get(value, 1)),
+            # pt2matsim reads free speed in metres per second; the registry
+            # declares km/h, because km/h is the unit the speed instrument and
+            # every road class table are written in.
+            freespeed=round(float(kmh) / 3.6, 6),
+            laneCapacity=float(rail_capacity if is_rail
+                               else capacity.get(value, 0.0)),
+            oneway=bool(oneway.get(value, False)),
+            allowedTransportModes=modes_of[value])
+    return out
+
+
+def config_runtime_osm(cfg, osm_file, network_out):
+    """Paths, the city's projection, and the derived way defaults."""
+    runtime = {
+        'OsmConverter.osmFile': (fwd(osm_file), 'path', 'merged OSM extract'),
+        'OsmConverter.outputNetworkFile': (fwd(network_out), 'path', 'base network'),
+        'OsmConverter.outputCoordinateSystem': (_city.crs(), 'identity',
+                                                'city.json crs.epsg'),
+    }
+    identity = ('A.road.lanes_default / A.road.speed_default / '
+                'A.road.capacity_default for a highway class, '
+                'A.network.railway_speed_default_kmh and '
+                'A.network.railway_lane_capacity_veh_h for a railway class; '
+                'free speed converted km/h -> m/s')
+    for param in ('osmKey', 'lanes', 'freespeed', 'laneCapacity', 'oneway',
+                  'allowedTransportModes'):
+        runtime['OsmConverter.wayDefaultParams[*].%s' % param] = (
+            {v: d[param] for v, d in way_defaults(cfg).items()}, 'derived', identity)
+    return runtime
+
+
+def write_osm_config(path, osm_file, network_out, cfg=None):
+    """Emit the pt2matsim OsmConverter config from the registry."""
+    cfg = cfg if cfg is not None else _registry.load()
+    runtime = config_runtime_osm(cfg, osm_file, network_out)
+    leaks = _param_config.closure('pt2matsim_osm', cfg, runtime)
+    if leaks:
+        raise SystemExit('the OSM converter config carries %d parameter(s) from '
+                         'neither a field nor a declared role: %s' % (len(leaks), leaks))
+    return _param_config.write(path, 'pt2matsim_osm', cfg, runtime)
+
 
 
 def build_base_network():
     os.makedirs(os.path.join(OUT, 'base'), exist_ok=True)
     os.makedirs(WORK, exist_ok=True)
-    osm = merge_osm(os.path.join(WORK, 'newcastle_multimodal.osm'))
+    osm = merge_osm(os.path.join(WORK, 'multimodal.osm'))
     net = os.path.join(OUT, 'base', 'network.xml.gz')
     cfg = write_osm_config(os.path.join(WORK, 'osm_converter.xml'), osm, net)
     log('Osm2MultimodalNetwork -> %s' % net)
@@ -341,42 +369,27 @@ def apply_variants(base_net):
 # ---------------------------------------------------------------------------
 # stage 4: GTFS -> unmapped schedule -> mapped schedule
 # ---------------------------------------------------------------------------
-def write_mapper_config(path, network, schedule, out_net, out_sched, out_street, threads):
-    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
-             '<!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">',
-             '<config>', '\t<module name="PublicTransitMapping" >',
-             '\t\t<param name="boundedSearch" value="true" />',
-             '\t\t<param name="candidateDistanceMultiplier" value="1.6" />',
-             '\t\t<param name="inputNetworkFile" value="%s" />' % network.replace('\\', '/'),
-             '\t\t<param name="inputScheduleFile" value="%s" />' % schedule.replace('\\', '/'),
-             '\t\t<param name="maxLinkCandidateDistance" value="90.0" />',
-             '\t\t<param name="maxTravelCostFactor" value="5.0" />',
-             '\t\t<param name="modeSpecificRules" value="false" />',
-             '\t\t<param name="modesToKeepOnCleanUp" value="car" />',
-             '\t\t<param name="nLinkThreshold" value="6" />',
-             '\t\t<param name="networkRouter" value="SpeedyALT" />',
-             '\t\t<param name="numOfThreads" value="%d" />' % threads,
-             '\t\t<param name="outputNetworkFile" value="%s" />' % out_net.replace('\\', '/'),
-             '\t\t<param name="outputScheduleFile" value="%s" />' % out_sched.replace('\\', '/'),
-             '\t\t<param name="outputStreetNetworkFile" value="%s" />'
-             % out_street.replace('\\', '/'),
-             '\t\t<param name="removeNotUsedStopFacilities" value="true" />',
-             '\t\t<param name="routingWithCandidateDistance" value="true" />',
-             '\t\t<param name="scheduleFreespeedModes" value="artificial" />',
-             '\t\t<param name="threadChunkSize" value="100" />',
-             '\t\t<param name="travelCostType" value="linkLength" />']
-    for sched_mode, net_modes in MODE_ASSIGNMENT:
-        lines += ['\t\t<parameterset type="transportModeAssignment" >',
-                  '\t\t\t<param name="maxLinkCandidateDistance" value="90.0" />',
-                  '\t\t\t<param name="nLinkThreshold" value="6" />',
-                  '\t\t\t<param name="networkModes" value="%s" />' % net_modes,
-                  '\t\t\t<param name="scheduleMode" value="%s" />' % sched_mode,
-                  '\t\t\t<param name="strictLinkRule" value="false" />',
-                  '\t\t</parameterset>']
-    lines += ['\t</module>', '</config>', '']
-    with open(path, 'w', encoding='utf-8', newline='\n') as f:
-        f.write('\n'.join(lines))
-    return path
+def write_mapper_config(path, network, schedule, out_net, out_sched, out_street,
+                        threads, cfg=None):
+    """Emit the pt2matsim PublicTransitMapping config from the registry."""
+    cfg = cfg if cfg is not None else _registry.load()
+    runtime = {
+        'PublicTransitMapping.inputNetworkFile': (fwd(network), 'path', 'base network'),
+        'PublicTransitMapping.inputScheduleFile': (fwd(schedule), 'path',
+                                                   'unmapped schedule'),
+        'PublicTransitMapping.outputNetworkFile': (fwd(out_net), 'path', 'mapped network'),
+        'PublicTransitMapping.outputScheduleFile': (fwd(out_sched), 'path',
+                                                    'mapped schedule'),
+        'PublicTransitMapping.outputStreetNetworkFile': (fwd(out_street), 'path',
+                                                         'street-only network'),
+        'PublicTransitMapping.numOfThreads': (threads, 'derived',
+                                              'RUN.machine.threads for this build'),
+    }
+    leaks = _param_config.closure('pt2matsim_mapper', cfg, runtime)
+    if leaks:
+        raise SystemExit('the schedule mapper config carries %d parameter(s) from '
+                         'neither a field nor a declared role: %s' % (len(leaks), leaks))
+    return _param_config.write(path, 'pt2matsim_mapper', cfg, runtime)
 
 
 def unpack_feed(name, zip_path):

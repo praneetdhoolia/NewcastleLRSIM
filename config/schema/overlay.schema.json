@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/overlay.schema.json",
+  "title": "NewcastleLRSIM overlay document",
+  "description": "A partial override applied over the registry. Overlays carry VALUES ONLY - they may not introduce a field, nor change its units, source or sweep, because that would let a run invent an input outside the registry's provenance rules. The resolver rejects an overlay key that is not already a registry field, and rejects a value outside the field's sweep unless that key is listed in allow_outside_sweep with a justification.",
+  "type": "object",
+  "required": [
+    "overlay",
+    "set"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "overlay": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier, e.g. 'S2', 'WEEKDAY', or a run tag."
+    },
+    "description": {
+      "type": "string"
+    },
+    "applies_to": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scenario": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "day_type": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "WEEKDAY",
+              "SAT",
+              "SUN"
+            ]
+          }
+        }
+      }
+    },
+    "set": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Z]+[.][a-z_0-9]+[.][A-Za-z_0-9.]+$"
+      },
+      "additionalProperties": true
+    },
+    "allow_outside_sweep": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Field keys this overlay may set outside their declared sweep. Each entry must be justified in 'justification'. For deliberate stress tests, never for routine runs."
+    },
+    "justification": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

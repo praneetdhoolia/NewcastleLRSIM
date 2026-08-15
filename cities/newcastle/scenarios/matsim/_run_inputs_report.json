@@ -1,0 +1,1456 @@
+{
+  "scenarios": {
+    "S0": {
+      "road_variant": "net_base2026_hunter_st_full_capacity",
+      "patch_rows": 40,
+      "links_touched": {
+        "num_lanes_per_dir": 54,
+        "kerbside_use": 59,
+        "banned_turns_removed": 8,
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1275,
+          "routes_dropped": 445,
+          "departures": 1908,
+          "departures_dropped": 1862,
+          "routes_kept_under_a_foreign_day_id": 38,
+          "vehicles": 1908,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 1908,
+          "stop_facilities_kept": 4114,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1260,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 409,
+          "routes_dropped": 1311,
+          "departures": 995,
+          "departures_dropped": 2775,
+          "routes_kept_under_a_foreign_day_id": 118,
+          "vehicles": 995,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 995,
+          "stop_facilities_kept": 2142,
+          "stop_facilities_dropped": 2046,
+          "transfer_relations_kept": 278,
+          "transfer_relations_dropped": 1018
+        },
+        "SUN": {
+          "routes_kept": 318,
+          "routes_dropped": 1402,
+          "departures": 867,
+          "departures_dropped": 2903,
+          "routes_kept_under_a_foreign_day_id": 126,
+          "vehicles": 867,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 867,
+          "stop_facilities_kept": 2164,
+          "stop_facilities_dropped": 2024,
+          "transfer_relations_kept": 274,
+          "transfer_relations_dropped": 1022
+        }
+      }
+    },
+    "S1": {
+      "road_variant": "net_base2026_hunter_st_full_capacity",
+      "patch_rows": 40,
+      "links_touched": {
+        "num_lanes_per_dir": 54,
+        "kerbside_use": 59,
+        "banned_turns_removed": 8,
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1270,
+          "routes_dropped": 444,
+          "departures": 2115,
+          "departures_dropped": 2136,
+          "routes_kept_under_a_foreign_day_id": 39,
+          "vehicles": 2115,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 2115,
+          "stop_facilities_kept": 4127,
+          "stop_facilities_dropped": 72,
+          "transfer_relations_kept": 1268,
+          "transfer_relations_dropped": 30
+        },
+        "SAT": {
+          "routes_kept": 405,
+          "routes_dropped": 1309,
+          "departures": 1132,
+          "departures_dropped": 3119,
+          "routes_kept_under_a_foreign_day_id": 113,
+          "vehicles": 1132,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 1132,
+          "stop_facilities_kept": 2150,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 276,
+          "transfer_relations_dropped": 1022
+        },
+        "SUN": {
+          "routes_kept": 314,
+          "routes_dropped": 1400,
+          "departures": 1004,
+          "departures_dropped": 3247,
+          "routes_kept_under_a_foreign_day_id": 123,
+          "vehicles": 1004,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 1004,
+          "stop_facilities_kept": 2172,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 272,
+          "transfer_relations_dropped": 1026
+        }
+      }
+    },
+    "S2": {
+      "road_variant": "net_base2026",
+      "patch_rows": 0,
+      "links_touched": {
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1270,
+          "routes_dropped": 444,
+          "departures": 2139,
+          "departures_dropped": 2130,
+          "routes_kept_under_a_foreign_day_id": 39,
+          "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 2139,
+          "stop_facilities_kept": 4123,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1262,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 405,
+          "routes_dropped": 1309,
+          "departures": 1128,
+          "departures_dropped": 3141,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1128,
+          "stop_facilities_kept": 2148,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 268,
+          "transfer_relations_dropped": 1030
+        },
+        "SUN": {
+          "routes_kept": 314,
+          "routes_dropped": 1400,
+          "departures": 1002,
+          "departures_dropped": 3267,
+          "routes_kept_under_a_foreign_day_id": 122,
+          "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1002,
+          "stop_facilities_kept": 2170,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 264,
+          "transfer_relations_dropped": 1034
+        }
+      }
+    },
+    "S2a": {
+      "road_variant": "net_base2026",
+      "patch_rows": 0,
+      "links_touched": {
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1270,
+          "routes_dropped": 444,
+          "departures": 2139,
+          "departures_dropped": 2130,
+          "routes_kept_under_a_foreign_day_id": 39,
+          "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 2139,
+          "stop_facilities_kept": 4123,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1262,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 405,
+          "routes_dropped": 1309,
+          "departures": 1128,
+          "departures_dropped": 3141,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1128,
+          "stop_facilities_kept": 2148,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 268,
+          "transfer_relations_dropped": 1030
+        },
+        "SUN": {
+          "routes_kept": 314,
+          "routes_dropped": 1400,
+          "departures": 1002,
+          "departures_dropped": 3267,
+          "routes_kept_under_a_foreign_day_id": 122,
+          "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1002,
+          "stop_facilities_kept": 2170,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 264,
+          "transfer_relations_dropped": 1034
+        }
+      }
+    },
+    "S2b": {
+      "road_variant": "net_base2026",
+      "patch_rows": 0,
+      "links_touched": {
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1270,
+          "routes_dropped": 444,
+          "departures": 2139,
+          "departures_dropped": 2130,
+          "routes_kept_under_a_foreign_day_id": 39,
+          "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 2139,
+          "stop_facilities_kept": 4124,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1274,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 405,
+          "routes_dropped": 1309,
+          "departures": 1128,
+          "departures_dropped": 3141,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1128,
+          "stop_facilities_kept": 2148,
+          "stop_facilities_dropped": 2050,
+          "transfer_relations_kept": 268,
+          "transfer_relations_dropped": 1042
+        },
+        "SUN": {
+          "routes_kept": 314,
+          "routes_dropped": 1400,
+          "departures": 1002,
+          "departures_dropped": 3267,
+          "routes_kept_under_a_foreign_day_id": 122,
+          "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1002,
+          "stop_facilities_kept": 2170,
+          "stop_facilities_dropped": 2028,
+          "transfer_relations_kept": 264,
+          "transfer_relations_dropped": 1046
+        }
+      }
+    },
+    "S2c": {
+      "road_variant": "net_base2026_hunter_st_full_capacity",
+      "patch_rows": 40,
+      "links_touched": {
+        "num_lanes_per_dir": 54,
+        "kerbside_use": 59,
+        "banned_turns_removed": 8,
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1270,
+          "routes_dropped": 444,
+          "departures": 2139,
+          "departures_dropped": 2130,
+          "routes_kept_under_a_foreign_day_id": 39,
+          "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 2139,
+          "stop_facilities_kept": 4125,
+          "stop_facilities_dropped": 72,
+          "transfer_relations_kept": 1262,
+          "transfer_relations_dropped": 30
+        },
+        "SAT": {
+          "routes_kept": 405,
+          "routes_dropped": 1309,
+          "departures": 1128,
+          "departures_dropped": 3141,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1128,
+          "stop_facilities_kept": 2146,
+          "stop_facilities_dropped": 2051,
+          "transfer_relations_kept": 264,
+          "transfer_relations_dropped": 1028
+        },
+        "SUN": {
+          "routes_kept": 314,
+          "routes_dropped": 1400,
+          "departures": 1002,
+          "departures_dropped": 3267,
+          "routes_kept_under_a_foreign_day_id": 122,
+          "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1002,
+          "stop_facilities_kept": 2168,
+          "stop_facilities_dropped": 2029,
+          "transfer_relations_kept": 260,
+          "transfer_relations_dropped": 1032
+        }
+      }
+    },
+    "S3": {
+      "road_variant": "net_base2026",
+      "patch_rows": 0,
+      "links_touched": {
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1270,
+          "routes_dropped": 444,
+          "departures": 2191,
+          "departures_dropped": 2240,
+          "routes_kept_under_a_foreign_day_id": 38,
+          "vehicles": 2191,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 2191,
+          "stop_facilities_kept": 4123,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1270,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 405,
+          "routes_dropped": 1309,
+          "departures": 1184,
+          "departures_dropped": 3247,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1184,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 1184,
+          "stop_facilities_kept": 2149,
+          "stop_facilities_dropped": 2048,
+          "transfer_relations_kept": 278,
+          "transfer_relations_dropped": 1028
+        },
+        "SUN": {
+          "routes_kept": 314,
+          "routes_dropped": 1400,
+          "departures": 1056,
+          "departures_dropped": 3375,
+          "routes_kept_under_a_foreign_day_id": 123,
+          "vehicles": 1056,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 1056,
+          "stop_facilities_kept": 2171,
+          "stop_facilities_dropped": 2026,
+          "transfer_relations_kept": 274,
+          "transfer_relations_dropped": 1032
+        }
+      }
+    },
+    "S4": {
+      "road_variant": "net_base2026_broadmeadow_extension",
+      "patch_rows": 134,
+      "links_touched": {
+        "num_lanes_per_dir": 180,
+        "kerbside_use": 302,
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1271,
+          "routes_dropped": 444,
+          "departures": 2139,
+          "departures_dropped": 2130,
+          "routes_kept_under_a_foreign_day_id": 40,
+          "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 2139,
+          "stop_facilities_kept": 4126,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1264,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 406,
+          "routes_dropped": 1309,
+          "departures": 1128,
+          "departures_dropped": 3141,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1128,
+          "stop_facilities_kept": 2151,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 270,
+          "transfer_relations_dropped": 1030
+        },
+        "SUN": {
+          "routes_kept": 315,
+          "routes_dropped": 1400,
+          "departures": 1002,
+          "departures_dropped": 3267,
+          "routes_kept_under_a_foreign_day_id": 123,
+          "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1002,
+          "stop_facilities_kept": 2173,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 266,
+          "transfer_relations_dropped": 1034
+        }
+      }
+    },
+    "S5": {
+      "road_variant": "net_base2026_jhh_extension",
+      "patch_rows": 240,
+      "links_touched": {
+        "num_lanes_per_dir": 280,
+        "kerbside_use": 498,
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1271,
+          "routes_dropped": 444,
+          "departures": 2139,
+          "departures_dropped": 2130,
+          "routes_kept_under_a_foreign_day_id": 40,
+          "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 2139,
+          "stop_facilities_kept": 4131,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1270,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 406,
+          "routes_dropped": 1309,
+          "departures": 1128,
+          "departures_dropped": 3141,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1128,
+          "stop_facilities_kept": 2156,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 276,
+          "transfer_relations_dropped": 1030
+        },
+        "SUN": {
+          "routes_kept": 315,
+          "routes_dropped": 1400,
+          "departures": 1002,
+          "departures_dropped": 3267,
+          "routes_kept_under_a_foreign_day_id": 123,
+          "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1002,
+          "stop_facilities_kept": 2178,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 272,
+          "transfer_relations_dropped": 1034
+        }
+      }
+    },
+    "S6": {
+      "road_variant": "net_base2026_hunter_st_full_capacity",
+      "patch_rows": 40,
+      "links_touched": {
+        "num_lanes_per_dir": 54,
+        "kerbside_use": 59,
+        "banned_turns_removed": 8,
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1268,
+          "routes_dropped": 444,
+          "departures": 1887,
+          "departures_dropped": 1832,
+          "routes_kept_under_a_foreign_day_id": 37,
+          "vehicles": 1887,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 1887,
+          "stop_facilities_kept": 4113,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1270,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 403,
+          "routes_dropped": 1309,
+          "departures": 980,
+          "departures_dropped": 2739,
+          "routes_kept_under_a_foreign_day_id": 113,
+          "vehicles": 980,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 980,
+          "stop_facilities_kept": 2137,
+          "stop_facilities_dropped": 2050,
+          "transfer_relations_kept": 266,
+          "transfer_relations_dropped": 1040
+        },
+        "SUN": {
+          "routes_kept": 312,
+          "routes_dropped": 1400,
+          "departures": 852,
+          "departures_dropped": 2867,
+          "routes_kept_under_a_foreign_day_id": 121,
+          "vehicles": 852,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ]
+          ],
+          "vehicle_refs": 852,
+          "stop_facilities_kept": 2159,
+          "stop_facilities_dropped": 2028,
+          "transfer_relations_kept": 262,
+          "transfer_relations_dropped": 1044
+        }
+      }
+    }
+  },
+  "purpose_share": {
+    "HE": 0.09109209864116759,
+    "HO": 0.3824861600402617,
+    "HS": 0.17262204328132863,
+    "HW": 0.1404126824358329,
+    "NHB": 0.1680926019124308,
+    "WB": 0.04529441368897836
+  },
+  "scoring": {
+    "performing_utils_per_h": 6.0,
+    "performing_sweep": [
+      4.0,
+      8.0
+    ],
+    "monetary_distance_rate": {
+      "car": -0.00018,
+      "ride": -0.00018,
+      "pt": 0.0,
+      "walk": 0.0,
+      "bike": 0.0
+    },
+    "monetary_distance_rate_sweep": [
+      -0.00025,
+      -0.00012
+    ],
+    "strategies": {
+      "ChangeExpBeta": 0.7,
+      "ReRoute": 0.15,
+      "SubtourModeChoice": 0.1,
+      "TimeAllocationMutator": 0.05
+    },
+    "subtour_mode_choice_weight_sweep": [
+      0.05,
+      0.15
+    ],
+    "marginal_utility_of_money": 1.0,
+    "vot_aud_hr_used": 16.961,
+    "vot_aud_hr_by_purpose": {
+      "HW": 18.6,
+      "HE": 9.3,
+      "HS": 15.2,
+      "HO": 15.2,
+      "WB": 55.4,
+      "NHB": 15.2
+    },
+    "purpose_weights": {
+      "HE": 0.09109209864116759,
+      "HO": 0.3824861600402617,
+      "HS": 0.17262204328132863,
+      "HW": 0.1404126824358329,
+      "NHB": 0.1680926019124308,
+      "WB": 0.04529441368897836
+    },
+    "waiting_pt": -27.9216,
+    "utility_of_line_switch": -2.2614,
+    "transfer_penalty_min": 8.0,
+    "transfer_penalty_sweep": [
+      3.0,
+      15.0
+    ],
+    "modes": {
+      "car": {
+        "constant": 0.0,
+        "marginalUtilityOfTraveling": -10.9608
+      },
+      "ride": {
+        "constant": -0.85,
+        "marginalUtilityOfTraveling": -10.9608
+      },
+      "pt": {
+        "constant": -1.05,
+        "marginalUtilityOfTraveling": -10.9608
+      },
+      "walk": {
+        "constant": 0.35,
+        "marginalUtilityOfTraveling": -11.6392
+      },
+      "bike": {
+        "constant": -1.35,
+        "marginalUtilityOfTraveling": -14.5226
+      }
+    },
+    "not_representable": [
+      "nesting_coefficient_pt=0.65 and the nested-logit structure: MATSim mode choice is a co-evolutionary search with no nest parameter",
+      "per-purpose value of time: MATSim scores per mode, so a trip-weighted average (16.96 AUD/h) is used in place of the six purpose-specific values",
+      "crowding multipliers (beta_crowding_*): require an explicit capacity-dependent scoring extension, not enabled here",
+      "gradient penalties (beta_gradient_uphill=0.09, beta_gradient_downhill=0.02): MATSim scores a leg from time and distance and has no gradient term, so the gradient attached to 43,112 road and 35,653 footway edges reaches mode choice through nothing. It remains used for corridor grades (issue 21)",
+      "PT walk-access decay (walk_decay, beta_per_m=0.0018): the access and egress walk that actually happens is routing.accessEgressType plus SwissRailRaptor own radius handling, neither of which reads a decay curve, so the declared curve reaches nothing (issue 21)"
+    ]
+  }
+}

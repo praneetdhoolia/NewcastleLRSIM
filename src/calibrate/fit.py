@@ -8,6 +8,14 @@ here: `load_targets()` filters `split == 'calibration'` at read time and raises
 if anything else survives, so a holdout value is never in memory, never in an
 intermediate, and never in the output.
 
+**A modelled zero is scored, not dropped.** Where the model routes no traffic
+over a link that carries observed volume, that is a *result* and the worst one
+in the set - the M1 Pacific Motorway at Wyee is observed 48,016 and modelled 0.
+Dropping it would flatter every aggregate below by removing the stations where
+the model fails hardest, which is the inversion of proposal §8 deliverable 3.
+Only a station that resolves to no link at all is unscorable, and the two cases
+carry different reasons (issue 19).
+
 **It reports what it could not score, as loudly as what it could.** A target with
 no modelled counterpart is listed as `unscorable` with the reason, because
 "fits 67 targets" is a much stronger claim than this data supports and
@@ -19,16 +27,23 @@ mode-share degrees of freedom, one contemporary patronage level and 34 counts.
 Every fit statistic carries the list of target ids it was computed over. A
 statistic that does not name its targets is not reportable.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import argparse
-import collections
 import csv
 import json
 import math
 import os
 
-TARGETS = 'data/processed/validation/validation_targets.csv'
-C3 = 'params/C3_count_comparison.json'
-C4 = 'params/C4_mode_constraints.json'
+TARGETS = _city.path('data/processed/validation/validation_targets.csv')
+C3 = _city.path('params/C3_count_comparison.json')
+C4 = _city.path('params/C4_mode_constraints.json')
 
 # MATSim mode -> the HTS category it is comparable with. `bike` carries HTS
 # "Other", which also holds taxi, motorcycle and rideshare: an imperfect map,
@@ -58,7 +73,7 @@ def scale_error(modelled, observed):
 
 def score_mode_share(targets, metrics, out):
     """Linked main-mode share, Newcastle LGA, 2024/25 vintage only."""
-    share = metrics['mode_share']['newcastle_lga_pct']
+    share = metrics['mode_share']['target_lga_pct']
     rows = [t for t in targets
             if t['metric'] == 'hts_mode_share' and t['period'] == BASE_YEAR_HTS]
     hts_to_mode = {v.lower(): k for k, v in MODE_TO_HTS.items()}
@@ -123,7 +138,7 @@ def score_counts(targets, metrics, corrections, out):
     heavy = corrections['heavy_vehicle_share']
     default_heavy = heavy['value']
     obs_heavy = {}
-    with open('data/processed/validation/road_aadt_targets.csv',
+    with open(_city.path('data/processed/validation/road_aadt_targets.csv'),
               encoding='utf-8') as f:
         for r in csv.DictReader(f):
             if r['heavy_share_source'] == 'observed' and r['heavy_share']:
@@ -135,11 +150,17 @@ def score_counts(targets, metrics, corrections, out):
             continue
         key = t['note'].split('station_key=')[1].split(';')[0]
         s = by_station.get(key)
-        if s is None or not s['modelled_vehicles']:
+        # Two different situations, and only one of them is unscorable. An
+        # earlier cut collapsed them into a single branch and emitted the
+        # "did not resolve to a link" reason for both, which was false for the
+        # zero-volume stations AND dropped the worst misses out of the fit -
+        # the M1 at Wyee is observed 48,016 and modelled 0 (issue 19).
+        if s is None:
             out['unscorable'].append(dict(
                 target_id=t['target_id'], metric=t['metric'], note=key,
-                reason='station has no modelled volume: it did not resolve to a '
-                       'link on the run network (outside the modelled area)'))
+                reason='station did not resolve to any link on the run network, '
+                       'so the model carries no counterpart to compare '
+                       '(outside the modelled area - issue 10)'))
             continue
         # the model has no freight, so the observed all-classes count is put on
         # a light-vehicle basis using the station's own share where classified
@@ -152,6 +173,11 @@ def score_counts(targets, metrics, corrections, out):
                  heavy_share_source='observed' if key in obs_heavy else 'assumed',
                  matched_by=s['matched_by'],
                  max_link_distance_m=s['max_distance_m'])
+        # A modelled zero is a RESULT - the model routes no traffic over a link
+        # that carries observed volume - not a target that cannot be scored. It
+        # is flagged so it is visible rather than buried in an aggregate.
+        if not s['modelled_vehicles']:
+            e['modelled_zero'] = True
         errs.append(e)
         used.append(t['target_id'])
     if not errs:
@@ -166,7 +192,9 @@ def score_counts(targets, metrics, corrections, out):
                 rmse_pct_of_mean_observed=round(
                     100.0 * math.sqrt(sum(sq) / len(sq)) / (sum(obs) / len(obs)), 2),
                 heavy_share_assumed_at=sum(1 for e in errs
-                                           if e['heavy_share_source'] == 'assumed'))
+                                           if e['heavy_share_source'] == 'assumed'),
+                modelled_zero_stations=[e['target_id'] for e in errs
+                                        if e.get('modelled_zero')])
 
 
 def account_for_the_rest(targets, out):
@@ -208,7 +236,7 @@ def account_for_the_rest(targets, out):
 
 def score_occupancy(metrics, c4):
     """Not a validation target: the physical constraint of DECISIONS.md 9.8."""
-    share = metrics['mode_share']['newcastle_lga_pct']
+    share = metrics['mode_share']['target_lga_pct']
     car, ride = share.get('car', 0.0), share.get('ride', 0.0)
     if not car:
         return None
@@ -223,12 +251,66 @@ def score_occupancy(metrics, c4):
                      'in any fit statistic')
 
 
+def score_trip_geometry(metrics, c4):
+    """Not a validation target: is each mode used over the right RANGE?
+
+    Mode share says how many people choose a mode; this says whether the trips
+    they choose it for are the right length. A mode can hit its share exactly
+    while being used for journeys it would never serve in reality.
+
+    Both sides are Newcastle LGA. Comparing a five-LGA modelled mean against the
+    Newcastle-LGA published mean is a geography error that flatters or damns a
+    mode by accident - the same trap DECISIONS.md 12.1 flags for the seed.
+
+    The RATIO between two modes is reported alongside the levels because it is
+    robust to that geography: it survives whatever the trip-length distribution
+    of the study area happens to be.
+    """
+    obs = (c4.get('trip_geometry') or {}).get('modes') or {}
+    mod = (metrics.get('trip_geometry') or {}).get('by_mode') or {}
+    if not obs or not mod:
+        return None
+    modes = {}
+    for m, o in sorted(obs.items()):
+        g = mod.get(m)
+        if not g:
+            continue
+        lo, hi = o['avg_distance_sweep']
+        km = g['mean_distance_km']
+        modes[m] = dict(
+            modelled_mean_distance_km=km,
+            observed_mean_distance_km=o['avg_distance_km'],
+            observed_distance_sweep=[lo, hi],
+            inside_observed_range=bool(lo <= km <= hi),
+            ratio_modelled_to_observed=round(km / o['avg_distance_km'], 4)
+            if o['avg_distance_km'] else None,
+            modelled_mean_time_min=g['mean_time_min'],
+            observed_mean_time_min=o['avg_time_min'],
+            trips=g['trips'])
+    out = dict(geography=_city.descriptor()['mode_share_target']['geography'],
+               modes=modes,
+               note='a constraint, not a validation target; it is not counted '
+                    'in any fit statistic. The 67/143 split is pre-registered '
+                    'and this is not part of it')
+    if 'ride' in modes and 'car' in modes and modes['car']['modelled_mean_distance_km']:
+        mr = (modes['ride']['modelled_mean_distance_km']
+              / modes['car']['modelled_mean_distance_km'])
+        orr = (modes['ride']['observed_mean_distance_km']
+               / modes['car']['observed_mean_distance_km'])
+        out['ride_to_car_length_ratio'] = dict(
+            modelled=round(mr, 4), observed=round(orr, 4),
+            note='geography-robust: the level of either mode depends on the '
+                 'study area, this ratio does not. Observed passenger trips are '
+                 'slightly SHORTER than driver trips')
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--run', required=True)
     ap.add_argument('--out')
     a = ap.parse_args()
-    run_dir = a.run if os.path.isdir(a.run) else os.path.join('results', a.run)
+    run_dir = a.run if os.path.isdir(a.run) else os.path.join(_city.REPO, 'results', a.run)
     metrics = json.load(open(os.path.join(run_dir, '_metrics.json'),
                              encoding='utf-8'))
     corrections = json.load(open(C3, encoding='utf-8'))
@@ -245,6 +327,7 @@ def main():
     out['patronage'] = score_patronage(targets, metrics, out)
     out['counts'] = score_counts(targets, metrics, corrections, out)
     out['occupancy_constraint'] = score_occupancy(metrics, c4)
+    out['trip_geometry_constraint'] = score_trip_geometry(metrics, c4)
 
     account_for_the_rest(targets, out)
     scored = (out['mode_share']['n'] + out['patronage']['n'] + out['counts']['n'])
@@ -266,7 +349,8 @@ def main():
     print(out['headline'])
     ms = out['mode_share']
     if ms['errors']:
-        print('\nmode share, Newcastle LGA (percentage points):')
+        print('\nmode share, %s (percentage points):'
+              % _city.descriptor()['mode_share_target']['geography'])
         for e in ms['errors']:
             print('  %-18s modelled %6.2f  observed %6.2f  error %+6.2f pp'
                   % (e['hts_category'], e['modelled'], e['observed'],
@@ -282,6 +366,28 @@ def main():
                  c['rmse_pct_of_mean_observed']))
         print('  heavy-vehicle share assumed at %d of %d stations'
               % (c['heavy_share_assumed_at'], c['n']))
+        if c['modelled_zero_stations']:
+            print('  MODELLED ZERO at %d station(s): %s - the model routes no '
+                  'traffic over a link that carries observed volume. Scored at '
+                  '-100%%, not dropped (issue 19)'
+                  % (len(c['modelled_zero_stations']),
+                     ', '.join(c['modelled_zero_stations'])))
+    tg = out.get('trip_geometry_constraint')
+    if tg:
+        print('\ntrip geometry, %s (a constraint, never scored):'
+              % _city.descriptor()['mode_share_target']['geography'])
+        print('  %-5s %11s %11s %9s %8s' % ('mode', 'modelled km', 'observed km',
+                                            'ratio', 'in range'))
+        for m, g in sorted(tg['modes'].items()):
+            print('  %-5s %11.2f %11.2f %9.2f %8s'
+                  % (m, g['modelled_mean_distance_km'],
+                     g['observed_mean_distance_km'],
+                     g['ratio_modelled_to_observed'],
+                     'yes' if g['inside_observed_range'] else 'NO'))
+        r = tg.get('ride_to_car_length_ratio')
+        if r:
+            print('  ride:car trip length  modelled %.3f  observed %.3f  '
+                  '(geography-robust)' % (r['modelled'], r['observed']))
     o = out['occupancy_constraint']
     if o:
         print('\noccupancy constraint (not a target): modelled %.4f passengers '

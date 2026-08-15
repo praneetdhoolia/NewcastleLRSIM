@@ -9,6 +9,14 @@ this is material in Newcastle East and The Hill.
 Also emits a walk-speed multiplier per edge using a Tobler-style rule, so the
 active-transport graph carries a directional cost rather than a flat speed.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import csv
 import json
@@ -17,8 +25,8 @@ import numpy as np
 import rasterio
 from rasterio.merge import merge
 
-DEM_DIR = 'data/raw/dem'
-NET = 'data/processed/network'
+DEM_DIR = _city.path('data/raw/dem')
+NET = _city.path('data/processed/network')
 
 TILES = [os.path.join(DEM_DIR, f) for f in sorted(os.listdir(DEM_DIR)) if f.endswith('.tif')]
 

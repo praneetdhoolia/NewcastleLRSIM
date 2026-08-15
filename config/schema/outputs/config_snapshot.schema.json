@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/praneetdhoolia/NewcastleLRSIM/config/schema/outputs/config_snapshot.schema.json",
+  "title": "_config.json - the resolved input registry for one run",
+  "description": "Written into every run directory by src/registry. It records the value of every registry field, which overlay layer last set it, and the provenance of each. A run without one cannot state what inputs produced it, and a result whose inputs cannot be stated is not reportable.",
+  "type": "object",
+  "required": [
+    "registry_fields",
+    "layers",
+    "values",
+    "resolved_from",
+    "provenance"
+  ],
+  "properties": {
+    "registry_fields": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Overlay layers applied, lowest precedence first."
+    },
+    "values": {
+      "type": "object",
+      "description": "key -> resolved value."
+    },
+    "resolved_from": {
+      "type": "object",
+      "description": "key -> the layer that set it."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "key",
+          "source",
+          "status",
+          "units"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "observed",
+              "measured",
+              "derived",
+              "literature",
+              "assumed",
+              "definition"
+            ]
+          },
+          "status": {
+            "enum": [
+              "active",
+              "unobtained",
+              "placeholder",
+              "computed"
+            ]
+          },
+          "units": {
+            "type": "string"
+          },
+          "sweep": {},
+          "held_fixed": {},
+          "decisions_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolved_from": {
+            "type": "string"
+          },
+          "declared_in": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

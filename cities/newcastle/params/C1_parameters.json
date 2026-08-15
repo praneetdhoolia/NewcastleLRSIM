@@ -1,0 +1,194 @@
+{
+  "vot_aud_hr": {
+    "HW": 18.6,
+    "HE": 9.3,
+    "HS": 15.2,
+    "HO": 15.2,
+    "WB": 55.4,
+    "NHB": 15.2
+  },
+  "weights": {
+    "beta_ivt": {
+      "base": 1.0,
+      "low": 1.0,
+      "high": 1.0,
+      "source": "definition"
+    },
+    "beta_walk_access": {
+      "base": 2.0,
+      "low": 1.5,
+      "high": 2.5,
+      "source": "literature"
+    },
+    "beta_walk_egress": {
+      "base": 2.0,
+      "low": 1.5,
+      "high": 2.5,
+      "source": "literature"
+    },
+    "beta_wait": {
+      "base": 2.0,
+      "low": 1.5,
+      "high": 2.5,
+      "source": "literature"
+    },
+    "beta_headway": {
+      "base": 0.5,
+      "low": 0.35,
+      "high": 0.65,
+      "source": "literature"
+    },
+    "beta_reliability": {
+      "base": 1.3,
+      "low": 0.8,
+      "high": 1.8,
+      "source": "literature"
+    },
+    "beta_crowding_seated": {
+      "base": 1.0,
+      "low": 1.0,
+      "high": 1.15,
+      "source": "literature"
+    },
+    "beta_crowding_standing": {
+      "base": 1.45,
+      "low": 1.2,
+      "high": 1.8,
+      "source": "literature"
+    },
+    "beta_gradient_uphill": {
+      "base": 0.09,
+      "low": 0.05,
+      "high": 0.14,
+      "source": "assumed"
+    },
+    "beta_gradient_downhill": {
+      "base": 0.02,
+      "low": 0.0,
+      "high": 0.05,
+      "source": "assumed"
+    }
+  },
+  "transfer_penalty": {
+    "base": 8.0,
+    "low": 3.0,
+    "high": 15.0,
+    "grid": [
+      3.0,
+      5.0,
+      6.5,
+      8.0,
+      10.0,
+      12.0,
+      15.0
+    ],
+    "source": "assumed",
+    "estimation_route": "NOT ESTIMABLE FROM THIS PACKAGE - see DECISIONS.md 9.32. Proposal 7.2 asks for tap-on/tap-off TIMING and every Opal source held is a monthly aggregate; the stop-level tap data is holdout; no calibration target bears on interchange. The sweep stands."
+  },
+  "asc": {
+    "asc_car_driver": [
+      0.0,
+      "definition"
+    ],
+    "asc_car_passenger": [
+      -0.85,
+      "assumed"
+    ],
+    "asc_bus": [
+      -1.05,
+      "assumed"
+    ],
+    "asc_lr": [
+      -0.75,
+      "assumed"
+    ],
+    "asc_rail": [
+      -0.65,
+      "assumed"
+    ],
+    "asc_walk": [
+      0.35,
+      "assumed"
+    ],
+    "asc_cycle": [
+      -1.35,
+      "assumed"
+    ]
+  },
+  "walk_decay": {
+    "function": "negative_exponential",
+    "params": {
+      "beta_per_m": 0.0018
+    },
+    "sweep": {
+      "beta_per_m": [
+        0.001,
+        0.003
+      ]
+    },
+    "alternative": "cumulative_gaussian",
+    "alternative_params": {
+      "mu_m": 700.0,
+      "sigma_m": 420.0
+    },
+    "max_considered_m": 2500.0,
+    "source": "assumed",
+    "note": "At beta=0.0018 the weight is 0.49 at 400 m, 0.24 at 800 m and 0.12 at 1200 m. Never truncate at 400 m."
+  },
+  "nesting": {
+    "structure": "nested_logit",
+    "nests": {
+      "motorised_pt": [
+        "bus",
+        "lr",
+        "rail"
+      ],
+      "private": [
+        "car_driver",
+        "car_passenger"
+      ],
+      "active": [
+        "walk",
+        "cycle"
+      ]
+    },
+    "nesting_coefficient_pt": 0.65,
+    "nesting_coefficient_private": 0.8,
+    "nesting_coefficient_active": 0.7,
+    "source": "assumed"
+  },
+  "n_param_sets": 30,
+  "n_sweep_points": 28,
+  "assumed_rows": [
+    "C1_all_HW",
+    "C1_all_HE",
+    "C1_all_HS",
+    "C1_all_HO",
+    "C1_all_WB",
+    "C1_all_NHB",
+    "C1_car_available_HW",
+    "C1_car_available_HE",
+    "C1_car_available_HS",
+    "C1_car_available_HO",
+    "C1_car_available_WB",
+    "C1_car_available_NHB",
+    "C1_car_unavailable_HW",
+    "C1_car_unavailable_HE",
+    "C1_car_unavailable_HS",
+    "C1_car_unavailable_HO",
+    "C1_car_unavailable_WB",
+    "C1_car_unavailable_NHB",
+    "C1_concession_HW",
+    "C1_concession_HE",
+    "C1_concession_HS",
+    "C1_concession_HO",
+    "C1_concession_WB",
+    "C1_concession_NHB",
+    "C1_student_HW",
+    "C1_student_HE",
+    "C1_student_HS",
+    "C1_student_HO",
+    "C1_student_WB",
+    "C1_student_NHB"
+  ]
+}

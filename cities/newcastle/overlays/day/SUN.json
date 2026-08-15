@@ -1,0 +1,10 @@
+{
+  "overlay": "SUN",
+  "description": "Sunday. 414,013 persons. The Saturday-to-Sunday division is the last assumed part of the day-type shape - see B.activity.sat_to_sun_rate.",
+  "applies_to": {
+    "day_type": [
+      "SUN"
+    ]
+  },
+  "set": {}
+}

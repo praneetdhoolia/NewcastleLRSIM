@@ -1,0 +1,14 @@
+{
+  "overlay": "S4",
+  "description": "Light rail extended to Broadmeadow. Tests the trunk-length hypothesis (S-c): whether underperformance is attributable to mode choice or to corridor length. The routed alignment is 7.00 km against the Strategic Business Case stated 6.65 km.",
+  "applies_to": {
+    "scenario": [
+      "S4"
+    ]
+  },
+  "set": {
+    "A.lightrail.dwell_charging_s": 20.0,
+    "A.lightrail.tsp_enabled": false,
+    "A.signals.scats_phasing": "proxy_no_priority"
+  }
+}

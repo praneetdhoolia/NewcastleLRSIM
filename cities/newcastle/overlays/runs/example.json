@@ -1,0 +1,10 @@
+{
+  "overlay": "example",
+  "description": "Template for a per-run overlay. Copy it, name it after the run tag, and set only what that run varies. A run overlay is the right place for the iteration count and sample fraction, because both are run decisions rather than model properties.",
+  "set": {
+    "RUN.sample.fraction": 0.01,
+    "RUN.controler.last_iteration": 250,
+    "RUN.machine.threads": 10,
+    "RUN.machine.xmx": "14g"
+  }
+}

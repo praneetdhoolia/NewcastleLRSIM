@@ -7,6 +7,14 @@ forcing an interchange at Wickham is worth the CBD distribution it buys
 whether it is sheltered, whether it requires a signalised road crossing - has to
 be an explicit input rather than an implicit constant.
 """
+
+# City-relative paths resolve through src/city.py: `data/...` names a
+# location inside cities/<city>/, not inside the repository root.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                  '..', '..', 'src'))
+import city as _city  # noqa: E402
 import os
 import sys
 import csv
@@ -17,24 +25,41 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gtfs_tools import read_feed
 
-OUT = 'data/processed/schedule_extras'
+# Model inputs come from cities/<city>/registry/, not from literals here. Every
+# value below carries its units, provenance and either a sweep, a held-fixed rule
+# or a derived-from identity there. See DECISIONS.md 15.
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import registry as _registry  # noqa: E402
+CFG = _registry.load()
+
+OUT = _city.path('data/processed/schedule_extras')
 os.makedirs(OUT, exist_ok=True)
-BASE = 'schedules/base2026.zip'
+BASE = _city.path('schedules/base2026.zip')
 
-WALK_SPEED_MS = 1.25          # m/s, level ground
-INTERCHANGE_RADIUS_M = 250    # stops within this of each other form a group
+WALK_SPEED_MS = CFG.get('A.transit.walk_speed_ms')
+INTERCHANGE_RADIUS_M = CFG.get('A.transit.interchange_radius_m')
 
+# GTFS route_type is the GTFS specification's own vocabulary, not a city's.
 MODE_BY_TYPE = {'0': 'lr', '1': 'metro', '2': 'heavy_rail', '3': 'bus', '4': 'ferry'}
-OPERATOR = {'nisc001': 'Keolis Downer Hunter (Newcastle Transport)',
-            'lightrail': 'Keolis Downer Hunter (Newcastle Transport)',
-            'regionbuses': 'Hunter Valley Buses',
-            'sydneytrains': 'Sydney Trains',
-            'nswtrains': 'NSW TrainLink'}
-CONTRACT = {'nisc001': 'NISC 1', 'lightrail': 'NISC 1 (light rail)',
-            'regionbuses': 'Newcastle Hunter region', 'sydneytrains': 'Intercity',
-            'nswtrains': 'Regional'}
-VALID = {'nisc001': ('2017-07-01', ''), 'lightrail': ('2019-02-17', ''),
-         'regionbuses': ('2024-09-01', ''), 'sydneytrains': ('', ''), 'nswtrains': ('', '')}
+
+# WHO RUNS EACH FEED IS THE CITY'S, and it was three dicts here naming this
+# city's operators and contract regions inside the framework. A framework that
+# names one city's bus company is not a framework.
+_FEEDS = json.load(open(_city.path('schedules/operators.json'),
+                        encoding='utf-8'))['feeds']
+OPERATOR = {k: v['operator'] for k, v in _FEEDS.items()}
+CONTRACT = {k: v['contract'] for k, v in _FEEDS.items()}
+VALID = {k: (v['valid_from'], v['valid_to']) for k, v in _FEEDS.items()}
+
+# The transfer point whose stops are grouped into one interchange. Declared with
+# its position in cities/<city>/geometry/, because it is a place.
+INTERCHANGE_NAME = _city.geometry(
+    'scenario_alignments')['anchors']['interchange']['stop_name_contains']
+# The group id is DERIVED from that name rather than typed: it was the literal
+# 'NEWCASTLE_INTERCHANGE', one city's name used as an identifier in framework
+# code, so a second city's interchange would have been labelled Newcastle's.
+INTERCHANGE_GROUP_ID = INTERCHANGE_NAME.upper().replace(' ', '_')
 
 
 def hav(a, b):
@@ -87,7 +112,7 @@ def main():
     ll = {sid: (float(s['stop_lat']), float(s['stop_lon']))
           for sid, s in stops.items() if s.get('stop_lat')}
     named = [(sid, s) for sid, s in stops.items()
-             if 'Newcastle Interchange' in s.get('stop_name', '')]
+             if INTERCHANGE_NAME in s.get('stop_name', '')]
     inter_ids = set()
     if named:
         c = ll[named[0][0]]
@@ -112,7 +137,7 @@ def main():
             real_time_info=1 if (is_rail or is_lr or sid in inter_ids) else -1,
             step_free=1 if (is_lr or is_rail) else -1,
             platform_height_mm=300 if is_lr else (1080 if is_rail else 0),
-            interchange_group_id='NEWCASTLE_INTERCHANGE' if sid in inter_ids else '',
+            interchange_group_id=INTERCHANGE_GROUP_ID if sid in inter_ids else '',
             attribute_source='assumed' if not (is_rail or is_lr) else 'inferred_from_mode'))
     _w('A3_stop_extras.csv', srows)
 

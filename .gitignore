@@ -1,50 +1,66 @@
-# Bulk data is not committed. Everything below is byte-reproducible from
-# src/extract and src/build, and every file is hashed in data/MANIFEST.csv,
-# which IS committed. See README.md "Reproducing".
+# Bulk data is not committed. Everything below is byte-reproducible from a city's
+# own extract adapters and src/build, and every file is hashed in that city's
+# data/MANIFEST.csv, which IS committed. See README.md "Reproducing".
+#
+# Every city-specific rule is written `cities/*/...`, so a second city inherits
+# the same boundary without a second copy of this file.
 
 # --- immutable third-party downloads (~1.8 GiB) ---
-data/raw/**
-!data/raw/provenance_*.json
-!data/raw/_s3_historical_gtfs_listing.txt
+cities/*/data/raw/**
+!cities/*/data/raw/provenance_*.json
+!cities/*/data/raw/_s3_historical_gtfs_listing.txt
 
 # --- raw Overpass extracts (~156 MB) ---
-networks/osm/*.osm
+cities/*/networks/osm/*.osm
 
 # --- source GTFS bundles (~230 MB) ---
-schedules/raw/**
-!schedules/raw/provenance.json
+cities/*/schedules/raw/**
+!cities/*/schedules/raw/provenance.json
 
 # --- generated GTFS variants (regenerate with build_era_feeds / build_scenario_schedules) ---
-schedules/*.zip
-schedules/scenarios/*.zip
+cities/*/schedules/*.zip
+cities/*/schedules/scenarios/*.zip
 
 # --- synthetic demand (~830 MB, seeded and deterministic) ---
-demand/population/*.csv
-demand/plans/*.csv
+cities/*/demand/population/*.csv
+cities/*/demand/plans/*.csv
 
 # --- MATSim plans (~93 MB, regenerate with build_matsim_plans). The report IS
 #     committed: it carries the seed mode split and the plan/leg counts. ---
-demand/plans/matsim/**
-!demand/plans/matsim/_plans_report.json
+cities/*/demand/plans/matsim/**
+!cities/*/demand/plans/matsim/_plans_report.json
 
 # --- assembled MATSim run inputs (~77 MB: day-type-filtered schedules, patched
 #     run networks and configs; regenerate with build_matsim_run_inputs). The
 #     report IS committed: it carries the day-type split, the scoring
 #     translation and what does not survive it. ---
-scenarios/matsim/**
-!scenarios/matsim/_run_inputs_report.json
+cities/*/scenarios/matsim/**
+!cities/*/scenarios/matsim/_run_inputs_report.json
 
 # --- large derived geometry ---
-data/processed/network/*.jsonl
-data/processed/zones/*.gpkg
+cities/*/data/processed/network/*.jsonl
+cities/*/data/processed/zones/*.gpkg
 
 # --- P2 network build outputs (regenerate with build_matsim_network /
 #     build_sumo_corridor). The build reports ARE committed: they carry the
 #     mapping quality, the variant deltas and the signal pairing. ---
-networks/matsim/**
-!networks/matsim/_matsim_build_report.json
-networks/sumo/**
-!networks/sumo/_sumo_build_report.json
+cities/*/networks/matsim/**
+!cities/*/networks/matsim/_matsim_build_report.json
+cities/*/networks/sumo/**
+!cities/*/networks/sumo/_sumo_build_report.json
+
+# --- TfNSW Speed Zones raw download (62 MB zip + a 436 MB dbf, regenerate with
+#     the city's extract_speed_zones.py). The clipped study-area layer IS
+#     committed; the statewide source is not.
+cities/*/data/raw/speedzones/*.shp
+cities/*/data/raw/speedzones/*.dbf
+cities/*/data/raw/speedzones/*.shx
+cities/*/data/raw/speedzones/*.prj
+cities/*/data/raw/speedzones/*.zip
+
+# --- pre-#32 OSM extracts, kept only until the re-harvest is verified
+cities/*/networks/osm_pre_issue32/
+cities/*/networks/osm/_tiles/
 
 # --- pinned toolchain (JDK, pt2matsim, SUMO), ~1.4 GiB, fetched by
 #     src/setup/bootstrap_toolchain.py and pinned by sha256 in toolchain.json ---
@@ -61,3 +77,16 @@ __pycache__/
 
 # --- local-only harness overrides (never committed) ---
 .claude/settings.local.json
+
+# --- credentials (never committed): the TfNSW Open Data Hub API key ---
+.env
+.env.*
+!.env.example
+
+# --- generated view payloads: megabytes of geometry, rebuilt by a committed
+#     script from committed inputs. The scripts are the artefact, not the page.
+#     basemap.json  src/analyse/build_basemap.py
+#     replay.json / replay.html  src/analyse/replay_events.py, build_replay_page.py
+basemap.json
+replay.json
+replay.html

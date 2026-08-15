@@ -1,0 +1,1606 @@
+{
+  "generated_by": "src/registry/render_schema.py",
+  "generated_from": "static reads of city.path(...) under src/ and tests/",
+  "contract": "A city must produce every artefact below, at the same city-relative path, before the framework can run against it. The producing script may be entirely different - that is what a jurisdiction adapter is for - but the path and the columns the framework reads are the contract.",
+  "caveat": "`columns_in_reference_city` is the header of the reference city's own copy, not a proven minimum: a column here may be incidental. Narrowing it to the columns framework code actually reads is not done. Recorded when the reference artefact is on disk and carried forward from the committed document when it is not, so the document regenerates identically on a checkout without the bulk data. Whether an artefact is PRESENT locally is a report, not part of this contract, and is never stored here.",
+  "n_artefacts": 123,
+  "n_paths_built_at_runtime": 12,
+  "artefacts": {
+    "build": {
+      "kind": "directory",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "build/build_landuse_parking.py": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "data/MANIFEST.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_manifest.py"
+      ],
+      "columns_in_reference_city": [
+        "path",
+        "stage",
+        "bytes",
+        "rows",
+        "produced_by",
+        "source",
+        "source_url",
+        "licence",
+        "retrieved",
+        "sha256"
+      ]
+    },
+    "data/MANIFEST.json": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "data/processed/basemap.json": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/run_view.py"
+      ]
+    },
+    "data/processed/census": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_population.py",
+        "src/build/build_zone_attractions.py",
+        "src/build/measure_network_factors.py"
+      ]
+    },
+    "data/processed/corridor/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/corridor/A2_signal_control_corridor.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "intersection_id",
+        "osm_node_id",
+        "scats_site_id",
+        "scats_match_dist_m",
+        "signal_installed",
+        "scats_source",
+        "n_approach_nodes",
+        "lat",
+        "lon",
+        "dist_to_alignment_m",
+        "control_type",
+        "cycle_time_s",
+        "cycle_time_sweep_low",
+        "cycle_time_sweep_high",
+        "n_phases",
+        "phase_split_pct",
+        "offset_s",
+        "coordination_group",
+        "pedestrian_phase_flag",
+        "ped_clearance_s",
+        "tsp_enabled",
+        "tsp_type",
+        "tsp_detection_distance_m",
+        "tsp_max_extension_s",
+        "mean_delay_to_tram_s",
+        "source",
+        "scenario_variant_ref"
+      ]
+    },
+    "data/processed/corridor/A4_stop_dwell_model.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "stop_name",
+        "stop_seq",
+        "is_terminus",
+        "dwell_fixed_s",
+        "dwell_fixed_sweep_low",
+        "dwell_fixed_sweep_high",
+        "dwell_boarding_fn",
+        "dwell_charging_s",
+        "dwell_charging_sweep_low",
+        "dwell_charging_sweep_high",
+        "dwell_sd_s",
+        "distribution_type",
+        "layover_s",
+        "source",
+        "acquisition_route"
+      ]
+    },
+    "data/processed/corridor/A4_vehicle_spec.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "vehicle_type_id",
+        "model",
+        "fleet_size",
+        "fleet_numbers",
+        "length_m",
+        "width_m",
+        "mass_tonnes",
+        "capacity_seated",
+        "capacity_standing",
+        "capacity_crush",
+        "capacity_seated_source",
+        "capacity_crush_source",
+        "max_accel_ms2",
+        "max_decel_ms2",
+        "emergency_decel_ms2",
+        "max_speed_kmh",
+        "line_speed_kmh",
+        "door_count_per_side",
+        "door_width_mm",
+        "boarding_rate_pax_s",
+        "alighting_rate_pax_s",
+        "traction_voltage_v",
+        "energy_storage",
+        "charging_mode",
+        "accel_source",
+        "door_source",
+        "boarding_rate_source",
+        "notes"
+      ]
+    },
+    "data/processed/hts": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "data/processed/hts/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/hts/hts_mode.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_plans.py",
+        "src/calibrate/measure_mode_constraints.py"
+      ],
+      "columns_in_reference_city": [
+        "geography",
+        "source_file",
+        "FINANCIAL_YEAR",
+        "HH_LGA_ID",
+        "area_name",
+        "TRAVEL_MODE",
+        "TRIPS_BY_MODE",
+        "PCT_OF_TOTAL_TRIPS",
+        "MODE_SHARE",
+        "DISTANCE_BY_MODE",
+        "PCT_OF_TOTAL_DISTANCE",
+        "TRIP_AVG_DISTANCE",
+        "TRIP_AVG_TIME",
+        "HH_SA3_ID"
+      ]
+    },
+    "data/processed/hts/hts_purpose.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_run_inputs.py"
+      ],
+      "columns_in_reference_city": [
+        "geography",
+        "source_file",
+        "FINANCIAL_YEAR",
+        "HH_LGA_ID",
+        "area_name",
+        "TRAVEL_PURPOSE",
+        "JOURNEYS_BY_MODE",
+        "PCT_OF_TOTAL_JOURNEYS",
+        "DISTANCE_BY_PURPOSE",
+        "PCT_OF_TOTAL_DISTANCE",
+        "JOURNEY_AVG_DISTANCE",
+        "JOURNEY_AVG_TIME",
+        "HH_SA3_ID"
+      ]
+    },
+    "data/processed/landuse": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_activity_chains.py",
+        "src/build/build_population.py",
+        "src/build/build_zone_attractions.py",
+        "src/build/measure_network_factors.py"
+      ]
+    },
+    "data/processed/landuse/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/landuse/A5_parking_facilities.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "parking_facility_id",
+        "lat",
+        "lon",
+        "type",
+        "osm_parking",
+        "capacity_spaces",
+        "capacity_source",
+        "fee",
+        "charge",
+        "max_stay_min",
+        "access",
+        "operator",
+        "surface",
+        "levels",
+        "name",
+        "scenario_variant_ref",
+        "parking_zone",
+        "is_priced",
+        "price_aud_hr",
+        "price_source",
+        "price_sweep_low",
+        "price_sweep_high",
+        "max_stay_min_modelled",
+        "price_schedule",
+        "occupancy_by_hour",
+        "occupancy_source",
+        "walk_time_to_frontages_s",
+        "year"
+      ]
+    },
+    "data/processed/landuse/A5_parking_price_zones.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_run_inputs.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "SA1_CODE21",
+        "zone_tier",
+        "jobs",
+        "area_km2",
+        "jobs_per_km2",
+        "density_weight",
+        "price_aud_hr",
+        "price_sweep_low",
+        "price_sweep_high",
+        "price_source"
+      ]
+    },
+    "data/processed/landuse/D1_employment_by_anzsic_POW_SA2.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "SA2_CODE21",
+        "AgFF_Tot_P",
+        "Min_Tot_P",
+        "Mnf_Tot_P",
+        "EGWWS_Tot_P",
+        "Const_Tot_P",
+        "WST_Tot_P",
+        "RetT_Tot_P",
+        "AcFd_Tot_P",
+        "TPW_Tot_P",
+        "IMT_Tot_P",
+        "FinIns_Tot_P",
+        "RHRE_Tot_P",
+        "ProSTS_Tot_P",
+        "AdSup_Tot_P",
+        "PubAS_Tot_P",
+        "EdTrn_Tot_P",
+        "HC_SA_Tot_P",
+        "ArtsR_Tot_P",
+        "OthSvs_Tot_P",
+        "jobs_sa2",
+        "year"
+      ]
+    },
+    "data/processed/landuse/D1_frontage_segments.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "frontage_segment_id",
+        "street_name",
+        "corridor_role",
+        "seg_index",
+        "length_m",
+        "lat",
+        "lon",
+        "x_mga56",
+        "y_mga56",
+        "road_edge_id",
+        "business_count",
+        "n_retail",
+        "n_food",
+        "n_office",
+        "n_civic",
+        "n_leisure",
+        "n_health",
+        "business_categories",
+        "attraction_weight_sum",
+        "n_buildings",
+        "gross_floor_area_m2",
+        "retail_floorspace_m2",
+        "retail_floorspace_source",
+        "active_frontage_pct",
+        "vacancy_rate",
+        "vacancy_source",
+        "awning_coverage_pct",
+        "awning_source",
+        "year",
+        "scenario_variant_ref"
+      ]
+    },
+    "data/processed/landuse/D1_poi.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/shape_tools.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "poi_id",
+        "lat",
+        "lon",
+        "category",
+        "category_group",
+        "attraction_weight",
+        "name",
+        "brand",
+        "opening_hours",
+        "levels",
+        "in_cbd",
+        "year",
+        "weight_source"
+      ]
+    },
+    "data/processed/landuse/D1_zone_attractions_SA1.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "SA1_CODE21",
+        "SA2_CODE21",
+        "SA2_NAME21",
+        "zone_tier",
+        "area_km2",
+        "x_mga56",
+        "y_mga56",
+        "lon",
+        "lat",
+        "population",
+        "dwellings_total",
+        "office",
+        "retail",
+        "food",
+        "civic",
+        "health",
+        "leisure",
+        "tourism",
+        "amenity",
+        "landuse",
+        "job_index",
+        "jobs_sa2",
+        "jobs",
+        "jobs_source",
+        "attr_HW",
+        "attr_HE",
+        "attr_HS",
+        "attr_HO",
+        "attr_WB",
+        "attr_NHB"
+      ]
+    },
+    "data/processed/network": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/attach_gradient.py",
+        "src/build/attach_speed_zones.py",
+        "src/build/build_network_layers.py"
+      ]
+    },
+    "data/processed/network/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/network/A1_corridor_road_edges.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "edge_id",
+        "osm_way_id",
+        "name",
+        "road_class",
+        "length_m",
+        "corridor_class",
+        "is_corridor_trunk",
+        "dist_to_alignment_m",
+        "oneway_flag",
+        "oneway_source",
+        "num_lanes_per_dir",
+        "num_lanes_source",
+        "speed_limit_kmh",
+        "speed_limit_source",
+        "lane_width_m",
+        "lane_width_source",
+        "turn_lanes",
+        "turn_lanes_source",
+        "kerbside_use",
+        "kerbside_source",
+        "capacity_veh_hr_lane",
+        "capacity_source",
+        "dist_to_S2c_m",
+        "dist_to_S4_m",
+        "dist_to_S5_m",
+        "dist_to_base2026_m",
+        "scenario_variant_ref"
+      ]
+    },
+    "data/processed/network/A1_road_edges.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/build_basemap.py",
+        "src/build/build_activity_chains.py",
+        "src/build/measure_network_factors.py",
+        "src/build/shape_tools.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "edge_id",
+        "from_node",
+        "to_node",
+        "n_nodes",
+        "length_m",
+        "road_class",
+        "num_lanes",
+        "lane_width_m",
+        "speed_limit_kmh",
+        "speed_limit_source",
+        "oneway_flag",
+        "oneway_dir",
+        "capacity_veh_hr_lane",
+        "kerbside_use",
+        "gradient_pct",
+        "bridge",
+        "tunnel",
+        "surface",
+        "name",
+        "ref",
+        "access",
+        "psv",
+        "turn_lanes",
+        "start_lat",
+        "start_lon",
+        "end_lat",
+        "end_lon",
+        "scenario_variant_ref",
+        "elev_start_m",
+        "elev_end_m",
+        "elev_min_m",
+        "elev_max_m",
+        "gradient_source",
+        "speed_zone_match_m"
+      ]
+    },
+    "data/processed/network/A1_road_geometry.jsonl": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/build_basemap.py",
+        "src/build/measure_network_factors.py",
+        "src/build/shape_tools.py"
+      ]
+    },
+    "data/processed/network/A1_road_variant_patches.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py",
+        "src/build/build_matsim_run_inputs.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "road_variant_ref",
+        "edge_id",
+        "name",
+        "corridor_class",
+        "fields_changed",
+        "field_num_lanes_per_dir_from",
+        "field_num_lanes_per_dir_to",
+        "num_lanes_observed_source",
+        "field_kerbside_use_from",
+        "field_kerbside_use_to",
+        "kerbside_observed_source",
+        "capacity_veh_hr_lane",
+        "signal_cycle_s",
+        "tram_lane_present",
+        "source",
+        "sweep_low",
+        "sweep_high",
+        "rationale"
+      ]
+    },
+    "data/processed/network/A2_signal_nodes_osm.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "node_id",
+        "lat",
+        "lon",
+        "direction",
+        "signal_type",
+        "ped_phase_flag",
+        "button_operated",
+        "name"
+      ]
+    },
+    "data/processed/network/A2_turn_restrictions_osm.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "rel_id",
+        "restriction",
+        "members"
+      ]
+    },
+    "data/processed/network/A2_turn_restrictions_resolved.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "rel_id",
+        "restriction",
+        "from_way",
+        "via_member",
+        "to_way",
+        "lat",
+        "lon",
+        "located_by",
+        "source",
+        "dist_to_base2026_m",
+        "dist_to_S2c_m",
+        "dist_to_S4_m",
+        "dist_to_S5_m",
+        "corridor_flag"
+      ]
+    },
+    "data/processed/network/A6_footway_edges.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/measure_network_factors.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "footway_edge_id",
+        "from_node",
+        "to_node",
+        "length_m",
+        "highway",
+        "footway",
+        "width_m",
+        "surface",
+        "lighting",
+        "shade",
+        "crossing_type",
+        "crossing_delay_s",
+        "step_free",
+        "steps",
+        "tram_track_crossing",
+        "incline",
+        "gradient_pct",
+        "bicycle",
+        "foot",
+        "wheelchair",
+        "name",
+        "start_lat",
+        "start_lon",
+        "end_lat",
+        "end_lon",
+        "scenario_variant_ref",
+        "elev_start_m",
+        "elev_end_m",
+        "elev_min_m",
+        "elev_max_m",
+        "gradient_source",
+        "walk_speed_factor_fwd",
+        "walk_speed_factor_rev"
+      ]
+    },
+    "data/processed/network/A6_footway_geometry.jsonl": {
+      "kind": "file",
+      "read_by": [
+        "src/build/measure_network_factors.py"
+      ]
+    },
+    "data/processed/network/_gradient_report.json": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "data/processed/observed": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/measure_network_factors.py"
+      ]
+    },
+    "data/processed/observed/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/observed/traffic_aadt.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "the_geom",
+        "cartodb_id",
+        "the_geom_webmercator",
+        "record_id",
+        "station_key",
+        "station_id",
+        "traffic_direction_seq",
+        "traffic_direction_name",
+        "cardinal_direction_seq",
+        "cardinal_direction_name",
+        "classification_seq",
+        "classification_type",
+        "count_type",
+        "year",
+        "period",
+        "partial_year",
+        "latest_date",
+        "traffic_count",
+        "data_start_date",
+        "data_end_date",
+        "data_duration",
+        "data_availability",
+        "data_reliability",
+        "data_quality_indicator",
+        "publish",
+        "md5",
+        "updated_on"
+      ]
+    },
+    "data/processed/schedule_extras": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_gtfs_extras.py"
+      ]
+    },
+    "data/processed/schedule_extras/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/schedule_extras/A3_route_extras.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "route_id",
+        "mode",
+        "route_short_name",
+        "route_long_name",
+        "vehicle_type_id",
+        "contract_area",
+        "franchise_operator",
+        "valid_from",
+        "valid_to",
+        "source_feed"
+      ]
+    },
+    "data/processed/schedule_extras/A3_stop_extras.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "stop_id",
+        "stop_name",
+        "stop_lat",
+        "stop_lon",
+        "modes_served",
+        "n_routes",
+        "location_type",
+        "parent_station",
+        "platform_geom",
+        "shelter",
+        "seating",
+        "real_time_info",
+        "step_free",
+        "platform_height_mm",
+        "interchange_group_id",
+        "attribute_source"
+      ]
+    },
+    "data/processed/schedule_extras/A3_transfer_extras.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "from_stop",
+        "to_stop",
+        "from_name",
+        "to_name",
+        "from_modes",
+        "to_modes",
+        "straight_distance_m",
+        "walk_distance_m",
+        "walk_time_s",
+        "is_sheltered",
+        "requires_road_crossing",
+        "signalised_crossing_delay_s",
+        "total_transfer_time_s",
+        "in_interchange_group",
+        "source"
+      ]
+    },
+    "data/processed/validation/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/validation/count_station_links.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/extract_metrics.py",
+        "src/analyse/map_count_stations.py"
+      ],
+      "columns_in_reference_city": [
+        "station_key",
+        "split",
+        "station_name",
+        "road_name",
+        "link",
+        "link_name",
+        "distance_m",
+        "matched_by"
+      ]
+    },
+    "data/processed/validation/road_aadt_targets.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/map_count_stations.py",
+        "src/build/build_activity_chains.py",
+        "src/calibrate/fit.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "station_key",
+        "name",
+        "road_name",
+        "suburb",
+        "lga",
+        "lat",
+        "lon",
+        "weekday_count",
+        "period",
+        "all_days_count",
+        "light_vehicles",
+        "heavy_vehicles",
+        "heavy_share",
+        "heavy_share_source",
+        "survey_year",
+        "split"
+      ]
+    },
+    "data/processed/validation/validation_targets.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/calibrate/fit.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "target_id",
+        "metric",
+        "geography",
+        "period",
+        "value",
+        "unit",
+        "source",
+        "split",
+        "note"
+      ]
+    },
+    "data/processed/zones": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_activity_chains.py",
+        "src/build/build_zone_attractions.py"
+      ]
+    },
+    "data/processed/zones/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/zones/sa1_to_lga.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/extract_metrics.py"
+      ],
+      "columns_in_reference_city": [
+        "SA1_CODE21",
+        "zone_tier",
+        "lga_name",
+        "lga_code"
+      ]
+    },
+    "data/processed/zones/zone_lookup_SA1.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "SA1_CODE21",
+        "SA2_CODE21",
+        "SA2_NAME21",
+        "SA3_CODE21",
+        "SA3_NAME21",
+        "SA4_CODE21",
+        "SA4_NAME21",
+        "zone_tier",
+        "area_km2",
+        "x_mga56",
+        "y_mga56",
+        "lon",
+        "lat"
+      ]
+    },
+    "data/processed/zones/zones_LGA.gpkg": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/build_basemap.py",
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "data/processed/zones/zones_SA1.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "SA1_CODE21",
+        "CHG_FLAG21",
+        "CHG_LBL21",
+        "SA2_CODE21",
+        "SA2_NAME21",
+        "SA3_CODE21",
+        "SA3_NAME21",
+        "SA4_CODE21",
+        "SA4_NAME21",
+        "GCC_CODE21",
+        "GCC_NAME21",
+        "STE_CODE21",
+        "STE_NAME21",
+        "AUS_CODE21",
+        "AUS_NAME21",
+        "AREASQKM21",
+        "LOCI_URI21",
+        "area_km2",
+        "x_mga56",
+        "y_mga56",
+        "lon",
+        "lat",
+        "zone_tier",
+        "zone_id"
+      ]
+    },
+    "data/processed/zones/zones_SA1.gpkg": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "data/raw/dem": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/attach_gradient.py"
+      ]
+    },
+    "demand": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_population.py"
+      ]
+    },
+    "demand/*/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "demand/plans": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_activity_chains.py",
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "demand/plans/B2_activity_trips.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "demand/plans/B2_activity_trips_%s.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "demand/plans/B2_activity_trips_SAT.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "person_id",
+        "day_type",
+        "tour_id",
+        "trip_seq",
+        "purpose",
+        "tour_purpose",
+        "dest_activity_type",
+        "origin_sa1",
+        "dest_sa1",
+        "origin_x",
+        "origin_y",
+        "dest_x",
+        "dest_y",
+        "dep_time_s",
+        "arr_time_s",
+        "straight_dist_km",
+        "activity_duration_s",
+        "is_tour_anchor",
+        "party_size",
+        "time_flexibility_band",
+        "dest_placement",
+        "agent_tier"
+      ]
+    },
+    "demand/plans/B2_activity_trips_SUN.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "person_id",
+        "day_type",
+        "tour_id",
+        "trip_seq",
+        "purpose",
+        "tour_purpose",
+        "dest_activity_type",
+        "origin_sa1",
+        "dest_sa1",
+        "origin_x",
+        "origin_y",
+        "dest_x",
+        "dest_y",
+        "dep_time_s",
+        "arr_time_s",
+        "straight_dist_km",
+        "activity_duration_s",
+        "is_tour_anchor",
+        "party_size",
+        "time_flexibility_band",
+        "dest_placement",
+        "agent_tier"
+      ]
+    },
+    "demand/plans/B2_activity_trips_WEEKDAY.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "person_id",
+        "day_type",
+        "tour_id",
+        "trip_seq",
+        "purpose",
+        "tour_purpose",
+        "dest_activity_type",
+        "origin_sa1",
+        "dest_sa1",
+        "origin_x",
+        "origin_y",
+        "dest_x",
+        "dest_y",
+        "dep_time_s",
+        "arr_time_s",
+        "straight_dist_km",
+        "activity_duration_s",
+        "is_tour_anchor",
+        "party_size",
+        "time_flexibility_band",
+        "dest_placement",
+        "agent_tier"
+      ]
+    },
+    "demand/plans/_activity_chains_report.json": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "demand/plans/matsim": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_matsim_run_inputs.py",
+        "src/run/run_matsim.py"
+      ]
+    },
+    "demand/plans/matsim/_plans_report.json": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "demand/plans/matsim/population_%s.xml.gz": {
+      "kind": "pattern",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "demand/plans/matsim/population_WEEKDAY.xml.gz": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "demand/population": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_activity_chains.py",
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "demand/population/B1_households.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "household_id",
+        "home_sa1",
+        "home_x_mga56",
+        "home_y_mga56",
+        "home_lon",
+        "home_lat",
+        "household_size",
+        "household_vehicles",
+        "dwelling_type",
+        "weight"
+      ]
+    },
+    "demand/population/B1_synthetic_population.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/extract_metrics.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "person_id",
+        "household_id",
+        "home_sa1",
+        "age_band",
+        "age",
+        "sex",
+        "employment_status",
+        "occupation_anzsco1",
+        "income_band",
+        "licence_holder",
+        "household_vehicles",
+        "household_size",
+        "dwelling_type",
+        "student_status",
+        "mobility_impairment_flag",
+        "car_available",
+        "weight"
+      ]
+    },
+    "docs/DECISIONS.md": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "docs/audit/CALIBRATION_REPORT.md": {
+      "kind": "file",
+      "read_by": [
+        "src/calibrate/report.py"
+      ]
+    },
+    "docs/reference/CONFIG_REFERENCE.md": {
+      "kind": "file",
+      "read_by": [
+        "src/registry/render_docs.py",
+        "tests/check_package.py"
+      ]
+    },
+    "docs/reference/DATA_DICTIONARY.md": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_data_dictionary.py",
+        "tests/check_package.py"
+      ]
+    },
+    "networks/matsim": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_matsim_network.py",
+        "src/build/build_matsim_run_inputs.py",
+        "tests/check_package.py"
+      ]
+    },
+    "networks/matsim/_matsim_build_report.json": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "networks/osm/footways.osm": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_network_layers.py",
+        "src/build/measure_osm_defaults.py",
+        "src/build/shape_tools.py"
+      ]
+    },
+    "networks/osm/green.osm": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/build_basemap.py"
+      ]
+    },
+    "networks/osm/parking.osm": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_network_layers.py"
+      ]
+    },
+    "networks/osm/railways.osm": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/build_basemap.py",
+        "src/build/build_matsim_network.py",
+        "src/build/shape_tools.py"
+      ]
+    },
+    "networks/osm/roads.osm": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py",
+        "src/build/build_network_layers.py",
+        "src/build/measure_osm_defaults.py"
+      ]
+    },
+    "networks/osm/signals.osm": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py",
+        "src/build/build_network_layers.py"
+      ]
+    },
+    "networks/osm/water.osm": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/build_basemap.py"
+      ]
+    },
+    "networks/sumo": {
+      "kind": "directory",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "networks/sumo/net_base2026/corridor.net.xml": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/build_basemap.py"
+      ]
+    },
+    "params": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_params.py"
+      ]
+    },
+    "params/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "params/C1_behavioural_parameters.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "param_set_id",
+        "segment_id",
+        "segment_desc",
+        "purpose",
+        "vot_aud_hr",
+        "vot_sweep_low",
+        "vot_sweep_high",
+        "vot_source",
+        "beta_cost_per_aud",
+        "beta_transfer_penalty_min",
+        "beta_transfer_penalty_low",
+        "beta_transfer_penalty_high",
+        "beta_transfer_penalty_source",
+        "walk_decay_function",
+        "walk_decay_beta_per_m",
+        "walk_decay_source",
+        "nesting_structure",
+        "beta_ivt",
+        "beta_ivt_low",
+        "beta_ivt_high",
+        "beta_ivt_source",
+        "beta_walk_access",
+        "beta_walk_access_low",
+        "beta_walk_access_high",
+        "beta_walk_access_source",
+        "beta_walk_egress",
+        "beta_walk_egress_low",
+        "beta_walk_egress_high",
+        "beta_walk_egress_source",
+        "beta_wait",
+        "beta_wait_low",
+        "beta_wait_high",
+        "beta_wait_source",
+        "beta_headway",
+        "beta_headway_low",
+        "beta_headway_high",
+        "beta_headway_source",
+        "beta_reliability",
+        "beta_reliability_low",
+        "beta_reliability_high",
+        "beta_reliability_source",
+        "beta_crowding_seated",
+        "beta_crowding_seated_low",
+        "beta_crowding_seated_high",
+        "beta_crowding_seated_source",
+        "beta_crowding_standing",
+        "beta_crowding_standing_low",
+        "beta_crowding_standing_high",
+        "beta_crowding_standing_source",
+        "beta_gradient_uphill",
+        "beta_gradient_uphill_low",
+        "beta_gradient_uphill_high",
+        "beta_gradient_uphill_source",
+        "beta_gradient_downhill",
+        "beta_gradient_downhill_low",
+        "beta_gradient_downhill_high",
+        "beta_gradient_downhill_source",
+        "asc_car_driver",
+        "asc_car_driver_source",
+        "asc_car_passenger",
+        "asc_car_passenger_source",
+        "asc_bus",
+        "asc_bus_source",
+        "asc_lr",
+        "asc_lr_source",
+        "asc_rail",
+        "asc_rail_source",
+        "asc_walk",
+        "asc_walk_source",
+        "asc_cycle",
+        "asc_cycle_source",
+        "source"
+      ]
+    },
+    "params/C1_parameters.json": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_run_inputs.py",
+        "tests/check_package.py"
+      ]
+    },
+    "params/C1_sensitivity_sweep_grid.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "sweep_id",
+        "beta_transfer_penalty_min",
+        "dwell_charging_s",
+        "is_baseline"
+      ]
+    },
+    "params/C2_network_factors.json": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_activity_chains.py",
+        "src/build/measure_network_factors.py",
+        "tests/check_package.py"
+      ]
+    },
+    "params/C2_osm_defaults.json": {
+      "kind": "file",
+      "read_by": [
+        "src/build/measure_osm_defaults.py",
+        "tests/check_package.py"
+      ]
+    },
+    "params/C3_count_comparison.json": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/extract_metrics.py",
+        "src/calibrate/fit.py",
+        "tests/check_package.py"
+      ]
+    },
+    "params/C4_mode_constraints.json": {
+      "kind": "file",
+      "read_by": [
+        "src/calibrate/fit.py",
+        "src/calibrate/measure_mode_constraints.py",
+        "src/calibrate/solve_asc_ride.py",
+        "tests/check_package.py"
+      ]
+    },
+    "params/C5_calibration.json": {
+      "kind": "file",
+      "read_by": [
+        "src/calibrate/calibrate.py",
+        "src/calibrate/report.py"
+      ]
+    },
+    "scenarios/*.csv": {
+      "kind": "pattern",
+      "read_by": [
+        "src/build/build_data_dictionary.py"
+      ]
+    },
+    "scenarios/E1_parking_variants.csv": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "parking_variant_ref",
+        "description",
+        "onstreet_spaces_removed_corridor",
+        "source"
+      ]
+    },
+    "scenarios/E1_road_variants.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py",
+        "src/build/build_matsim_run_inputs.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "road_variant_ref",
+        "description",
+        "hunter_st_lanes_per_direction",
+        "kerbside_parking_removed",
+        "banned_turn_movements",
+        "signal_cycle_s",
+        "tram_lane_present",
+        "source"
+      ]
+    },
+    "scenarios/E1_scenarios.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_run_inputs.py",
+        "tests/check_package.py"
+      ],
+      "columns_in_reference_city": [
+        "base_year",
+        "crs",
+        "zone_system",
+        "network_variant_ref",
+        "landuse_variant_ref",
+        "demand_variant_ref",
+        "params_variant_ref",
+        "active_network_ref",
+        "day_types",
+        "scenario_id",
+        "label",
+        "is_counterfactual",
+        "parent_scenario_id",
+        "trunk_mode",
+        "gtfs_variant_ref",
+        "signal_variant_ref",
+        "parking_variant_ref",
+        "road_variant_ref",
+        "purpose",
+        "notes",
+        "n_replications",
+        "seed_list",
+        "sensitivity_grid_ref"
+      ]
+    },
+    "scenarios/matsim": {
+      "kind": "directory",
+      "read_by": [
+        "src/build/build_matsim_run_inputs.py",
+        "src/run/run_matsim.py",
+        "tests/check_package.py"
+      ]
+    },
+    "scenarios/matsim/%s/%s/config.xml": {
+      "kind": "pattern",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "scenarios/matsim/%s/%s/transitSchedule.xml.gz": {
+      "kind": "pattern",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "scenarios/matsim/%s/network.xml.gz": {
+      "kind": "pattern",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "scenarios/matsim/S2/network.xml.gz": {
+      "kind": "file",
+      "read_by": [
+        "src/analyse/map_count_stations.py"
+      ]
+    },
+    "scenarios/matsim/_run_inputs_report.json": {
+      "kind": "file",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "schedules/*.zip": {
+      "kind": "pattern",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "schedules/base2026.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_gtfs_extras.py",
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/era1_pre2014_reconstructed.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/era2_2016_rail_truncated.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/era3_2018_keolis_interchange.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/era4_2019_lr_open.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/operators.json": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_gtfs_extras.py"
+      ]
+    },
+    "schedules/scenarios/*.zip": {
+      "kind": "pattern",
+      "read_by": [
+        "tests/check_package.py"
+      ]
+    },
+    "schedules/scenarios/S0.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S1.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S2.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S2a.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S2b.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S2c.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S3.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S4.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S5.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    },
+    "schedules/scenarios/S6.zip": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_matsim_network.py"
+      ]
+    }
+  }
+}
