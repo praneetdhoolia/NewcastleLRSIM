@@ -629,7 +629,7 @@
       "matsim_param": "scoring.performing",
       "description": "Marginal utility of performing an activity. A property of the MATSim scoring formulation, not an observable quantity of Newcastle. The effective cost of travel time is performing plus the absolute marginalUtilityOfTraveling, which is how the 16.96 AUD/h VOT is reproduced: 6.0 + 10.9608.",
       "consumers": [
-        "src/build/build_matsim_run_inputs.py"
+        "src/registry/param_config.py"
       ]
     },
     "C.scoring.marginal_utility_of_money": {
@@ -642,7 +642,7 @@
       "matsim_param": "scoring.marginalUtilityOfMoney",
       "description": "Sets the utility numeraire to AUD. Definitional, not empirical.",
       "consumers": [
-        "src/build/build_matsim_run_inputs.py"
+        "src/registry/param_config.py"
       ]
     },
     "C.scoring.monetary_distance_rate": {
@@ -665,7 +665,7 @@
       "matsim_param": "scoring.modeParams[*].monetaryDistanceRate",
       "description": "Vehicle operating cost per metre AS PERCEIVED BY THE TRAVELLER MAKING THE CHOICE. RIDE CARRIES THE CAR RATE (DECISIONS.md 9.17, the 8.5 departure for issue 16). It was zero, derived from an aggregate-cost identity that governs system accounting rather than individual choice; the 9.13 trip-length constraint then measured modelled ride:car trip length at 1.372 against an observed 0.961, which is what a mode with no marginal distance cost produces. This is NOT a move of asc_car_passenger, which stays constrained to observed occupancy at -0.85 and is held fixed under 8.5: proposal 9 names ASC absorption as the primary threat to validity, and correcting a mis-specified distance rate is the opposite of absorbing that error into a constant.",
       "consumers": [
-        "src/build/build_matsim_run_inputs.py"
+        "src/registry/param_config.py"
       ],
       "derived_from": {
         "fields": [
@@ -695,7 +695,7 @@
       "matsim_format": "hh:mm:ss",
       "description": "MATSim typical activity duration per activity type. THIS DICTIONARY IS THE ACTIVITY VOCABULARY: the config carries one activityParams block per key here, so an activity type absent from it is unscored and an agent performing it earns nothing. MATSim reads the duration as a clock string, which is why this field declares its format - the value is seconds, because seconds is what it is. A property of the scoring formulation rather than an observable quantity of Newcastle (DECISIONS.md 9.3), so it is assumed and swept. The escort activity is the drop-off that comes with the serve-passenger tour purpose: the driver stops and leaves, so its typical duration is minutes rather than hours, and a longer one would hold the vehicle at the destination and displace the return trip out of the peak.",
       "consumers": [
-        "src/build/build_matsim_run_inputs.py"
+        "src/registry/param_config.py"
       ]
     },
     "C.scoring.activity_minimal_duration_s": {

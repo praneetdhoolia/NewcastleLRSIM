@@ -803,7 +803,7 @@
       "description": "Maximum charged parking duration. DOUBLES AS THE CHARGE CAP: the charge is price x min(duration, max_stay), so a stay longer than this is UNDER-charged rather than penalised. That is a declared modelling choice, not an oversight - modelling over-stay enforcement would need an infringement rate nobody has measured here.",
       "matsim_param": "parking.maxStayMinutes",
       "consumers": [
-        "src/build/build_matsim_run_inputs.py"
+        "src/registry/param_config.py"
       ]
     },
     "A.parking.charged_start_hour": {
@@ -873,7 +873,7 @@
       "description": "Leg modes that occupy a parking space and are charged for it. Fixed by the formulation, not an empirical quantity: only the driver parks the vehicle. Charging `ride` as well would bill one car twice - the same double-count DECISIONS.md 9.17 removed from the per-km rate.",
       "matsim_param": "parking.chargedModes",
       "consumers": [
-        "src/build/build_matsim_run_inputs.py"
+        "src/registry/param_config.py"
       ]
     },
     "A.parking.exempt_activity_types": {
@@ -896,7 +896,7 @@
       "description": "Activity types at which a parked car is not charged. Home is exempt because residential parking is off-street private or permit, and because charging it would levy the max-stay cap on every agent who drives home each night - a standing penalty on living in a dense zone rather than a price on a travel choice. Activity types are generic to any city's chain builder, so this carries no place name.",
       "matsim_param": "parking.exemptActivityTypes",
       "consumers": [
-        "src/build/build_matsim_run_inputs.py"
+        "src/registry/param_config.py"
       ]
     },
     "A.active.footway_width_default": {

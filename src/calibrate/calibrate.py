@@ -83,6 +83,11 @@ STAGE_OF_CONSUMER = {
     'build_landuse_parking.py': 'demand',
     'build_zone_attractions.py': 'demand',
     'build_matsim_run_inputs.py': 'run_inputs',
+    # The emitter builds the config FROM the registry at run time, so a field it
+    # consumes needs NO rebuild to vary - run_matsim.py emits per run rather
+    # than patching six parameters into a shipped file. More fields are
+    # calibratable than were, and this is where that shows.
+    'param_config.py': 'none',
 }
 MEASUREMENT_LAYERS = ('src/analyse/', 'src/calibrate/')
 # Stages this loop can actually carry out for a candidate.

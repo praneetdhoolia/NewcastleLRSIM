@@ -1394,10 +1394,10 @@
       "SubtourModeChoice": 0.1,
       "TimeAllocationMutator": 0.05
     },
-    "replanning_weight_sweep": {
-      "proportional": 0.5,
-      "basis": "DECISIONS.md 9.3 sweeps the SubtourModeChoice weight over 0.05-0.20"
-    },
+    "subtour_mode_choice_weight_sweep": [
+      0.05,
+      0.15
+    ],
     "marginal_utility_of_money": 1.0,
     "vot_aud_hr_used": 16.961,
     "vot_aud_hr_by_purpose": {

@@ -443,6 +443,21 @@ def parking_window(cfg, day):
     return float(win[0]), float(win[1])
 
 
+def _weight_sweep(cfg, strategy):
+    """The declared range for one replanning strategy weight, as [lo, hi].
+
+    `RUN.replanning.weights` carries a PROPORTIONAL sweep over the whole table,
+    so a single strategy's range is that proportion applied to its own weight -
+    derived rather than typed, which is what removed the literal
+    `SUBTOUR_MODE_CHOICE_WEIGHT_SWEEP = (0.05, 0.20)` that used to sit beside
+    the table and could drift from it.
+    """
+    weight = cfg.get('RUN.replanning.weights')[strategy]
+    sweep = cfg.sweep('RUN.replanning.weights')
+    share = sweep['proportional'] if isinstance(sweep, dict) else float(sweep[0])
+    return [round(weight * (1.0 - share), 6), round(weight * (1.0 + share), 6)]
+
+
 def scoring_from_c1(cfg, c1, purpose_share):
     """Translate the C1 nested-logit parameters into MATSim scoring.
 
@@ -502,7 +517,11 @@ def scoring_from_c1(cfg, c1, purpose_share):
         monetary_distance_rate=cfg.get('C.scoring.monetary_distance_rate'),
         monetary_distance_rate_sweep=list(cfg.sweep('C.scoring.monetary_distance_rate')),
         strategies=cfg.get('RUN.replanning.weights'),
-        replanning_weight_sweep=cfg.sweep('RUN.replanning.weights'),
+        # The mode-choice innovation weight is the one that bounds how far the
+        # co-evolution can move mode share, so it is reported as its own range.
+        # It was a literal tuple beside the strategy table; it is DERIVED from
+        # the field's own proportional sweep now, so the two cannot disagree.
+        subtour_mode_choice_weight_sweep=_weight_sweep(cfg, 'SubtourModeChoice'),
         marginal_utility_of_money=mm,
         vot_aud_hr_used=round(vot_avg, 3),
         vot_aud_hr_by_purpose=vot,

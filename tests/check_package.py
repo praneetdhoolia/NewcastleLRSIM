@@ -636,8 +636,12 @@ else:
     check(False,
           'lastIteration is NOT validated: two 250-iteration runs at 1% were '
           'still drifting after innovation was switched off (DECISIONS.md 9.7). '
-          'The shipped default of 100 is known to be too low and is left in '
-          'place only because no justified replacement has been measured',
+          'A shipped config now carries the LOWER BOUND OF THE DECLARED SWEEP, '
+          'set through the resolver rather than supplied past it - the largest '
+          'value MEASURED to be insufficient, so a config run outside the '
+          'harness is short rather than plausible. It was 100, from an argparse '
+          'default that walked past the field being declared unobtained. Issue '
+          '#5 still owns the real number',
           warn=True)
     check(prep.get('seed_mode') == 'uninformed',
           'plans were built from the uninformed seed (found %r); the informed '
@@ -1469,7 +1473,17 @@ if _registry is not None:
             if not os.path.exists(_c):
                 _lies.append('%s -> %s (no such file)' % (_k, _c))
             elif _k not in open(_c, encoding='utf-8', errors='replace').read():
-                _lies.append('%s -> %s (does not reference the key)' % (_k, _c))
+                # A field BOUND to a tool parameter reaches it through the
+                # binding, and src/registry/param_config.py builds the config by
+                # walking bindings rather than by spelling any key. Naming the
+                # emitter is therefore a true claim that this check cannot
+                # verify by text - `check_hardcoding` question 7 verifies it far
+                # better, by changing the value and watching the config move.
+                _bound = any(_v.get(_b) for _b in
+                             ('matsim_param', 'sumo_param', 'pt2matsim_osm_param',
+                              'pt2matsim_mapper_param'))
+                if not (_bound and _c == 'src/registry/param_config.py'):
+                    _lies.append('%s -> %s (does not reference the key)' % (_k, _c))
     check(not _lies,
           'every registry `consumers` entry is TRUE - the named file exists and '
           'actually references the field key (%d claims across %d fields)%s'
