@@ -198,23 +198,44 @@ def columns_of(rel_path):
 
 
 def build_layers():
+    """The artefact contract. MACHINE-INDEPENDENT BY CONSTRUCTION.
+
+    The committed document must regenerate byte-identically on any checkout,
+    including one without the gitignored bulk data - CI runs `--check` on
+    exactly such a checkout, and the first CI execution of this gate failed
+    because the document embedded `present_in_reference_city`, an
+    os.path.exists() over data CI does not have. Presence is a REPORT (printed
+    by main(), never stored). `kind` and `columns_in_reference_city` are
+    recorded from the reference city's own build; where the local checkout
+    lacks the bytes to recompute them, the committed record is carried
+    forward rather than silently degraded.
+    """
+    prior = {}
+    if os.path.exists(LAYERS_OUT):
+        try:
+            prior = json.load(io.open(LAYERS_OUT, encoding='utf-8')).get(
+                'artefacts', {})
+        except Exception:                                  # noqa: BLE001
+            prior = {}
     found, dynamic = framework_paths()
     artefacts = {}
     for rel_path in sorted(found):
+        prev = prior.get(rel_path, {})
         if any(ch in rel_path for ch in '*?%'):
             kind = 'pattern'
-        elif os.path.isdir(_city.path(rel_path)):
-            kind = 'directory'
+        elif os.path.exists(_city.path(rel_path)):
+            kind = 'directory' if os.path.isdir(_city.path(rel_path)) else 'file'
         else:
-            kind = 'file'
+            kind = prev.get('kind', 'file')
         entry = {
             'kind': kind,
             'read_by': sorted(found[rel_path]),
-            'present_in_reference_city': os.path.exists(_city.path(rel_path)),
         }
         cols = columns_of(rel_path)
         if cols:
             entry['columns_in_reference_city'] = cols
+        elif prev.get('columns_in_reference_city'):
+            entry['columns_in_reference_city'] = prev['columns_in_reference_city']
         artefacts[rel_path] = entry
     return {
         'generated_by': 'src/registry/render_schema.py',
@@ -227,10 +248,13 @@ def build_layers():
         'caveat': ('`columns_in_reference_city` is the header of the reference '
                    'city\'s own copy, not '
                    'a proven minimum: a column here may be incidental. Narrowing it to '
-                   'the columns framework code actually reads is not done.'),
+                   'the columns framework code actually reads is not done. Recorded '
+                   'when the reference artefact is on disk and carried forward from '
+                   'the committed document when it is not, so the document '
+                   'regenerates identically on a checkout without the bulk data. '
+                   'Whether an artefact is PRESENT locally is a report, not part of '
+                   'this contract, and is never stored here.'),
         'n_artefacts': len(artefacts),
-        'n_present_in_reference_city': sum(1 for a in artefacts.values()
-                                           if a['present_in_reference_city']),
         'n_paths_built_at_runtime': dynamic,
         'artefacts': artefacts,
     }
@@ -266,12 +290,15 @@ def main():
     fields, layers = build_fields(), build_layers()
     rc = write(FIELDS_OUT, fields, a.check) | write(LAYERS_OUT, layers, a.check)
     if not a.check:
+        # presence is a local report, never document content (see build_layers)
+        present = sum(1 for p in layers['artefacts']
+                      if os.path.exists(_city.path(p)))
         print('required_fields.json: %d fields (%s)'
               % (fields['n_fields'],
                  ', '.join('%s %d' % kv for kv in fields['n_by_layer'].items())))
-        print('layers.json: %d artefacts, %d present in the reference city, '
+        print('layers.json: %d artefacts, %d present on THIS checkout, '
               '%d path(s) built at run time and therefore not listed'
-              % (layers['n_artefacts'], layers['n_present_in_reference_city'],
+              % (layers['n_artefacts'], present,
                  layers['n_paths_built_at_runtime']))
     return rc
 

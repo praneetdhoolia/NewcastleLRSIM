@@ -2,31 +2,27 @@
   "generated_by": "src/registry/render_schema.py",
   "generated_from": "static reads of city.path(...) under src/ and tests/",
   "contract": "A city must produce every artefact below, at the same city-relative path, before the framework can run against it. The producing script may be entirely different - that is what a jurisdiction adapter is for - but the path and the columns the framework reads are the contract.",
-  "caveat": "`columns_in_reference_city` is the header of the reference city's own copy, not a proven minimum: a column here may be incidental. Narrowing it to the columns framework code actually reads is not done.",
+  "caveat": "`columns_in_reference_city` is the header of the reference city's own copy, not a proven minimum: a column here may be incidental. Narrowing it to the columns framework code actually reads is not done. Recorded when the reference artefact is on disk and carried forward from the committed document when it is not, so the document regenerates identically on a checkout without the bulk data. Whether an artefact is PRESENT locally is a report, not part of this contract, and is never stored here.",
   "n_artefacts": 123,
-  "n_present_in_reference_city": 103,
-  "n_paths_built_at_runtime": 11,
+  "n_paths_built_at_runtime": 12,
   "artefacts": {
     "build": {
       "kind": "directory",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "build/build_landuse_parking.py": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/MANIFEST.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_manifest.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "path",
         "stage",
@@ -44,15 +40,13 @@
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/basemap.json": {
       "kind": "file",
       "read_by": [
         "src/analyse/run_view.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/census": {
       "kind": "directory",
@@ -60,22 +54,19 @@
         "src/build/build_population.py",
         "src/build/build_zone_attractions.py",
         "src/build/measure_network_factors.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/corridor/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/corridor/A2_signal_control_corridor.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "intersection_id",
         "osm_node_id",
@@ -111,7 +102,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "stop_name",
         "stop_seq",
@@ -135,7 +125,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "vehicle_type_id",
         "model",
@@ -171,15 +160,13 @@
       "kind": "directory",
       "read_by": [
         "src/build/build_activity_chains.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/hts/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/hts/hts_mode.csv": {
       "kind": "file",
@@ -187,7 +174,6 @@
         "src/build/build_matsim_plans.py",
         "src/calibrate/measure_mode_constraints.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "geography",
         "source_file",
@@ -210,7 +196,6 @@
       "read_by": [
         "src/build/build_matsim_run_inputs.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "geography",
         "source_file",
@@ -234,22 +219,19 @@
         "src/build/build_population.py",
         "src/build/build_zone_attractions.py",
         "src/build/measure_network_factors.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/landuse/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/landuse/A5_parking_facilities.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "parking_facility_id",
         "lat",
@@ -287,7 +269,6 @@
         "src/build/build_matsim_run_inputs.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "SA1_CODE21",
         "zone_tier",
@@ -306,7 +287,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "SA2_CODE21",
         "AgFF_Tot_P",
@@ -337,7 +317,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "frontage_segment_id",
         "street_name",
@@ -377,7 +356,6 @@
         "src/build/shape_tools.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "poi_id",
         "lat",
@@ -399,7 +377,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "SA1_CODE21",
         "SA2_CODE21",
@@ -439,22 +416,19 @@
         "src/build/attach_gradient.py",
         "src/build/attach_speed_zones.py",
         "src/build/build_network_layers.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/network/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/network/A1_corridor_road_edges.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "edge_id",
         "osm_way_id",
@@ -494,7 +468,6 @@
         "src/build/shape_tools.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "edge_id",
         "from_node",
@@ -538,8 +511,7 @@
         "src/analyse/build_basemap.py",
         "src/build/measure_network_factors.py",
         "src/build/shape_tools.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/network/A1_road_variant_patches.csv": {
       "kind": "file",
@@ -548,7 +520,6 @@
         "src/build/build_matsim_run_inputs.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "road_variant_ref",
         "edge_id",
@@ -575,7 +546,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "node_id",
         "lat",
@@ -592,7 +562,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "rel_id",
         "restriction",
@@ -604,7 +573,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "rel_id",
         "restriction",
@@ -628,7 +596,6 @@
         "src/build/measure_network_factors.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "footway_edge_id",
         "from_node",
@@ -669,36 +636,31 @@
       "kind": "file",
       "read_by": [
         "src/build/measure_network_factors.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/network/_gradient_report.json": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/observed": {
       "kind": "directory",
       "read_by": [
         "src/build/measure_network_factors.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/observed/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/observed/traffic_aadt.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "the_geom",
         "cartodb_id",
@@ -733,22 +695,19 @@
       "kind": "directory",
       "read_by": [
         "src/build/build_gtfs_extras.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/schedule_extras/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/schedule_extras/A3_route_extras.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "route_id",
         "mode",
@@ -767,7 +726,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "stop_id",
         "stop_name",
@@ -792,7 +750,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "from_stop",
         "to_stop",
@@ -815,8 +772,7 @@
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/validation/count_station_links.csv": {
       "kind": "file",
@@ -824,7 +780,6 @@
         "src/analyse/extract_metrics.py",
         "src/analyse/map_count_stations.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "station_key",
         "split",
@@ -844,7 +799,6 @@
         "src/calibrate/fit.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "station_key",
         "name",
@@ -870,7 +824,6 @@
         "src/calibrate/fit.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "target_id",
         "metric",
@@ -888,22 +841,19 @@
       "read_by": [
         "src/build/build_activity_chains.py",
         "src/build/build_zone_attractions.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/zones/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "data/processed/zones/sa1_to_lga.csv": {
       "kind": "file",
       "read_by": [
         "src/analyse/extract_metrics.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "SA1_CODE21",
         "zone_tier",
@@ -916,7 +866,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "SA1_CODE21",
         "SA2_CODE21",
@@ -938,15 +887,13 @@
       "read_by": [
         "src/analyse/build_basemap.py",
         "src/build/build_activity_chains.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/processed/zones/zones_SA1.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "SA1_CODE21",
         "CHG_FLAG21",
@@ -978,58 +925,50 @@
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_run_inputs.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "data/raw/dem": {
       "kind": "directory",
       "read_by": [
         "src/build/attach_gradient.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand": {
       "kind": "directory",
       "read_by": [
         "src/build/build_population.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand/*/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "demand/plans": {
       "kind": "directory",
       "read_by": [
         "src/build/build_activity_chains.py",
         "src/build/build_matsim_plans.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand/plans/B2_activity_trips.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "demand/plans/B2_activity_trips_%s.csv": {
       "kind": "pattern",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "demand/plans/B2_activity_trips_SAT.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "person_id",
         "day_type",
@@ -1060,7 +999,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "person_id",
         "day_type",
@@ -1091,7 +1029,6 @@
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "person_id",
         "day_type",
@@ -1121,52 +1058,45 @@
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand/plans/matsim": {
       "kind": "directory",
       "read_by": [
         "src/build/build_matsim_run_inputs.py",
         "src/run/run_matsim.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand/plans/matsim/_plans_report.json": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand/plans/matsim/population_%s.xml.gz": {
       "kind": "pattern",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "demand/plans/matsim/population_WEEKDAY.xml.gz": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand/population": {
       "kind": "directory",
       "read_by": [
         "src/build/build_activity_chains.py",
         "src/build/build_matsim_plans.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "demand/population/B1_households.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "household_id",
         "home_sa1",
@@ -1186,7 +1116,6 @@
         "src/analyse/extract_metrics.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "person_id",
         "household_id",
@@ -1211,31 +1140,27 @@
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "docs/audit/CALIBRATION_REPORT.md": {
       "kind": "file",
       "read_by": [
         "src/calibrate/report.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "docs/reference/CONFIG_REFERENCE.md": {
       "kind": "file",
       "read_by": [
         "src/registry/render_docs.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "docs/reference/DATA_DICTIONARY.md": {
       "kind": "file",
       "read_by": [
         "src/build/build_data_dictionary.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/matsim": {
       "kind": "directory",
@@ -1243,15 +1168,13 @@
         "src/build/build_matsim_network.py",
         "src/build/build_matsim_run_inputs.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/matsim/_matsim_build_report.json": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/osm/footways.osm": {
       "kind": "file",
@@ -1259,22 +1182,19 @@
         "src/build/build_network_layers.py",
         "src/build/measure_osm_defaults.py",
         "src/build/shape_tools.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/osm/green.osm": {
       "kind": "file",
       "read_by": [
         "src/analyse/build_basemap.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/osm/parking.osm": {
       "kind": "file",
       "read_by": [
         "src/build/build_network_layers.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/osm/railways.osm": {
       "kind": "file",
@@ -1282,8 +1202,7 @@
         "src/analyse/build_basemap.py",
         "src/build/build_matsim_network.py",
         "src/build/shape_tools.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/osm/roads.osm": {
       "kind": "file",
@@ -1291,58 +1210,50 @@
         "src/build/build_matsim_network.py",
         "src/build/build_network_layers.py",
         "src/build/measure_osm_defaults.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/osm/signals.osm": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py",
         "src/build/build_network_layers.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/osm/water.osm": {
       "kind": "file",
       "read_by": [
         "src/analyse/build_basemap.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/sumo": {
       "kind": "directory",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "networks/sumo/net_base2026/corridor.net.xml": {
       "kind": "file",
       "read_by": [
         "src/analyse/build_basemap.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "params": {
       "kind": "directory",
       "read_by": [
         "src/build/build_params.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "params/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "params/C1_behavioural_parameters.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "param_set_id",
         "segment_id",
@@ -1423,15 +1334,13 @@
       "read_by": [
         "src/build/build_matsim_run_inputs.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "params/C1_sensitivity_sweep_grid.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "sweep_id",
         "beta_transfer_penalty_min",
@@ -1445,16 +1354,14 @@
         "src/build/build_activity_chains.py",
         "src/build/measure_network_factors.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "params/C2_osm_defaults.json": {
       "kind": "file",
       "read_by": [
         "src/build/measure_osm_defaults.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "params/C3_count_comparison.json": {
       "kind": "file",
@@ -1462,8 +1369,7 @@
         "src/analyse/extract_metrics.py",
         "src/calibrate/fit.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "params/C4_mode_constraints.json": {
       "kind": "file",
@@ -1472,30 +1378,26 @@
         "src/calibrate/measure_mode_constraints.py",
         "src/calibrate/solve_asc_ride.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "params/C5_calibration.json": {
       "kind": "file",
       "read_by": [
         "src/calibrate/calibrate.py",
         "src/calibrate/report.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "scenarios/*.csv": {
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "scenarios/E1_parking_variants.csv": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "parking_variant_ref",
         "description",
@@ -1510,7 +1412,6 @@
         "src/build/build_matsim_run_inputs.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "road_variant_ref",
         "description",
@@ -1528,7 +1429,6 @@
         "src/build/build_matsim_run_inputs.py",
         "tests/check_package.py"
       ],
-      "present_in_reference_city": true,
       "columns_in_reference_city": [
         "base_year",
         "crs",
@@ -1561,170 +1461,146 @@
         "src/build/build_matsim_run_inputs.py",
         "src/run/run_matsim.py",
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "scenarios/matsim/%s/%s/config.xml": {
       "kind": "pattern",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "scenarios/matsim/%s/%s/transitSchedule.xml.gz": {
       "kind": "pattern",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "scenarios/matsim/%s/network.xml.gz": {
       "kind": "pattern",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "scenarios/matsim/S2/network.xml.gz": {
       "kind": "file",
       "read_by": [
         "src/analyse/map_count_stations.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "scenarios/matsim/_run_inputs_report.json": {
       "kind": "file",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/*.zip": {
       "kind": "pattern",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "schedules/base2026.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_gtfs_extras.py",
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/era1_pre2014_reconstructed.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/era2_2016_rail_truncated.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/era3_2018_keolis_interchange.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/era4_2019_lr_open.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/operators.json": {
       "kind": "file",
       "read_by": [
         "src/build/build_gtfs_extras.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/*.zip": {
       "kind": "pattern",
       "read_by": [
         "tests/check_package.py"
-      ],
-      "present_in_reference_city": false
+      ]
     },
     "schedules/scenarios/S0.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S1.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S2.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S2a.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S2b.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S2c.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S3.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S4.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S5.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     },
     "schedules/scenarios/S6.zip": {
       "kind": "file",
       "read_by": [
         "src/build/build_matsim_network.py"
-      ],
-      "present_in_reference_city": true
+      ]
     }
   }
 }
