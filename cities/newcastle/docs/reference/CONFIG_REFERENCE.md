@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 292 fields are made of
+## What the 297 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -35,12 +35,12 @@ Three things are refused at every layer:
 | `measured` | 21 | computed from observed data in this package |
 | `derived` | 25 | follows from another registry field by identity |
 | `literature` | 35 | a published value, not specific to this city |
-| `assumed` | 122 | chosen without direct empirical support |
+| `assumed` | 127 | chosen without direct empirical support |
 | `definition` | 85 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 271 | usable point value |
+| `active` | 276 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
@@ -800,7 +800,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 38 fields*
+*`cities/newcastle/registry/B_demand.json` - 43 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -833,6 +833,10 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.external.interaction_rate` | `0.08` | probability | `assumed` | 0.04 - 0.15 |
 | `B.external.person_id_base` | `900000000` | integer_offset | `definition` | - |
 | `B.external.purpose_split` | `{"HW": 0.7, "HO": 0.3}` | probability | `assumed` | plus/minus 20% |
+| `B.external.through_corridor_match_km` | `30.0` | km | `assumed` | 10 - 50 |
+| `B.external.through_min_separation_km` | `30.0` | km | `assumed` | 20 - 50 |
+| `B.external.through_outside_min_m` | `1000.0` | metres | `assumed` | 300 - 3000 |
+| `B.external.through_share` | `0.35` | share_of_aadt | `assumed` | 0.15 - 0.6 |
 | `B.mode.seed_split` | `{"car_available": {"bike": 0.2, "car": 0.2, "pt": 0.2, "ride": 0.2, "walk": 0.2}, "no_car": {"bike": 0.25, ...` | share_by_mode | `definition` | - |
 | `B.mode.seed_split_informed` | `{"car_available": {"bike": 0.01, "car": 0.78, "pt": 0.02, "ride": 0.1, "walk": 0.09}, "no_car": {"bike": 0....` | share_by_mode | `assumed` | `uninformed`, `informed` |
 | `B.network_factors.distance_band` | `0.25` | share | `assumed` | 0.1 - 0.5 |
@@ -840,6 +844,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.network_factors.n_pairs` | `600` | zone_pairs | `assumed` | 200 - 5000 |
 | `B.opal.journey_linked` | *(null - unobtained)* | dataset | `assumed` | `tap_sequence_matching_model` |
 | `B.population.age_bands` | `[[0, 4], [5, 11], [12, 17], [18, 24], [25, 34], [35, 44], [45, 54], [55, 64], [65, 74], [75, 84], [85, 120]]` | years | `definition` | - |
+| `B.population.bike_available_rate` | `0.5` | share | `assumed` | 0.3 - 1 |
 | `B.population.build_sample_share` | `1.0` | share_of_population | `definition` | - |
 | `B.population.licence_rate_by_age_band` | `[0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]` | probability | `literature` | plus/minus 10% |
 | `B.population.ride_requires_household_driver` | `true` | boolean | `derived` | derived: a person may be a car passenger only if their B1 household holds at le |
@@ -1027,6 +1032,38 @@ Purpose split for external boundary demand.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
+#### `B.external.through_corridor_match_km`
+
+A boundary-crossing road edge becomes a through-traffic gate only if a calibration count station ON THE SAME NAMED ROAD lies within this distance of the crossing; the nearest such station anchors the gate's volume. Beyond it the corridor is unobserved and generates nothing.
+
+***assumed** · status **active** · DECISIONS.md §9.41*
+
+> **Sweep basis.** MEASURED MOTIVATION: only one calibration station sits within 2 km of the boundary crossing it measures (the M1 at Wyee, 273 m); the others that observe a boundary corridor sit 16-24 km inside it (Pacific Highway at Tomago, New England Highway at Tarro). Matching by same road NAME along the corridor is what the held data supports; the radius bounds how far along the corridor a station may sit and still anchor the gate. An inland station overstates the boundary volume by its local traffic - absorbed, stated, by the through_share sweep.
+
+#### `B.external.through_min_separation_km`
+
+Minimum straight-line separation between the entry gate and the exit gate for a generated trip to count as through traffic. Exit gates closer than this to the entry are excluded from its destination set.
+
+***assumed** · status **active** · DECISIONS.md §9.41*
+
+> **Sweep basis.** The study area spans roughly 60-90 km. A through trip must actually cross it: two gates a few kilometres apart on the same corridor edge would otherwise exchange 'through' trips that never leave the boundary region. 30 km forces entry and exit to lie on opposite sides; the sweep brackets how strict that requirement is.
+
+#### `B.external.through_outside_min_m`
+
+A boundary-crossing edge counts as leaving the study area only if its outside endpoint lies at least this far beyond the dissolved boundary. Filters water crossings INSIDE the area (harbour bridges) out of the gate set.
+
+***assumed** · status **active** · DECISIONS.md §9.41*
+
+> **Sweep basis.** The dissolved study boundary includes the coastline and the harbour, so a road bridging the Hunter River 'crosses the boundary' without leaving the study area - Hannell Street at Wickham is the measured example, and its station would otherwise seed through traffic entering in central Newcastle. 1 km separates a genuine departure from a river crossing; the sweep brackets that judgement.
+
+#### `B.external.through_share`
+
+Share of the AADT measured at a cordon-gate calibration count station that is through traffic - vehicles whose journey neither starts nor ends inside the study area. Applied symmetrically: half of the through component enters at the gate and half exits, so the generated inbound volume at gate i is 0.5 x through_share x AADT_i. Seeded from CALIBRATION count rows only; the split filter is structural in the builder and no holdout row is ever read.
+
+***assumed** · status **active** · DECISIONS.md §9.41*
+
+> **Sweep basis.** No through-share survey exists for the study boundary and no journey-linked data can separate through from local traffic at a count station, so the share is assumed and swept wide. The motivating observation is V113 (the M1 at Wyee, 48,016 AADT, a calibration row): the Sydney-Newcastle motorway at the boundary is the road most dominated by through traffic, and the model routed zero vehicles onto it because the demand contained no through movement at all (issue #20).
+
 #### `B.mode.seed_split`
 
 The mode split the co-evolution STARTS from, conditioned only on car availability from B1. UNIFORM OVER THE USABLE MODES AND DELIBERATELY A BAD GUESS: it starts the search far from the observed point so that arriving there is evidence about the model rather than about the seed. It is a definition, not an assumption, because "uniform over what a person can use" is fully determined by B1 car availability and has no free share to sweep. What is swept is the CHOICE of seed - see B.mode.seed_split_informed.
@@ -1076,6 +1113,14 @@ Journey-linked Opal. NOT OBTAINED - a formal TfNSW request is outstanding. Propo
 Age banding for population synthesis. Follows the census table structure.
 
 ***definition** · status **active** · DECISIONS.md §9.1*
+
+#### `B.population.bike_available_rate`
+
+Share of synthetic persons with a bicycle available to them. Until this field existed, car was the only mode whose ownership was modelled while bike was silently available to everyone - a structural bias against car in the choice set itself, undeclared anywhere (issue #29, SPEC_AUDIT A3). Drawn deterministically per person in build_matsim_plans.py and consumed by the same availability calculator that enforces rideAvail. External boundary agents keep bike available: they are household-less by construction, so no ownership identity exists to derive a denial from, and the choice is recorded in DECISIONS.md 9.39.
+
+***assumed** · status **active** · DECISIONS.md §9.39*
+
+> **Sweep basis.** The census carries no bicycle-ownership variable, so any rate is assumed. The upper bound 1.0 is the previous silent behaviour (bike available to everyone), retained in the sweep so the constraint's own effect is measurable; the lower bound allows for household access well below half. Re-size against the observed 3.2% bike share only AFTER the post-rebuild run re-measures the modelled share - the old 5x was measured on a model that no longer exists (issue #29).
 
 #### `B.population.build_sample_share`
 
@@ -1963,7 +2008,7 @@ Start iteration.
 
 #### `RUN.controler.last_iteration`
 
-Iterations to relaxation. NO JUSTIFIED VALUE HAS BEEN MEASURED. Two 1% runs of 250 iterations showed the model had NOT converged: innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. The shipped scenario configs carry 100, which is known wrong and left in place rather than replaced by another unjustified number; run_matsim.py deliberately gives --iterations NO DEFAULT. Everything downstream needs this number (issue 5).
+Iterations to relaxation. NO JUSTIFIED VALUE HAS BEEN MEASURED. Two 1% runs of 250 iterations showed the model had NOT converged: innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. The shipped scenario configs carry 250 - the sweep floor, the largest value measured insufficient, emitted so a config is runnable while remaining visibly provisional; run_matsim.py deliberately gives --iterations NO DEFAULT. Everything downstream needs this number (issue 5).
 
 ***assumed** · status **unobtained** · DECISIONS.md §9.7, 15 · MATSim `controler.lastIteration`*
 

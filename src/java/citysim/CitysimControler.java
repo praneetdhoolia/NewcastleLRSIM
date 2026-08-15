@@ -15,9 +15,12 @@ import org.matsim.core.scenario.ScenarioUtils;
  * {@code org.matsim.core.controler.Controler} except for the two rebindings and
  * the one added module below.
  *
- * <p><b>1. Ride availability.</b> {@link PermissibleModesCalculator} is rebound
+ * <p><b>1. Mode availability.</b> {@link PermissibleModesCalculator} is rebound
  * so `ride` can be withheld from a person who has nobody to drive them
- * (DECISIONS.md 9.11).
+ * (DECISIONS.md 9.11), `bike` from a person drawn without one (DECISIONS.md
+ * 9.39, issue #29), and so an agent carrying `lockedMode` — a through-traffic
+ * vehicle anchored on an observed road count — keeps the mode it is defined by
+ * (DECISIONS.md 9.41, issue #20).
  *
  * <p><b>2. Ride travel time (DECISIONS.md 9.26, issue #28).</b> `ride` is listed
  * in {@code routing.networkModes} but is not the qsim {@code mainMode}, so
@@ -87,7 +90,7 @@ public final class CitysimControler {
             @Override
             public void install() {
                 bind(PermissibleModesCalculator.class)
-                        .to(RideAvailabilityModesCalculator.class);
+                        .to(AvailabilityModesCalculator.class);
                 // Issue #28: without these, `ride` routes on free-flow times.
                 addTravelTimeBinding(TransportMode.ride)
                         .to(networkTravelTime());

@@ -3,7 +3,7 @@
 **NewcastleLRSIM** — counterfactual microsimulation of the Newcastle Light Rail
 **Stage:** P4 calibration, in progress. **No scenario has been run to a
 reportable state, and nothing in this repository is a result.**
-**Started:** 10 August 2026 · **last entry:** §9.35, 13 August 2026
+**Started:** 10 August 2026 · **last entry:** §9.41, 15 August 2026
 
 Proposal §8.1: *"`DECISIONS.md` is not optional. Every parameter chosen without
 direct empirical support must be recorded here with its rationale and its sweep
@@ -47,8 +47,10 @@ otherwise cost you an hour:
 | **Convergence and the iteration count** | **§9.7, §9.27** — ~1000 iterations; 250 is not relaxation |
 | **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions |
 | **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26 |
-| **Trip length by mode** | §9.13 |
-| **External / boundary demand** | §9.14, §9.15, §9.20 |
+| **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
+| **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
+| **The 30-hour-day cap (issue #37)** | **§9.38** |
+| **Bike availability (issue #29)** | **§9.39** |
 | **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
 | **The specification audit** | §9.25 and [`docs/audit/SPEC_AUDIT.md`](audit/SPEC_AUDIT.md) |
 | **The input registry — every controllable value** | **§15**, and [`docs/reference/CONFIG_REFERENCE.md`](reference/CONFIG_REFERENCE.md) (generated) |
@@ -4307,6 +4309,163 @@ jurisdiction mentions fell from **~2,900 to 262**, and within `config/schema/`
 from 213 to 23 - of which 12 are the repository's own name in schema `$id` URLs.
 
 **Still no scenario run; no falsification condition altered.**
+
+---
+
+## 9.38 The 30-hour day is capped, not wrapped (P4 batch 4.1, issue #37)
+
+**Decision:** a person's chains are CAPPED at the 24 h boundary whenever they
+would collide with that person's own early morning; nothing is wrapped. Taken
+15 August 2026.
+
+The qsim horizon (`B.activity.day_horizon_s`, 30 h) exists so a late-evening
+tour can arrive after midnight — hours 24..30 are 00:00–06:00 the *following*
+morning. That is coherent only for an agent who is not also travelling in those
+same early-morning hours of the modelled day. Measured on the seed plans before
+this change: **2,066 WEEKDAY / 358 SAT / 240 SUN persons** (0.394% / 0.080% /
+0.058%) had a departure both before 06:00 and at or after 24:00 — one person
+with two 2 a.m.s ([`docs/audit/ISSUE_VERDICTS.md`](audit/ISSUE_VERDICTS.md)).
+
+`build_activity_chains.py` now drops, whole, any tour containing a departure at
+or after 24:00 when the person also departs before the tail hour
+(`day_horizon_s` − 24 h); the external tier applies the single-tour form of the
+same rule. **Cap, not wrap, because wrapping the spilling chain onto the early
+morning would create exactly the collision being removed.** The drop is counted
+per day type in `_activity_chains_report.json`
+(`tours_dropped_midnight_collision`) and touches well under 0.5% of agents, so
+the solved trip rates are not re-derived. Late departures that do NOT collide —
+the legitimate use of the tail — are untouched.
+
+**Acceptance (all three day types): zero persons with a departure both before
+06:00 and at or after 24:00.**
+
+---
+
+## 9.39 Bike availability is drawn, and the asymmetry is no longer silent (P4 batch 4.1, issue #29)
+
+**Decision:** bike availability is a per-person draw at
+`B.population.bike_available_rate` — **assumed 0.50, swept 0.30–1.00** — with
+1.0 in the sweep reproducing the previous behaviour. Taken 15 August 2026.
+
+Until this change car was the only mode whose ownership was modelled, so it was
+the only mode that could be denied to an agent: the uninformed seed read
+availability straight off (car 15.72%, bike 22.67% of legs), a structural bias
+against car in the choice set itself, and **nothing in the registry or this file
+said so** (SPEC_AUDIT A3). The census carries no bicycle-ownership variable, so
+any rate is assumed; what was not defensible was the asymmetry being
+undeclared.
+
+Mechanics: `build_matsim_plans.py` draws per person from a seeded child stream
+(`[seed, 1]`, so the mode-seed stream is unperturbed), writes `bikeAvail`, and
+excludes bike from the seed draw of a person without one — the seed must respect
+the constraint or ChangeExpBeta can re-select an illegal plan forever, the
+defect class measured at 4,723 ride legs in §9.15.
+`citysim.AvailabilityModesCalculator` (successor to
+`RideAvailabilityModesCalculator`) strips bike from SubtourModeChoice's choice
+set the same way it strips ride. **External boundary agents keep bike
+available**: they are household-less by construction, so no ownership identity
+exists to derive a denial from.
+
+**The rate must not be sized against the old 5× finding** — that share was
+measured on a model that no longer exists. Re-measure the modelled bike share on
+the first post-rebuild run, then size, and log the sizing here.
+
+---
+
+## 9.40 The gravity decay is solved per purpose × home LGA (P4 batch 4.1, issue #30)
+
+**Decision:** destination-choice decay is calibrated per (purpose × home LGA)
+against that LGA's own HTS `JOURNEY_AVG_DISTANCE` row, with the five-LGA
+aggregate solve retained for suppressed cells and for the external tier (a
+boundary agent has no home LGA). Taken 15 August 2026.
+
+The defect this closes is a frame mismatch inside the builder itself: one beta
+per purpose was bisected against the five-LGA journey-weighted mean and **hit it
+to two decimals** (education target 6.44 network km, realised 6.44) while
+missing every LGA's own mean — the HTS publishes education at **3.0 km for a
+Newcastle resident and 12.9 km for a Port Stephens one**, and a single decay
+reproduces neither. Measured per home LGA on the old plans: education Newcastle
+**1.86×** its own row, Maitland 1.41×, Cessnock 0.92×, Lake Macquarie 1.01×,
+Port Stephens 0.54×. The five-LGA headline ("education 2.19×") in issue #30 was
+itself produced by comparing all-core distances against the Newcastle-only row;
+both framings are superseded by the per-LGA solve, whose per-cell
+targets-vs-realised are recorded in `_activity_chains_report.json`
+(`decay.<purpose>.by_lga`).
+
+The intermediate-stop decay keys on the zone the traveller is currently in, not
+their home LGA — the current zone is the origin of that leg, and its LGA is the
+better proxy for the local opportunity surface.
+
+This is a demand rebuild; every prior run comparison is already void under
+§3.5. The sub-1-km scarcity (4.9% of legs under 1 km against an observed walk
+share of 13.4% at mean 0.7 km) is expected to ease for Newcastle residents but
+is **not** asserted fixed — re-measure the distribution, not just the means,
+after the rebuild.
+
+---
+
+## 9.41 Through traffic enters the model at the cordon's own observed volumes (P4 batch 4.1, issue #20)
+
+**Decision:** a through tier is added to B2 — trips that enter at one cordon
+gate and exit at another without any activity inside the study area. Taken
+15 August 2026.
+
+The radial external tier (§9.14, §9.15) sends boundary residents *into* the
+core and home again; by construction nothing crosses, so the M1 at Wyee —
+**48,016 observed AADT, calibration target V113** — carried zero modelled
+vehicles, and every boundary-adjacent count was biased low exactly where
+through traffic dominates.
+
+Mechanics, all declared and swept, none pinned:
+
+- A **gate** is a major-road edge with one endpoint inside the dissolved study
+  boundary and the other at least `B.external.through_outside_min_m` beyond it
+  (assumed 1 km, swept 0.3–3). The outside test exists because the dissolved
+  boundary includes the coastline and the harbour, so Hannell Street's Hunter
+  River bridge "crosses the boundary" without leaving the study area — the
+  measured false positive that would otherwise have seeded through traffic
+  entering in central Newcastle. The pre-existing cordon-crossing set could not
+  serve: it is derived from the external zones, which lie only on the Hunter
+  Valley side, so the M1 toward Sydney — the single most through-dominated road
+  — had no crossing near it at all.
+- The gate's volume is the nearest **calibration** count station **on the same
+  named road** within `B.external.through_corridor_match_km` (assumed 30 km,
+  swept 10–50). Measured motivation: only the M1 at Wyee has its station at the
+  crossing itself (273 m); the other boundary corridors are counted 16–24 km
+  inside (Pacific Highway at Tomago, New England Highway at Tarro), so the name
+  carries the corridor identity and an inland station **overstates** the
+  boundary volume by its local traffic — absorbed, stated, by the
+  `through_share` sweep. The split filter is structural in `through_gates()`:
+  **no holdout row can seed demand.** Same-corridor crossings within the match
+  distance collapse to the highest-volume one.
+- Inbound volume at gate *i* is `0.5 × B.external.through_share × AADT_i ×
+  B.external.day_factor[day]`. The share of a boundary station's AADT that is
+  through traffic is **unobserved** — no journey-linked source can separate it —
+  so it is **assumed 0.35 and swept 0.15–0.60**. The 0.5 is an identity, not a
+  parameter: AADT counts both directions, and the exiting half is generated by
+  the opposite gate as its own inbound.
+- The exit gate is drawn ∝ the candidate gates' observed volumes, restricted to
+  gates at least `B.external.through_min_separation_km` away (assumed 30 km,
+  swept 20–50), so a "through" trip genuinely crosses the area rather than
+  hopping between two gates on the same corridor edge.
+- Departure times use the declared HO profile — through traffic has no observed
+  profile of its own, and inventing a bespoke one would be a second assumption
+  doing the same job.
+- **The mode is locked.** A volume anchored on a road count must stay on the
+  road, so a through agent carries `lockedMode=car` and
+  `AvailabilityModesCalculator` returns exactly {car} for it —
+  SubtourModeChoice cannot leak the anchored volume onto another mode. The
+  agents ride in subpopulation `external` (they are boundary-tier agents;
+  `agent_tier=through` distinguishes them in every artefact).
+
+**What this is not:** an estimate of through demand. It is a declared,
+sweepable background load whose anchor is the cordon's own calibration counts,
+built so the M1 can carry the traffic the observed data says it carries. V113
+ceases to be an independent test of the model exactly to the extent the through
+share is tuned against it — it is a calibration row, that use is what
+calibration rows are for, and this note is the record of it. Count-based
+calibration near the boundary remains gated on this tier being examined
+(§9.14); freight remains absent and tracked by #24.
 
 ---
 

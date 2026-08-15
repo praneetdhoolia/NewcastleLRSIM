@@ -232,7 +232,15 @@ def norm(a):
 
 
 def hts_rates():
-    """Trip rate and mean journey distance per purpose, from the HTS extract."""
+    """Trip rate and mean journey distance per purpose, from the HTS extract.
+
+    Returns the journey distance twice: aggregated over the five LGAs
+    (journey-weighted, used for the external tier and as the fallback), and per
+    home LGA. The per-LGA table exists because one decay per purpose reproduced
+    the five-LGA mean exactly while missing every LGA's own mean - Newcastle
+    education realised 6.57 km against its observed 3.0 while the aggregate
+    target of 6.44 was hit to two decimals (issue #30, DECISIONS.md 9.40).
+    """
     pur = pd.read_csv(os.path.join(HTS, 'hts_purpose.csv'))
     pur = pur[(pur.geography == 'lga')]
     yr = sorted(pur.FINANCIAL_YEAR.unique())[-1]
@@ -252,11 +260,16 @@ def hts_rates():
             .apply(lambda d: np.average(d.JOURNEY_AVG_DISTANCE,
                                         weights=d.JOURNEYS_BY_MODE.clip(lower=1)),
                    include_groups=False))
+    dist_lga = (pur.groupby(['area_name', 'p'])
+                .apply(lambda d: np.average(d.JOURNEY_AVG_DISTANCE,
+                                            weights=d.JOURNEYS_BY_MODE.clip(lower=1)),
+                       include_groups=False))
     demo = pd.read_csv(os.path.join(HTS, 'hts_mode.csv'))
     demo = demo[(demo.geography == 'lga') & (demo.FINANCIAL_YEAR == yr)]
     total_trips = demo.TRIPS_BY_MODE.sum()
     share = journeys / journeys.sum()
-    return yr, total_trips, share.to_dict(), dist.to_dict()
+    return (yr, total_trips, share.to_dict(), dist.to_dict(),
+            {(lga, p): float(v) for (lga, p), v in dist_lga.items()})
 
 
 def load_zones():
@@ -315,12 +328,22 @@ def load_poi_by_zone(zones):
     return store, len(allp)
 
 
-def calibrate_decay(X, Y, ATTR, meandist, prod):
+def calibrate_decay(X, Y, ATTR, meandist, prod, zone_lga=None, meandist_lga=None):
     """Solve the gravity decay so realised mean distance matches the HTS.
 
     P1 set beta = 1/mean-distance directly, which left education and shopping
     60% long and work-related business 22% short. Bisecting on the realised
     expectation instead ties each purpose to its own HTS journey distance.
+
+    One beta per purpose then reproduced the five-LGA aggregate exactly while
+    missing every LGA's own mean - the aggregate hides the heterogeneity the
+    HTS itself publishes (education is 3.0 km for a Newcastle resident and
+    12.9 km for a Port Stephens one; the old build realised 6.57 km for both
+    while hitting its 6.44 aggregate target to two decimals). The decay is now
+    solved per (purpose x home LGA) against that LGA's own HTS row, with the
+    aggregate solve kept as the fallback for suppressed cells and as the decay
+    the external tier uses, since a boundary agent has no home LGA (issue #30,
+    DECISIONS.md 9.40).
     """
     DX = X[None, :] - X[:, None]
     DY = Y[None, :] - Y[:, None]
@@ -328,19 +351,29 @@ def calibrate_decay(X, Y, ATTR, meandist, prod):
     del DX, DY
     out, diag = {}, {}
     pw = norm(prod)
-    for p in PURPOSES:
-        target = max(meandist.get(p, 8.0), 0.8) / DETOUR_FACTOR
-        lo, hi = 0.005, 4.0
+
+    def solve(p, target, rows=None):
+        """Bisect beta so the realised mean over `rows` origins hits target."""
+        w_origin = pw if rows is None else norm(np.where(rows, pw, 0.0))
 
         def realised(beta):
             w = ATTR[p][None, :] * np.exp(-beta * DKM)
             s = w.sum(axis=1, keepdims=True)
             w = np.divide(w, np.where(s > 0, s, 1.0))
-            return float((pw * (w * DKM).sum(axis=1)).sum())
+            return float((w_origin * (w * DKM).sum(axis=1)).sum())
 
+        lo, hi = 0.005, 4.0
         r_lo, r_hi = realised(lo), realised(hi)
-        if not (r_hi <= target <= r_lo):
-            beta = 1.0 / target
+        if target >= r_lo:
+            # even the weakest decay realises shorter trips than observed
+            beta = lo
+        elif target <= r_hi:
+            # unreachable: even the strongest decay overshoots, because the
+            # attractor surface is too sparse near these origins - the closest
+            # achievable beta is hi, and the diag shows the gap honestly (the
+            # Port Stephens shopping cell is the measured case: its attractors
+            # sit inside the clipped #32 harvest)
+            beta = hi
         else:
             for _ in range(40):
                 mid = 0.5 * (lo + hi)
@@ -349,16 +382,42 @@ def calibrate_decay(X, Y, ATTR, meandist, prod):
                 else:
                     hi = mid
             beta = 0.5 * (lo + hi)
-        got = realised(beta)
+        return beta, realised(beta)
+
+    lgas = sorted(set(zone_lga)) if zone_lga is not None else []
+    beta_of_zone = {}
+    for p in PURPOSES:
+        target = max(meandist.get(p, 8.0), 0.8) / DETOUR_FACTOR
+        beta, got = solve(p, target)
         out[p] = beta
         diag[p] = dict(beta=round(beta, 5),
                        target_straight_km=round(target, 2),
                        realised_straight_km=round(got, 2),
                        hts_network_km=round(meandist.get(p, float('nan')), 2),
                        realised_network_km=round(got * DETOUR_FACTOR, 2))
+        by_lga = {}
+        zone_beta = np.full(X.size, beta)
+        for lga in lgas:
+            obs = (meandist_lga or {}).get((lga, p))
+            rows = np.asarray(zone_lga) == lga
+            if obs is None or not rows.any():
+                by_lga[lga] = dict(beta=round(beta, 5), fallback='aggregate',
+                                   hts_network_km=None)
+                continue
+            t_lga = max(obs, 0.8) / DETOUR_FACTOR
+            b_lga, got_lga = solve(p, t_lga, rows)
+            zone_beta[rows] = b_lga
+            by_lga[lga] = dict(beta=round(b_lga, 5),
+                               target_straight_km=round(t_lga, 2),
+                               realised_straight_km=round(got_lga, 2),
+                               hts_network_km=round(obs, 2),
+                               realised_network_km=round(got_lga * DETOUR_FACTOR, 2))
+        if lgas:
+            diag[p]['by_lga'] = by_lga
+        beta_of_zone[p] = zone_beta
     CUM = {}
     for p in PURPOSES:
-        w = ATTR[p][None, :] * np.exp(-out[p] * DKM)
+        w = ATTR[p][None, :] * np.exp(-beta_of_zone[p][:, None] * DKM)
         s = w.sum(axis=1, keepdims=True)
         w = np.divide(w, np.where(s > 0, s, 1.0))
         CUM[p] = np.cumsum(w, axis=1).astype(np.float32)
@@ -638,6 +697,21 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
             r['tour_purpose'] = purpose
         legs += pending
         t_now = arr_home
+
+    # The 30-hour-day cap (issue #37, DECISIONS.md 9.38). The qsim horizon's
+    # tail exists so a late-evening chain can arrive after midnight - hours
+    # 24..horizon are 00:00 onward the FOLLOWING morning. That is only
+    # coherent for a person who is not also travelling in those same
+    # early-morning hours of the modelled day: a departure at 02:00 and
+    # another at 26:00 is one person with two 2 a.m.s. CAP, not wrap: the
+    # colliding late tour is dropped whole, because wrapping it onto the
+    # early morning would create exactly the collision being removed.
+    tail_s = DAY_HORIZON_S - 24 * 3600
+    if legs and any(l['dep_time_s'] < tail_s for l in legs):
+        bad = {l['tour_id'] for l in legs if l['dep_time_s'] >= 24 * 3600}
+        if bad:
+            dropped[1] += len(bad)
+            legs = [l for l in legs if l['tour_id'] not in bad]
     return legs
 
 
@@ -667,6 +741,22 @@ EXTERNAL_PURPOSE_SPLIT = CFG.get('B.external.purpose_split')
 EXTERNAL_PERSON_ID_BASE = CFG.get('B.external.person_id_base')
 CORDON_ROAD_CLASSES = frozenset(CFG.get('B.external.cordon_road_classes'))
 ROADS = _city.path('data/processed/network/A1_road_edges.csv')
+
+# Through traffic (issue #20, DECISIONS.md 9.41). The radial external tier
+# above sends boundary residents INTO the core and home again; nothing in it
+# ever crosses the study area, so the M1 at Wyee - observed 48,016 AADT,
+# calibration target V113 - carried zero modelled vehicles. Through demand is
+# seeded from the cordon's own observed volumes: a cordon crossing becomes a
+# "gate" when a CALIBRATION count station sits within the declared radius of
+# it, and gates exchange trips whose entry and exit are at least the declared
+# separation apart. The through share of a gate's AADT is unobserved and is
+# assumed and swept, never pinned.
+THROUGH_SHARE = CFG.get('B.external.through_share')
+THROUGH_CORRIDOR_KM = CFG.get('B.external.through_corridor_match_km')
+THROUGH_OUTSIDE_MIN_M = CFG.get('B.external.through_outside_min_m')
+THROUGH_MIN_SEP_KM = CFG.get('B.external.through_min_separation_km')
+AADT_TARGETS = _city.path('data/processed/validation/road_aadt_targets.csv')
+LGA_ZONES = _city.path('data/processed/zones/zones_LGA.gpkg')
 
 
 def cordon_nodes(ext):
@@ -790,6 +880,11 @@ def external_agents(zones, core, decay, u, day, seq_base, store, cordon):
             back = arr + dur
             if back + tt > DAY_HORIZON_S:
                 continue
+            # the 30-hour-day cap, single-tour form (issue #37): a return
+            # departing past midnight is fine unless this agent also departed
+            # in the early-morning hours the tail maps onto
+            if t0 < DAY_HORIZON_S - 24 * 3600 and back >= 24 * 3600:
+                continue
             act = ACT_OF_PURPOSE[purpose]
             common = dict(person_id=pid, day_type=day, tour_id=1, party_size=1,
                           tour_purpose=purpose, agent_tier='external',
@@ -812,6 +907,143 @@ def external_agents(zones, core, decay, u, day, seq_base, store, cordon):
                              straight_dist_km=round(dist_km, 3),
                              activity_duration_s=0, is_tour_anchor=0,
                              dest_placement='home'))
+    return legs, n_agents
+
+
+def through_gates():
+    """Boundary crossings of major roads, anchored on same-corridor counts.
+
+    A gate is a road edge of a cordon-capable class with one endpoint inside
+    the dissolved study boundary and the other at least THROUGH_OUTSIDE_MIN_M
+    beyond it - genuinely leaving the area, not bridging the harbour inside it
+    (Hannell Street's river crossing is the measured false positive). Its
+    volume comes from the nearest CALIBRATION count station on the SAME NAMED
+    road within THROUGH_CORRIDOR_KM: only one boundary corridor has a station
+    at the crossing itself (the M1 at Wyee, 273 m), the rest are measured
+    16-24 km inside, and the name is what carries the corridor identity.
+
+    Reads ONLY split == 'calibration' rows - the filter is structural, ahead of
+    any use, so no holdout row can seed demand. Crossings of the same named
+    road within THROUGH_CORRIDOR_KM of each other collapse to the
+    highest-volume one (two carriageways are one corridor).
+
+    Returns a list of dicts: x, y (EPSG:28356, the inside endpoint), volume
+    (veh/weekday, both directions), road, station_key, station_name.
+    """
+    import geopandas as gpd
+    import pyproj
+    import shapely
+
+    edges = pd.read_csv(ROADS, usecols=['edge_id', 'road_class', 'name',
+                                        'start_lat', 'start_lon',
+                                        'end_lat', 'end_lon'])
+    edges = edges[edges.road_class.isin(CORDON_ROAD_CLASSES)
+                  & edges.name.notna() & (edges.name != '')].reset_index(drop=True)
+    lga = gpd.read_file(LGA_ZONES)
+    if 'zone_tier' in lga.columns:
+        lga = lga[lga.zone_tier == 'core']
+    diss = lga.to_crs(_city.crs()).geometry.union_all()
+    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    sxe, sye = tf.transform(edges.start_lon.to_numpy(dtype=float),
+                            edges.start_lat.to_numpy(dtype=float))
+    exe, eye = tf.transform(edges.end_lon.to_numpy(dtype=float),
+                            edges.end_lat.to_numpy(dtype=float))
+    s_in = shapely.contains(diss, shapely.points(sxe, sye))
+    e_in = shapely.contains(diss, shapely.points(exe, eye))
+    cross = s_in != e_in
+
+    t = pd.read_csv(AADT_TARGETS)
+    t = t[t.split == 'calibration'].copy()
+    t = t.assign(volume=t.weekday_count.fillna(t.all_days_count))
+    t = t[t.volume.notna() & (t.volume > 0)].reset_index(drop=True)
+    t = t.assign(road_key=t.road_name.fillna('').str.strip().str.lower())
+    sx, sy = tf.transform(t.lon.to_numpy(dtype=float), t.lat.to_numpy(dtype=float))
+
+    gates = []
+    for k in np.flatnonzero(cross):
+        inside_start = bool(s_in[k])
+        row = edges.iloc[k]
+        gx, gy = (sxe[k], sye[k]) if inside_start else (exe[k], eye[k])
+        ox, oy = (exe[k], eye[k]) if inside_start else (sxe[k], sye[k])
+        # a river crossing inside the area exits the polygon only briefly;
+        # a genuine departure keeps going
+        if shapely.distance(diss, shapely.points(ox, oy)) < THROUGH_OUTSIDE_MIN_M:
+            continue
+        road_key = str(row['name']).strip().lower()
+        same = t[t.road_key == road_key]
+        if same.empty:
+            continue
+        pos = same.index.to_numpy()
+        d = np.hypot(sx[pos] - gx, sy[pos] - gy)
+        j = int(d.argmin())
+        if float(d[j]) > THROUGH_CORRIDOR_KM * 1000.0:
+            continue
+        st = same.iloc[j]
+        gates.append(dict(x=float(gx), y=float(gy), road=str(row['name']),
+                          volume=float(st.volume),
+                          station_key=str(st.station_key),
+                          station_name=str(st['name']),
+                          station_dist_m=round(float(d[j]), 0)))
+    # collapse same-corridor duplicates (two carriageways, split ways)
+    gates.sort(key=lambda g: (-g['volume'], g['road'], g['x'], g['y']))
+    kept = []
+    for g in gates:
+        if any(k['road'].strip().lower() == g['road'].strip().lower()
+               and math.hypot(k['x'] - g['x'], k['y'] - g['y']) / 1000.0
+               < THROUGH_CORRIDOR_KM for k in kept):
+            continue
+        kept.append(g)
+    kept.sort(key=lambda g: (g['road'], g['x'], g['y']))
+    return kept
+
+
+def through_agents(gates, u, day, seq_base):
+    """Through trips: enter at one gate, cross the study area, exit at another.
+
+    One agent is one direction: inbound volume at gate i is half the through
+    component of its AADT (the other half is the same vehicles exiting, which
+    the opposite gate generates as its own inbound). The exit gate is drawn
+    weighted by the candidate gates' observed volumes, restricted to gates at
+    least THROUGH_MIN_SEP_KM away so the trip genuinely crosses the area. The
+    mode is locked to car downstream (build_matsim_plans writes lockedMode) -
+    a volume anchored on a road count must stay on the road.
+    """
+    legs = []
+    n_agents = 0
+    pid = seq_base
+    shift = WEEKEND_DEPARTURE_SHIFT_H[day]
+    for i, gi in enumerate(gates):
+        cand = [(j, gj) for j, gj in enumerate(gates) if j != i
+                and math.hypot(gj['x'] - gi['x'], gj['y'] - gi['y']) / 1000.0
+                >= THROUGH_MIN_SEP_KM]
+        if not cand:
+            continue
+        w = norm([gj['volume'] for _, gj in cand])
+        cum = np.cumsum(w)
+        n = int(round(0.5 * THROUGH_SHARE * gi['volume']
+                      * EXTERNAL_DAY_FACTOR[day]))
+        for _ in range(n):
+            pid += 1
+            n_agents += 1
+            j = int(np.searchsorted(cum, u()))
+            gj = cand[min(j, len(cand) - 1)][1]
+            dist_km = math.hypot(gj['x'] - gi['x'], gj['y'] - gi['y']) / 1000.0
+            # HO is the broadest declared daytime departure profile; through
+            # traffic has no observed profile of its own (DECISIONS.md 9.41)
+            t0 = draw_hour(DEPART['HO'], shift, u) * 3600 + int(3600 * u())
+            tt = int(dist_km / 26.0 * 3600) + 240
+            legs.append(dict(person_id=pid, day_type=day, tour_id=1, trip_seq=1,
+                             party_size=1, tour_purpose='through',
+                             agent_tier='through',
+                             time_flexibility_band='flexible',
+                             purpose='through', dest_activity_type='home',
+                             origin_sa1='', dest_sa1='',
+                             origin_x=round(gi['x'], 1), origin_y=round(gi['y'], 1),
+                             dest_x=round(gj['x'], 1), dest_y=round(gj['y'], 1),
+                             dep_time_s=t0, arr_time_s=t0 + tt,
+                             straight_dist_km=round(dist_km, 3),
+                             activity_duration_s=0, is_tour_anchor=1,
+                             dest_placement='cordon'))
     return legs, n_agents
 
 
@@ -855,9 +1087,15 @@ def main(seed=SEED, max_persons=None, day_types=None):
           flush=True)
     print('   [%s]' % day_shape_source, flush=True)
 
-    yr, _total, share, meandist = hts_rates()
+    yr, _total, share, meandist, meandist_lga = hts_rates()
     print('HTS %s | purpose share %s'
           % (yr, {k: round(v, 3) for k, v in share.items()}), flush=True)
+
+    # home LGA per core zone, for the per-LGA decay solve (DECISIONS.md 9.40)
+    s2l = pd.read_csv(os.path.join(ZON, 'sa1_to_lga.csv'),
+                      dtype={'SA1_CODE21': str})
+    lga_of = dict(zip(s2l.SA1_CODE21, s2l.lga_name))
+    zone_lga = np.array([lga_of.get(c, '') for c in core['SA1_CODE21']])
 
     print('joining POIs and CBD buildings to zones ...', flush=True)
     store, n_attractors = load_poi_by_zone(core)
@@ -869,15 +1107,33 @@ def main(seed=SEED, max_persons=None, day_types=None):
     cordon = cordon_nodes(zones[zones.zone_tier == 'external'])
     print('   %d cordon crossings on %s'
           % (cordon[0].size, ','.join(sorted(CORDON_ROAD_CLASSES))), flush=True)
+    gates = through_gates()
+    print('   %d through-traffic gates (boundary crossings with a same-road '
+          'calibration count within %.0f km):' % (len(gates), THROUGH_CORRIDOR_KM),
+          flush=True)
+    for g in gates:
+        print('      %-24s <- station %s %s (%.0f veh/day, %.1f km away)'
+              % (g['road'], g['station_key'], g['station_name'], g['volume'],
+                 g['station_dist_m'] / 1000.0), flush=True)
 
-    print('calibrating gravity decay against HTS journey distances ...', flush=True)
+    print('calibrating gravity decay against HTS journey distances, '
+          'per purpose x home LGA ...', flush=True)
     CUM, decay = calibrate_decay(X, Y, ATTR, meandist,
-                                 core['population'].to_numpy(dtype=float))
+                                 core['population'].to_numpy(dtype=float),
+                                 zone_lga=zone_lga, meandist_lga=meandist_lga)
     for p in PURPOSES:
         d = decay[p]
-        print('   %-4s beta=%.4f  realised %5.2f km vs HTS %5.2f km'
+        print('   %-4s aggregate beta=%.4f  realised %5.2f km vs HTS %5.2f km'
               % (p, d['beta'], d['realised_network_km'], d['hts_network_km']),
               flush=True)
+        for lga, dl in sorted(d.get('by_lga', {}).items()):
+            if dl.get('fallback'):
+                print('        %-16s falls back to the aggregate (no HTS cell)'
+                      % lga, flush=True)
+            else:
+                print('        %-16s beta=%.4f  realised %5.2f km vs HTS %5.2f km'
+                      % (lga, dl['beta'], dl['realised_network_km'],
+                         dl['hts_network_km']), flush=True)
 
     hh = pd.read_csv(os.path.join(POP, 'B1_households.csv'),
                      usecols=['household_id', 'home_x_mga56', 'home_y_mga56'])
@@ -941,6 +1197,15 @@ def main(seed=SEED, max_persons=None, day_types=None):
                  act_duration_sweep=ACT_DURATION_SWEEP,
                  external_interaction_rate=EXTERNAL_INTERACTION_RATE,
                  external_interaction_sweep=list(EXTERNAL_INTERACTION_SWEEP),
+                 through_share=THROUGH_SHARE,
+                 through_corridor_match_km=THROUGH_CORRIDOR_KM,
+                 through_outside_min_m=THROUGH_OUTSIDE_MIN_M,
+                 through_min_separation_km=THROUGH_MIN_SEP_KM,
+                 through_gates=[dict(road=g['road'], station=g['station_key'],
+                                     name=g['station_name'],
+                                     volume=g['volume'],
+                                     station_dist_m=g['station_dist_m'])
+                                for g in gates],
                  decay=decay,
                  detour_factor=DETOUR_FACTOR, detour_sweep=list(DETOUR_SWEEP),
                  detour_source=DETOUR_SOURCE,
@@ -965,7 +1230,7 @@ def main(seed=SEED, max_persons=None, day_types=None):
                   for p in ('HS', 'HO', 'WB', 'HX')}
 
         n_legs = n_tours = n_travel = 0
-        dropped = [0]
+        dropped = [0, 0]   # [over-horizon, midnight-collision (issue #37)]
         by_purpose = collections.Counter()
         anchors = collections.Counter()
         for i in range(n_persons):
@@ -1001,23 +1266,34 @@ def main(seed=SEED, max_persons=None, day_types=None):
                 by_purpose[leg['purpose']] += 1
                 stats['placement'][leg['dest_placement']] += 1
                 w.writerow(leg)
-            anchors[legs[-1]['tour_id']] += 1
+            # the #37 cap can drop the highest-numbered tour, so count the
+            # tours that exist rather than reading the last id
+            ntp = len({l['tour_id'] for l in legs})
+            anchors[ntp] += 1
             n_legs += len(legs)
-            n_tours += legs[-1]['tour_id']
+            n_tours += ntp
         ext_legs, n_ext = external_agents(zones, core, decay, u, d,
                                           EXTERNAL_PERSON_ID_BASE, store, cordon)
         for leg in ext_legs:
             w.writerow(leg)
+        thr_legs, n_thr = through_agents(gates, u, d,
+                                         EXTERNAL_PERSON_ID_BASE + n_ext)
+        for leg in thr_legs:
+            w.writerow(leg)
         fh.close()
         stats['by_day'][d] = dict(
             external_agents=n_ext, external_legs=len(ext_legs),
+            through_agents=n_thr, through_legs=len(thr_legs),
             legs=n_legs, tours=n_tours, travelling_persons=n_travel,
             legs_per_person=round(n_legs / max(n_persons, 1), 3),
             tours_per_traveller=round(n_tours / max(n_travel, 1), 3),
             tours_dropped_over_horizon=dropped[0],
+            tours_dropped_midnight_collision=dropped[1],
             by_purpose=dict(by_purpose))
-        print('%-8s %9d legs %8d tours %6.3f legs/person  dropped=%d'
-              % (d, n_legs, n_tours, n_legs / max(n_persons, 1), dropped[0]),
+        print('%-8s %9d legs %8d tours %6.3f legs/person  dropped=%d '
+              'midnight-capped=%d  through=%d'
+              % (d, n_legs, n_tours, n_legs / max(n_persons, 1), dropped[0],
+                 dropped[1], n_thr),
               flush=True)
 
     stats['placement'] = dict(stats['placement'])

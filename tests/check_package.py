@@ -1636,14 +1636,50 @@ if True:
               'sweep, not a CLI default - it decides which road_aadt targets are '
               'scorable at all, so it is a lever on the reported fit')
 
-# ---- report ----
-print('PASS %d' % len(OK))
-# ---- P. the live run view — REMOVED, being rebuilt ----
-# `src/analyse/run_monitor.py` and its coverage were deleted deliberately; the
-# replacement display is a separate piece of work. The four `RUN.monitor.*`
-# registry fields are RETAINED for it and currently reach nothing, which is the
-# defect class this suite exists to catch - it is accepted here only because the
-# replacement is in flight. Restore coverage with it.
+# ---- P. the live run view, rebuilt (DECISIONS.md 9.36) ----
+# The replacement for the deleted `run_monitor.py` is `run_view.py` (served by
+# `run_matsim.py` before MATSim starts) plus `summarise_run.py` (closes a
+# finished run). The defect class this section guards is the one that killed
+# the first view: RUN.monitor.* fields that resolve, validate and reach
+# nothing. A source reference is a weaker proof than moving the value, but the
+# view is a display, not the model - the strong probe (question 7) covers the
+# bound fields, and this pins the consumers so a deletion cannot go unnoticed
+# again.
+_view_src = ''
+_summ_src = ''
+_runm_src = ''
+for _p, _var in (('src/analyse/run_view.py', 'view'),
+                 ('src/analyse/summarise_run.py', 'summ'),
+                 ('src/run/run_matsim.py', 'runm')):
+    _fp = _p
+    check(os.path.exists(_fp), '%s exists - the live view is a P4 deliverable '
+          '(board item 9), not an optional extra' % _p)
+    if os.path.exists(_fp):
+        _txt = open(_fp, encoding='utf-8').read()
+        if _var == 'view':
+            _view_src = _txt
+        elif _var == 'summ':
+            _summ_src = _txt
+        else:
+            _runm_src = _txt
+if _registry is not None and _view_src and _runm_src:
+    for _k in ('RUN.monitor.enabled', 'RUN.monitor.port', 'RUN.monitor.poll_s',
+               'RUN.monitor.stall_s', 'RUN.monitor.live_poll_s'):
+        check(_fields.get(_k) is not None
+              and (_k in _view_src or _k in _runm_src),
+              '%s is declared AND read by the view or the runner - these '
+              'reached nothing for a full day once, while the board said the '
+              'view was rebuilt' % _k)
+    check('live view:' in _runm_src,
+          'run_matsim.py prints the live view url before MATSim starts, so a '
+          'running view is discoverable without reading code')
+if _registry is not None and _summ_src:
+    _drift_f = _fields.get('RUN.relaxation.drift_tolerance_pp')
+    check(_drift_f is not None and _drift_f.get('sweep') is not None
+          and 'RUN.relaxation.drift_tolerance_pp' in _summ_src,
+          'the relaxation verdict compares against the DECLARED drift '
+          'tolerance, swept, read by summarise_run.py - it replaced a '
+          'hard-coded DRIFT_THRESHOLD_PP')
 
 # ---- Q. parking is priced, and the price is DERIVED rather than drawn ----
 # Two defects meet here (issue #33, DECISIONS.md 9.31). The package declared a
@@ -1796,6 +1832,8 @@ if _registry is not None and os.path.exists(PRICE_ZONES):
                   '%s/%s: the charge cap is the declared max stay' % (_sid, _d))
 
 
+# ---- report ----
+print('PASS %d' % len(OK))
 for m in OK:
     print('  ok    %s' % m)
 if WARN:

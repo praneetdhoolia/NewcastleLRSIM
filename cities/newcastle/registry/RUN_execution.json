@@ -102,7 +102,7 @@
       "status": "unobtained",
       "decisions_ref": "9.7, 15",
       "matsim_param": "controler.lastIteration",
-      "description": "Iterations to relaxation. NO JUSTIFIED VALUE HAS BEEN MEASURED. Two 1% runs of 250 iterations showed the model had NOT converged: innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. The shipped scenario configs carry 100, which is known wrong and left in place rather than replaced by another unjustified number; run_matsim.py deliberately gives --iterations NO DEFAULT. Everything downstream needs this number (issue 5)."
+      "description": "Iterations to relaxation. NO JUSTIFIED VALUE HAS BEEN MEASURED. Two 1% runs of 250 iterations showed the model had NOT converged: innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. The shipped scenario configs carry 250 - the sweep floor, the largest value measured insufficient, emitted so a config is runnable while remaining visibly provisional; run_matsim.py deliberately gives --iterations NO DEFAULT. Everything downstream needs this number (issue 5)."
     },
     "RUN.controler.first_iteration": {
       "value": 0,

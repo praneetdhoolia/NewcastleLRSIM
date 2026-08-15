@@ -362,6 +362,70 @@
         "src/build/build_activity_chains.py"
       ]
     },
+    "B.external.through_share": {
+      "value": 0.35,
+      "units": "share_of_aadt",
+      "source": "assumed",
+      "sweep": [
+        0.15,
+        0.6
+      ],
+      "sweep_basis": "No through-share survey exists for the study boundary and no journey-linked data can separate through from local traffic at a count station, so the share is assumed and swept wide. The motivating observation is V113 (the M1 at Wyee, 48,016 AADT, a calibration row): the Sydney-Newcastle motorway at the boundary is the road most dominated by through traffic, and the model routed zero vehicles onto it because the demand contained no through movement at all (issue #20).",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "Share of the AADT measured at a cordon-gate calibration count station that is through traffic - vehicles whose journey neither starts nor ends inside the study area. Applied symmetrically: half of the through component enters at the gate and half exits, so the generated inbound volume at gate i is 0.5 x through_share x AADT_i. Seeded from CALIBRATION count rows only; the split filter is structural in the builder and no holdout row is ever read.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.through_corridor_match_km": {
+      "value": 30.0,
+      "units": "km",
+      "source": "assumed",
+      "sweep": [
+        10.0,
+        50.0
+      ],
+      "sweep_basis": "MEASURED MOTIVATION: only one calibration station sits within 2 km of the boundary crossing it measures (the M1 at Wyee, 273 m); the others that observe a boundary corridor sit 16-24 km inside it (Pacific Highway at Tomago, New England Highway at Tarro). Matching by same road NAME along the corridor is what the held data supports; the radius bounds how far along the corridor a station may sit and still anchor the gate. An inland station overstates the boundary volume by its local traffic - absorbed, stated, by the through_share sweep.",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "A boundary-crossing road edge becomes a through-traffic gate only if a calibration count station ON THE SAME NAMED ROAD lies within this distance of the crossing; the nearest such station anchors the gate's volume. Beyond it the corridor is unobserved and generates nothing.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.through_outside_min_m": {
+      "value": 1000.0,
+      "units": "metres",
+      "source": "assumed",
+      "sweep": [
+        300.0,
+        3000.0
+      ],
+      "sweep_basis": "The dissolved study boundary includes the coastline and the harbour, so a road bridging the Hunter River 'crosses the boundary' without leaving the study area - Hannell Street at Wickham is the measured example, and its station would otherwise seed through traffic entering in central Newcastle. 1 km separates a genuine departure from a river crossing; the sweep brackets that judgement.",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "A boundary-crossing edge counts as leaving the study area only if its outside endpoint lies at least this far beyond the dissolved boundary. Filters water crossings INSIDE the area (harbour bridges) out of the gate set.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.external.through_min_separation_km": {
+      "value": 30.0,
+      "units": "km",
+      "source": "assumed",
+      "sweep": [
+        20.0,
+        50.0
+      ],
+      "sweep_basis": "The study area spans roughly 60-90 km. A through trip must actually cross it: two gates a few kilometres apart on the same corridor edge would otherwise exchange 'through' trips that never leave the boundary region. 30 km forces entry and exit to lie on opposite sides; the sweep brackets how strict that requirement is.",
+      "status": "active",
+      "decisions_ref": "9.41",
+      "description": "Minimum straight-line separation between the entry gate and the exit gate for a generated trip to count as through traffic. Exit gates closer than this to the entry are excluded from its destination set.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
     "B.external.day_factor": {
       "value": {
         "WEEKDAY": 1.0,
@@ -492,6 +556,22 @@
       "description": "Simulation day horizon, 30 hours. Matches RUN.qsim.end_time_h. No leg may arrive after it; the P1 chains had 1.77% arriving late, latest 36.0 h. The build script writes it as the expression 30 * 3600, which is not a literal and so is not compared by value in the legacy-drift check.",
       "consumers": [
         "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.population.bike_available_rate": {
+      "value": 0.5,
+      "units": "share",
+      "source": "assumed",
+      "sweep": [
+        0.3,
+        1.0
+      ],
+      "sweep_basis": "The census carries no bicycle-ownership variable, so any rate is assumed. The upper bound 1.0 is the previous silent behaviour (bike available to everyone), retained in the sweep so the constraint's own effect is measurable; the lower bound allows for household access well below half. Re-size against the observed 3.2% bike share only AFTER the post-rebuild run re-measures the modelled share - the old 5x was measured on a model that no longer exists (issue #29).",
+      "status": "active",
+      "decisions_ref": "9.39",
+      "description": "Share of synthetic persons with a bicycle available to them. Until this field existed, car was the only mode whose ownership was modelled while bike was silently available to everyone - a structural bias against car in the choice set itself, undeclared anywhere (issue #29, SPEC_AUDIT A3). Drawn deterministically per person in build_matsim_plans.py and consumed by the same availability calculator that enforces rideAvail. External boundary agents keep bike available: they are household-less by construction, so no ownership identity exists to derive a denial from, and the choice is recorded in DECISIONS.md 9.39.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
       ]
     },
     "B.population.ride_requires_household_driver": {
