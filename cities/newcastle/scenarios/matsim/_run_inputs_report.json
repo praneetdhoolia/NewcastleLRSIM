@@ -7,12 +7,12 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -46,10 +46,10 @@
             ]
           ],
           "vehicle_refs": 1908,
-          "stop_facilities_kept": 4097,
+          "stop_facilities_kept": 4114,
           "stop_facilities_dropped": 74,
-          "transfer_relations_kept": 1242,
-          "transfer_relations_dropped": 34
+          "transfer_relations_kept": 1260,
+          "transfer_relations_dropped": 36
         },
         "SAT": {
           "routes_kept": 409,
@@ -83,9 +83,9 @@
           ],
           "vehicle_refs": 995,
           "stop_facilities_kept": 2142,
-          "stop_facilities_dropped": 2029,
-          "transfer_relations_kept": 276,
-          "transfer_relations_dropped": 1000
+          "stop_facilities_dropped": 2046,
+          "transfer_relations_kept": 278,
+          "transfer_relations_dropped": 1018
         },
         "SUN": {
           "routes_kept": 318,
@@ -118,10 +118,10 @@
             ]
           ],
           "vehicle_refs": 867,
-          "stop_facilities_kept": 2163,
-          "stop_facilities_dropped": 2008,
-          "transfer_relations_kept": 268,
-          "transfer_relations_dropped": 1008
+          "stop_facilities_kept": 2164,
+          "stop_facilities_dropped": 2024,
+          "transfer_relations_kept": 274,
+          "transfer_relations_dropped": 1022
         }
       }
     },
@@ -132,12 +132,12 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -171,10 +171,10 @@
             ]
           ],
           "vehicle_refs": 2115,
-          "stop_facilities_kept": 4110,
-          "stop_facilities_dropped": 71,
-          "transfer_relations_kept": 1252,
-          "transfer_relations_dropped": 24
+          "stop_facilities_kept": 4127,
+          "stop_facilities_dropped": 72,
+          "transfer_relations_kept": 1268,
+          "transfer_relations_dropped": 30
         },
         "SAT": {
           "routes_kept": 405,
@@ -207,10 +207,10 @@
             ]
           ],
           "vehicle_refs": 1132,
-          "stop_facilities_kept": 2151,
-          "stop_facilities_dropped": 2030,
+          "stop_facilities_kept": 2150,
+          "stop_facilities_dropped": 2049,
           "transfer_relations_kept": 276,
-          "transfer_relations_dropped": 1000
+          "transfer_relations_dropped": 1022
         },
         "SUN": {
           "routes_kept": 314,
@@ -244,9 +244,9 @@
           ],
           "vehicle_refs": 1004,
           "stop_facilities_kept": 2172,
-          "stop_facilities_dropped": 2009,
-          "transfer_relations_kept": 268,
-          "transfer_relations_dropped": 1008
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 272,
+          "transfer_relations_dropped": 1026
         }
       }
     },
@@ -254,12 +254,12 @@
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -300,10 +300,10 @@
             ]
           ],
           "vehicle_refs": 2139,
-          "stop_facilities_kept": 4103,
-          "stop_facilities_dropped": 71,
-          "transfer_relations_kept": 1230,
-          "transfer_relations_dropped": 24
+          "stop_facilities_kept": 4123,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1262,
+          "transfer_relations_dropped": 36
         },
         "SAT": {
           "routes_kept": 405,
@@ -343,153 +343,10 @@
             ]
           ],
           "vehicle_refs": 1128,
-          "stop_facilities_kept": 2147,
-          "stop_facilities_dropped": 2027,
-          "transfer_relations_kept": 264,
-          "transfer_relations_dropped": 990
-        },
-        "SUN": {
-          "routes_kept": 314,
-          "routes_dropped": 1400,
-          "departures": 1002,
-          "departures_dropped": 3267,
-          "routes_kept_under_a_foreign_day_id": 122,
-          "vehicles": 1002,
-          "vehicle_capacity_patched": [
-            [
-              "Bus",
-              "70",
-              "0",
-              "44",
-              "18"
-            ],
-            [
-              "Ferry",
-              "250",
-              "0",
-              "149",
-              "51"
-            ],
-            [
-              "Rail",
-              "400",
-              "0",
-              "98",
-              "48"
-            ],
-            [
-              "Tram",
-              "180",
-              "0",
-              "60",
-              "210"
-            ]
-          ],
-          "vehicle_refs": 1002,
-          "stop_facilities_kept": 2168,
-          "stop_facilities_dropped": 2006,
-          "transfer_relations_kept": 256,
-          "transfer_relations_dropped": 998
-        }
-      }
-    },
-    "S2a": {
-      "road_variant": "net_base2026",
-      "patch_rows": 0,
-      "links_touched": {
-        "ride_links": 143891
-      },
-      "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
-      },
-      "days": {
-        "WEEKDAY": {
-          "routes_kept": 1270,
-          "routes_dropped": 444,
-          "departures": 2139,
-          "departures_dropped": 2130,
-          "routes_kept_under_a_foreign_day_id": 39,
-          "vehicles": 2139,
-          "vehicle_capacity_patched": [
-            [
-              "Bus",
-              "70",
-              "0",
-              "44",
-              "18"
-            ],
-            [
-              "Ferry",
-              "250",
-              "0",
-              "149",
-              "51"
-            ],
-            [
-              "Rail",
-              "400",
-              "0",
-              "98",
-              "48"
-            ],
-            [
-              "Tram",
-              "180",
-              "0",
-              "60",
-              "210"
-            ]
-          ],
-          "vehicle_refs": 2139,
-          "stop_facilities_kept": 4104,
-          "stop_facilities_dropped": 73,
-          "transfer_relations_kept": 1238,
-          "transfer_relations_dropped": 30
-        },
-        "SAT": {
-          "routes_kept": 405,
-          "routes_dropped": 1309,
-          "departures": 1128,
-          "departures_dropped": 3141,
-          "routes_kept_under_a_foreign_day_id": 114,
-          "vehicles": 1128,
-          "vehicle_capacity_patched": [
-            [
-              "Bus",
-              "70",
-              "0",
-              "44",
-              "18"
-            ],
-            [
-              "Ferry",
-              "250",
-              "0",
-              "149",
-              "51"
-            ],
-            [
-              "Rail",
-              "400",
-              "0",
-              "98",
-              "48"
-            ],
-            [
-              "Tram",
-              "180",
-              "0",
-              "60",
-              "210"
-            ]
-          ],
-          "vehicle_refs": 1128,
-          "stop_facilities_kept": 2149,
-          "stop_facilities_dropped": 2028,
-          "transfer_relations_kept": 270,
-          "transfer_relations_dropped": 998
+          "stop_facilities_kept": 2148,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 268,
+          "transfer_relations_dropped": 1030
         },
         "SUN": {
           "routes_kept": 314,
@@ -530,22 +387,22 @@
           ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2170,
-          "stop_facilities_dropped": 2007,
-          "transfer_relations_kept": 262,
-          "transfer_relations_dropped": 1006
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 264,
+          "transfer_relations_dropped": 1034
         }
       }
     },
-    "S2b": {
+    "S2a": {
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -586,10 +443,10 @@
             ]
           ],
           "vehicle_refs": 2139,
-          "stop_facilities_kept": 4103,
-          "stop_facilities_dropped": 71,
-          "transfer_relations_kept": 1230,
-          "transfer_relations_dropped": 24
+          "stop_facilities_kept": 4123,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1262,
+          "transfer_relations_dropped": 36
         },
         "SAT": {
           "routes_kept": 405,
@@ -629,10 +486,10 @@
             ]
           ],
           "vehicle_refs": 1128,
-          "stop_facilities_kept": 2147,
-          "stop_facilities_dropped": 2027,
-          "transfer_relations_kept": 264,
-          "transfer_relations_dropped": 990
+          "stop_facilities_kept": 2148,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 268,
+          "transfer_relations_dropped": 1030
         },
         "SUN": {
           "routes_kept": 314,
@@ -672,10 +529,153 @@
             ]
           ],
           "vehicle_refs": 1002,
-          "stop_facilities_kept": 2168,
-          "stop_facilities_dropped": 2006,
-          "transfer_relations_kept": 256,
-          "transfer_relations_dropped": 998
+          "stop_facilities_kept": 2170,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 264,
+          "transfer_relations_dropped": 1034
+        }
+      }
+    },
+    "S2b": {
+      "road_variant": "net_base2026",
+      "patch_rows": 0,
+      "links_touched": {
+        "ride_links": 168033
+      },
+      "parking": {
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
+      },
+      "days": {
+        "WEEKDAY": {
+          "routes_kept": 1270,
+          "routes_dropped": 444,
+          "departures": 2139,
+          "departures_dropped": 2130,
+          "routes_kept_under_a_foreign_day_id": 39,
+          "vehicles": 2139,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 2139,
+          "stop_facilities_kept": 4124,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1274,
+          "transfer_relations_dropped": 36
+        },
+        "SAT": {
+          "routes_kept": 405,
+          "routes_dropped": 1309,
+          "departures": 1128,
+          "departures_dropped": 3141,
+          "routes_kept_under_a_foreign_day_id": 114,
+          "vehicles": 1128,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1128,
+          "stop_facilities_kept": 2148,
+          "stop_facilities_dropped": 2050,
+          "transfer_relations_kept": 268,
+          "transfer_relations_dropped": 1042
+        },
+        "SUN": {
+          "routes_kept": 314,
+          "routes_dropped": 1400,
+          "departures": 1002,
+          "departures_dropped": 3267,
+          "routes_kept_under_a_foreign_day_id": 122,
+          "vehicles": 1002,
+          "vehicle_capacity_patched": [
+            [
+              "Bus",
+              "70",
+              "0",
+              "44",
+              "18"
+            ],
+            [
+              "Ferry",
+              "250",
+              "0",
+              "149",
+              "51"
+            ],
+            [
+              "Rail",
+              "400",
+              "0",
+              "98",
+              "48"
+            ],
+            [
+              "Tram",
+              "180",
+              "0",
+              "60",
+              "210"
+            ]
+          ],
+          "vehicle_refs": 1002,
+          "stop_facilities_kept": 2170,
+          "stop_facilities_dropped": 2028,
+          "transfer_relations_kept": 264,
+          "transfer_relations_dropped": 1046
         }
       }
     },
@@ -686,12 +686,12 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -732,10 +732,10 @@
             ]
           ],
           "vehicle_refs": 2139,
-          "stop_facilities_kept": 4103,
-          "stop_facilities_dropped": 71,
-          "transfer_relations_kept": 1230,
-          "transfer_relations_dropped": 24
+          "stop_facilities_kept": 4125,
+          "stop_facilities_dropped": 72,
+          "transfer_relations_kept": 1262,
+          "transfer_relations_dropped": 30
         },
         "SAT": {
           "routes_kept": 405,
@@ -775,10 +775,10 @@
             ]
           ],
           "vehicle_refs": 1128,
-          "stop_facilities_kept": 2147,
-          "stop_facilities_dropped": 2027,
+          "stop_facilities_kept": 2146,
+          "stop_facilities_dropped": 2051,
           "transfer_relations_kept": 264,
-          "transfer_relations_dropped": 990
+          "transfer_relations_dropped": 1028
         },
         "SUN": {
           "routes_kept": 314,
@@ -819,9 +819,9 @@
           ],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2168,
-          "stop_facilities_dropped": 2006,
-          "transfer_relations_kept": 256,
-          "transfer_relations_dropped": 998
+          "stop_facilities_dropped": 2029,
+          "transfer_relations_kept": 260,
+          "transfer_relations_dropped": 1032
         }
       }
     },
@@ -829,12 +829,12 @@
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -868,10 +868,10 @@
             ]
           ],
           "vehicle_refs": 2191,
-          "stop_facilities_kept": 4104,
-          "stop_facilities_dropped": 73,
-          "transfer_relations_kept": 1246,
-          "transfer_relations_dropped": 30
+          "stop_facilities_kept": 4123,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1270,
+          "transfer_relations_dropped": 36
         },
         "SAT": {
           "routes_kept": 405,
@@ -904,10 +904,10 @@
             ]
           ],
           "vehicle_refs": 1184,
-          "stop_facilities_kept": 2150,
-          "stop_facilities_dropped": 2027,
-          "transfer_relations_kept": 280,
-          "transfer_relations_dropped": 996
+          "stop_facilities_kept": 2149,
+          "stop_facilities_dropped": 2048,
+          "transfer_relations_kept": 278,
+          "transfer_relations_dropped": 1028
         },
         "SUN": {
           "routes_kept": 314,
@@ -941,9 +941,9 @@
           ],
           "vehicle_refs": 1056,
           "stop_facilities_kept": 2171,
-          "stop_facilities_dropped": 2006,
-          "transfer_relations_kept": 272,
-          "transfer_relations_dropped": 1004
+          "stop_facilities_dropped": 2026,
+          "transfer_relations_kept": 274,
+          "transfer_relations_dropped": 1032
         }
       }
     },
@@ -953,12 +953,12 @@
       "links_touched": {
         "num_lanes_per_dir": 180,
         "kerbside_use": 302,
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -999,10 +999,10 @@
             ]
           ],
           "vehicle_refs": 2139,
-          "stop_facilities_kept": 4105,
-          "stop_facilities_dropped": 71,
-          "transfer_relations_kept": 1230,
-          "transfer_relations_dropped": 24
+          "stop_facilities_kept": 4126,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1264,
+          "transfer_relations_dropped": 36
         },
         "SAT": {
           "routes_kept": 406,
@@ -1042,10 +1042,10 @@
             ]
           ],
           "vehicle_refs": 1128,
-          "stop_facilities_kept": 2149,
-          "stop_facilities_dropped": 2027,
-          "transfer_relations_kept": 264,
-          "transfer_relations_dropped": 990
+          "stop_facilities_kept": 2151,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 270,
+          "transfer_relations_dropped": 1030
         },
         "SUN": {
           "routes_kept": 315,
@@ -1085,10 +1085,10 @@
             ]
           ],
           "vehicle_refs": 1002,
-          "stop_facilities_kept": 2170,
-          "stop_facilities_dropped": 2006,
-          "transfer_relations_kept": 256,
-          "transfer_relations_dropped": 998
+          "stop_facilities_kept": 2173,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 266,
+          "transfer_relations_dropped": 1034
         }
       }
     },
@@ -1098,12 +1098,12 @@
       "links_touched": {
         "num_lanes_per_dir": 280,
         "kerbside_use": 498,
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -1144,10 +1144,10 @@
             ]
           ],
           "vehicle_refs": 2139,
-          "stop_facilities_kept": 4110,
-          "stop_facilities_dropped": 71,
-          "transfer_relations_kept": 1236,
-          "transfer_relations_dropped": 24
+          "stop_facilities_kept": 4131,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1270,
+          "transfer_relations_dropped": 36
         },
         "SAT": {
           "routes_kept": 406,
@@ -1187,10 +1187,10 @@
             ]
           ],
           "vehicle_refs": 1128,
-          "stop_facilities_kept": 2154,
-          "stop_facilities_dropped": 2027,
-          "transfer_relations_kept": 270,
-          "transfer_relations_dropped": 990
+          "stop_facilities_kept": 2156,
+          "stop_facilities_dropped": 2049,
+          "transfer_relations_kept": 276,
+          "transfer_relations_dropped": 1030
         },
         "SUN": {
           "routes_kept": 315,
@@ -1230,10 +1230,10 @@
             ]
           ],
           "vehicle_refs": 1002,
-          "stop_facilities_kept": 2175,
-          "stop_facilities_dropped": 2006,
-          "transfer_relations_kept": 262,
-          "transfer_relations_dropped": 998
+          "stop_facilities_kept": 2178,
+          "stop_facilities_dropped": 2027,
+          "transfer_relations_kept": 272,
+          "transfer_relations_dropped": 1034
         }
       }
     },
@@ -1244,12 +1244,12 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_links": 143891
+        "ride_links": 168033
       },
       "parking": {
-        "car_links": 143891,
-        "priced_links": 22353,
-        "priced_zones": 162
+        "car_links": 168033,
+        "priced_links": 22577,
+        "priced_zones": 160
       },
       "days": {
         "WEEKDAY": {
@@ -1283,10 +1283,10 @@
             ]
           ],
           "vehicle_refs": 1887,
-          "stop_facilities_kept": 4092,
-          "stop_facilities_dropped": 71,
-          "transfer_relations_kept": 1228,
-          "transfer_relations_dropped": 24
+          "stop_facilities_kept": 4113,
+          "stop_facilities_dropped": 74,
+          "transfer_relations_kept": 1270,
+          "transfer_relations_dropped": 36
         },
         "SAT": {
           "routes_kept": 403,
@@ -1319,10 +1319,10 @@
             ]
           ],
           "vehicle_refs": 980,
-          "stop_facilities_kept": 2136,
-          "stop_facilities_dropped": 2027,
-          "transfer_relations_kept": 262,
-          "transfer_relations_dropped": 990
+          "stop_facilities_kept": 2137,
+          "stop_facilities_dropped": 2050,
+          "transfer_relations_kept": 266,
+          "transfer_relations_dropped": 1040
         },
         "SUN": {
           "routes_kept": 312,
@@ -1355,10 +1355,10 @@
             ]
           ],
           "vehicle_refs": 852,
-          "stop_facilities_kept": 2157,
-          "stop_facilities_dropped": 2006,
-          "transfer_relations_kept": 254,
-          "transfer_relations_dropped": 998
+          "stop_facilities_kept": 2159,
+          "stop_facilities_dropped": 2028,
+          "transfer_relations_kept": 262,
+          "transfer_relations_dropped": 1044
         }
       }
     }

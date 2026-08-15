@@ -591,6 +591,7 @@ w1441524751,1441524751,Lambton Road,primary,37.6,corridor_trunk:S4;corridor_trun
 w1441529775,1441529775,Brunker Road,secondary,38.8,corridor_trunk:S4;corridor_trunk:S5,1,inf,1,osm,2.0,osm,60.0,speed_zones,3.5,imputed_rule,through;right|right,osm,unknown,imputed_rule,1400,imputed_rule,inf,0.0,0.0,inf,base2026
 w1445695925,1445695925,Royal Place,secondary,10.1,corridor_trunk:S5,1,inf,0,imputed_rule,1.0,osm,50.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1400,imputed_rule,inf,1717.2,0.0,inf,base2026
 w1445695926,1445695926,Lambton Road,primary,51.6,corridor_trunk:S5,1,inf,1,osm,3.0,osm,60.0,speed_zones,3.5,imputed_rule,through|through|right,osm,unknown,imputed_rule,1600,imputed_rule,inf,1717.7,0.0,inf,base2026
+w1548482124,1548482124,Alma Road,primary,18.0,corridor_trunk:S5,1,inf,1,osm,2.0,osm,60.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1600,imputed_rule,inf,1769.3,51.7,inf,base2026
 w173160001,173160001,Rugby Road,primary,139.8,corridor_trunk:S5,1,inf,0,osm,1.0,osm,60.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1600,imputed_rule,inf,inf,0.0,inf,base2026
 w173577838,173577838,Russell Road,primary,559.2,corridor_trunk:S5,1,inf,0,osm,1.0,osm,50.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1600,imputed_rule,inf,inf,0.0,inf,base2026
 w185078567,185078567,Lambton Road,primary,73.8,corridor_trunk:S5,1,inf,1,osm,3.0,osm,60.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1600,imputed_rule,inf,1112.9,10.0,inf,base2026
@@ -636,7 +637,6 @@ w419705392,419705392,Lookout Road,trunk,9.1,corridor_trunk:S5,1,inf,1,osm,2.0,os
 w419705393,419705393,Lookout Road,trunk,10.0,corridor_trunk:S5,1,inf,1,osm,4.0,osm,50.0,speed_zones,3.5,imputed_rule,through|through|right|right,osm,unknown,imputed_rule,1800,imputed_rule,inf,inf,12.5,inf,base2026
 w448302144,448302144,Lookout Road,trunk,132.8,corridor_trunk:S5,1,inf,1,osm,2.0,osm,60.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1800,imputed_rule,inf,inf,0.0,inf,base2026
 w449023639,449023639,Lookout Road,trunk,37.3,corridor_trunk:S5,1,inf,1,osm,3.0,osm,40.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1800,imputed_rule,inf,inf,11.1,inf,base2026
-w454125585,454125585,Alma Road,primary,43.4,corridor_trunk:S5,1,inf,1,osm,2.0,osm,60.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1600,imputed_rule,inf,1769.3,51.7,inf,base2026
 w46353789,46353789,Kookaburra Circuit,unclassified,46.1,corridor_trunk:S5,1,inf,0,imputed_rule,1.0,imputed_rule,50.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1000,imputed_rule,inf,inf,0.0,inf,base2026
 w490457968,490457968,Turton Road,primary,73.0,corridor_trunk:S5,1,inf,1,osm,3.0,osm,60.0,speed_zones,3.5,imputed_rule,through|through|right,osm,unknown,imputed_rule,1600,imputed_rule,inf,1021.1,0.0,inf,base2026
 w490457969,490457969,Bridges Road,primary,37.3,corridor_trunk:S5,1,inf,1,osm,2.0,osm,60.0,speed_zones,3.5,imputed_rule,,absent,unknown,imputed_rule,1600,imputed_rule,inf,1124.4,47.4,inf,base2026

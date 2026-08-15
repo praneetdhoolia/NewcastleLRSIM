@@ -1,24 +1,27 @@
 path,stage,bytes,rows,produced_by,source,source_url,licence,retrieved,sha256
 data/raw/_osm_fetch.log,raw,539,,,,,,,34650b9503db5b75d0b1f3a446d283319b05a483a0155c16aed9fccb4dcc5d3e
 data/raw/_s3_historical_gtfs_listing.txt,raw,6209826,,,,,,,b00abef076427693c54faf49963a622157c93606b932c787f4d3c32ab4c6393a
-data/raw/provenance_abs_dem.json,raw,4624,,,,,,,77f2e89b091a60a8904aee12089c618adfa91ec17e2b9d3939268c7ab5f5aa15
+data/raw/provenance_abs_dem.json,raw,6258,,,,,,,995509b1f3f97ea7c42c13c31ee1f57ea015aa206ff124ee87109d983871f94e
 data/raw/provenance_open_data.json,raw,11257,,,,,,,37e280a7808f53003a37c4789c52682ca95d3aa90d44cccc6ef9e3a99dcec2f6
-data/raw/boundaries/DZN_2021_AUST_GDA2020_SHP.zip,raw,62160137,9,cities/newcastle/extract/fetch_abs_dem.py,ABS Destination Zones 2021 (workplace geography),https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/DZN_2021_AUST_GDA2020_SHP.zip,CC-BY 4.0,2026-08-10,40c867bb50c9816d7fae54f75c2641b32db78a4c910ddd4a43a7727fc0ddb417
-data/raw/boundaries/LGA_2021_AUST_GDA2020_SHP.zip,raw,39858973,9,cities/newcastle/extract/fetch_abs_dem.py,ABS LGA 2021 boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/LGA_2021_AUST_GDA2020_SHP.zip,CC-BY 4.0,2026-08-10,3b42e527d3fb946fec937ed6f76b8cad9882047b46188295988c3bcaab90b99a
-data/raw/boundaries/SA1_2021_AUST_SHP_GDA2020.zip,raw,100630598,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA1 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA1_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-10,177adac8fcc931355318984471e0e6ac76b42d1119acf3c4e3842a7c6f25ed18
-data/raw/boundaries/SA2_2021_AUST_SHP_GDA2020.zip,raw,50678443,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA2 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA2_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-10,c4dc5bac209f01177eaa0715d27f32cdb09ab5784fb82979741556d2f8e6d148
-data/raw/boundaries/SA3_2021_AUST_SHP_GDA2020.zip,raw,35980764,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA3 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA3_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-10,05215ddc3a577373aa929038cad4cd0fddf910d2f62dbc36cc9c628b5e0a6a32
-data/raw/census/2021_GCP_SA1_for_NSW_short-header.zip,raw,124600647,129,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 General Community Profile, SA1, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_GCP_SA1_for_NSW_short-header.zip,CC-BY 4.0,2026-08-10,c33220ea825e8849affc2024f97fd4c3cdb2d8bdd7431f2c91f6c3ce7965ca93
-data/raw/census/2021_GCP_SA2_for_NSW_short-header.zip,raw,14761508,129,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 GCP, SA2, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_GCP_SA2_for_NSW_short-header.zip,CC-BY 4.0,2026-08-10,f59a123df5cbdb70439bafd66eb931881c8c962ad696c8c1d55dd772c76938bc
+data/raw/boundaries/DZN_2021_AUST_GDA2020_SHP.zip,raw,62160137,9,cities/newcastle/extract/fetch_abs_dem.py,ABS Destination Zones 2021 (workplace geography),https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/DZN_2021_AUST_GDA2020_SHP.zip,CC-BY 4.0,2026-08-16,40c867bb50c9816d7fae54f75c2641b32db78a4c910ddd4a43a7727fc0ddb417
+data/raw/boundaries/LGA_2021_AUST_GDA2020_SHP.zip,raw,39858973,9,cities/newcastle/extract/fetch_abs_dem.py,ABS LGA 2021 boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/LGA_2021_AUST_GDA2020_SHP.zip,CC-BY 4.0,2026-08-16,3b42e527d3fb946fec937ed6f76b8cad9882047b46188295988c3bcaab90b99a
+data/raw/boundaries/SA1_2021_AUST_SHP_GDA2020.zip,raw,100630598,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA1 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA1_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-16,177adac8fcc931355318984471e0e6ac76b42d1119acf3c4e3842a7c6f25ed18
+data/raw/boundaries/SA2_2021_AUST_SHP_GDA2020.zip,raw,50678443,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA2 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA2_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-16,c4dc5bac209f01177eaa0715d27f32cdb09ab5784fb82979741556d2f8e6d148
+data/raw/boundaries/SA3_2021_AUST_SHP_GDA2020.zip,raw,35980764,5,cities/newcastle/extract/fetch_abs_dem.py,ABS ASGS Ed3 SA3 2021 digital boundaries,https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files/SA3_2021_AUST_SHP_GDA2020.zip,CC-BY 4.0,2026-08-16,05215ddc3a577373aa929038cad4cd0fddf910d2f62dbc36cc9c628b5e0a6a32
+data/raw/census/2021_GCP_SA1_for_NSW_short-header.zip,raw,124600647,129,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 General Community Profile, SA1, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_GCP_SA1_for_NSW_short-header.zip,CC-BY 4.0,2026-08-16,c33220ea825e8849affc2024f97fd4c3cdb2d8bdd7431f2c91f6c3ce7965ca93
+data/raw/census/2021_GCP_SA2_for_NSW_short-header.zip,raw,14761508,129,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 GCP, SA2, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_GCP_SA2_for_NSW_short-header.zip,CC-BY 4.0,2026-08-16,f59a123df5cbdb70439bafd66eb931881c8c962ad696c8c1d55dd772c76938bc
 data/raw/census/2021_PEP_SA1_for_NSW_short-header.zip,raw,86202163,78,cities/newcastle/extract/fetch_abs_dem.py,,,,,a9147cd46f5c2ed19b31b25793839f855aa720084870053f4760c85a56fe94c0
-data/raw/census/2021_PEP_SA2_for_NSW_short-header.zip,raw,10394702,78,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 Place of Enumeration Profile, SA2, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_PEP_SA2_for_NSW_short-header.zip,CC-BY 4.0,2026-08-10,451db76943125d7e6b5a38bc22843f9090094c34833d7cd3b056a0838e6e0da0
+data/raw/census/2021_PEP_SA2_for_NSW_short-header.zip,raw,10394702,78,cities/newcastle/extract/fetch_abs_dem.py,"ABS Census 2021 Place of Enumeration Profile, SA2, NSW",https://www.abs.gov.au/census/find-census-data/datapacks/download/2021_PEP_SA2_for_NSW_short-header.zip,CC-BY 4.0,2026-08-16,451db76943125d7e6b5a38bc22843f9090094c34833d7cd3b056a0838e6e0da0
 data/raw/census/2021_WPP_SA2_for_NSW_short-header.zip,raw,10277085,98,cities/newcastle/extract/fetch_abs_dem.py,,,,,f3a0522d5772e50e2f3b315787421ecb9f8f32e43c26d69ff960c9219256f39c
 data/raw/counts/rms_documentation.pdf,raw,1648844,,cities/newcastle/extract/fetch_open_data.py,NSW traffic volume counts documentation,https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/13d061b1-1606-49b5-b182-d36ce0801f14/download/rms-dataset-documentation-nsw-traffic-volume-counts_0.pdf,CC-BY 4.0,2026-08-12,97983a8d3faae1f084408bd2896f7224a47704d21c9f663445573b6915cee074
 data/raw/counts/rms_hourly_permanent.zip,raw,871235013,5,cities/newcastle/extract/fetch_open_data.py,"NSW road traffic counts hourly, permanent stations",https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/bca06c7e-30be-4a90-bc8b-c67428c0823a/download/road_traffic_counts_hourly_permanent.zip,CC-BY 4.0,2026-08-12,skipped_large
 data/raw/counts/rms_station_reference.csv,raw,774192,1783,cities/newcastle/extract/fetch_open_data.py,NSW road traffic count station reference,https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/c65ad7b4-0257-4cc6-953e-5299ac8d27ba/download/road_traffic_counts_station_reference.csv,CC-BY 4.0,2026-08-12,bea9249941c27ae8ebd4c724e8bffd6c6ddfa1db149dff6dc9ca7db777374ffd
 data/raw/counts/rms_yearly_summary.csv,raw,49320218,275821,cities/newcastle/extract/fetch_open_data.py,NSW road traffic counts yearly summary (AADT),https://opendata.transport.nsw.gov.au/data/dataset/ef2b0bd2-db1e-48f3-9ea1-2bb9e6bc6504/resource/cba9a012-c305-414e-b848-f0e3aad18d97/download/road_traffic_counts_yearly_summary.csv,CC-BY 4.0,2026-08-12,f2b4f6b1bd15e90374c487a8814bfa9e4150bcb7e13410e5099d0df580f36c0f
-data/raw/dem/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif,raw,46923232,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S33E151,https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S33_00_E151_00_DEM/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif,ESA / open,2026-08-10,5a758a39d86b673167581a78494b9a0bb911b5df57a72fc90b2890da622065e5
-data/raw/dem/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif,raw,20882213,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S34E151,https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S34_00_E151_00_DEM/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif,ESA / open,2026-08-10,6e20871096986cd00fc3903ea95670a0d83860236a0e4f1360ac9ac67def485d
+data/raw/dem/Copernicus_DSM_COG_10_S33_00_E150_00_DEM.tif,raw,45551917,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S33E150 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S33_00_E150_00_DEM/Copernicus_DSM_COG_10_S33_00_E150_00_DEM.tif,ESA / open,2026-08-16,592b412e79f7185350fea4371eabf92602155ca2366df05bc001af2c57ba9f87
+data/raw/dem/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif,raw,46923232,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S33E151 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S33_00_E151_00_DEM/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif,ESA / open,2026-08-16,5a758a39d86b673167581a78494b9a0bb911b5df57a72fc90b2890da622065e5
+data/raw/dem/Copernicus_DSM_COG_10_S33_00_E152_00_DEM.tif,raw,15920354,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S33E152 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S33_00_E152_00_DEM/Copernicus_DSM_COG_10_S33_00_E152_00_DEM.tif,ESA / open,2026-08-16,d5e8a5bec2180feb22deb9dfd08324e106b4ad5f1c0faff889ccba8642a6bb44
+data/raw/dem/Copernicus_DSM_COG_10_S34_00_E150_00_DEM.tif,raw,46978700,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S34E150 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S34_00_E150_00_DEM/Copernicus_DSM_COG_10_S34_00_E150_00_DEM.tif,ESA / open,2026-08-16,9c3979e63a959a7dcf668b0a88b7557c48f6d02b10bbe9589eae34babda83dab
+data/raw/dem/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif,raw,20882213,,cities/newcastle/extract/fetch_abs_dem.py,Copernicus GLO-30 DEM tile S34E151 (cell derived from the dissolved LGA boundary + harvest margin),https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_S34_00_E151_00_DEM/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif,ESA / open,2026-08-16,6e20871096986cd00fc3903ea95670a0d83860236a0e4f1360ac9ac67def485d
 data/raw/hts/hts_by_lga_2009-10_to_2019-20.xlsx,raw,171511,,cities/newcastle/extract/fetch_open_data.py,NSW Household Travel Survey by LGA 2009/10-2019/20,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/2bc7603b-6bba-456d-9a81-e560d8a0f5ce/download/data-by-lga-2009-to-2019_revised-release-feb-2026.xlsx,CC-BY 4.0,2026-08-12,4e280c6b3ae486ea64d7d7a786fff39a9d80c0e134b9a9328f8352149d223a34
 data/raw/hts/hts_by_lga_2020-21_to_2024-25.xlsx,raw,140991,,cities/newcastle/extract/fetch_open_data.py,NSW Household Travel Survey by LGA 2020/21-2024/25,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/8b0a7e54-9dea-43c3-9804-5e2917bf4f1f/download/data-by-lga-2020_21-to-2024_25.xlsx,CC-BY 4.0,2026-08-12,21b8cb5ca2fc689dfee6a7a5a71198e047e9fe6e2ef3203a1bcf6d35484177a7
 data/raw/hts/hts_by_sa3_2009-10_to_2019-20.xlsx,raw,560261,,cities/newcastle/extract/fetch_open_data.py,NSW Household Travel Survey by SA3 2009/10-2019/20,https://opendata.transport.nsw.gov.au/data/dataset/c0f9a300-38e5-4086-90fb-c7a1f0b0fe31/resource/75b3e41c-18e6-499d-948d-de735fd8e308/download/data-by-sa3-2009-to-2019_revised-release-feb-2026.xlsx,CC-BY 4.0,2026-08-12,35bb2e40139be6f6331b9cb56e2d25356d64a691ac7ef2cff2d33398f47c4a28
@@ -80,31 +83,31 @@ data/processed/corridor/_corridor_report.json,processed,782,,cities/newcastle/bu
 data/processed/hts/_hts_report.json,processed,4241,,cities/newcastle/extract/extract_hts.py,,,,,7435c036e63e02ca3fd65cb49b470a6774e2cebb97a21c316898eb09da5a991c
 data/processed/hts/hts_mode.csv,processed,86922,752,cities/newcastle/extract/extract_hts.py,,,,,899ce4fbb44304773db7dc558c59ed905dd9d2fb5af6e007956d8d0b437d10e8
 data/processed/hts/hts_purpose.csv,processed,110427,951,cities/newcastle/extract/extract_hts.py,,,,,6a35feba09a89ddb602973ce1f656c3d394446f915b1df1c11d5674cbc67e0d9
-data/processed/landuse/A5_parking_facilities.csv,processed,2569941,7710,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,228333c870971392c29e9b517fcb7c5e895f5c54c4ca183a1220ebada37f906d
-data/processed/landuse/A5_parking_price_zones.csv,processed,134097,1701,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,311ececf63199c6e5ca3ef3b2b12ae897c147c6875a9aab7c3b561eda013c028
-data/processed/landuse/D1_buildings_cbd.csv,processed,769721,10795,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,76393bd49699a75b26ff7fda1907957d3b857b772a6d085a6d71770a94b6063d
+data/processed/landuse/A5_parking_facilities.csv,processed,2796100,8479,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,85649217b56350039c552bf6ba7dd2f77718cedfba4ab5ecf3753e42a50eef66
+data/processed/landuse/A5_parking_price_zones.csv,processed,134276,1701,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,f023957f35a243dfb7a98c2e68908c34d46fb12143afc4a69e173e86f77ecf4a
+data/processed/landuse/D1_buildings_cbd.csv,processed,934269,13096,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,420d1df263ed5ff3441d896e9375e22c85fd69ad66b90ce2f61d5ca3f1ce57b2
 data/processed/landuse/D1_employment_by_anzsic_POW_SA2.csv,processed,4971,55,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,e4d031b86d255ba9788f41db143f74bd17039aa701979bcf884bcb5ab292fb7e
-data/processed/landuse/D1_frontage_segments.csv,processed,116235,498,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,415515bcf0e476bb5f6a667ee1b1065e45ee876ff5dc765264df62bd880324a2
-data/processed/landuse/D1_poi.csv,processed,2117780,23697,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,0484f9159cb07e0825c43c778c7f79eabdec778051410688627833d7fd698b09
-data/processed/landuse/D1_zone_attractions_SA1.csv,processed,355873,1701,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,63a6dbd284e3765df328d598812f779d0f82397eef8ee9fb4cd48486fad0e436
-data/processed/landuse/_attractions_report.json,processed,1352,,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,cd7f994e8c07a1e39a460bf9a9e5f45ffc590a6541c0d9f8cfbf22f2d116d663
-data/processed/landuse/_landuse_report.json,processed,1399,,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,6eaa4a4b1889f86a90651a93c1bec30e644dcb6c2effef5e1a9cb6e998e758c1
-data/processed/network/A1_corridor_road_edges.csv,processed,149282,714,src/build/build_network_layers.py + attach_gradient.py,,,,,7efc63aa3bb374a17f139b14048af6016effceb46fd49fd3d3a09a07c331f2cb
-data/processed/network/A1_road_edges.csv,processed,9363254,43112,src/build/build_network_layers.py + attach_gradient.py,,,,,0fed6c4f99bdb748e46422f7564457b809997c1e418face807de593651a3d2f6
-data/processed/network/A1_road_geometry.jsonl,processed,10419138,43112,src/build/build_network_layers.py + attach_gradient.py,,,,,27f9412ba71c33568f6e5090229a02942402428bc5f682400325ebade96abcf3
-data/processed/network/A1_road_variant_patches.csv,processed,124060,414,src/build/build_network_layers.py + attach_gradient.py,,,,,7b62d3ff2e803c54f06831bf57b4972039dbbd9c6b2e623b4ff9c3319841090f
+data/processed/landuse/D1_frontage_segments.csv,processed,116186,498,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,62d7926ca7c5791f20314e0d2d58c27480f467d16240aece262bdc55eb7f620c
+data/processed/landuse/D1_poi.csv,processed,2400491,26864,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,7d17e8979808f815b7168fdad0cbf76b3818af37f5795af9d7f248d4c3ca2cc0
+data/processed/landuse/D1_zone_attractions_SA1.csv,processed,356428,1701,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,bae940c71839f84bf89ac4ada41f0eb32a86c072e5c11273f16e77c9e0ec3dbf
+data/processed/landuse/_attractions_report.json,processed,1350,,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,3fa5d43230e63be2a3213357a3ed74b0001fe65f6f4ef6e7e89c0a6862f4e4b3
+data/processed/landuse/_landuse_report.json,processed,1402,,cities/newcastle/build/build_landuse_parking.py + src/build/build_zone_attractions.py,,,,,72cf656f98355cf1f7d60424648052110e862e3bcef49beb0224552d8d23f75e
+data/processed/network/A1_corridor_road_edges.csv,processed,149284,714,src/build/build_network_layers.py + attach_gradient.py,,,,,ce90230f9ef80fc4d48b22820cd2ecdc58e6ea44fc5f63453a33f28777e76d73
+data/processed/network/A1_road_edges.csv,processed,10893422,50182,src/build/build_network_layers.py + attach_gradient.py,,,,,c906f7937697085c810a411e26c2119d4516561fd31bd565e35daa977ffac417
+data/processed/network/A1_road_geometry.jsonl,processed,12497361,50182,src/build/build_network_layers.py + attach_gradient.py,,,,,4054c0e70c055f75ec3a5e2141df679e69ea83bf2cc7809db5e96f8d145ad039
+data/processed/network/A1_road_variant_patches.csv,processed,124061,414,src/build/build_network_layers.py + attach_gradient.py,,,,,94db204e2430a573167193648a1fdd0050fcfef062abc419b3f50df858fc155d
 data/processed/network/A1_speed_zones.gpkg,processed,10280960,,src/build/build_network_layers.py + attach_gradient.py,,,,,0781baf1826bbb4266449b983eb385b26fd0263eee5244d3cce55e6f7cdc52a3
-data/processed/network/A2_crossings_osm.csv,processed,498568,9981,src/build/build_network_layers.py + attach_gradient.py,,,,,b7a14284dd1d88793596f7398335430713ece644e066a001148af4ca87a045fe
-data/processed/network/A2_signal_nodes_osm.csv,processed,68034,1265,src/build/build_network_layers.py + attach_gradient.py,,,,,790a1f17e5fa5106508461ce4b34ca7574bf3428a71e2588ecc3bb917f420d1a
-data/processed/network/A2_turn_restrictions_osm.csv,processed,105236,1386,src/build/build_network_layers.py + attach_gradient.py,,,,,ec5f751dca8a4dd04564b0b67e6bde49e30d469ab686e7ee5c271b00d5591772
-data/processed/network/A2_turn_restrictions_resolved.csv,processed,149087,1385,src/build/build_network_layers.py + attach_gradient.py,,,,,c40f7013830ec0826b9fae7abc392a2cb3cdfd83edc1044751cb9c11cdf2d4cf
-data/processed/network/A5_parking_osm.csv,processed,654563,7710,src/build/build_network_layers.py + attach_gradient.py,,,,,e8215d5973c7a0d21d12d6aad4fcfb167b5d4c4f69bd2ef09495dad258ee0a43
-data/processed/network/A6_footway_edges.csv,processed,6957914,35653,src/build/build_network_layers.py + attach_gradient.py,,,,,5df8b84426f7c541103364ab4e46cdb3e73ce9e26515ee5a05e2ef3c84344ee5
-data/processed/network/A6_footway_geometry.jsonl,processed,10179430,35653,src/build/build_network_layers.py + attach_gradient.py,,,,,332d12d1b79d0629ea39f6bed5dea403c48b0d844a62eff3d10fd6ac7d250985
-data/processed/network/_build_report.json,processed,436,,src/build/build_network_layers.py + attach_gradient.py,,,,,a68ebf64c1f7ded43406de8df6459239678f88a7307edf4bf4822b392b530d2b
-data/processed/network/_corridor_attributes_report.json,processed,4273,,src/build/build_network_layers.py + attach_gradient.py,,,,,0b840be5438aac1175a6e42c0e035f495beb1fe88362f2c894f4d8b34278c676
-data/processed/network/_gradient_report.json,processed,406,,src/build/build_network_layers.py + attach_gradient.py,,,,,7ec6abac4d20cd85e9e0883fb9566ad180be23422cc6279a109e4855e8fecb58
-data/processed/network/_speed_zone_report.json,processed,1467,,src/build/build_network_layers.py + attach_gradient.py,,,,,f1799854619d9c44a38d47ca9b8e579a71d1a501b1531bb5b63f42e8d43dcffc
+data/processed/network/A2_crossings_osm.csv,processed,533913,10677,src/build/build_network_layers.py + attach_gradient.py,,,,,0505bc5ed37be95deeb0d483d5aec9c6c0bf5539872803353b26fac70deb2bf7
+data/processed/network/A2_signal_nodes_osm.csv,processed,71846,1337,src/build/build_network_layers.py + attach_gradient.py,,,,,20fcace6baaa822be62fbf62c8eb6a8bb12ffbc7c13db5d0c901f1314a8577b6
+data/processed/network/A2_turn_restrictions_osm.csv,processed,117459,1546,src/build/build_network_layers.py + attach_gradient.py,,,,,c26053e1a7b00a29d77af9d1ad7e5b49d89db979480ea19d53102e69a04baef6
+data/processed/network/A2_turn_restrictions_resolved.csv,processed,166077,1545,src/build/build_network_layers.py + attach_gradient.py,,,,,469d6f243eb8b357c3edfe195e1a12420085758daa3beea43ab55c43affdee4f
+data/processed/network/A5_parking_osm.csv,processed,719666,8479,src/build/build_network_layers.py + attach_gradient.py,,,,,5786c3933ec2c383eacf5ad71aa37742e7042960ac847429927568de69acd98e
+data/processed/network/A6_footway_edges.csv,processed,7846914,40195,src/build/build_network_layers.py + attach_gradient.py,,,,,903f89295415c75ba320d11795f8e2efc12685fb6c3c4468af17089aedb3ddb9
+data/processed/network/A6_footway_geometry.jsonl,processed,11877905,40195,src/build/build_network_layers.py + attach_gradient.py,,,,,4b0639a402452a7e53d78a6c7c1c32b7cb49fe12bdba1805518433e29320e5e8
+data/processed/network/_build_report.json,processed,438,,src/build/build_network_layers.py + attach_gradient.py,,,,,5ec18b6b6138b76a9d802773a2746bce419a351f2bbc6aa8428a551247936e4c
+data/processed/network/_corridor_attributes_report.json,processed,4549,,src/build/build_network_layers.py + attach_gradient.py,,,,,c064775b116c1ceb3e28b6c65d5316036b8d08fdc98ac2bf6609d06fa9ddd013
+data/processed/network/_gradient_report.json,processed,405,,src/build/build_network_layers.py + attach_gradient.py,,,,,a51f40cc04366e48d04d29949743e9802f85a28c79262feac51891d1c28141ad
+data/processed/network/_speed_zone_report.json,processed,1476,,src/build/build_network_layers.py + attach_gradient.py,,,,,5d03136abaa0f3cda4f1eb14fcd2cd62ca0fb222039f8c84691affc1e541d8ee
 data/processed/observed/_slice_report.json,processed,3736,,extract/slice_newcastle.py,,,,,21b6f091b57bf9142b72f5eb08d070ae28c61ea2df8a7f8708be09046c184867
 data/processed/observed/opal_bus_newcastle_hunter.csv,processed,49156,1363,extract/slice_newcastle.py,,,,,59cccc3a1c98ddf8b0643d1ae445d6ae37f7a810a145f5de4eac1260c341ecb2
 data/processed/observed/opal_lr_newcastle_by_month_cardtype.csv,processed,725066,16604,extract/slice_newcastle.py,,,,,7b79e2c59740cded85b721c195106f35d5efc065923da6c7803de8a052b6aa88
@@ -172,14 +175,14 @@ schedules/scenarios/S4.zip,processed,9456689,8,cities/newcastle/build/build_scen
 schedules/scenarios/S5.zip,processed,9470864,8,cities/newcastle/build/build_scenario_schedules.py,,,,,b9eb892561dad2693998982714934f68511c9860b58097fbb9409e1fa2b2df9c
 schedules/scenarios/S6.zip,processed,9411374,8,cities/newcastle/build/build_scenario_schedules.py,,,,,8fa2d6af8fa1a5228985c1b799337e6b5f3702005751103a9ce01d5704f7b1b6
 schedules/scenarios/_scenario_schedule_report.json,processed,3399,,cities/newcastle/build/build_scenario_schedules.py,,,,,eebfe1b532aa6a5b4d272abab1d5091611116362a96d9c0e67c3c69cfcd8b81d
-demand/plans/B2_activity_trips_SAT.csv,processed,248970581,1869962,src/build/build_activity_chains.py,,,,,34c50c708281640341001c00cabfa7f3d2f4050485dbfb849b623f8ffce85d22
-demand/plans/B2_activity_trips_SUN.csv,processed,209895996,1577265,src/build/build_activity_chains.py,,,,,18c3fe579b3175e6532b5813e7ef247f85e90cfbfea627172840cc0e8784ee1e
-demand/plans/B2_activity_trips_WEEKDAY.csv,processed,308017178,2255047,src/build/build_activity_chains.py,,,,,22387d842663c47fd402d3a9da48e0a89e0f7ea0d09e9ba51a4067de78362673
-demand/plans/_activity_chains_report.json,processed,6265,,src/build/build_activity_chains.py,,,,,85e35fe483e717d5fb1eb16920b342b5028b8f5d54d93ebfddc300f3f45bf3ba
-demand/plans/matsim/_plans_report.json,processed,3509,,src/build/build_matsim_plans.py,,,,,92c16408a076601fbb358f7cc4f57324f664868cf97c5331cb61bb0fe60f7533
-demand/plans/matsim/population_SAT.xml.gz,processed,32115491,,src/build/build_matsim_plans.py,,,,,1ffc5bef12a4a9f04108b484a104a453f7b4afbf7ac28691d8dd3a36af891a59
-demand/plans/matsim/population_SUN.xml.gz,processed,27862255,,src/build/build_matsim_plans.py,,,,,d5bbd1d1a70caf48c35eaa095c1234bbf07f5a407efd53e641649e4f17e9ad9f
-demand/plans/matsim/population_WEEKDAY.xml.gz,processed,38644602,,src/build/build_matsim_plans.py,,,,,8cb71723aecfe95774f07b2c210346247d8d5dbc6685932190e06edd23e60de5
+demand/plans/B2_activity_trips_SAT.csv,processed,249790598,1875074,src/build/build_activity_chains.py,,,,,14a0bc6f72542a6e09de18ccb441a7405fd0cd0d0df14abe9185572082619aae
+demand/plans/B2_activity_trips_SUN.csv,processed,210676487,1582289,src/build/build_activity_chains.py,,,,,51e03b71db01210880788380611cd35a621dc7c0fb05c31c316109c203ec1df9
+demand/plans/B2_activity_trips_WEEKDAY.csv,processed,310095082,2267818,src/build/build_activity_chains.py,,,,,d41f04c5c6ebe5b5a84a283ff27c3b7996435510b47c6427ed35cf6ebf6bcba7
+demand/plans/_activity_chains_report.json,processed,13748,,src/build/build_activity_chains.py,,,,,23ff25392a2ff7ec7f0ac3e977df4b01d084580afa342f86dd5a1ac98cd59318
+demand/plans/matsim/_plans_report.json,processed,3723,,src/build/build_matsim_plans.py,,,,,bdc423ae3e7761c9f243a6e1443a6b832fc02e7a816df90fa098f1eeaa190b77
+demand/plans/matsim/population_SAT.xml.gz,processed,32991814,,src/build/build_matsim_plans.py,,,,,36113f90abf907eef660795a0a5ec0b35f33d5af42837217a3529d779f391128
+demand/plans/matsim/population_SUN.xml.gz,processed,28644847,,src/build/build_matsim_plans.py,,,,,a5afcae57a67563dfeb88218ca9cc73ed5d178532bd7f4c44e063c3dd97bb5a8
+demand/plans/matsim/population_WEEKDAY.xml.gz,processed,39686606,,src/build/build_matsim_plans.py,,,,,45d68eb5e4fba0596fd91ea63612824f057f7bafbcd844570eef44d89cca96ad
 demand/population/B1_households.csv,processed,20626173,245738,src/build/build_population.py,,,,,f1913e6359ed76461ff471aa7c8904129942e53350e5f3f8fcec96e668e4c934
 demand/population/B1_synthetic_population.csv,processed,65145139,612668,src/build/build_population.py,,,,,5d877d40c51e5677a747da7b5303a010f4f5f60224d8bb537c21664c504eca5b
 demand/population/_population_report.json,processed,262,,src/build/build_population.py,,,,,bc234a9cc33a850ab194ef0aec09274f5bbc851ff32e45be7835640dcd5037d9
@@ -188,7 +191,7 @@ params/C1_parameters.json,processed,3905,,src/build/build_params.py,,,,,32d3219a
 params/C1_sensitivity_sweep_grid.csv,processed,573,28,src/build/build_params.py,,,,,61075e0ad62ad5a7e2202dfee962a581aff226758e1bc1f7d38263242fc05212
 params/C2_network_factors.json,processed,2978,,src/build/build_params.py,,,,,533bdfdf54e8e74ea05fde6f02f9e719a9c17485c5bdb1a05e1f1b7b027400dd
 params/C2_osm_defaults.json,processed,8777,,src/build/build_params.py,,,,,a27fe43a693cc4e3f10f333e9f53a3bf8816604bbfea7fab5348b54ebde84abd
-params/C3_count_comparison.json,processed,1422,,src/build/build_params.py,,,,,311669773294716804a29645b2f415f4146c57d592404b234b6cc770fc17fb97
+params/C3_count_comparison.json,processed,1523,,src/build/build_params.py,,,,,4ebc5a451b9babcfcb60865be4e03cc39760c7f15cf17ec414c116a1c4efc5d3
 params/C4_mode_constraints.json,processed,5914,,src/build/build_params.py,,,,,c262dfd72c27bf682b02c63117be04222863bdaec3d05810b303fddbf0e8afc0
 scenarios/E1_parking_variants.csv,processed,209,2,cities/newcastle/build/build_scenario_configs.py,,,,,141f11e14f90a3d4fdad12a84b094b3d44f8f74725eb066934f494d105101e7b
 scenarios/E1_road_variants.csv,processed,565,4,cities/newcastle/build/build_scenario_configs.py,,,,,f699e93969423e97b54903469105ce617741b84881bb0f4afc20064c5e1a48e9
@@ -203,168 +206,178 @@ scenarios/S3.json,processed,1340,,cities/newcastle/build/build_scenario_configs.
 scenarios/S4.json,processed,1351,,cities/newcastle/build/build_scenario_configs.py,,,,,1743c796dbcb51cab005910b11c58543fa6f360a9bf2f8426cbfb47bf4aea4fe
 scenarios/S5.json,processed,1343,,cities/newcastle/build/build_scenario_configs.py,,,,,a9ace48e84b7da4dba47d7139208335b10c330f22c5fa97007ca670228cff012
 scenarios/S6.json,processed,1293,,cities/newcastle/build/build_scenario_configs.py,,,,,757ec3bb7a9e434d791b3ea3dcbbb7b8cdbd3a5483f182916b0c0324e714b4a4
-scenarios/matsim/_run_inputs_report.json,processed,35263,,src/build/build_matsim_run_inputs.py,,,,,85f78257da2dab25e54ee4791fb8beed515bfebad9c4df5b3e7bcbff21b81615
-scenarios/matsim/S0/network.xml.gz,processed,5603044,,src/build/build_matsim_run_inputs.py,,,,,41f815697d3bf07a54c51756d64aeeb7004859eb02097416abce62d639ec288d
-scenarios/matsim/S0/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/_run_inputs_report.json,processed,35277,,src/build/build_matsim_run_inputs.py,,,,,00dd5ede0a1eca4ff3367455039c8588ace5205a5b24b6630623ed2a532de3e8
+scenarios/matsim/S0/network.xml.gz,processed,6430052,,src/build/build_matsim_run_inputs.py,,,,,309511acfa6e1f17cfba7389e789b381a338b3237739fd264307090b344ba0c0
+scenarios/matsim/S0/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S0/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S0/SAT/transitSchedule.xml.gz,processed,609847,,src/build/build_matsim_run_inputs.py,,,,,ba527481b50733944705f9fa82f01eb7f80e32899924e0a10fcf4bbf5fe200ef
+scenarios/matsim/S0/SAT/transitSchedule.xml.gz,processed,607608,,src/build/build_matsim_run_inputs.py,,,,,c94008d56fa46709bfafd82f3659570609e471be30923a60a0322eea36ac2aad
 scenarios/matsim/S0/SAT/transitVehicles.xml.gz,processed,3579,,src/build/build_matsim_run_inputs.py,,,,,cc0b88899e9265f228b05fbd70ca87c6167c6525dcd3cab0ae67af39ea72e52c
 scenarios/matsim/S0/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S0/SUN/transitSchedule.xml.gz,processed,486502,,src/build/build_matsim_run_inputs.py,,,,,b03a34f1fa776a7f212527474b5318e58d7ee2551df56249593bf16ef19358d0
+scenarios/matsim/S0/SUN/transitSchedule.xml.gz,processed,478980,,src/build/build_matsim_run_inputs.py,,,,,e6b3b3e505fd9c20fd2b8c1eb93517581a5f3d7d5b19b989c6236947da2d39e1
 scenarios/matsim/S0/SUN/transitVehicles.xml.gz,processed,3233,,src/build/build_matsim_run_inputs.py,,,,,52470e567e53114b371bc722f0366cab43aa8d0f7c6cb63cf3575ff40ac2ffaf
 scenarios/matsim/S0/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S0/WEEKDAY/transitSchedule.xml.gz,processed,1422532,,src/build/build_matsim_run_inputs.py,,,,,3fdf71c23c8d66cd1c1e49bdfcb2b530e9157ecd7cf29e95cd7e3115d86ea3f0
+scenarios/matsim/S0/WEEKDAY/transitSchedule.xml.gz,processed,1433918,,src/build/build_matsim_run_inputs.py,,,,,9be1740ede5e880992679014fd7484cf009e7fa74b12a32d7eda44ee1fdbf5e3
 scenarios/matsim/S0/WEEKDAY/transitVehicles.xml.gz,processed,6202,,src/build/build_matsim_run_inputs.py,,,,,0f65372251e839fb937c6ec09dcc60af06297468c842d78055d1c5b83d84ba1b
-scenarios/matsim/S1/network.xml.gz,processed,5602850,,src/build/build_matsim_run_inputs.py,,,,,604c354f8c8262e905c38e20066d2d73bc081ea4aa40f027009ddddd59b6e19d
-scenarios/matsim/S1/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S1/network.xml.gz,processed,6429774,,src/build/build_matsim_run_inputs.py,,,,,c82eec20581007edf7167856c50a693c8142cf05fa0c54ef33816a4f3ed194ea
+scenarios/matsim/S1/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S1/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S1/SAT/transitSchedule.xml.gz,processed,589455,,src/build/build_matsim_run_inputs.py,,,,,436674031b4da1ad4b0bae06e09241e2b249a7cd15538cb69f9a21172c99ed2a
+scenarios/matsim/S1/SAT/transitSchedule.xml.gz,processed,594356,,src/build/build_matsim_run_inputs.py,,,,,c994768806476f43e1ef1dde35f5ed4483be42e402c17754ec00c753aaa63685
 scenarios/matsim/S1/SAT/transitVehicles.xml.gz,processed,3993,,src/build/build_matsim_run_inputs.py,,,,,af1539bf64386200869c601f207516cbe91327b88379e9f1795efcd31e238a95
 scenarios/matsim/S1/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S1/SUN/transitSchedule.xml.gz,processed,490948,,src/build/build_matsim_run_inputs.py,,,,,1071ec1b629fa3d14a28fd0f8b423e0ad09af768a0489834a7fdfa6f7e8208ae
+scenarios/matsim/S1/SUN/transitSchedule.xml.gz,processed,498616,,src/build/build_matsim_run_inputs.py,,,,,ed500bb28a2510e2c1d514b0a5ff0a86d6a97420b7450d7d22cd2f9a736448c8
 scenarios/matsim/S1/SUN/transitVehicles.xml.gz,processed,3625,,src/build/build_matsim_run_inputs.py,,,,,9cb0694f722ac9b5a5c731bfadf88f00ede92c85f8317a7c6df279045ff916e6
 scenarios/matsim/S1/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S1/WEEKDAY/transitSchedule.xml.gz,processed,1451462,,src/build/build_matsim_run_inputs.py,,,,,dc7ca000e5be7de3fd86f2b60ed260af8f63c70e50621c43e2e64cb7123bb2a3
+scenarios/matsim/S1/WEEKDAY/transitSchedule.xml.gz,processed,1433413,,src/build/build_matsim_run_inputs.py,,,,,fd7e5f306a852e66e1763d496ef86dffd4f7ffc831d831ee792f765098a35aff
 scenarios/matsim/S1/WEEKDAY/transitVehicles.xml.gz,processed,6855,,src/build/build_matsim_run_inputs.py,,,,,b73b66c4811aaec53b61bac6fbc21778623cf8f24b95e0b962112a96ffc76a2b
-scenarios/matsim/S2/network.xml.gz,processed,5605091,,src/build/build_matsim_run_inputs.py,,,,,661eadc8f538edb5e21bf8fe54418038e2229803bb9d97977a7e1d0987c3a3cf
-scenarios/matsim/S2/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S2/network.xml.gz,processed,6432118,,src/build/build_matsim_run_inputs.py,,,,,d3b73a7ec5be84ef916b55c1cf8668d686aefdac6f75ffc74edc8208378ca77a
+scenarios/matsim/S2/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S2/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S2/SAT/transitSchedule.xml.gz,processed,596778,,src/build/build_matsim_run_inputs.py,,,,,2bb84069308ba1e9c498fc2b7b203e74ec7e75cfc1bcec3b5e44e67efa8c7f5f
+scenarios/matsim/S2/SAT/transitSchedule.xml.gz,processed,591278,,src/build/build_matsim_run_inputs.py,,,,,d31a03b455ad0f43227417e276f8cc643c9608c0d8df4ab1a9e25f301f428c81
 scenarios/matsim/S2/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
 scenarios/matsim/S2/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S2/SUN/transitSchedule.xml.gz,processed,482006,,src/build/build_matsim_run_inputs.py,,,,,3a64b09e56ebd4d3ff6de100d993fb694b53baaf6cf1a37fb15a6667479c9bae
+scenarios/matsim/S2/SUN/transitSchedule.xml.gz,processed,483932,,src/build/build_matsim_run_inputs.py,,,,,d486ad847f45e0dbb92f2b1bdbd152ae6881ee22f3445b5c4042d443aae2f093
 scenarios/matsim/S2/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
 scenarios/matsim/S2/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S2/WEEKDAY/transitSchedule.xml.gz,processed,1453879,,src/build/build_matsim_run_inputs.py,,,,,540e0d43b2a4eea61cf10dec83beb1f6ea57034ed38d9de60499118e56b5e57b
+scenarios/matsim/S2/WEEKDAY/transitSchedule.xml.gz,processed,1458012,,src/build/build_matsim_run_inputs.py,,,,,7f25a9ee565632ecab45c702e41d63cecd8fd2327fe89dedca74a5ce5ea70513
 scenarios/matsim/S2/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
-scenarios/matsim/S2a/network.xml.gz,processed,5605088,,src/build/build_matsim_run_inputs.py,,,,,39e2240e175372f69ef66dab8620a65e0fd709f25f847d57bccb09affff8bc9e
-scenarios/matsim/S2a/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S2a/network.xml.gz,processed,6432118,,src/build/build_matsim_run_inputs.py,,,,,d3b73a7ec5be84ef916b55c1cf8668d686aefdac6f75ffc74edc8208378ca77a
+scenarios/matsim/S2a/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S2a/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S2a/SAT/transitSchedule.xml.gz,processed,608478,,src/build/build_matsim_run_inputs.py,,,,,4520065cae74be3f295660a04d6315e199f2e4bff428d827ff5e339e697cd8a1
+scenarios/matsim/S2a/SAT/transitSchedule.xml.gz,processed,600123,,src/build/build_matsim_run_inputs.py,,,,,8d14ca3468f2eeef137e119549e9ba3487276d97cf532789d818c552e4fad474
 scenarios/matsim/S2a/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
 scenarios/matsim/S2a/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S2a/SUN/transitSchedule.xml.gz,processed,496255,,src/build/build_matsim_run_inputs.py,,,,,d9b2a91bf20914b4f081d91e2ef5259f83dbe6138009188bee4fc5e130265504
+scenarios/matsim/S2a/SUN/transitSchedule.xml.gz,processed,493845,,src/build/build_matsim_run_inputs.py,,,,,f15c518e9e581417624d349312468ec893f483be2be3fb6a91c01f221d478251
 scenarios/matsim/S2a/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
 scenarios/matsim/S2a/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S2a/WEEKDAY/transitSchedule.xml.gz,processed,1451796,,src/build/build_matsim_run_inputs.py,,,,,aff98a252da97bbd9252af5a09c3165904f2eed314b9003830f4c648b2aac4a4
+scenarios/matsim/S2a/WEEKDAY/transitSchedule.xml.gz,processed,1445513,,src/build/build_matsim_run_inputs.py,,,,,6fcde6ae98823c7f036118d9e0f2033c9a942991edff2a344aac919767cf47e7
 scenarios/matsim/S2a/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
-scenarios/matsim/S2b/network.xml.gz,processed,5605091,,src/build/build_matsim_run_inputs.py,,,,,661eadc8f538edb5e21bf8fe54418038e2229803bb9d97977a7e1d0987c3a3cf
-scenarios/matsim/S2b/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S2b/network.xml.gz,processed,6432089,,src/build/build_matsim_run_inputs.py,,,,,5e93318415c6d02f67e767ac512c9be78f295e3550aef6d13902374be2b0098f
+scenarios/matsim/S2b/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S2b/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S2b/SAT/transitSchedule.xml.gz,processed,600713,,src/build/build_matsim_run_inputs.py,,,,,039ab340e91187e670d072fcbc1bdd71710a83530cdc91bd132124f61d126a42
+scenarios/matsim/S2b/SAT/transitSchedule.xml.gz,processed,600740,,src/build/build_matsim_run_inputs.py,,,,,af61c9949cdbf9279b7f2a0dbd37eb208cfbecfd25411a2f22822f27c043fbf2
 scenarios/matsim/S2b/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
 scenarios/matsim/S2b/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S2b/SUN/transitSchedule.xml.gz,processed,481513,,src/build/build_matsim_run_inputs.py,,,,,b13cb1bef745285e4a823e5e55da899dfb5fad965945324f1c8fc1ca1e312341
+scenarios/matsim/S2b/SUN/transitSchedule.xml.gz,processed,485494,,src/build/build_matsim_run_inputs.py,,,,,7b8d1edbef12ff39c893973769125f3525a25f31a38078a5e2601a227b101ed6
 scenarios/matsim/S2b/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
 scenarios/matsim/S2b/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S2b/WEEKDAY/transitSchedule.xml.gz,processed,1471537,,src/build/build_matsim_run_inputs.py,,,,,ac77a21e87d16244dd94bbb5204322fa59b187cc1aa969d701ce6c9400f22bd3
+scenarios/matsim/S2b/WEEKDAY/transitSchedule.xml.gz,processed,1454339,,src/build/build_matsim_run_inputs.py,,,,,e68fb46b8eabac85e8a36fe4f2fa082ec2cd564975c284f26204c48ec6e35411
 scenarios/matsim/S2b/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
-scenarios/matsim/S2c/network.xml.gz,processed,5605078,,src/build/build_matsim_run_inputs.py,,,,,ec6d28063045b029d4d93a96a05f0a4bccc41198c8b4ff238e968d94b2d574a3
-scenarios/matsim/S2c/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S2c/network.xml.gz,processed,6432069,,src/build/build_matsim_run_inputs.py,,,,,0392f01bbcbda86855f70bb94b5b57767cbaaf0f3f93d7686468cdb03c78d550
+scenarios/matsim/S2c/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S2c/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S2c/SAT/transitSchedule.xml.gz,processed,605522,,src/build/build_matsim_run_inputs.py,,,,,ab43329378f8adc0ba8ea4dd4862caecaa4e42720fa739751f7afe81355701a3
+scenarios/matsim/S2c/SAT/transitSchedule.xml.gz,processed,598139,,src/build/build_matsim_run_inputs.py,,,,,e9b8d7ff9e0af1e56f1d82c45abd992c4833a56d7ede4ae1f32fbf5c27f17d1c
 scenarios/matsim/S2c/SAT/transitVehicles.xml.gz,processed,4096,,src/build/build_matsim_run_inputs.py,,,,,9e593e4894cf801a29f4fc3eec0e2c2f9853044552d6e4db89a59149302cf974
 scenarios/matsim/S2c/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S2c/SUN/transitSchedule.xml.gz,processed,483758,,src/build/build_matsim_run_inputs.py,,,,,dea0d7312a1d4f2fc3021549ed9b3f9038567242fed776414818558a41adced2
+scenarios/matsim/S2c/SUN/transitSchedule.xml.gz,processed,498208,,src/build/build_matsim_run_inputs.py,,,,,8eab2c44371ce4507a74135a6874ec1ac4e7d37a2dd5f7b0ddca4ee1f7214ef0
 scenarios/matsim/S2c/SUN/transitVehicles.xml.gz,processed,3744,,src/build/build_matsim_run_inputs.py,,,,,0fb3eb46aef71facc646a9874e03c0bf9c85a8d7e3bb5515e081df145001828c
 scenarios/matsim/S2c/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S2c/WEEKDAY/transitSchedule.xml.gz,processed,1461420,,src/build/build_matsim_run_inputs.py,,,,,a8043a91cd8e8bf5b2466be57cfd2c19ebab3ca1b8d135e98ae4df2eee4cd40c
+scenarios/matsim/S2c/WEEKDAY/transitSchedule.xml.gz,processed,1449289,,src/build/build_matsim_run_inputs.py,,,,,b55e2b28ab2d7f762e0938c1511d84e7dffef13510603e407d5d8d71083b93e5
 scenarios/matsim/S2c/WEEKDAY/transitVehicles.xml.gz,processed,7047,,src/build/build_matsim_run_inputs.py,,,,,cc294209fd6a00b06879e47fdee142d419ae67ace85836353bcb4bcf38a1fe2e
-scenarios/matsim/S3/network.xml.gz,processed,5602950,,src/build/build_matsim_run_inputs.py,,,,,f4d6bad416f2d1a1a009d208a37a7ad351e3d9c95f6b9beb86980da1c43fb80c
-scenarios/matsim/S3/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S3/network.xml.gz,processed,6429842,,src/build/build_matsim_run_inputs.py,,,,,c93c3aeaebd9dbf43f48779e128d1f6ab0297058a0d05e13b48ca5046466ffeb
+scenarios/matsim/S3/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S3/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S3/SAT/transitSchedule.xml.gz,processed,592726,,src/build/build_matsim_run_inputs.py,,,,,e4801cfb28fe9d687155d12724303dd4e320e3006b8121b53bd2d593916fab86
+scenarios/matsim/S3/SAT/transitSchedule.xml.gz,processed,623627,,src/build/build_matsim_run_inputs.py,,,,,39e9a5acbea9c3434d8e16e08bd67b844b375ee3f968e4139f9522f919d68e51
 scenarios/matsim/S3/SAT/transitVehicles.xml.gz,processed,4144,,src/build/build_matsim_run_inputs.py,,,,,ba24a42f8c600a0a87c3e6b62bdd713a7c6d9493c10d56f8de7df5a5f8af365a
 scenarios/matsim/S3/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S3/SUN/transitSchedule.xml.gz,processed,484059,,src/build/build_matsim_run_inputs.py,,,,,5458cf5cf7150824655e13101dbff4afd700fb2454143814720712acb5bbd83c
+scenarios/matsim/S3/SUN/transitSchedule.xml.gz,processed,485896,,src/build/build_matsim_run_inputs.py,,,,,9c0dc619c2633b5883db60c36cfe5c9bfa47dc9729e80522f723b7b11f74c390
 scenarios/matsim/S3/SUN/transitVehicles.xml.gz,processed,3769,,src/build/build_matsim_run_inputs.py,,,,,8b123d7dbd6da8c97042c33e7fac4c534fbf62843f8e732907861d0b5d2aa635
 scenarios/matsim/S3/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S3/WEEKDAY/transitSchedule.xml.gz,processed,1462182,,src/build/build_matsim_run_inputs.py,,,,,be5a3066e99a798066c59b9143d0686f77bf82d56195d5b69872c48642b8194e
+scenarios/matsim/S3/WEEKDAY/transitSchedule.xml.gz,processed,1458389,,src/build/build_matsim_run_inputs.py,,,,,7555a39b0dc57fa79daa8c04470e3f8294a1156c232f6f2b441b6659b7d17198
 scenarios/matsim/S3/WEEKDAY/transitVehicles.xml.gz,processed,7124,,src/build/build_matsim_run_inputs.py,,,,,fdb16a1ad8b5d72c7435f3dcb439c50eba9579bd2e962a82234343b5cb9820ee
-scenarios/matsim/S4/network.xml.gz,processed,5608004,,src/build/build_matsim_run_inputs.py,,,,,e910791fe77f602a8f97c3129a6a742cf6475b290d4eb08c49f669a8775915cd
-scenarios/matsim/S4/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S4/network.xml.gz,processed,6434560,,src/build/build_matsim_run_inputs.py,,,,,c6f8c50834655d5ee0d6b37b087fe42059cdbd42223edb4b8f64cad034c14cb1
+scenarios/matsim/S4/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S4/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S4/SAT/transitSchedule.xml.gz,processed,606981,,src/build/build_matsim_run_inputs.py,,,,,f4aafca78ae15befd5375d008baf0178f08c9d6d2e178d5222d031f9f2e32d3e
+scenarios/matsim/S4/SAT/transitSchedule.xml.gz,processed,609602,,src/build/build_matsim_run_inputs.py,,,,,15c9cfe0ac91a11d242395bca660300dd216a333bcd493970b5c3cec85a3fab0
 scenarios/matsim/S4/SAT/transitVehicles.xml.gz,processed,4097,,src/build/build_matsim_run_inputs.py,,,,,12044e4017e66151ad9664aa22cdd2a7741097bdbbd17e968840b861cf6419d7
 scenarios/matsim/S4/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S4/SUN/transitSchedule.xml.gz,processed,493618,,src/build/build_matsim_run_inputs.py,,,,,d9b7e86ffaf3e129a97d105a906e39bfde4405e45c4db68124a9f85c486d981e
+scenarios/matsim/S4/SUN/transitSchedule.xml.gz,processed,495740,,src/build/build_matsim_run_inputs.py,,,,,ac9a37b8c1a02bfea1501e32a622194f02016187a77cbc83c978794d99753d60
 scenarios/matsim/S4/SUN/transitVehicles.xml.gz,processed,3745,,src/build/build_matsim_run_inputs.py,,,,,9e753f9f71625bb128f24d146f2c7b2d7776735b9124fb2de5272288cbffa0cb
 scenarios/matsim/S4/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S4/WEEKDAY/transitSchedule.xml.gz,processed,1444632,,src/build/build_matsim_run_inputs.py,,,,,88d3c0ee7296894cc02c9b74fe6d5a9fd8e473fdbe71cbbf527a5a4a54f8c743
+scenarios/matsim/S4/WEEKDAY/transitSchedule.xml.gz,processed,1448429,,src/build/build_matsim_run_inputs.py,,,,,c030331faae171352387f4c8a32e8cbd5525c59f5aca916ab22b10ccc000a519
 scenarios/matsim/S4/WEEKDAY/transitVehicles.xml.gz,processed,7050,,src/build/build_matsim_run_inputs.py,,,,,04a6365b74247d796ef23743ee00988ca92a8f2e0382e3806920b1132a81e0fd
-scenarios/matsim/S5/network.xml.gz,processed,5609860,,src/build/build_matsim_run_inputs.py,,,,,34bd4af93ebb202fc13c6aeb96785895587ab385414dd8b905fa0e213e625be4
-scenarios/matsim/S5/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S5/network.xml.gz,processed,6436262,,src/build/build_matsim_run_inputs.py,,,,,b0f81760e76f21b9cebb6a0fb9d36bca114d2aa91954687458543aea438181a0
+scenarios/matsim/S5/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S5/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S5/SAT/transitSchedule.xml.gz,processed,601000,,src/build/build_matsim_run_inputs.py,,,,,3d740ff48828c3ac6670e0f567b4e9dc0d16ff76cf046aa78ef8700b00a47950
+scenarios/matsim/S5/SAT/transitSchedule.xml.gz,processed,615092,,src/build/build_matsim_run_inputs.py,,,,,fbe6e0c5aab6a81afb6da17ae7a305a15f4929e5e08f0ddaf2efa29bc29f47cf
 scenarios/matsim/S5/SAT/transitVehicles.xml.gz,processed,4097,,src/build/build_matsim_run_inputs.py,,,,,12044e4017e66151ad9664aa22cdd2a7741097bdbbd17e968840b861cf6419d7
 scenarios/matsim/S5/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S5/SUN/transitSchedule.xml.gz,processed,496171,,src/build/build_matsim_run_inputs.py,,,,,0a8e29f78b0bc2e252b5e96fa04d38e562fc508e14614c3784ab2fef9b3a7c1a
+scenarios/matsim/S5/SUN/transitSchedule.xml.gz,processed,489939,,src/build/build_matsim_run_inputs.py,,,,,bac9c8cdac72f07e0b9536b5501378ecccf85af0f91c18c4357a0f583e5a6a11
 scenarios/matsim/S5/SUN/transitVehicles.xml.gz,processed,3745,,src/build/build_matsim_run_inputs.py,,,,,9e753f9f71625bb128f24d146f2c7b2d7776735b9124fb2de5272288cbffa0cb
 scenarios/matsim/S5/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S5/WEEKDAY/transitSchedule.xml.gz,processed,1424463,,src/build/build_matsim_run_inputs.py,,,,,e45418eb753931bd38b6d81095bfe1a7e069191c7b6c9d48f1470b1511d95526
+scenarios/matsim/S5/WEEKDAY/transitSchedule.xml.gz,processed,1427206,,src/build/build_matsim_run_inputs.py,,,,,6caf57cc292dd236b3fb32eeae625b93934ac8c4865c6eb4b5ca43e1bb1191dd
 scenarios/matsim/S5/WEEKDAY/transitVehicles.xml.gz,processed,7050,,src/build/build_matsim_run_inputs.py,,,,,04a6365b74247d796ef23743ee00988ca92a8f2e0382e3806920b1132a81e0fd
-scenarios/matsim/S6/network.xml.gz,processed,5602789,,src/build/build_matsim_run_inputs.py,,,,,9bd5f0dd3c9670eaf0886c3dadc689e20a66e6eb2a4c789d82c518634b968fef
-scenarios/matsim/S6/parking_prices.tsv,processed,296760,,src/build/build_matsim_run_inputs.py,,,,,28c8ad02e4dc57e233307559268f0e5ff5866c7f1155eb459e69303233c449c9
+scenarios/matsim/S6/network.xml.gz,processed,6429846,,src/build/build_matsim_run_inputs.py,,,,,c05a5f46e59f565fd6cfcca28e962d9e8384a8057dc6e7464c13fc386877951f
+scenarios/matsim/S6/parking_prices.tsv,processed,301766,,src/build/build_matsim_run_inputs.py,,,,,f270dd3e5f985e389c27a353f4736794acbeca92a0182582082e91cf597f732b
 scenarios/matsim/S6/SAT/config.xml,processed,8201,,src/build/build_matsim_run_inputs.py,,,,,1f5e45381a3760f572f7092f02a9325d6c20d906c3071fbde9ae3c5f29ccc2b6
-scenarios/matsim/S6/SAT/transitSchedule.xml.gz,processed,593550,,src/build/build_matsim_run_inputs.py,,,,,03895d0dacb55a0c1fd0dfc635bf9b3585f37815147fcf0ac2ab57f5957fc5d7
+scenarios/matsim/S6/SAT/transitSchedule.xml.gz,processed,605147,,src/build/build_matsim_run_inputs.py,,,,,cb35f34049aa055902b7373cbecb61f2b8494a88c3c6e7e419b13116cf79a5d7
 scenarios/matsim/S6/SAT/transitVehicles.xml.gz,processed,3522,,src/build/build_matsim_run_inputs.py,,,,,2a819a17efa902533fafd39744a75e54032fda135afa1aefc602edb7e94e9b44
 scenarios/matsim/S6/SUN/config.xml,processed,8200,,src/build/build_matsim_run_inputs.py,,,,,f767e7e645b797bfafe60d5bede6d183d691847604e66f9032ebcb5e6a52dc74
-scenarios/matsim/S6/SUN/transitSchedule.xml.gz,processed,487761,,src/build/build_matsim_run_inputs.py,,,,,cb491c17070c69652483df0e198e9d29226d37072ccb4c2261862cdc0ea4656e
+scenarios/matsim/S6/SUN/transitSchedule.xml.gz,processed,491312,,src/build/build_matsim_run_inputs.py,,,,,d827dd7e0488318d36a777b30cd634bf65db73c4b54fcf4e338ea074f38adcc1
 scenarios/matsim/S6/SUN/transitVehicles.xml.gz,processed,3180,,src/build/build_matsim_run_inputs.py,,,,,c502789baa6e25ddefc58c63bdb3dbcb8a29a05ee63adaa5ce61d580138bfb05
 scenarios/matsim/S6/WEEKDAY/config.xml,processed,8205,,src/build/build_matsim_run_inputs.py,,,,,eb66a8720f36f20feb7e74b232ff512b579b118fb8728b867296836640e0b4d0
-scenarios/matsim/S6/WEEKDAY/transitSchedule.xml.gz,processed,1442384,,src/build/build_matsim_run_inputs.py,,,,,64b894127b02b60bde940f2743f21210e7200f54a9edca8790ad17730bb94b04
+scenarios/matsim/S6/WEEKDAY/transitSchedule.xml.gz,processed,1441954,,src/build/build_matsim_run_inputs.py,,,,,b711b193e23fdf7dbe677184ca05852c82920917b215abf23223b264868dbe6c
 scenarios/matsim/S6/WEEKDAY/transitVehicles.xml.gz,processed,6148,,src/build/build_matsim_run_inputs.py,,,,,82f344e436c88ccd2d347a61a0694923545432637db1db94ae776da7ccbb792d
-networks/matsim/_matsim_build_report.json,processed,13342,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0b17e891825d85208d5330240f8b0e702d8ad1655c9248657bd0ad3195639a0c
-networks/matsim/base/network.xml.gz,processed,5864418,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,acf9e37610f97170fd49013b431125dd30609bc5855056100a3c69ea5075ee3c
-networks/matsim/schedules/base2026/network.xml.gz,processed,5636901,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,607a03a4dc2524e3ea5524947d8f3e57003f426710af9d775c1a4ad1b4335fee
-networks/matsim/schedules/base2026/transitSchedule.xml.gz,processed,1980879,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,3692b7227c1fdf40d12341e9a0c66d7b15f5b67b9aa9e5f059692fc69a56da7b
+networks/osm/boundaries.osm,raw,9944320,,cities/newcastle/extract/overpass.py,,,,,4fc8d940416c5c684c369ac9affbc35da48f3e44b3c75fa23136cc4bf6a6f7f5
+networks/osm/buildings_cbd.osm,raw,9009917,,cities/newcastle/extract/overpass.py,,,,,ca2a79c0c10ba04c29a108faa02be68b14a292a9b8296e3ba8859135ca35487d
+networks/osm/footways.osm,raw,36098295,,cities/newcastle/extract/overpass.py,,,,,96b2f1f13864baf863c62b629cf015852f42c31e28e8afe0c2e2045820bbd71c
+networks/osm/green.osm,raw,16396551,,cities/newcastle/extract/overpass.py,,,,,ce6fb5c4436af3a520c39f35c18fc9c7371d395b3dd0d9c1c0e2b723b9a15f4a
+networks/osm/parking.osm,raw,5592281,,cities/newcastle/extract/overpass.py,,,,,8e1cc72557d139e5efc5ca0583d197b61299b51ada481f2fc8257fb55ebe4f82
+networks/osm/poi.osm,raw,54268545,,cities/newcastle/extract/overpass.py,,,,,14be96dd2fe55fe2fc5ed070feda6b8367026be5004e04bc665d7bc88220569a
+networks/osm/railways.osm,raw,20653113,,cities/newcastle/extract/overpass.py,,,,,04c0fbfd2629b40960a768fa661fdc1bfee4ee03a15dcd561b6ddaab3e9c9fbb
+networks/osm/roads.osm,raw,42011840,,cities/newcastle/extract/overpass.py,,,,,2a5f4309472e3198065bd4f012e5354c5fe0cfc94aac10dac5a73ae55c095362
+networks/osm/signals.osm,raw,3250042,,cities/newcastle/extract/overpass.py,,,,,499ace3fe648b553527d3a2db1586936c625d6cce4b97c479248d3b42a7def0b
+networks/osm/water.osm,raw,12324895,,cities/newcastle/extract/overpass.py,,,,,c7dbfeb3f92749ca4eeaabd940419f7ec72d8badd2232d8499fa3620ae09ed92
+networks/matsim/_matsim_build_report.json,processed,14378,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,9f2543275d66597b5abfcc76ff6bb9b9b24bc5c0964d4e0f71e31447361f7af4
+networks/matsim/base/network.xml.gz,processed,6694664,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,a1f0f8ad964fa280b01d33f9e287514a8eb0e20d62eb45b6d2d76be970f02360
+networks/matsim/schedules/base2026/network.xml.gz,processed,6464071,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0cc3e56fbe80c637980b2b402f0761fdddc2687123f214357a7d9610848321eb
+networks/matsim/schedules/base2026/transitSchedule.xml.gz,processed,1971464,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,ac0ba3b2ac28a75ea944617ea12b7c87181995c59074ad2e2ee6771774ca0beb
 networks/matsim/schedules/base2026/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
-networks/matsim/schedules/era1_pre2014_reconstructed/network.xml.gz,processed,5644487,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,fb7593e35712ea061cae5bc0fc40bcb86936909d76896b4b2881d6de9ca556b0
-networks/matsim/schedules/era1_pre2014_reconstructed/transitSchedule.xml.gz,processed,1873464,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b13d3668e47ef4e452df809c841e6e29594295ee07f103a5c58106825d7560d2
+networks/matsim/schedules/era1_pre2014_reconstructed/network.xml.gz,processed,6467873,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c78befc29a22a6ff4569581ef39e8f934649ebb4f1ff4858d64db0fa53b201e7
+networks/matsim/schedules/era1_pre2014_reconstructed/transitSchedule.xml.gz,processed,1893754,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,63caa78b87f47226e6b5eb376d4576ab701e2b1f278d346096ae2c4e85cc2371
 networks/matsim/schedules/era1_pre2014_reconstructed/transitVehicles.xml.gz,processed,14899,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,869ab36d5e8ff384b803cd45f810cf6574daea69553c718c96a787693f4f39a9
-networks/matsim/schedules/era2_2016_rail_truncated/network.xml.gz,processed,5644153,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0aca3197140562bbf2492c51296f6383cab38a6b735fc466d10aa66a24f8a0f2
-networks/matsim/schedules/era2_2016_rail_truncated/transitSchedule.xml.gz,processed,1830487,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,064eb5e0176486c8741fc2161ad82e941f3305694f88acd4daff269ef2b992be
+networks/matsim/schedules/era2_2016_rail_truncated/network.xml.gz,processed,6467639,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,17616582c1917257593d3485cbe20be38c1d79d984b85a7b1ae6518183588b09
+networks/matsim/schedules/era2_2016_rail_truncated/transitSchedule.xml.gz,processed,1916360,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,5dd3c7521a6f5e4489c2db498b5cf58c8d2e0b6f02375893070efe02f6901242
 networks/matsim/schedules/era2_2016_rail_truncated/transitVehicles.xml.gz,processed,14899,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,869ab36d5e8ff384b803cd45f810cf6574daea69553c718c96a787693f4f39a9
-networks/matsim/schedules/era3_2018_keolis_interchange/network.xml.gz,processed,5633991,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,bba78b4fdb635b39c443ba51c7294f27b016450b0dc9755b7ee39d890d8058f9
-networks/matsim/schedules/era3_2018_keolis_interchange/transitSchedule.xml.gz,processed,2207656,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,fa22cc5abab9e5bd6beedb684b8ff94cbb80ea9d6c31316c5aebcb24243059e6
+networks/matsim/schedules/era3_2018_keolis_interchange/network.xml.gz,processed,6466457,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,078aa769c168dc54be3e31409641b4e0936159803748c5f04a3ec4e76f465213
+networks/matsim/schedules/era3_2018_keolis_interchange/transitSchedule.xml.gz,processed,2183756,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,96d600ee4fd8ead717666a1c53dbc8a092e877255fd08d745d08901997241a97
 networks/matsim/schedules/era3_2018_keolis_interchange/transitVehicles.xml.gz,processed,11055,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,1ad2fa14e6b9aeae3df522df3b0f7305e57f461ac4da978dd55eec1118633288
-networks/matsim/schedules/era4_2019_lr_open/network.xml.gz,processed,5637936,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,617945a4dd8db067c9b010251586aa8b2f37248035a51b66f5a4ab1d7965f77c
-networks/matsim/schedules/era4_2019_lr_open/transitSchedule.xml.gz,processed,2093558,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,80359b6e45ac0931a51355e721e10d6a19b32378b17684b460aa33a2f08d89b2
+networks/matsim/schedules/era4_2019_lr_open/network.xml.gz,processed,6470560,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,4067c86ec0d70be699d6767cb957a539dbf06087735677cee635d76a366b6ea5
+networks/matsim/schedules/era4_2019_lr_open/transitSchedule.xml.gz,processed,2115121,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e4b1ea89d8c158e9d1d935c692a4c9a459d7db92151a4154b4af462e8cd1ba57
 networks/matsim/schedules/era4_2019_lr_open/transitVehicles.xml.gz,processed,11808,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b41c70cc20e04ca547f78eb192d5ac2750e3ae16fac460c1b4ea5aa4b41f0c83
-networks/matsim/schedules/S0/network.xml.gz,processed,5634912,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b906c6875db0accd7304e703b8a09c6d21d5d54698d42f122f4366abba35a5e4
-networks/matsim/schedules/S0/transitSchedule.xml.gz,processed,1966095,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,682420097f5dc668f230c3521df4f42bdec01130016bea388b1e46d707ea5f11
+networks/matsim/schedules/S0/network.xml.gz,processed,6462158,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,beca1fa5c0d6d5ec413f6315eec2200bc0ff6963a312dc436122b022b31fc0db
+networks/matsim/schedules/S0/transitSchedule.xml.gz,processed,1964120,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c7954986ea126d95aeefbb0ea6c7b343d0dfca65ebe3f1097e1309ca4f2c2b74
 networks/matsim/schedules/S0/transitVehicles.xml.gz,processed,10728,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,d6946293bbabf0107839d8e58d7ea6dda9cbb3ff63e634eb46a0a3a9dd72830c
-networks/matsim/schedules/S1/network.xml.gz,processed,5634734,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,f1ea19c1f68067538dbcf3ea6406d6e9c7f5881090d7eff3fb8856a99a039f6b
-networks/matsim/schedules/S1/transitSchedule.xml.gz,processed,1975249,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,36610d7c85219cb58d597ff0b0f4fc8ff86e6be95cdfaba3f2a709c11c968948
+networks/matsim/schedules/S1/network.xml.gz,processed,6461899,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,3a843a2f458e62f95b33b0fda6d214722e3b698d9a73325b9ce259980738152d
+networks/matsim/schedules/S1/transitSchedule.xml.gz,processed,1961140,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,3e49d3d84a88b6ab01fddef1a145b1a13c5d23b46db73340bb73f062c6167bc6
 networks/matsim/schedules/S1/transitVehicles.xml.gz,processed,11998,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b5725a47ca416a9b1b10cad0f709fa683bbb20978566fa526317a520027f979e
-networks/matsim/schedules/S2/network.xml.gz,processed,5636927,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,7221f64e2970703856b391347cd8f0fa991bbcaa3f03098e31e57b0609332842
-networks/matsim/schedules/S2/transitSchedule.xml.gz,processed,1962787,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,192fe61cbd685b7f2b7814942dc18c33fcc238ca25290265d22cde36a28a555a
+networks/matsim/schedules/S2/network.xml.gz,processed,6464071,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0cc3e56fbe80c637980b2b402f0761fdddc2687123f214357a7d9610848321eb
+networks/matsim/schedules/S2/transitSchedule.xml.gz,processed,1976560,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b31e17bef5f70add948ab275783eaf003514e3274f3fa52258f4f63ad8727838
 networks/matsim/schedules/S2/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
-networks/matsim/schedules/S2a/network.xml.gz,processed,5636901,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,607a03a4dc2524e3ea5524947d8f3e57003f426710af9d775c1a4ad1b4335fee
-networks/matsim/schedules/S2a/transitSchedule.xml.gz,processed,1997494,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,a83519e53d3f201e3783cd503eee8c058070bc50c0c38860c8f4f87b3c0bec54
+networks/matsim/schedules/S2a/network.xml.gz,processed,6464071,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0cc3e56fbe80c637980b2b402f0761fdddc2687123f214357a7d9610848321eb
+networks/matsim/schedules/S2a/transitSchedule.xml.gz,processed,1976974,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c9222c73bbc47111669bdc08c62b4d8c10114219d51321be1f228c2cf9b03a81
 networks/matsim/schedules/S2a/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
-networks/matsim/schedules/S2b/network.xml.gz,processed,5636927,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,7221f64e2970703856b391347cd8f0fa991bbcaa3f03098e31e57b0609332842
-networks/matsim/schedules/S2b/transitSchedule.xml.gz,processed,1992204,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0cf76baa86e9aad0a2fa0da09d21eb1a48cb191365fe7b42640ae3a8daca177d
+networks/matsim/schedules/S2b/network.xml.gz,processed,6464006,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,33e11af60ba03e1a7cf8e022fa5832c15aaebff65325182f894eee7ef5e49071
+networks/matsim/schedules/S2b/transitSchedule.xml.gz,processed,1997559,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,9a155d64463aa31bb30774e4633bd5a4557bb76b269ef1a2cd4d06543b3773fb
 networks/matsim/schedules/S2b/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
-networks/matsim/schedules/S2c/network.xml.gz,processed,5636927,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,7221f64e2970703856b391347cd8f0fa991bbcaa3f03098e31e57b0609332842
-networks/matsim/schedules/S2c/transitSchedule.xml.gz,processed,2000919,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,d2fa4c2724c4cc807abd4f3e11e79f8521ac1076d96ce075831753f3a7e4ebbf
+networks/matsim/schedules/S2c/network.xml.gz,processed,6463971,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,620c6262fbdfbcadf8f896fd3a4203bc5c8d07090f2068e30a53f4912e5c5198
+networks/matsim/schedules/S2c/transitSchedule.xml.gz,processed,1988363,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,7c066d4d50fb5d6c29c4c6547c9dda665d6f0cc4a8babab60cfa41c10c4725bb
 networks/matsim/schedules/S2c/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
-networks/matsim/schedules/S3/network.xml.gz,processed,5634749,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,6dd05371ad4cbaeb3b71ce22e7429b5e7859bfb6d61e07bef14bc0d246deaed9
-networks/matsim/schedules/S3/transitSchedule.xml.gz,processed,1996801,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,aa221b73939124801f1cebc5a564c914044af8e777bbdee89fb297a2d984299e
+networks/matsim/schedules/S3/network.xml.gz,processed,6462000,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,9bc8deb959ef6bd31ed641219b975458ee7ec4c822a0dc6fef81d0823a1a1949
+networks/matsim/schedules/S3/transitSchedule.xml.gz,processed,2012247,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,80f1eb9dcf70b5ec1dd2a621dcad89d545f8ef22a117087387fb0e2eeb6dde3b
 networks/matsim/schedules/S3/transitVehicles.xml.gz,processed,12492,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,fa1a1c0ddd19efc98797d281acc1521481108251e9a78ea57c6ec9fa33c17828
-networks/matsim/schedules/S4/network.xml.gz,processed,5637295,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,b3c31fade5933d42e75d89167dd9de879e75df3eb08bbc91c141df68e3a03999
-networks/matsim/schedules/S4/transitSchedule.xml.gz,processed,1969476,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,0adbd5f520b1b5482e22de04018e39438d0aeb03a7b5c5fd8f65163a9adc0f25
+networks/matsim/schedules/S4/network.xml.gz,processed,6464338,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,5cdb71bdf738f42a53543a582bdbd9cb65f23b092465a055b12d813039b14b52
+networks/matsim/schedules/S4/transitSchedule.xml.gz,processed,1975946,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e71b4f648fc1f730a59fd4f615e1345b46f165413e9de8e869f4171b2771ea98
 networks/matsim/schedules/S4/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
-networks/matsim/schedules/S5/network.xml.gz,processed,5637551,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,96f726ef7f02a5d8af941bbb3b18090d25264e52d520a9ec875b3e8a0063dc2b
-networks/matsim/schedules/S5/transitSchedule.xml.gz,processed,1957085,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,9b8d40242b541200d794384248f98871e70264e57c9abbf7d1f6ace39e76d6f3
+networks/matsim/schedules/S5/network.xml.gz,processed,6464634,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,f24073455cf041b2b9f6b5f3a91491b4bd1b97dd1921df43bdf833ea56303045
+networks/matsim/schedules/S5/transitSchedule.xml.gz,processed,1954710,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,304395ac4b94558b60a02af0a6b2c44d12a3434a02dfcb17aed62057df64c8bc
 networks/matsim/schedules/S5/transitVehicles.xml.gz,processed,12250,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,680f30b769a0b5396989c8ca8e69b0cf48df49e6ed9621c99e00a0f3854078f4
-networks/matsim/schedules/S6/network.xml.gz,processed,5634671,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,8167c79e12216b85428edf36c94810e29cc6eb58437d9e6a1fe00dc8223d07eb
-networks/matsim/schedules/S6/transitSchedule.xml.gz,processed,1959917,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,dd2f54ae8435202983ba5b1b2924bbf3080325f06225b4d6e1f00871ca0ab7e1
+networks/matsim/schedules/S6/network.xml.gz,processed,6461963,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,702437ba162543669b792b02235ee173aea822c62576651cf762fb823ac2cbb2
+networks/matsim/schedules/S6/transitSchedule.xml.gz,processed,1976614,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e081957b94389b45df3a4ccc01a171fb8bb99cc9ae701739683aef86631d39af
 networks/matsim/schedules/S6/transitVehicles.xml.gz,processed,10596,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,4f786707baa4b8e592747f5fe3d142ddecda8675ab64ee250630136b7f8df5a3
-networks/matsim/variants/net_base2026/network.xml.gz,processed,5812486,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,1e355a2dbad6d716cf670a2ec9f5f4bd2ae042158618b74d5df13652e692cf88
-networks/matsim/variants/net_base2026_broadmeadow_extension/network.xml.gz,processed,5814933,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,ca5ac92e6576b08b8e8b5d1349d20f3c3e3909d39d89ac0f6a1a909859618625
-networks/matsim/variants/net_base2026_hunter_st_full_capacity/network.xml.gz,processed,5812464,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,da53d43907d3f6eeef2a9c85818ef7c02e2dd478ce22a698ba2526e4551a7e4a
-networks/matsim/variants/net_base2026_jhh_extension/network.xml.gz,processed,5816340,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,dea3d2fdcf36bf357313b26b45290b25e668ea863f141b8f99f4dba39490796c
+networks/matsim/variants/net_base2026/network.xml.gz,processed,6634028,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,22e58a2808c3327ee4059040c40ed5a81dcf99ebadbbdb647493000204982bf7
+networks/matsim/variants/net_base2026_broadmeadow_extension/network.xml.gz,processed,6636008,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,54edbf16ae293b3ad07f260be987a6099452ad9346fa433e13d535f84610ac00
+networks/matsim/variants/net_base2026_hunter_st_full_capacity/network.xml.gz,processed,6634020,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,c8fe5ca6b8b71ed556cb0cd5948458845e24efe3b4398f3ff8fb2ab8b47e6bf1
+networks/matsim/variants/net_base2026_jhh_extension/network.xml.gz,processed,6637186,,src/build/build_matsim_network.py (pt2matsim 26.6),,,,,e91bc401b66733892c5604fca55f699fa00f21c41afc82f0cdc34e23846c36cc
 networks/sumo/_sumo_build_report.json,processed,23585,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,09a77d0cf6f60f6fe881497759a0e187213d5f1862d76383fd01dbc529d45eb7
 networks/sumo/net_base2026/corridor.net.xml,processed,30304965,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,05c69dbd434f9c45bfe5bd3796356d725714645d3762811ff740a9fba2214245
 networks/sumo/net_base2026/tls_S2_base.add.xml,processed,13118,,cities/newcastle/build/build_sumo_corridor.py (SUMO netconvert 1.27.1),,,,,cb838bac94568c763e09996d549402eac19b74928ee9296fa80e24c02f2dd6c4

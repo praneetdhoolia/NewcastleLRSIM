@@ -959,17 +959,35 @@ def through_gates():
     t = t.assign(road_key=t.road_name.fillna('').str.strip().str.lower())
     sx, sy = tf.transform(t.lon.to_numpy(dtype=float), t.lat.to_numpy(dtype=float))
 
+    # Outward evidence is a property of the ROAD, not of the crossing edge: a
+    # motorway's boundary-crossing way often ends a few tens of metres past the
+    # polygon while the road itself continues on further ways (measured: the
+    # Hunter Expressway's crossing edge ends 61 m out, the Pacific Highway's
+    # 31-96 m, while only the M1's happens to run 1.9 km). So the test is
+    # whether ANY same-named endpoint lies at least THROUGH_OUTSIDE_MIN_M
+    # beyond the boundary within corridor-match range of the crossing - which
+    # still rejects Hannell Street, whose river bridge puts nothing more than
+    # 2 m beyond the polygon.
+    out_d_s = np.where(s_in, 0.0,
+                       shapely.distance(diss, shapely.points(sxe, sye)))
+    out_d_e = np.where(e_in, 0.0,
+                       shapely.distance(diss, shapely.points(exe, eye)))
+    name_key = edges['name'].astype(str).str.strip().str.lower().to_numpy()
+
     gates = []
     for k in np.flatnonzero(cross):
         inside_start = bool(s_in[k])
         row = edges.iloc[k]
         gx, gy = (sxe[k], sye[k]) if inside_start else (exe[k], eye[k])
-        ox, oy = (exe[k], eye[k]) if inside_start else (sxe[k], sye[k])
-        # a river crossing inside the area exits the polygon only briefly;
-        # a genuine departure keeps going
-        if shapely.distance(diss, shapely.points(ox, oy)) < THROUGH_OUTSIDE_MIN_M:
-            continue
         road_key = str(row['name']).strip().lower()
+        mask = name_key == road_key
+        near = THROUGH_CORRIDOR_KM * 1000.0
+        outward = (((out_d_s[mask] >= THROUGH_OUTSIDE_MIN_M)
+                    & (np.hypot(sxe[mask] - gx, sye[mask] - gy) <= near))
+                   | ((out_d_e[mask] >= THROUGH_OUTSIDE_MIN_M)
+                      & (np.hypot(exe[mask] - gx, eye[mask] - gy) <= near)))
+        if not bool(outward.any()):
+            continue
         same = t[t.road_key == road_key]
         if same.empty:
             continue
@@ -983,7 +1001,8 @@ def through_gates():
                           volume=float(st.volume),
                           station_key=str(st.station_key),
                           station_name=str(st['name']),
-                          station_dist_m=round(float(d[j]), 0)))
+                          station_dist_m=round(float(d[j]), 0),
+                          sa1=''))
     # collapse same-corridor duplicates (two carriageways, split ways)
     gates.sort(key=lambda g: (-g['volume'], g['road'], g['x'], g['y']))
     kept = []
@@ -994,6 +1013,19 @@ def through_gates():
             continue
         kept.append(g)
     kept.sort(key=lambda g: (g['road'], g['x'], g['y']))
+    # a gate's inside endpoint sits in a real zone; carrying that SA1 keeps
+    # every downstream join (metrics, tier analyses) working on through legs
+    if kept:
+        sa1 = gpd.read_file(os.path.join(ZON, 'zones_SA1.gpkg'))
+        sa1 = sa1.to_crs(_city.crs())[['SA1_CODE21', 'geometry']]
+        gpts = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy([g['x'] for g in kept],
+                                        [g['y'] for g in kept]),
+            crs=_city.crs())
+        joined = gpd.sjoin_nearest(gpts, sa1, how='left')
+        codes = joined.groupby(joined.index)['SA1_CODE21'].first()
+        for i, g in enumerate(kept):
+            g['sa1'] = str(codes.get(i, ''))
     return kept
 
 
@@ -1037,7 +1069,7 @@ def through_agents(gates, u, day, seq_base):
                              agent_tier='through',
                              time_flexibility_band='flexible',
                              purpose='through', dest_activity_type='home',
-                             origin_sa1='', dest_sa1='',
+                             origin_sa1=gi['sa1'], dest_sa1=gj['sa1'],
                              origin_x=round(gi['x'], 1), origin_y=round(gi['y'], 1),
                              dest_x=round(gj['x'], 1), dest_y=round(gj['y'], 1),
                              dep_time_s=t0, arr_time_s=t0 + tt,

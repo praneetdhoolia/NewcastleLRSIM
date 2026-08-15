@@ -4,7 +4,7 @@
   "contract": "A city must produce every artefact below, at the same city-relative path, before the framework can run against it. The producing script may be entirely different - that is what a jurisdiction adapter is for - but the path and the columns the framework reads are the contract.",
   "caveat": "`columns_in_reference_city` is the header of the reference city's own copy, not a proven minimum: a column here may be incidental. Narrowing it to the columns framework code actually reads is not done.",
   "n_artefacts": 123,
-  "n_present_in_reference_city": 99,
+  "n_present_in_reference_city": 103,
   "n_paths_built_at_runtime": 11,
   "artefacts": {
     "build": {
@@ -1267,14 +1267,14 @@
       "read_by": [
         "src/analyse/build_basemap.py"
       ],
-      "present_in_reference_city": false
+      "present_in_reference_city": true
     },
     "networks/osm/parking.osm": {
       "kind": "file",
       "read_by": [
         "src/build/build_network_layers.py"
       ],
-      "present_in_reference_city": false
+      "present_in_reference_city": true
     },
     "networks/osm/railways.osm": {
       "kind": "file",
@@ -1300,14 +1300,14 @@
         "src/build/build_matsim_network.py",
         "src/build/build_network_layers.py"
       ],
-      "present_in_reference_city": false
+      "present_in_reference_city": true
     },
     "networks/osm/water.osm": {
       "kind": "file",
       "read_by": [
         "src/analyse/build_basemap.py"
       ],
-      "present_in_reference_city": false
+      "present_in_reference_city": true
     },
     "networks/sumo": {
       "kind": "directory",

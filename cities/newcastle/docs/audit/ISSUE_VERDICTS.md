@@ -281,3 +281,27 @@ first, and it is still the point of no return. What the verdicts change is the
 **No issue has been closed or edited on the strength of this document.** Three
 verdicts (#20 part 2, #24 business, #30 cause 1) are FALSE and two more (#14,
 #28) have stale bodies; those edits are proposed, not made.
+
+---
+
+## Addendum, 16 August — what the 4.1 rebuild resolved, measured
+
+The B0/4.1 batch ran to completion the night after these verdicts were
+written. Post-rebuild measurements against the open questions above:
+
+| # | Post-rebuild measurement | State |
+|---|---|---|
+| **32** | Harvest 10/10 layers over the derived extent, every layer larger than `osm_pre_issue32/`; core SA1s with **no road node: 99 → 4, carrying 0 agents** (the stricter test this document specified). Road layer now spans 150.68–152.28 | **REPAIRED — closeable** |
+| **37** | Chains capped (§9.38): **0 persons** with departures both before 06:00 and at/after 24:00, on WEEKDAY **and** SAT **and** SUN (2,609/458/286 colliding tours dropped, <0.5% of tours) | **FIXED to its own acceptance — closeable** |
+| **30** | Decay now solved per purpose × home LGA (§9.40): **all 30 cells realise their own LGA's HTS distance**, including Newcastle education at 3.0 km (was 6.57) and Port Stephens shopping (unreachable pre-rebuild — its attractors were inside the clipped area; now exact at 7.2 km, direct confirmation of the #32 contamination this document hypothesised) | placement fixed; walk's sub-km recovery re-measures on the first real run |
+| **20** | Through tier live (§9.41): 3 gates (M1 48,016 · Hunter Expressway 33,882 · Pacific Highway 20,701), 17,955 WEEKDAY vehicles, car-locked, single-leg between distinct gates (now a package check). Northern exits ungated — recorded limitation, swept | V113 non-zero confirms on the first run |
+| **29** | Asymmetry declared and constrained (§9.39): `bikeAvail` drawn at 0.50 (swept 0.30–1.00), seed share bike 0.113 vs walk/pt 0.26 | magnitude re-measure before sizing, as this document required |
+| **34** | The floorspace question this document called unanswerable is answered: the new corridor-extent buildings layer holds **2,303 buildings outside the old box; the nearest is 281 m** from any frontage segment against a 50 m attribution ceiling. The box clips nothing; its name-disambiguation role stands | measured; portability fix stays low-priority |
+| defect 1 | The network/road-layer speed disagreement is gone: the rebuilt network takes the declared speeds (service 25 km/h on 50,226 links; 455 residual 20 km/h links are observed maxspeed tags) | closed by the rebuild |
+| **5/9/28** | Now unblocked: run inputs regenerated, package gate green, smoke run rc=0 (median iteration 10.1 s at 1%, was 9.8) | the 4.2 run campaign measures them |
+
+Also surfaced and fixed during the batch, same stale-extent class as #32: the
+**DEM tile list was typed in** with the old extent's comment, so the rebuilt
+network's western and eastern strips had no elevation source (93.5% road
+coverage). The tile set is now derived from the boundary + harvest margin;
+coverage is 100% on roads and footways.

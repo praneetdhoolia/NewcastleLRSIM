@@ -4418,16 +4418,23 @@ through traffic dominates.
 
 Mechanics, all declared and swept, none pinned:
 
-- A **gate** is a major-road edge with one endpoint inside the dissolved study
-  boundary and the other at least `B.external.through_outside_min_m` beyond it
-  (assumed 1 km, swept 0.3–3). The outside test exists because the dissolved
-  boundary includes the coastline and the harbour, so Hannell Street's Hunter
-  River bridge "crosses the boundary" without leaving the study area — the
-  measured false positive that would otherwise have seeded through traffic
-  entering in central Newcastle. The pre-existing cordon-crossing set could not
-  serve: it is derived from the external zones, which lie only on the Hunter
-  Valley side, so the M1 toward Sydney — the single most through-dominated road
-  — had no crossing near it at all.
+- A **gate** is a major-road edge crossing the dissolved study boundary whose
+  ROAD demonstrably continues outward: some same-named endpoint within
+  corridor-match range of the crossing lies at least
+  `B.external.through_outside_min_m` beyond the boundary (assumed 1 km, swept
+  0.3–3). Road-level, not edge-level, because the crossing way itself often
+  ends metres past the polygon — measured on the rebuilt layer: the Hunter
+  Expressway's crossing edge ends 61 m out and the Pacific Highway's 31–96 m,
+  while their roads continue 1–8 km; an edge-level test admitted only the M1
+  and silenced the tier. The outside test exists because the dissolved boundary
+  includes the coastline and the harbour, so Hannell Street's Hunter River
+  bridge "crosses the boundary" without leaving the study area (nothing of the
+  street reaches 3 m beyond the polygon) — the measured false positive that
+  would otherwise have seeded through traffic entering in central Newcastle.
+  The pre-existing cordon-crossing set could not serve: it is derived from the
+  external zones, which lie only on the Hunter Valley side, so the M1 toward
+  Sydney — the single most through-dominated road — had no crossing near it at
+  all.
 - The gate's volume is the nearest **calibration** count station **on the same
   named road** within `B.external.through_corridor_match_km` (assumed 30 km,
   swept 10–50). Measured motivation: only the M1 at Wyee has its station at the
@@ -4457,6 +4464,18 @@ Mechanics, all declared and swept, none pinned:
   SubtourModeChoice cannot leak the anchored volume onto another mode. The
   agents ride in subpopulation `external` (they are boundary-tier agents;
   `agent_tier=through` distinguishes them in every artefact).
+
+**Known limitation, measured on the rebuilt layer:** the northern and
+north-western exits are not yet gated. The Pacific Highway's outward
+representation at Karuah reaches only 259 m beyond the boundary and the New
+England Highway's 887 m — way-length luck in the harvest, not road truth — so
+both fall short of the 1 km evidence minimum, while lowering it toward the
+100–250 m range would admit the Hexham river bridge (Pacific Highway trunk,
+31–96 m "outside" over the Hunter inside the study area) as a false gate. The
+first build therefore gates the M1 (48,016), the southern Pacific Highway
+(20,701) and the Hunter Expressway (33,882); the missing exits are reachable
+through the `through_outside_min_m` sweep and should be revisited when the
+tier is re-examined after issue #5.
 
 **What this is not:** an estimate of through demand. It is a declared,
 sweepable background load whose anchor is the cordon's own calibration counts,

@@ -23,10 +23,51 @@ M=[
  ("census/2021_GCP_SA2_for_NSW_short-header.zip",DP+"2021_GCP_SA2_for_NSW_short-header.zip","ABS Census 2021 GCP, SA2, NSW","CC-BY 4.0"),
  ("census/2021_PEP_SA2_for_NSW_short-header.zip",DP+"2021_PEP_SA2_for_NSW_short-header.zip","ABS Census 2021 Place of Enumeration Profile, SA2, NSW","CC-BY 4.0"),
  ("census/2021_WPP_DZN_for_NSW_short-header.zip",DP+"2021_WPP_DZN_for_NSW_short-header.zip","ABS Census 2021 Working Population Profile by Destination Zone, NSW (jobs by industry/occupation at workplace)","CC-BY 4.0"),
- # DEM tiles: study area spans lat -32.55..-33.20 -> tiles S33 (=-33..-32) and S34 (=-34..-33); lon 151..152 -> E151
- ("dem/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif",COP+"Copernicus_DSM_COG_10_S33_00_E151_00_DEM/Copernicus_DSM_COG_10_S33_00_E151_00_DEM.tif","Copernicus GLO-30 DEM tile S33E151","ESA / open"),
- ("dem/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif",COP+"Copernicus_DSM_COG_10_S34_00_E151_00_DEM/Copernicus_DSM_COG_10_S34_00_E151_00_DEM.tif","Copernicus GLO-30 DEM tile S34E151","ESA / open"),
 ]
+
+
+def dem_tiles():
+    """Copernicus GLO-30 1-degree cells covering the DERIVED study extent.
+
+    The list used to be typed in with the comment 'study area spans lat
+    -32.55..-33.20, lon 151..152' - the same stale-extent class as the issue
+    #32 harvest box: when the harvest extent was corrected to the dissolved
+    LGA boundary plus A.osm.harvest_margin_m, the road network grew past
+    151..152 and 6.5% of edges silently lost their gradient source. The cells
+    are now derived from the same boundary + margin the harvest itself uses.
+    Falls back to the two original cells, loudly, if the processed boundary
+    does not exist yet (first-fetch bootstrap: boundaries download before
+    zones are built).
+    """
+    import math
+    try:
+        import geopandas as gpd
+        _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                          '..', '..', '..', 'src'))
+        import registry as _registry
+        margin = _registry.load().get('A.osm.harvest_margin_m')
+        lga = gpd.read_file(_city.path('data/processed/zones/zones_LGA.gpkg'))
+        if 'zone_tier' in lga.columns:
+            lga = lga[lga.zone_tier == 'core']
+        w, s, e, n = lga.to_crs(4326).total_bounds
+        deg = margin / 111000.0
+        s, w, n, e = s - deg, w - deg, n + deg, e + deg
+    except Exception as exc:                                   # noqa: BLE001
+        print('DEM extent falls back to the two original cells - the derived '
+              'boundary is not available yet (%s)' % exc, flush=True)
+        s, w, n, e = -33.20, 151.0, -32.55, 152.0
+    cells = []
+    for lat0 in range(int(math.floor(s)), int(math.ceil(n))):
+        for lon0 in range(int(math.floor(w)), int(math.ceil(e))):
+            name = 'Copernicus_DSM_COG_10_S%02d_00_E%03d_00_DEM' % (-lat0, lon0)
+            cells.append(('dem/%s.tif' % name, COP + '%s/%s.tif' % (name, name),
+                          'Copernicus GLO-30 DEM tile S%02dE%03d (cell derived '
+                          'from the dissolved LGA boundary + harvest margin)'
+                          % (-lat0, lon0), 'ESA / open'))
+    return cells
+
+
+M += dem_tiles()
 root=_city.path('data/raw'); prov=[]
 for rel,url,desc,lic in M:
     p=os.path.join(root,rel); os.makedirs(os.path.dirname(p),exist_ok=True)

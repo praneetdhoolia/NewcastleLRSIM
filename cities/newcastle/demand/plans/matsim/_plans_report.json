@@ -4,7 +4,15 @@
   "seed_mode_split": {
     "True": [
       [
+        "bike",
+        0.2
+      ],
+      [
         "car",
+        0.2
+      ],
+      [
+        "pt",
         0.2
       ],
       [
@@ -13,24 +21,12 @@
       ],
       [
         "walk",
-        0.2
-      ],
-      [
-        "pt",
-        0.2
-      ],
-      [
-        "bike",
         0.2
       ]
     ],
     "False": [
       [
-        "ride",
-        0.25
-      ],
-      [
-        "walk",
+        "bike",
         0.25
       ],
       [
@@ -38,7 +34,11 @@
         0.25
       ],
       [
-        "bike",
+        "ride",
+        0.25
+      ],
+      [
+        "walk",
         0.25
       ]
     ]
@@ -49,6 +49,11 @@
       "informed"
     ]
   },
+  "bike_available_rate": 0.5,
+  "bike_available_sweep": [
+    0.3,
+    1.0
+  ],
   "hts_mode_share_pct": {
     "car": 57.46,
     "ride": 21.46,
@@ -56,7 +61,7 @@
     "pt": 3.39,
     "bike_other": 1.55
   },
-  "hts_mode_share_pct_source": "derived from data/processed/hts/hts_mode_newcastle.csv, 2024/25, LGA rows: trips-weighted over the five study-area LGAs, unlinked, walk includes the walk stage of a PT trip",
+  "hts_mode_share_pct_source": "derived from C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\data/processed/hts/hts_mode.csv, 2024/25, LGA rows: trips-weighted over the five study-area LGAs, unlinked, walk includes the walk stage of a PT trip",
   "hts_calibration_target_pct": {
     "car": 59.0,
     "ride": 20.6,
@@ -64,85 +69,86 @@
     "pt": 3.8,
     "bike_other": 3.2
   },
-  "hts_calibration_target_source": "derived from data/processed/hts/hts_mode_newcastle.csv, 2024/25, Newcastle LGA, published MODE_SHARE column (linked trips). This is the basis of validation targets V202-V207 and the one a MATSim mode share is comparable to (DECISIONS.md 12.1)",
+  "hts_calibration_target_source": "derived from C:\\Users\\Praneet Dhoolia\\work\\NewcastleLRSIM\\cities\\newcastle\\data/processed/hts/hts_mode.csv, 2024/25, Newcastle LGA, published MODE_SHARE column (linked trips). This is the basis of validation targets V202-V207 and the one a MATSim mode share is comparable to (DECISIONS.md 12.1)",
   "typical_duration_s": {
     "home": 43200,
     "work": 28800,
     "education": 21600,
     "shopping": 3600,
     "other": 7200,
-    "business": 3600
+    "business": 3600,
+    "escort": 300
   },
   "typical_duration_sweep": 0.25,
   "note": "Seed modes are initial conditions for MATSim co-evolution, drawn per tour so chain-based modes stay conserved. The default seed is UNINFORMED - uniform over the modes each person can use, conditioned only on B1 car availability - so that the HTS mode share is a target the model has to reach rather than one it is handed (DECISIONS.md 9.6). Run with --seed-mode informed to reproduce the P3 seed.",
   "by_day": {
     "WEEKDAY": {
-      "persons": 524125,
-      "legs": 2255047,
-      "activities": 2779172,
-      "tours": 1009807,
-      "bytes": 38644602,
+      "persons": 542231,
+      "legs": 2267818,
+      "activities": 2810049,
+      "tours": 1025537,
+      "bytes": 39686606,
       "seed_mode_share": {
-        "bike": 0.2267,
-        "car": 0.1572,
-        "pt": 0.227,
-        "ride": 0.1624,
-        "walk": 0.2268
+        "bike": 0.1134,
+        "car": 0.1848,
+        "pt": 0.259,
+        "ride": 0.1833,
+        "walk": 0.2596
       },
       "activity_types": {
-        "business": 23806,
-        "education": 77713,
-        "escort": 177025,
-        "home": 1533932,
-        "other": 482405,
-        "shopping": 248114,
-        "work": 236177
+        "business": 23782,
+        "education": 77438,
+        "escort": 176934,
+        "home": 1567768,
+        "other": 480999,
+        "shopping": 248011,
+        "work": 235117
       }
     },
     "SAT": {
-      "persons": 450319,
-      "legs": 1869962,
-      "activities": 2320281,
-      "tours": 836344,
-      "bytes": 32115491,
+      "persons": 457056,
+      "legs": 1875074,
+      "activities": 2332130,
+      "tours": 842585,
+      "bytes": 32991814,
       "seed_mode_share": {
-        "bike": 0.2264,
-        "car": 0.1624,
-        "pt": 0.2257,
-        "ride": 0.1602,
-        "walk": 0.2254
+        "bike": 0.1133,
+        "car": 0.1872,
+        "pt": 0.2592,
+        "ride": 0.1803,
+        "walk": 0.26
       },
       "activity_types": {
-        "business": 2841,
-        "education": 3155,
-        "escort": 100485,
-        "home": 1286663,
-        "other": 579190,
-        "shopping": 299855,
-        "work": 48092
+        "business": 2847,
+        "education": 3103,
+        "escort": 100483,
+        "home": 1299641,
+        "other": 578457,
+        "shopping": 299896,
+        "work": 47703
       }
     },
     "SUN": {
-      "persons": 413279,
-      "legs": 1577265,
-      "activities": 1990544,
-      "tours": 704388,
-      "bytes": 27862255,
+      "persons": 418764,
+      "legs": 1582289,
+      "activities": 2001053,
+      "tours": 709529,
+      "bytes": 28644847,
       "seed_mode_share": {
-        "bike": 0.2268,
-        "car": 0.1613,
-        "pt": 0.2257,
-        "ride": 0.1598,
-        "walk": 0.2263
+        "bike": 0.1127,
+        "car": 0.1858,
+        "pt": 0.2599,
+        "ride": 0.181,
+        "walk": 0.2607
       },
       "activity_types": {
-        "business": 1892,
-        "education": 1019,
-        "escort": 68646,
-        "home": 1117667,
-        "other": 572484,
-        "shopping": 201256,
-        "work": 27580
+        "business": 1893,
+        "education": 1103,
+        "escort": 68647,
+        "home": 1128293,
+        "other": 572507,
+        "shopping": 201424,
+        "work": 27186
       }
     }
   }

@@ -104,48 +104,297 @@
     0.04,
     0.15
   ],
+  "through_share": 0.35,
+  "through_corridor_match_km": 30.0,
+  "through_outside_min_m": 1000.0,
+  "through_min_separation_km": 30.0,
+  "through_gates": [
+    {
+      "road": "Hunter Expressway",
+      "station": "99990015",
+      "name": "Hunter Expressway",
+      "volume": 33882.0,
+      "station_dist_m": 27189.0
+    },
+    {
+      "road": "Pacific Highway",
+      "station": "55712",
+      "name": "Pacific Highway",
+      "volume": 20701.0,
+      "station_dist_m": 8049.0
+    },
+    {
+      "road": "Pacific Motorway",
+      "station": "55888",
+      "name": "Pacific Motorway",
+      "volume": 48016.0,
+      "station_dist_m": 273.0
+    }
+  ],
   "decay": {
     "HW": {
-      "beta": 0.08925,
+      "beta": 0.08811,
       "target_straight_km": 13.28,
       "realised_straight_km": 13.28,
       "hts_network_km": 17.76,
-      "realised_network_km": 17.76
+      "realised_network_km": 17.76,
+      "by_lga": {
+        "Cessnock": {
+          "beta": 0.09587,
+          "target_straight_km": 19.96,
+          "realised_straight_km": 19.96,
+          "hts_network_km": 26.7,
+          "realised_network_km": 26.7
+        },
+        "Lake Macquarie": {
+          "beta": 0.06008,
+          "target_straight_km": 14.35,
+          "realised_straight_km": 14.35,
+          "hts_network_km": 19.2,
+          "realised_network_km": 19.2
+        },
+        "Maitland": {
+          "beta": 0.08647,
+          "target_straight_km": 14.65,
+          "realised_straight_km": 14.65,
+          "hts_network_km": 19.6,
+          "realised_network_km": 19.6
+        },
+        "Newcastle": {
+          "beta": 0.06902,
+          "target_straight_km": 8.6,
+          "realised_straight_km": 8.6,
+          "hts_network_km": 11.5,
+          "realised_network_km": 11.5
+        },
+        "Port Stephens": {
+          "beta": 0.11933,
+          "target_straight_km": 14.73,
+          "realised_straight_km": 14.73,
+          "hts_network_km": 19.7,
+          "realised_network_km": 19.7
+        }
+      }
     },
     "HE": {
-      "beta": 0.30477,
+      "beta": 0.30429,
       "target_straight_km": 4.81,
       "realised_straight_km": 4.81,
       "hts_network_km": 6.44,
-      "realised_network_km": 6.44
+      "realised_network_km": 6.44,
+      "by_lga": {
+        "Cessnock": {
+          "beta": 0.28243,
+          "target_straight_km": 5.23,
+          "realised_straight_km": 5.23,
+          "hts_network_km": 7.0,
+          "realised_network_km": 7.0
+        },
+        "Lake Macquarie": {
+          "beta": 0.30762,
+          "target_straight_km": 5.38,
+          "realised_straight_km": 5.38,
+          "hts_network_km": 7.2,
+          "realised_network_km": 7.2
+        },
+        "Maitland": {
+          "beta": 0.43228,
+          "target_straight_km": 3.36,
+          "realised_straight_km": 3.36,
+          "hts_network_km": 4.5,
+          "realised_network_km": 4.5
+        },
+        "Newcastle": {
+          "beta": 0.72379,
+          "target_straight_km": 2.24,
+          "realised_straight_km": 2.24,
+          "hts_network_km": 3.0,
+          "realised_network_km": 3.0
+        },
+        "Port Stephens": {
+          "beta": 0.17081,
+          "target_straight_km": 9.64,
+          "realised_straight_km": 9.64,
+          "hts_network_km": 12.9,
+          "realised_network_km": 12.9
+        }
+      }
     },
     "HS": {
-      "beta": 0.38773,
+      "beta": 0.30764,
       "target_straight_km": 5.33,
       "realised_straight_km": 5.33,
       "hts_network_km": 7.13,
-      "realised_network_km": 7.13
+      "realised_network_km": 7.13,
+      "by_lga": {
+        "Cessnock": {
+          "beta": 0.29294,
+          "target_straight_km": 6.8,
+          "realised_straight_km": 6.8,
+          "hts_network_km": 9.1,
+          "realised_network_km": 9.1
+        },
+        "Lake Macquarie": {
+          "beta": 0.36926,
+          "target_straight_km": 5.38,
+          "realised_straight_km": 5.38,
+          "hts_network_km": 7.2,
+          "realised_network_km": 7.2
+        },
+        "Maitland": {
+          "beta": 0.25189,
+          "target_straight_km": 5.46,
+          "realised_straight_km": 5.46,
+          "hts_network_km": 7.3,
+          "realised_network_km": 7.3
+        },
+        "Newcastle": {
+          "beta": 0.22873,
+          "target_straight_km": 4.49,
+          "realised_straight_km": 4.49,
+          "hts_network_km": 6.0,
+          "realised_network_km": 6.0
+        },
+        "Port Stephens": {
+          "beta": 0.32958,
+          "target_straight_km": 5.38,
+          "realised_straight_km": 5.38,
+          "hts_network_km": 7.2,
+          "realised_network_km": 7.2
+        }
+      }
     },
     "HO": {
-      "beta": 0.23107,
+      "beta": 0.18984,
       "target_straight_km": 7.6,
       "realised_straight_km": 7.6,
       "hts_network_km": 10.16,
-      "realised_network_km": 10.16
+      "realised_network_km": 10.16,
+      "by_lga": {
+        "Cessnock": {
+          "beta": 0.24225,
+          "target_straight_km": 7.69,
+          "realised_straight_km": 7.69,
+          "hts_network_km": 10.28,
+          "realised_network_km": 10.28
+        },
+        "Lake Macquarie": {
+          "beta": 0.26532,
+          "target_straight_km": 6.55,
+          "realised_straight_km": 6.55,
+          "hts_network_km": 8.76,
+          "realised_network_km": 8.76
+        },
+        "Maitland": {
+          "beta": 0.19259,
+          "target_straight_km": 6.46,
+          "realised_straight_km": 6.46,
+          "hts_network_km": 8.64,
+          "realised_network_km": 8.64
+        },
+        "Newcastle": {
+          "beta": 0.07892,
+          "target_straight_km": 8.54,
+          "realised_straight_km": 8.54,
+          "hts_network_km": 11.43,
+          "realised_network_km": 11.43
+        },
+        "Port Stephens": {
+          "beta": 0.16834,
+          "target_straight_km": 10.24,
+          "realised_straight_km": 10.24,
+          "hts_network_km": 13.7,
+          "realised_network_km": 13.7
+        }
+      }
     },
     "WB": {
-      "beta": 0.04239,
+      "beta": 0.0421,
       "target_straight_km": 17.21,
       "realised_straight_km": 17.21,
       "hts_network_km": 23.02,
-      "realised_network_km": 23.02
+      "realised_network_km": 23.02,
+      "by_lga": {
+        "Cessnock": {
+          "beta": 0.11835,
+          "target_straight_km": 19.06,
+          "realised_straight_km": 19.06,
+          "hts_network_km": 25.5,
+          "realised_network_km": 25.5
+        },
+        "Lake Macquarie": {
+          "beta": 0.0426,
+          "target_straight_km": 15.85,
+          "realised_straight_km": 15.85,
+          "hts_network_km": 21.2,
+          "realised_network_km": 21.2
+        },
+        "Maitland": {
+          "beta": 0.02521,
+          "target_straight_km": 21.16,
+          "realised_straight_km": 21.16,
+          "hts_network_km": 28.3,
+          "realised_network_km": 28.3
+        },
+        "Newcastle": {
+          "beta": 0.03409,
+          "target_straight_km": 9.57,
+          "realised_straight_km": 9.57,
+          "hts_network_km": 12.8,
+          "realised_network_km": 12.8
+        },
+        "Port Stephens": {
+          "beta": 0.06848,
+          "target_straight_km": 22.8,
+          "realised_straight_km": 22.8,
+          "hts_network_km": 30.5,
+          "realised_network_km": 30.5
+        }
+      }
     },
     "HX": {
-      "beta": 0.24516,
+      "beta": 0.24407,
       "target_straight_km": 5.86,
       "realised_straight_km": 5.86,
       "hts_network_km": 7.84,
-      "realised_network_km": 7.84
+      "realised_network_km": 7.84,
+      "by_lga": {
+        "Cessnock": {
+          "beta": 0.21204,
+          "target_straight_km": 7.78,
+          "realised_straight_km": 7.78,
+          "hts_network_km": 10.4,
+          "realised_network_km": 10.4
+        },
+        "Lake Macquarie": {
+          "beta": 0.28308,
+          "target_straight_km": 5.76,
+          "realised_straight_km": 5.76,
+          "hts_network_km": 7.7,
+          "realised_network_km": 7.7
+        },
+        "Maitland": {
+          "beta": 0.24397,
+          "target_straight_km": 5.76,
+          "realised_straight_km": 5.76,
+          "hts_network_km": 7.7,
+          "realised_network_km": 7.7
+        },
+        "Newcastle": {
+          "beta": 0.2361,
+          "target_straight_km": 4.78,
+          "realised_straight_km": 4.78,
+          "hts_network_km": 6.4,
+          "realised_network_km": 6.4
+        },
+        "Port Stephens": {
+          "beta": 0.21747,
+          "target_straight_km": 7.4,
+          "realised_straight_km": 7.4,
+          "hts_network_km": 9.9,
+          "realised_network_km": 9.9
+        }
+      }
     }
   },
   "detour_factor": 1.3376,
@@ -154,79 +403,88 @@
     1.423
   ],
   "detour_source": "measured - shortest path over the observed A1 road graph",
-  "attractors": 22940,
+  "attractors": 26466,
   "zones_with_attractor": {
-    "HW": 1135,
-    "HE": 221,
-    "HS": 812,
-    "HO": 992,
-    "WB": 860,
-    "HX": 221
+    "HW": 1230,
+    "HE": 228,
+    "HS": 891,
+    "HO": 1084,
+    "WB": 939,
+    "HX": 228
   },
   "persons": 612668,
   "by_day": {
     "WEEKDAY": {
       "external_agents": 5632,
-      "external_legs": 10934,
-      "legs": 2244113,
-      "tours": 1004340,
-      "travelling_persons": 518658,
-      "legs_per_person": 3.663,
-      "tours_per_traveller": 1.936,
-      "tours_dropped_over_horizon": 12004,
+      "external_legs": 10884,
+      "through_agents": 17955,
+      "through_legs": 17955,
+      "legs": 2238979,
+      "tours": 1002140,
+      "travelling_persons": 518834,
+      "legs_per_person": 3.654,
+      "tours_per_traveller": 1.932,
+      "tours_dropped_over_horizon": 11793,
+      "tours_dropped_midnight_collision": 2609,
       "by_purpose": {
-        "HW": 414597,
-        "HX": 327611,
-        "HO": 728747,
-        "NHB": 228297,
-        "HS": 351089,
-        "HE": 146160,
-        "WB": 47612
+        "HW": 412796,
+        "HX": 327393,
+        "HO": 727090,
+        "NHB": 227679,
+        "HS": 350964,
+        "HE": 145493,
+        "WB": 47564
       }
     },
     "SAT": {
       "external_agents": 2254,
-      "external_legs": 4292,
-      "legs": 1865670,
-      "tours": 834198,
-      "travelling_persons": 448173,
-      "legs_per_person": 3.045,
+      "external_legs": 4278,
+      "through_agents": 7182,
+      "through_legs": 7182,
+      "legs": 1863614,
+      "tours": 833264,
+      "travelling_persons": 447735,
+      "legs_per_person": 3.042,
       "tours_per_traveller": 1.861,
-      "tours_dropped_over_horizon": 4540,
+      "tours_dropped_over_horizon": 4353,
+      "tours_dropped_midnight_collision": 458,
       "by_purpose": {
-        "HX": 185926,
-        "HO": 926724,
-        "HW": 83374,
-        "HS": 461634,
-        "NHB": 196395,
-        "HE": 5935,
-        "WB": 5682
+        "HO": 925920,
+        "HX": 186000,
+        "HS": 461407,
+        "NHB": 196220,
+        "HW": 82542,
+        "HE": 5831,
+        "WB": 5694
       }
     },
     "SUN": {
       "external_agents": 1697,
-      "external_legs": 3244,
-      "legs": 1574021,
-      "tours": 702766,
-      "travelling_persons": 411657,
+      "external_legs": 3200,
+      "through_agents": 5387,
+      "through_legs": 5387,
+      "legs": 1573702,
+      "tours": 702542,
+      "travelling_persons": 411777,
       "legs_per_person": 2.569,
-      "tours_per_traveller": 1.707,
-      "tours_dropped_over_horizon": 2547,
+      "tours_per_traveller": 1.706,
+      "tours_dropped_over_horizon": 2387,
+      "tours_dropped_midnight_collision": 286,
       "by_purpose": {
-        "HS": 293884,
-        "HO": 932384,
-        "NHB": 167902,
-        "HW": 47166,
-        "HX": 126983,
-        "WB": 3784,
-        "HE": 1918
+        "HS": 294264,
+        "HO": 931886,
+        "NHB": 168063,
+        "HW": 46688,
+        "HX": 126952,
+        "WB": 3786,
+        "HE": 2063
       }
     }
   },
   "placement": {
-    "poi": 2867366,
-    "home": 2541304,
-    "jitter": 275134
+    "poi": 2873237,
+    "home": 2537946,
+    "jitter": 265112
   },
   "tours_dropped_over_horizon": 0,
   "rate_solution": {
@@ -294,5 +552,5 @@
       }
     }
   },
-  "realised_week_trip_rate": 3.418
+  "realised_week_trip_rate": 3.412
 }

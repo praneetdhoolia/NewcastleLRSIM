@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 15 August 2026 · branch `praneetdhoolia/mode-choice-specification`
+**Last updated:** 16 August 2026 · branch `praneetdhoolia/mode-choice-specification`
 
 > **This file is a board, not a diary.** The dated build narrative that used to live
 > here (944 lines) is archived in
@@ -15,34 +15,34 @@ this at session start. **Keep it current in the same commit/PR as the work it de
 
 ---
 
-## ⛔ One thing blocks everything: the OSM harvest is empty
+## ✅ The rebuild batch (4.1) is DONE — the point of no return was crossed 16 August
 
-`cities/newcastle/networks/osm/` holds **nothing**. The issue #32 re-harvest was started, produced four
-corrupt layers, was deleted, and has **not been re-run**. Until it is:
-
-- nothing downstream of the OSM extract can be rebuilt;
-- `tests/check_package.py` **cannot pass**;
-- the manifest carries **376** files instead of 386, because the 10 OSM layers do not
-  exist to hash;
-- `build_basemap.py` runs only against `cities/newcastle/networks/osm_pre_issue32/` (10 layers,
-  179 MB, now carrying the generic layer names `roads.osm`, `footways.osm`, ...,
-  gitignored) — **do not delete that directory** until a new harvest verifies.
-
-The re-harvest is step **B0** below and is a **point of no return**: it re-runs
-pt2matsim, which makes every existing run incomparable
-([`DECISIONS.md`](DECISIONS.md) §3.5).
+The issue #32 re-harvest ran to completion over the boundary-derived extent
+(2.02× the old rectangle) and the whole chain was rebuilt on it in one batch:
+network layers, gradients (DEM tile set now **derived** from the boundary —
+100% coverage), speed zones, corridor attributes, scenario GTFS feeds, one
+pt2matsim build of **all 15 feeds (0 unmapped stops each)**, land use, parking
+prices, attractions, B2 demand with the five demand fixes, MATSim plans, and
+the 30 run-input sets. `tests/check_package.py`: **1,452 checks, ALL PASSED**,
+2 standing warnings. Verified gates: every OSM layer larger than its
+`osm_pre_issue32/` counterpart; core SA1s without a road node **99 → 4, with 0
+agents in them** (all 35,365 stranded agents are on the network); network link
+speeds agree with `A1_road_edges.csv`. **Every run made before this batch is
+incomparable with every run after it** ([`DECISIONS.md`](DECISIONS.md) §3.5) —
+which is why `results/` was already empty when it landed.
+`networks/osm_pre_issue32/` remains the pre-repair reference copy.
 
 ## Where the build is
 
 | | |
 |---|---|
-| Phase | **P4 (calibration), in progress** — 7 of 9 deliverables met |
-| Blocking state | OSM harvest empty; package gate un-runnable |
-| Committed data package | **378 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes |
-| Input registry | **292 fields** — 122 assumed, 85 definition, 35 literature, 25 derived, 21 measured, 4 observed; **15 carry no value** and the resolver refuses to invent one; 271 active, 10 computed, 6 unobtained, 5 placeholder |
-| Run inputs assembled | **30** scenario × day-type sets, all carrying the `telemetry` module |
-| Runs on disk | **None.** The 25% convergence pilot DIED at iteration 43 of 1000 (below). The 8 superseded runs are deleted (14.5 GiB — unreadable by `fit.py` after the `newcastle_lga_pct` → `target_lga_pct` rename), and so are the 3 crash-interrupted ones (13.3 GiB). **A run with no `_run.json` is not a result and is not kept.** |
-| Open issues | **12** — #5 #9 #14 #20 #24 #28 #29 #30 #31 #32 #34 #37. **#36 closed 15 Aug**, verified already done: zero `WICKHAM_` occurrences and the package is `citysim`. **All twelve re-measured against today's model 15 Aug** — verdicts and measurements in [`docs/audit/ISSUE_VERDICTS.md`](audit/ISSUE_VERDICTS.md): **3 FALSE parts (#20's mis-match half, #24's business half, #30's scoring half — all already fixed or struck), 2 CHANGED (#28's blocking mechanism fixed 12 Aug, #29's magnitude void), 7 CONFIRMED, 2 UNTESTABLE until after the rebuild (#5, #34's floorspace question).** The verdicts also surfaced three stale statements outside the twelve (network/road-layer speed disagreement, a false note in `params/C3_count_comparison.json`, a stale registry description) — owned by tasks 4.1.7–4.1.8 below. |
+| Phase | **P4 (calibration), in progress** — 7 of 9 deliverables met; batch 4.1 (the rebuild) **done 16 Aug** |
+| Blocking state | **None on the build.** Next: the 4.2 run campaign (#5 pilot first) |
+| Committed data package | **391 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes · `check_package.py` **1,452 checks ALL PASSED** (2 standing warnings) |
+| Input registry | **297 fields** (the batch added bike availability and the four through-tier fields) — every one with units, provenance and a sweep, held-fixed rule or derived identity; ledger **0** with `--strict` gating CI; reach 69/69 |
+| Run inputs assembled | **30** scenario × day-type sets, regenerated 16 Aug from the rebuilt package through the emitter |
+| Runs on disk | **`smoke_postrebuild`** (1% × 2 iterations, rc=0, 48 s, median iteration 10.1 s vs 9.8 s on the old network) — proves the rebuilt package executes end to end; **not a result**. Everything older was deleted. **A run with no `_run.json` is not a result and is not kept.** |
+| Open issues | Verdicts and measurements: [`docs/audit/ISSUE_VERDICTS.md`](audit/ISSUE_VERDICTS.md) (15 Aug) and its post-rebuild addendum (16 Aug). **Resolved by batch 4.1:** #32 (99 → 4 no-road-node SA1s, 0 agents affected), #37 (zero midnight collisions on all three day types), #34's floorspace question (2,303 out-of-box buildings, nearest 281 m from any segment — the box clips nothing), plus the three stale statements the verdicts surfaced. **Advanced, verify on the first post-rebuild runs:** #30 (destinations now solved per purpose × home LGA, all 30 cells on target), #29 (asymmetry declared, availability drawn at a swept 0.50 — magnitude re-measure pending), #20 (through tier live at 3 gates; V113 non-zero to be confirmed on a run; northern exits recorded as a limitation). **Awaiting runs/decisions:** #5 → #9 → #14, #28's residual, #31, #24 (freight — the next focused change). |
 | **Results** | **None. No scenario has been run to a reportable state, and nothing in this repository is an output of the model.** |
 
 ### Measured run costs — kept from the dead pilots; the runs themselves are deleted
@@ -186,9 +186,9 @@ to diverge from.
 | Phase | State | What is done | What is not |
 |---|---|---|---|
 | **P0** Scoping | ✅ complete | Base year 2026, zone system, S0–S6 settled (§1) | — |
-| **P1** Data acquisition | 🟡 substantially complete | 376 files hashed, provenance-tagged | Field dwell measurement never done. SCATS **refused by policy** (§9.21), journey-linked Opal unpublished — both swept, never pinned. **10 OSM layers absent** pending #32. |
-| **P2** Network build | 🟡 complete, will be redone | 1 MATSim base + 4 variants, 15 mapped feeds, 0 unmapped stops, 4 SUMO nets | Corridor kerbside 95% imputed, lane width 98.6%, capacity 100% (#27 closed as *cannot* be closed — B3 must report them as uncertainty). **#32 re-harvest will rebuild all of it.** |
-| **P3** Demand synthesis | 🟡 complete as built, **will be superseded** | 612,680 agents, 524,125 weekday persons (regenerated with the zero-hardcoding change), 3 day types, 30 run-input sets | Freight and boundary through traffic absent (#24, #20 — the business half is struck: generated at 2.11% vs 2.0% observed). Destinations placed too far (#30, placement half only — the scoring half was repaired 13 Aug). Bike ownership universal and undeclared (#29). 2,066 WEEKDAY / 358 SAT / 240 SUN agents live a 30-hour day (#37 re-measured). |
+| **P1** Data acquisition | ✅ complete for P4's needs | **391 files hashed**, provenance-tagged; 10 OSM layers re-harvested 16 Aug over the derived extent; DEM tile set derived from the boundary (5 tiles, 100% gradient coverage) | Field dwell measurement never done. SCATS **refused by policy** (§9.21), journey-linked Opal unpublished — both swept, never pinned. Two ABS DataPack URLs (Mesh Blocks NSW, WPP DZN) now 404 upstream — files were never held locally; noted, not chased. |
+| **P2** Network build | ✅ **rebuilt 16 Aug on the corrected extent** | 1 MATSim base (181,892 links) + 4 variants, 15 mapped feeds, **0 unmapped stops in every feed**, 4 SUMO nets; link speeds agree with the declared registry values | Corridor kerbside 95% imputed, lane width 98.6%, capacity 100% (#27 closed as *cannot* be closed — B3 must report them as uncertainty). |
+| **P3** Demand synthesis | ✅ **regenerated 16 Aug with the five demand fixes** | 612,668 agents; 542,231 WEEKDAY persons (incl. 5,467 external + 17,955 through); destinations solved per purpose × home LGA (all 30 cells on their own HTS row); bike availability drawn at a declared swept 0.50; **zero** 30-hour-day collisions on all three day types; through tier at 3 gates (M1 48,016 · Hunter Expressway 33,882 · Pacific Highway 20,701) | Freight still absent (#24 — the next focused change). Northern through exits ungated (§9.41 limitation). Bike/walk shares re-measure on the first real run before #29 is sized. |
 | **P4** Calibration | 🟡 **in progress — 7 of 9** | Harness, metrics, fit, calibration loop, report, outer-loop tolerance, **live run view** | Deliverable **0** (input completeness) and **5** (calibrated base) not met. |
 | **P5** Scenario runs | ⬜ not started | — | **SUMO has been built six times and simulated zero times**, deliberately. |
 | **P6** Analysis | ⬜ not started | — | Hypothesis B1 has **no observable at all** without pedestrian counts. |
@@ -444,10 +444,18 @@ effort, *wall* is elapsed compute/network time; run-cost figures derive from the
 measured s/iteration above, the rest are judgement and say so by being
 estimates.
 
-### Batch 4.1 — the rebuild (**the next PR**; point of no return, pay it once)
+### Batch 4.1 — the rebuild — ✅ **DONE 16 August** (this PR)
 
-Re-runs pt2matsim, so every existing run becomes incomparable (§3.5) — which is
-why everything that touches the harvest, the network or B2 lands together.
+Executed as planned, in one batch. Measured outcomes against the gates:
+harvest 10/10 layers, all larger; **99 → 4** core SA1s without a road node,
+**0 agents** in the 4; network speeds agree with the registry; 15 feeds mapped
+in one build, 0 unmapped stops each; `check_package` **1,452 ALL PASSED**;
+manifest **391**; `check_hardcoding --strict` **0**, reach 69/69; #37
+acceptance **zero on all three day types**; #34 floorspace damage measured
+**nil** (nearest out-of-box building 281 m from any segment); smoke run
+`smoke_postrebuild` rc=0, median iteration 10.1 s at 1% (was 9.8 s on the
+smaller network) — full memory re-measure belongs to the first 10% arm
+(4.2.1). The task table below stands as the plan of record.
 
 | # | Task | Closes | ETA |
 |---|---|---|---|

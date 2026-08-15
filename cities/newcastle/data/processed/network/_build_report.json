@@ -1,21 +1,21 @@
 {
-  "road_edges": 43112,
-  "road_km": 9206.9,
+  "road_edges": 50182,
+  "road_km": 11434.4,
   "road_imputed": {
-    "lane_width_m": 42747,
-    "kerbside_use": 42233,
-    "num_lanes": 32499,
-    "speed_limit_kmh": 23151
+    "num_lanes": 38090,
+    "lane_width_m": 49729,
+    "kerbside_use": 49298,
+    "speed_limit_kmh": 28046
   },
-  "footway_edges": 35653,
-  "footway_km": 6324.5,
+  "footway_edges": 40195,
+  "footway_km": 7920.4,
   "footway_imputed": {
-    "width_m": 35074,
-    "lighting": 35251
+    "width_m": 39547,
+    "lighting": 39770
   },
-  "signals": 1265,
-  "crossings": 9981,
-  "turn_restrictions": 1386,
-  "parking_facilities": 7710,
-  "parking_with_osm_capacity": 4861
+  "signals": 1337,
+  "crossings": 10677,
+  "turn_restrictions": 1546,
+  "parking_facilities": 8479,
+  "parking_with_osm_capacity": 4880
 }

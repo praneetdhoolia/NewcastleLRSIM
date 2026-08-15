@@ -3,20 +3,26 @@
   "excluded_classes": [
     "service"
   ],
-  "edges": 43112,
+  "edges": 50182,
   "zone_segments": 35688,
-  "matched_to_zone": 25109,
-  "kept_osm": 1488,
-  "kept_class_default": 16515,
-  "validated_against_osm": 18473,
-  "agreement_rate": 0.749,
-  "disagreements": 4637,
+  "matched_to_zone": 27120,
+  "kept_osm": 2785,
+  "kept_class_default": 20277,
+  "validated_against_osm": 19351,
+  "agreement_rate": 0.7489,
+  "disagreements": 4860,
   "example_disagreements": [
     {
       "edge_id": "w196838798",
       "road_class": "secondary",
       "osm": 100.0,
       "zone": 80.0
+    },
+    {
+      "edge_id": "w172794180",
+      "road_class": "unclassified",
+      "osm": 100.0,
+      "zone": 110.0
     },
     {
       "edge_id": "w411885020",
@@ -55,22 +61,16 @@
       "zone": 60.0
     },
     {
-      "edge_id": "w302901180",
-      "road_class": "motorway",
-      "osm": 110.0,
-      "zone": 80.0
+      "edge_id": "w777403040",
+      "road_class": "motorway_link",
+      "osm": 100.0,
+      "zone": 110.0
     },
     {
-      "edge_id": "w824019024",
-      "road_class": "motorway",
-      "osm": 110.0,
-      "zone": 80.0
-    },
-    {
-      "edge_id": "w1253785975",
-      "road_class": "secondary",
-      "osm": 90.0,
-      "zone": 80.0
+      "edge_id": "w11773323",
+      "road_class": "primary",
+      "osm": 60.0,
+      "zone": 110.0
     }
   ]
 }

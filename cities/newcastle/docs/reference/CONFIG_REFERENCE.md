@@ -1050,11 +1050,11 @@ Minimum straight-line separation between the entry gate and the exit gate for a 
 
 #### `B.external.through_outside_min_m`
 
-A boundary-crossing edge counts as leaving the study area only if its outside endpoint lies at least this far beyond the dissolved boundary. Filters water crossings INSIDE the area (harbour bridges) out of the gate set.
+A boundary crossing counts as leaving the study area only if some endpoint of its ROAD (any same-named edge within the corridor-match distance of the crossing) lies at least this far beyond the dissolved boundary. Road-level, not edge-level: a motorway's crossing way often ends metres past the polygon while the road continues on further ways. Filters water crossings INSIDE the area (harbour bridges) out of the gate set.
 
 ***assumed** · status **active** · DECISIONS.md §9.41*
 
-> **Sweep basis.** The dissolved study boundary includes the coastline and the harbour, so a road bridging the Hunter River 'crosses the boundary' without leaving the study area - Hannell Street at Wickham is the measured example, and its station would otherwise seed through traffic entering in central Newcastle. 1 km separates a genuine departure from a river crossing; the sweep brackets that judgement.
+> **Sweep basis.** The dissolved study boundary includes the coastline and the harbour, so a road bridging the Hunter River 'crosses the boundary' without leaving the study area - Hannell Street at Wickham is the measured example (nothing of it reaches more than 2 m beyond the polygon), and its station would otherwise seed through traffic entering in central Newcastle. Genuine exits measured on the rebuilt layer put same-named endpoints 1-8 km beyond the boundary while their crossing EDGES often end 31-203 m out, so the evidence is road-level. 1 km separates a departure from a river crossing; the sweep brackets that judgement.
 
 #### `B.external.through_share`
 

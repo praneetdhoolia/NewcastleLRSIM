@@ -502,7 +502,7 @@ else:
             continue
         n = 0
         bad_zone = bad_time = bad_seq = open_tour = nhb_home = 0
-        home_not_core = home_not_external = 0
+        home_not_core = home_not_external = through_bad = 0
         coords = set()
         purposes = collections.Counter()
         placement = collections.Counter()
@@ -527,6 +527,14 @@ else:
                     # a tour starts at home, so leg 1's origin IS the home zone
                     if int(r['trip_seq']) == 1 and r['origin_sa1'] not in core_tier:
                         home_not_core += 1
+                elif r['agent_tier'] == 'through':
+                    # a through trip's two ends are cordon gates INSIDE the
+                    # network (DECISIONS.md 9.41), so the external-tier origin
+                    # rule below does not apply to it. What must hold instead:
+                    # one leg, between two DIFFERENT gates - a volume anchored
+                    # on a boundary count crosses the area, it does not park.
+                    if r['origin_sa1'] == r['dest_sa1'] or int(r['trip_seq']) != 1:
+                        through_bad += 1
                 elif int(r['trip_seq']) == 1 and r['origin_sa1'] in core_tier:
                     home_not_external += 1
         # every tour must close at home, or MATSim gets an agent who never goes home
@@ -543,6 +551,10 @@ else:
         check(home_not_external == 0,
               '%s: every boundary agent starts from the external tier, not the '
               'core (%d inside it)' % (day, home_not_external))
+        check(through_bad == 0,
+              '%s: every through trip is one leg between two different cordon '
+              'gates (DECISIONS.md 9.41, issue #20) (%d bad)'
+              % (day, through_bad))
         check(bad_time == 0,
               '%s: no leg arrives before it departs or after the 30 h horizon (%d bad)'
               % (day, bad_time))
@@ -620,19 +632,32 @@ else:
                   'its answer' % (day, car, tgt_share['car']))
         # Uniform over the modes each person MAY use, which is not the same as
         # uniform over all non-car modes: since DECISIONS.md 9.11, `ride` is
-        # offered only to the 77.9% who have a household driver, so its seed
-        # share is lower BY CONSTRUCTION. bike/pt/walk are available to everyone
-        # and must still be uniform; ride must sit below them but not at zero.
-        free = [v_ for k, v_ in seed.items() if k not in ('car', 'ride')]
+        # offered only to those with a household driver, and since 9.39 `bike`
+        # is drawn at B.population.bike_available_rate - so both sit below the
+        # universal modes BY CONSTRUCTION. Only walk and pt are available to
+        # everyone now, and they must still be uniform; ride and bike must sit
+        # below them but not at zero.
+        free = [v_ for k, v_ in seed.items() if k in ('walk', 'pt')]
         check(bool(free) and (max(free) - min(free)) < 0.02,
               '%s: the seed is uninformed - uniform over the modes available to '
               'everyone (spread %.4f)' % (day, (max(free) - min(free)) if free else -1))
         ride = seed.get('ride', 0)
         check(0 < ride < min(free) if free else False,
-              '%s: seed ride share %.3f sits below the freely available modes '
-              '(%.3f) because 22.1%% of the population has nobody to drive them, '
+              '%s: seed ride share %.3f sits below the universal modes '
+              '(%.3f) because part of the population has nobody to drive them, '
               'and is not zero (DECISIONS.md 9.11)'
               % (day, ride, min(free) if free else -1))
+        bike = seed.get('bike', 0)
+        _bar = prep.get('bike_available_rate')
+        check(_bar is not None,
+              '%s: the plans report records the bike availability rate it was '
+              'built with (DECISIONS.md 9.39, issue #29)' % day)
+        check((0 < bike < min(free)) if (free and _bar is not None and _bar < 1.0)
+              else (bike > 0),
+              '%s: seed bike share %.3f sits below the universal modes (%.3f) '
+              'because bike availability is drawn at the declared rate %s, '
+              'and is not zero (DECISIONS.md 9.39, issue #29)'
+              % (day, bike, min(free) if free else -1, _bar))
     check(False,
           'lastIteration is NOT validated: two 250-iteration runs at 1% were '
           'still drifting after innovation was switched off (DECISIONS.md 9.7). '
