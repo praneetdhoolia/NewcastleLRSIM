@@ -38,7 +38,7 @@ pt2matsim, which makes every existing run incomparable
 |---|---|
 | Phase | **P4 (calibration), in progress** — 7 of 9 deliverables met |
 | Blocking state | OSM harvest empty; package gate un-runnable |
-| Committed data package | **376 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes |
+| Committed data package | **378 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes |
 | Input registry | **292 fields** — 122 assumed, 85 definition, 35 literature, 25 derived, 21 measured, 4 observed; **15 carry no value** and the resolver refuses to invent one; 271 active, 10 computed, 6 unobtained, 5 placeholder |
 | Run inputs assembled | **30** scenario × day-type sets, all carrying the `telemetry` module |
 | Runs on disk | **None.** The 25% convergence pilot DIED at iteration 43 of 1000 (below). The 8 superseded runs are deleted (14.5 GiB — unreadable by `fit.py` after the `newcastle_lga_pct` → `target_lga_pct` rename), and so are the 3 crash-interrupted ones (13.3 GiB). **A run with no `_run.json` is not a result and is not kept.** |
@@ -83,6 +83,29 @@ start, at near-zero CPU with zero log output, confirmed by MATSim's own
 `realT=2237s at simT=0.0s`. Not CPU, not GC, not the monitor, and the repo is
 not under OneDrive. It did not recur in ~400 iterations. Unattributed — do not
 assume it is gone.
+
+### ✅ G2 is EXERCISED, not asserted — a second city runs the framework unchanged
+
+`python tests/check_city_agnostic.py` — **13 assertions, all passing**, and a CI
+job on every push. It builds a second city from this city's own declarations
+under a different identity (different projection, base year, seed, day types,
+**three modes not five**), emits its MATSim config through the same emitter, and
+asserts **differences** — a test that only checked the config parsed would pass
+even if every value in it were Newcastle's. It hashes `src/`, `config/schema/`
+and `run.py` either side to prove no framework file changed while it ran. It
+invents no observation and deletes its fixture afterwards.
+
+**Building it found two defects that one city could never expose:**
+
+- **`CITYSIM_CITY` had never worked.** Setting the documented city selector to
+  *any* value — including its own default — made every `registry.load()` raise
+  `env CITYSIM_CITY matches no registry field`. The resolver read `CITYSIM_*` as
+  field overrides and skipped only `CITYSIM_REPO`. Nobody had set it, because
+  there is one city and the default applies when it is absent.
+- **The contract was over-strict, and its own caveat said so.**
+  `required_fields.json` demanded all 292 fields of every city; a three-mode
+  city was refused for not declaring bike parameters. Fields now carry
+  `required_if_mode`, **derived** from the tool binding rather than judged.
 
 ### ✅ The hardcoding ledger — 0 items, and `--strict` is a CI gate
 

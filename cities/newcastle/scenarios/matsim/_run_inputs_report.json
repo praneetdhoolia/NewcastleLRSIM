@@ -1,90 +1,4 @@
 {
-  "seed": 20260810,
-  "iterations": 100,
-  "capacity_factor": 1.0,
-  "plan_memory": 5,
-  "scoring": {
-    "performing_utils_per_h": 6.0,
-    "performing_sweep": [
-      4.0,
-      8.0
-    ],
-    "monetary_distance_rate": {
-      "car": -0.00018,
-      "ride": -0.00018,
-      "pt": 0.0,
-      "walk": 0.0,
-      "bike": 0.0
-    },
-    "monetary_distance_rate_sweep": [
-      -0.00025,
-      -0.00012
-    ],
-    "strategies": {
-      "ChangeExpBeta": 0.7,
-      "ReRoute": 0.15,
-      "SubtourModeChoice": 0.1,
-      "TimeAllocationMutator": 0.05
-    },
-    "subtour_mode_choice_weight_sweep": [
-      0.05,
-      0.2
-    ],
-    "marginal_utility_of_money": 1.0,
-    "vot_aud_hr_used": 16.961,
-    "vot_aud_hr_by_purpose": {
-      "HW": 18.6,
-      "HE": 9.3,
-      "HS": 15.2,
-      "HO": 15.2,
-      "WB": 55.4,
-      "NHB": 15.2
-    },
-    "purpose_weights": {
-      "HE": 0.09109209864116759,
-      "HO": 0.3824861600402617,
-      "HS": 0.17262204328132863,
-      "HW": 0.1404126824358329,
-      "NHB": 0.1680926019124308,
-      "WB": 0.04529441368897836
-    },
-    "waiting_pt": -27.9216,
-    "utility_of_line_switch": -2.2614,
-    "transfer_penalty_min": 8.0,
-    "transfer_penalty_sweep": [
-      3.0,
-      15.0
-    ],
-    "modes": {
-      "car": {
-        "constant": 0.0,
-        "marginalUtilityOfTraveling": -10.9608
-      },
-      "ride": {
-        "constant": -0.85,
-        "marginalUtilityOfTraveling": -10.9608
-      },
-      "pt": {
-        "constant": -1.05,
-        "marginalUtilityOfTraveling": -10.9608
-      },
-      "walk": {
-        "constant": 0.35,
-        "marginalUtilityOfTraveling": -11.6392
-      },
-      "bike": {
-        "constant": -1.35,
-        "marginalUtilityOfTraveling": -14.5226
-      }
-    },
-    "not_representable": [
-      "nesting_coefficient_pt=0.65 and the nested-logit structure: MATSim mode choice is a co-evolutionary search with no nest parameter",
-      "per-purpose value of time: MATSim scores per mode, so a trip-weighted average (16.96 AUD/h) is used in place of the six purpose-specific values",
-      "crowding multipliers (beta_crowding_*): require an explicit capacity-dependent scoring extension, not enabled here",
-      "gradient penalties (beta_gradient_uphill=0.09, beta_gradient_downhill=0.02): MATSim scores a leg from time and distance and has no gradient term, so the gradient attached to 43,112 road and 35,653 footway edges reaches mode choice through nothing. It remains used for corridor grades (issue 21)",
-      "PT walk-access decay (walk_decay, beta_per_m=0.0018): the access and egress walk that actually happens is routing.accessEgressType plus SwissRailRaptor own radius handling, neither of which reads a decay curve, so the declared curve reaches nothing (issue 21)"
-    ]
-  },
   "scenarios": {
     "S0": {
       "road_variant": "net_base2026_hunter_st_full_capacity",
@@ -1448,5 +1362,95 @@
         }
       }
     }
+  },
+  "purpose_share": {
+    "HE": 0.09109209864116759,
+    "HO": 0.3824861600402617,
+    "HS": 0.17262204328132863,
+    "HW": 0.1404126824358329,
+    "NHB": 0.1680926019124308,
+    "WB": 0.04529441368897836
+  },
+  "scoring": {
+    "performing_utils_per_h": 6.0,
+    "performing_sweep": [
+      4.0,
+      8.0
+    ],
+    "monetary_distance_rate": {
+      "car": -0.00018,
+      "ride": -0.00018,
+      "pt": 0.0,
+      "walk": 0.0,
+      "bike": 0.0
+    },
+    "monetary_distance_rate_sweep": [
+      -0.00025,
+      -0.00012
+    ],
+    "strategies": {
+      "ChangeExpBeta": 0.7,
+      "ReRoute": 0.15,
+      "SubtourModeChoice": 0.1,
+      "TimeAllocationMutator": 0.05
+    },
+    "replanning_weight_sweep": {
+      "proportional": 0.5,
+      "basis": "DECISIONS.md 9.3 sweeps the SubtourModeChoice weight over 0.05-0.20"
+    },
+    "marginal_utility_of_money": 1.0,
+    "vot_aud_hr_used": 16.961,
+    "vot_aud_hr_by_purpose": {
+      "HW": 18.6,
+      "HE": 9.3,
+      "HS": 15.2,
+      "HO": 15.2,
+      "WB": 55.4,
+      "NHB": 15.2
+    },
+    "purpose_weights": {
+      "HE": 0.09109209864116759,
+      "HO": 0.3824861600402617,
+      "HS": 0.17262204328132863,
+      "HW": 0.1404126824358329,
+      "NHB": 0.1680926019124308,
+      "WB": 0.04529441368897836
+    },
+    "waiting_pt": -27.9216,
+    "utility_of_line_switch": -2.2614,
+    "transfer_penalty_min": 8.0,
+    "transfer_penalty_sweep": [
+      3.0,
+      15.0
+    ],
+    "modes": {
+      "car": {
+        "constant": 0.0,
+        "marginalUtilityOfTraveling": -10.9608
+      },
+      "ride": {
+        "constant": -0.85,
+        "marginalUtilityOfTraveling": -10.9608
+      },
+      "pt": {
+        "constant": -1.05,
+        "marginalUtilityOfTraveling": -10.9608
+      },
+      "walk": {
+        "constant": 0.35,
+        "marginalUtilityOfTraveling": -11.6392
+      },
+      "bike": {
+        "constant": -1.35,
+        "marginalUtilityOfTraveling": -14.5226
+      }
+    },
+    "not_representable": [
+      "nesting_coefficient_pt=0.65 and the nested-logit structure: MATSim mode choice is a co-evolutionary search with no nest parameter",
+      "per-purpose value of time: MATSim scores per mode, so a trip-weighted average (16.96 AUD/h) is used in place of the six purpose-specific values",
+      "crowding multipliers (beta_crowding_*): require an explicit capacity-dependent scoring extension, not enabled here",
+      "gradient penalties (beta_gradient_uphill=0.09, beta_gradient_downhill=0.02): MATSim scores a leg from time and distance and has no gradient term, so the gradient attached to 43,112 road and 35,653 footway edges reaches mode choice through nothing. It remains used for corridor grades (issue 21)",
+      "PT walk-access decay (walk_decay, beta_per_m=0.0018): the access and egress walk that actually happens is routing.accessEgressType plus SwissRailRaptor own radius handling, neither of which reads a decay curve, so the declared curve reaches nothing (issue 21)"
+    ]
   }
 }

@@ -120,7 +120,19 @@ the wrong things — and it is **0**. Read `STATUS.md` for the table and
 3. **Reach is proven, not claimed.** `check_hardcoding` question 6 changes each
    bound value and diffs the emitted config: **69 of 69 reach**. This is the
    rule in §1 turned into a test. Keep it passing.
-4. **Two committed registers, each entry with a written reason**:
+4. **The audit now reads Java too.** Two MATSim `ConfigGroup` defaults EQUALLED
+   the registry values they shadow (`liveIntervalS = 3600.0`,
+   `chargedModes = "car"`). A Java default equal to its declared value is the
+   worst case there is: a config that lost the binding would run on the Java
+   number and report success. Both are a sentinel or a neutral value now, with
+   `checkConsistency` refusing the run.
+5. **G2 IS EXERCISED**: `python tests/check_city_agnostic.py` builds a second
+   city and asserts its config carries THAT city's values. Keep it passing — it
+   is the only thing standing between "city-agnostic" and a claim. Building it
+   found that **`CITYSIM_CITY` had never worked**: setting the documented city
+   selector to any value, its own default included, made every registry load
+   raise.
+6. **Two committed registers, each entry with a written reason**:
    `STRUCTURAL` (18 — an HTTP status, a gzip level, decimal places) and
    `PENDING_CONSUMER` (7 — declared ahead of the phase that will read them,
    each naming its issue). Both are pruned automatically when they go stale.
@@ -235,7 +247,8 @@ the regeneration cost once.**
 | Order | Task | Issue | Effort | Notes |
 |---|---|---|---|---|
 | ~~H0.1–H0.5~~ | **DONE 15 Aug.** Ledger 185 → **0**; `--strict` gates CI | — | took ~1 day | The config is BUILT from the registry, so the literals have nowhere to live. 69 of 69 bound fields **proven** to reach by changing them. See §2 |
-| **H0.6** | **Delete the dead pilot** | — | minutes | `results/conv1000_25pct_postrestructure/` has no `_run.json`. Delete it and its timing series together |
+| **H0.6** | **Delete the dead pilot** | — | minutes | `results/conv1000_25pct_postrestructure/` has no `_run.json`. Delete it and its timing series together. LEFT IN PLACE deliberately: deleting a run directory is irreversible and was not explicitly authorised |
+| **H0.9** | Rebuild the scenario GTFS feeds | **#32** | ~1 h | BLOCKED: `networks/osm/footways.osm` is absent, so `build_scenario_schedules.py` cannot run. The rewiring was proved value-neutral against git instead - 23 values and every coordinate identical - but the feeds have not been rebuilt from the declarations |
 | **H0.7** | Derive `E.s2b.lr_segment_count` from the mapped feed | — | ~1 h | It is declared at 5.0 and the feed knows its own segment count. If they disagree, S2b removes the wrong TOTAL delay |
 | **H0.8** | Derive the JHH anchor from the OSM POI | #32 | ~1 h | `cities/newcastle/geometry/scenario_alignments.json` says so itself. Needs the re-harvest |
 | **B0.1** | Re-run the OSM harvest | **#32** | hours | `python cities/newcastle/extract/overpass.py`. Resumes from cached tiles |

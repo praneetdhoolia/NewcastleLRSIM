@@ -123,7 +123,7 @@ def day_of_route(route_id):
     return m.group(1) if m else None
 
 
-def split_schedule(src_dir, dst_dir, day):
+def split_schedule(src_dir, dst_dir, day, cfg):
     """Filter a mapped schedule to one day type. No re-mapping, ever.
 
     Returns counts so the caller can assert that link sequences were copied
@@ -239,7 +239,7 @@ def split_schedule(src_dir, dst_dir, day):
         keys = FLEET_CAPACITY.get(vt.get('id'))
         if keys is None:
             continue
-        seated, standing = CFG.get(keys[0]), CFG.get(keys[1])
+        seated, standing = cfg.get(keys[0]), cfg.get(keys[1])
         for cap in vt:
             if tag(cap) != 'capacity':
                 continue
@@ -721,7 +721,7 @@ def main(day_types=None, scenarios=None, set_overrides=None):
             check_scoring_order(cfg)
             scoring = scoring_from_c1(cfg, c1, purpose_share)
             dst = os.path.join(OUT, sid, d)
-            counts = split_schedule(sched_dir, dst, d)
+            counts = split_schedule(sched_dir, dst, d, cfg)
             paths = dict(
                 output='output',
                 network=os.path.relpath(net_dst, dst).replace('\\', '/'),
