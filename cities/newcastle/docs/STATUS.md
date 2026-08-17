@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 16 August 2026 · branch `praneetdhoolia/mode-choice-specification`
+**Last updated:** 18 August 2026 · branch `praneetdhoolia/convergence-pilot-arms`
 
 > **This file is a board, not a diary.** The dated build narrative that used to live
 > here (944 lines) is archived in
@@ -41,7 +41,7 @@ which is why `results/` was already empty when it landed.
 | Committed data package | **391 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes · `check_package.py` **1,452 checks ALL PASSED** (2 standing warnings) |
 | Input registry | **297 fields** (the batch added bike availability and the four through-tier fields) — every one with units, provenance and a sweep, held-fixed rule or derived identity; ledger **0** with `--strict` gating CI; reach 69/69 |
 | Run inputs assembled | **30** scenario × day-type sets, regenerated 16 Aug from the rebuilt package through the emitter |
-| Runs on disk | **`smoke_postrebuild`** (1% × 2 iterations, rc=0, 48 s, median iteration 10.1 s vs 9.8 s on the old network) — proves the rebuilt package executes end to end; **not a result**. Everything older was deleted. **A run with no `_run.json` is not a result and is not kept.** |
+| Runs on disk | `smoke_postrebuild` (plumbing, 1% × 2) · **`conv1000_10pct`** and **`conv1000_25pct`** (the #5 pilot arms, both rc=0, both **fail the declared drift gate identically** — evaluation in [`docs/audit/CONVERGENCE_PILOT_EVALUATION.md`](audit/CONVERGENCE_PILOT_EVALUATION.md)) · **`conv1500_10pct` in flight** (the horizon probe the #5 verdict waits on). `results/_aborted_20260816/` quarantines two concurrent-launch casualties without `_run.json`. |
 | Open issues | **6** — #5 (iteration count, the next measurement) → #9 → #14; #28 (ride residual, a run measurement); #31 (driver-capacity decision); #24 (freight, the next focused PR). **Closed on evidence 15–16 Aug:** #32, #36, #37 by the rebuild; #20, #29, #30, #34 after it — each closure comment states its REOPEN IF condition, and the first-run evaluation in [`docs/handover/NEXT_AGENT_BRIEF.md`](handover/NEXT_AGENT_BRIEF.md) §3 owns testing them. Verdicts + post-rebuild addendum: [`docs/audit/ISSUE_VERDICTS.md`](audit/ISSUE_VERDICTS.md). |
 | **Results** | **None. No scenario has been run to a reportable state, and nothing in this repository is an output of the model.** |
 
@@ -53,6 +53,11 @@ timing, which task 4.2.1 will need:
 
 - **9.8 s/iteration at 1%, ~24–30 s at 10%, 56–58 s at 25%** — so a
   1,000-iteration arm is ~2.7 h / ~8.3 h / ~16 h.
+- **Post-rebuild, measured on the completed arms (18 Aug):** median 33.3 s at
+  10% (11.0 h, ~29 GiB WS on 30g) and 90.2 s at 25% (30.8 h, ~33–38 GiB on
+  40g). Memory model ≈ 24 GiB fixed + 0.09–0.3 MB/agent → a 100% run needs
+  ~80–160 GiB heap. One unexplained slow block (25% arm, iterations ~200–293)
+  self-recovered — the §9.36-era stall pattern, still unattributed.
 - **Never run convergence arms concurrently.** Three arms declared 78 GiB of
   heap on a 63.5 GiB machine, Windows grew the pagefile from 8.1 to 19.1 GiB,
   and the 10% arm's median iteration went from ~19 s alone to ~42 s alongside
@@ -473,7 +478,7 @@ smaller network) — full memory re-measure belongs to the first 10% arm
 
 | # | Task | Closes | ETA |
 |---|---|---|---|
-| 4.2.1 | Convergence pilot on the rebuilt inputs: **one arm at a time**, 10% × 1,000 first (~8.3 h), 25% (~16 h) only if needed. Decide the iteration count, declare it, update the shipped default | #5 | attended 1–2 h · wall 8–24 h |
+| 4.2.1 | Convergence pilot on the rebuilt inputs: **one arm at a time**. **10% and 25% arms DONE 17–18 Aug — both fail the declared drift gate identically** (a fraction-independent selection snap at the cutoff conflated with drift; true post-snap drift passes; the pre-cutoff search creep decays ×0.73/100 iterations). `conv1500_10pct` (cutoff 1200) is in flight to measure whether the horizon moves the final state; the declaration (iteration count + a snap-aware drift window, both to `DECISIONS.md`) waits on it. Evaluation: [`docs/audit/CONVERGENCE_PILOT_EVALUATION.md`](audit/CONVERGENCE_PILOT_EVALUATION.md) | #5 | attended 1–2 h · wall ~17 h remaining |
 | 4.2.2 | From the pilot's own legs: ride vs car realised speed **in matched distance bins** (never aggregate means) — sizes #28's residual; bike/walk share re-measurement — sizes #29's magnitude before any constraint is tuned | #28 (residual), #29 (magnitude) | attended 2–3 h |
 | 4.2.3 | Re-solve `asc_car_passenger` at the settled iteration count (deterministic, resumable solver) | #9 | attended 1 h · wall 1–2 days |
 | 4.2.4 | The §8.5 modelling decision for the calibrated base — estimate ASCs on era 3 (2018) and **hold fixed**, or constrain-and-report; **log the departure before any result is seen** — then produce the calibrated base + parameter provenance (`params/C5_calibration.json`) and regenerate the calibration report | #14, P4 deliverables 0+5, project deliverable 3 | attended 1–2 days · wall 2–3 days |
