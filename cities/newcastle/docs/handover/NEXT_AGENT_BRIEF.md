@@ -30,7 +30,9 @@ evaluated). ⚠ **They are baselines for the PRE-pairing model only** — §9.44
 changed the model and §9.45 changed which agents are sampled, so nothing run
 from here is comparable with them. `smoke_postrebuild`;
 `ride_pairing_probe` (a 3-iteration 1% PLUMBING PROBE, not a result);
-`results/_aborted_20260816/` is quarantine; ⚠ `results/S2_WEEKDAY_f025_i1000_s20260810/`
+**`rp50_declared`, `rp25_declared`, `rp25_control`, `rp25_stress`** — the four
+§9.44 MECHANISM arms, all rc=0 and none of them a result either (see §9.44 for
+what each answers); `results/_aborted_20260816/` is quarantine; ⚠ `results/S2_WEEKDAY_f025_i1000_s20260810/`
 is a dead run with no `_run.json` — not a result, not quarantined, owner may delete.
 
 **`--iterations` below 250 is REFUSED by the resolver.** A short probe needs
@@ -310,8 +312,8 @@ lock already exists: the `lockedMode` attribute and
 
 | | |
 |---|---|
-| Branch | `praneetdhoolia/convergence-pilot-arms`, clean tree |
-| `main` | the merged 16 Aug rebuild (PR #38); CI green |
+| Branch | **start from `main`** — the pairing work is merged, nothing is in flight |
+| `main` | **PR #40 (18 Aug): Tier 1 ride pairing + household sampling unit.** CI green, 6/6. The 16 Aug rebuild (PR #38) is beneath it |
 | Toolchain | **3 pinned components** — JDK 25.0.4+7, pt2matsim 26.6, SUMO 1.27.1. **UNCHANGED by this work** — the pairing adds compiled source beside the shaded jar, not a contrib |
 | Java | **8 sources** in `src/java/citysim/` (added `RidePairingEngine`, `RidePairingConfigGroup`) |
 | Registry | **304 fields** (5 × `B.ride.*`, 1 × `RUN.sample.unit`); ledger **0** `--strict`; reach **74/74** |
