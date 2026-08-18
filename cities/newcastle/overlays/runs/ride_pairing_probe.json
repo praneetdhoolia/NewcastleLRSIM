@@ -1,0 +1,18 @@
+{
+  "overlay": "ride_pairing_probe",
+  "description": "A plumbing probe for the Tier 1 ride pairing (DECISIONS.md 9.44), NOT a modelling run. Three iterations at 1% exists only to prove that the ridePairing module loads and passes checkConsistency, that RidePairingEngine is installed and fires at the BeforeMobsim boundary, that it writes ride_pairing.csv, and that the PREVIOUS iteration's realised driver times are actually available to it from iteration 1 onward - which iteration 0 alone cannot show, because before the first mobsim there is nothing realised to read. The rule is deliberately set to window_only, the LOOSEST of the four declared rules, so that the paired code path executes at all: the declared rule both_links pairs 0.001 of ride legs on the relaxed 25% arm and a probe under it would exercise nothing. NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT and no mode share, patronage, occupancy or count from it may be quoted, compared or fitted - three iterations is three orders of magnitude short of relaxation, 1% is a plumbing fraction, and window_only is a sensitivity rather than the declared mechanism.",
+  "set": {
+    "RUN.sample.fraction": 0.01,
+    "RUN.controler.last_iteration": 3,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "12g",
+    "B.ride.pairing_rule": "window_only",
+    "B.ride.pairing_window_min": 30.0
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the whole range describes candidate MODELLING runs. This overlay is not one: it tests that a newly added mechanism is wired to its consumer, which is the failure mode this repository has been bitten by most often - a declared parameter that resolves, reaches nothing, and reports success. Three is the smallest horizon that can show the one-iteration lag in the driver's realised time, and it is deliberately far below the range so that any output carrying it is obviously not a result."
+  }
+}

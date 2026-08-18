@@ -935,6 +935,77 @@
       "status": "active",
       "decisions_ref": "15",
       "description": "Share of the synthetic population BUILT. One, always: this is the build, not the run. Sampling for a run is RUN.sample.fraction, applied by the harness to a full population - and conflating the two would make every run a sample of a sample. Declared so the distinction is visible; it was an argparse default of 1.0 sitting next to a run-time fraction of the same shape."
+    },
+    "B.ride.pairing_enabled": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.44",
+      "proposal_ref": "9",
+      "description": "Whether a `ride` leg may NAME the household member who drives it, and take that driver's realised travel time instead of its own routed one. Not an empirical quantity: it selects which of two mechanisms the model runs, exactly as B.population.ride_requires_household_driver does on the availability side, and false restores the pre-9.44 behaviour so the two are comparable within one build. The pairing itself is made at the BeforeMobsim boundary, where every selected plan is final and nothing will move until the mobsim runs - which is why SubtourModeChoice cannot destroy it the way it destroys a pairing baked into plans. Consumed by src/java/citysim/RidePairingEngine.",
+      "matsim_param": "ridePairing.enabled"
+    },
+    "B.ride.pairing_window_min": {
+      "value": 15.0,
+      "units": "minutes",
+      "source": "assumed",
+      "sweep": [
+        5.0,
+        60.0
+      ],
+      "sweep_basis": "No local observation of how far apart a household lift's two departures may be exists, and HTS carries no household-linked trip records at all, so the tolerance is assumed and swept rather than fitted. The lower bound is a tight coincidence; the upper is an hour, beyond which calling two departures one trip stops being credible. MEASURED SENSITIVITY on the relaxed 25% pilot arm (9.44): the share of ride legs with ANY household car leg in the window runs 1.1% at +-5 min, 3.1% at +-15, 5.6% at +-30 and 15.1% at +-120, so this field moves the pairing rate by an order of magnitude and may not be pinned.",
+      "status": "active",
+      "decisions_ref": "9.44",
+      "description": "How far apart a passenger's and a driver's PLANNED departures may be and still be treated as one trip. This is the tolerance the pairing is allowed, NOT a modelled waiting time: Tier 1 does not move the passenger's departure, because shifting it would cascade through the rest of that person's day and the blast radius of the change is deliberately bounded. Who adapts is nonetheless DECLARED rather than left open - the passenger does, since the driver's plan cascades further - and the unmodelled sub-window adjustment is a stated limitation, not a silent one. Consumed by src/java/citysim/RidePairingEngine.",
+      "matsim_param": "ridePairing.windowMinutes"
+    },
+    "B.ride.pairing_rule": {
+      "value": "both_links",
+      "units": "enum",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "both_links",
+          "origin_link",
+          "dest_link",
+          "window_only"
+        ],
+        "basis": "Which endpoints of the driver's leg must coincide with the passenger's. `both_links` is the only rule under which handing the driver's realised travel time to the passenger is CORRECT rather than merely closer - the two are then the same trip - so it is the declared value. The three looser rules are sensitivities that measure what a laxer assumption would buy, and a run made under one of them is a sensitivity, never a result. Their spread is large and measured (9.44): on the relaxed 25% arm at +-30 min the pairable share is 0.001% under both_links, 1.5% under origin_link, 1.4% under dest_link and 5.6% under window_only."
+      },
+      "status": "active",
+      "decisions_ref": "9.44",
+      "description": "The spatial coincidence a pairing requires, expressed on LINK IDENTITY rather than on distance - no coordinate, no radius and no place enters the model, so the rule reads identically for a city the framework has never seen. `both_links` means the driver's leg starts and ends on the same links as the passenger's, i.e. the passenger is in the car for the whole of the driver's trip. Consumed by src/java/citysim/RidePairingEngine.",
+      "matsim_param": "ridePairing.rule"
+    },
+    "B.ride.pickup_dwell_s": {
+      "value": 0.0,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        0.0,
+        120.0
+      ],
+      "sweep_basis": "No measurement of pickup dwell exists for this city, or for any comparable one in the package, so the value is swept and NEVER fitted. The default is deliberately NEUTRAL. The car-minus-ride residual this lane exists to remove was MEASURED from the pilot arms' own output_legs at about 5 s at 25% and 13 s at 10%, flat across every distance bin below 50 km; a one-minute friction would therefore be five to twelve times the entire quantity it was meant to explain. Sizing this to close that gap is calibration wearing a mechanism's clothes and was REFUSED. The upper bound is two minutes, which is already far beyond what the residual can bear, and exists so the sweep can show that.",
+      "status": "active",
+      "decisions_ref": "9.44",
+      "description": "Seconds added to a PAIRED passenger's travel time for the act of being picked up. Zero by default: the mechanism Tier 1 asserts is that the passenger experiences the driver's realised trip, and nothing in the package observes a friction on top of that. This field exists so the question can be swept rather than assumed away. Consumed by src/java/citysim/RidePairingEngine.",
+      "matsim_param": "ridePairing.pickupDwellSeconds"
+    },
+    "B.ride.max_passengers_per_vehicle": {
+      "value": 4,
+      "units": "persons",
+      "source": "assumed",
+      "sweep": [
+        1,
+        4
+      ],
+      "sweep_basis": "The upper bound is the physical one: a five-seat car minus the driver, which is what the overwhelming majority of the registered light fleet is. The lower bound is one passenger per driver, the most conservative reading of a household lift. No observation splits household lifts by party size - HTS reports Vehicle passenger as a share of trips, not an occupancy distribution - so the cap is assumed within physical bounds and swept. It is not binding at the measured pairing rates and the diagnostic reports how often it refuses, so a run in which it starts to bind is visible rather than silent.",
+      "status": "active",
+      "decisions_ref": "9.44",
+      "description": "How many passengers one driver's leg may carry. Without a cap a single driver would serve every passenger their household offered - the same unbounded-supply defect that rideAvail removed on the availability side, where an unconstrained model put 5.9 people in every car (9.10). Consumed by src/java/citysim/RidePairingEngine.",
+      "matsim_param": "ridePairing.maxPassengersPerVehicle"
     }
   }
 }

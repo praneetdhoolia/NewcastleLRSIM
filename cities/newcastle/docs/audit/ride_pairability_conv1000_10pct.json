@@ -1,0 +1,219 @@
+{
+  "run": "conv1000_10pct",
+  "capacity": 4,
+  "declared_rule": "both_links",
+  "declared_window_min": 15.0,
+  "windows_min": [
+    5.0,
+    15.0,
+    60.0
+  ],
+  "windows_are_exploratory": false,
+  "structure": {
+    "ride_trips": 79372,
+    "car_trips": 137604,
+    "ride_trips_without_household": 10,
+    "households_making_ride_trips": 23039,
+    "ride_trips_in_a_household_that_drives_at_all": 25876,
+    "share_in_a_household_that_drives": 0.326,
+    "ride_trips_sharing_an_od_with_a_household_car_trip": 31,
+    "share_sharing_an_od": 0.000391
+  },
+  "surface": [
+    {
+      "rule": "both_links",
+      "window_min": 5.0,
+      "paired": 0,
+      "paired_rate": 0.0,
+      "occupancy_from_pairings": 0.0,
+      "paired_by_direction": {},
+      "unpaired_by_direction": {
+        "outbound": 35718,
+        "intermediate": 7943,
+        "return": 35711
+      },
+      "median_driver_minus_passenger_s": null
+    },
+    {
+      "rule": "both_links",
+      "window_min": 15.0,
+      "paired": 0,
+      "paired_rate": 0.0,
+      "occupancy_from_pairings": 0.0,
+      "paired_by_direction": {},
+      "unpaired_by_direction": {
+        "outbound": 35718,
+        "intermediate": 7943,
+        "return": 35711
+      },
+      "median_driver_minus_passenger_s": null
+    },
+    {
+      "rule": "both_links",
+      "window_min": 60.0,
+      "paired": 1,
+      "paired_rate": 1.3e-05,
+      "occupancy_from_pairings": 7e-06,
+      "paired_by_direction": {
+        "outbound": 1
+      },
+      "unpaired_by_direction": {
+        "outbound": 35717,
+        "intermediate": 7943,
+        "return": 35711
+      },
+      "median_driver_minus_passenger_s": 24
+    },
+    {
+      "rule": "origin_link",
+      "window_min": 5.0,
+      "paired": 72,
+      "paired_rate": 0.000907,
+      "occupancy_from_pairings": 0.000523,
+      "paired_by_direction": {
+        "outbound": 72
+      },
+      "unpaired_by_direction": {
+        "outbound": 35646,
+        "intermediate": 7943,
+        "return": 35711
+      },
+      "median_driver_minus_passenger_s": -2
+    },
+    {
+      "rule": "origin_link",
+      "window_min": 15.0,
+      "paired": 241,
+      "paired_rate": 0.003036,
+      "occupancy_from_pairings": 0.001751,
+      "paired_by_direction": {
+        "outbound": 241
+      },
+      "unpaired_by_direction": {
+        "outbound": 35477,
+        "intermediate": 7943,
+        "return": 35711
+      },
+      "median_driver_minus_passenger_s": 3
+    },
+    {
+      "rule": "origin_link",
+      "window_min": 60.0,
+      "paired": 948,
+      "paired_rate": 0.011944,
+      "occupancy_from_pairings": 0.006889,
+      "paired_by_direction": {
+        "outbound": 948
+      },
+      "unpaired_by_direction": {
+        "outbound": 34770,
+        "intermediate": 7943,
+        "return": 35711
+      },
+      "median_driver_minus_passenger_s": 18
+    },
+    {
+      "rule": "dest_link",
+      "window_min": 5.0,
+      "paired": 67,
+      "paired_rate": 0.000844,
+      "occupancy_from_pairings": 0.000487,
+      "paired_by_direction": {
+        "return": 67
+      },
+      "unpaired_by_direction": {
+        "outbound": 35718,
+        "intermediate": 7943,
+        "return": 35644
+      },
+      "median_driver_minus_passenger_s": -96
+    },
+    {
+      "rule": "dest_link",
+      "window_min": 15.0,
+      "paired": 206,
+      "paired_rate": 0.002595,
+      "occupancy_from_pairings": 0.001497,
+      "paired_by_direction": {
+        "return": 206
+      },
+      "unpaired_by_direction": {
+        "outbound": 35718,
+        "intermediate": 7943,
+        "return": 35505
+      },
+      "median_driver_minus_passenger_s": 18
+    },
+    {
+      "rule": "dest_link",
+      "window_min": 60.0,
+      "paired": 863,
+      "paired_rate": 0.010873,
+      "occupancy_from_pairings": 0.006272,
+      "paired_by_direction": {
+        "return": 862,
+        "outbound": 1
+      },
+      "unpaired_by_direction": {
+        "outbound": 35717,
+        "intermediate": 7943,
+        "return": 34849
+      },
+      "median_driver_minus_passenger_s": 34
+    },
+    {
+      "rule": "window_only",
+      "window_min": 5.0,
+      "paired": 327,
+      "paired_rate": 0.00412,
+      "occupancy_from_pairings": 0.002376,
+      "paired_by_direction": {
+        "return": 150,
+        "intermediate": 36,
+        "outbound": 141
+      },
+      "unpaired_by_direction": {
+        "outbound": 35577,
+        "intermediate": 7907,
+        "return": 35561
+      },
+      "median_driver_minus_passenger_s": 46
+    },
+    {
+      "rule": "window_only",
+      "window_min": 15.0,
+      "paired": 955,
+      "paired_rate": 0.012032,
+      "occupancy_from_pairings": 0.00694,
+      "paired_by_direction": {
+        "outbound": 436,
+        "return": 415,
+        "intermediate": 104
+      },
+      "unpaired_by_direction": {
+        "outbound": 35282,
+        "intermediate": 7839,
+        "return": 35296
+      },
+      "median_driver_minus_passenger_s": 62
+    },
+    {
+      "rule": "window_only",
+      "window_min": 60.0,
+      "paired": 3098,
+      "paired_rate": 0.039031,
+      "occupancy_from_pairings": 0.022514,
+      "paired_by_direction": {
+        "outbound": 1387,
+        "intermediate": 319,
+        "return": 1392
+      },
+      "unpaired_by_direction": {
+        "outbound": 34331,
+        "intermediate": 7624,
+        "return": 34319
+      },
+      "median_driver_minus_passenger_s": 45
+    }
+  ]
+}

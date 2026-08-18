@@ -25,6 +25,7 @@
         "transitRouter",
         "parking",
         "telemetry",
+        "ridePairing",
         "routing"
       ],
       "parameter_sets": {

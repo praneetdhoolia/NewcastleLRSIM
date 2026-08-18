@@ -695,6 +695,22 @@
         "src/registry/param_config.py"
       ],
       "description": "Simulated seconds between live telemetry snapshots while the mobsim runs. The boundary is SIMULATED time, never wall clock, so a repeated run writes the same snapshots in the same places - the determinism rule applies to an observer as much as to a build script. 3600 puts one snapshot per simulated hour, which at the measured sweep rate (a 30 h day in about 15 s of wall clock) is roughly one every half second. Lowering it loses nothing - the file carries the accumulating profile of the day, not a single instant - it only refines the bins. This does NOT require writeEventsInterval to change: a registered handler receives the full event stream on every iteration whether or not that stream is also written to disk, which the package demonstrates at 26 event files against 251 leg histograms."
+    },
+    "RUN.sample.unit": {
+      "value": "household",
+      "units": "enum",
+      "source": "derived",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.45",
+      "proposal_ref": "9",
+      "derived_from": {
+        "fields": [
+          "RUN.sample.fraction"
+        ],
+        "identity": "a sample drawn per PERSON keeps each household member independently, so a household of size n retains on average f*n of its members and the probability that a given person keeps any co-member at all is 1-(1-f)^(n-1) - 0.14 at f=0.10 and 0.32 at f=0.25 for the mean household size here. Every household-coupled mechanism is therefore destroyed by the sampler in a way that is a function of the fraction, which is the one thing a sample fraction must not be. Sampling by household makes the retained population a set of WHOLE households, so the coupling is fraction-independent by construction. The identity, not a preference: it follows from what a fraction is meant to mean."
+      },
+      "description": "Whether the population subsample keeps whole HOUSEHOLDS or independent PERSONS. It was person-wise and undeclared until 9.45, and the cost was measured on the completed pilot arms: the share of ride legs whose household drives at all was 32.6% at a 10% sample and 43.1% at 25%, rising with the fraction because the sampler - not the demand - was deciding it. The sample still NESTS (a household id hashes to one number, so the 1% sample stays a strict subset of the 10%) and is still seeded and deterministic. The external and through boundary tiers hold no household by construction and continue to hash on their own id. What this buys is bought at a price that is stated rather than hidden: a household-clustered sample has higher variance at a given size than a person-wise one. Consumed by src/run/sample_population.py."
     }
   }
 }
