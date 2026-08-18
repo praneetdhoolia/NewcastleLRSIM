@@ -23,7 +23,7 @@ network layers, gradients (DEM tile set now **derived** from the boundary —
 100% coverage), speed zones, corridor attributes, scenario GTFS feeds, one
 pt2matsim build of **all 15 feeds (0 unmapped stops each)**, land use, parking
 prices, attractions, B2 demand with the five demand fixes, MATSim plans, and
-the 30 run-input sets. `tests/check_package.py`: **1,452 checks, ALL PASSED**,
+the 30 run-input sets. `tests/check_package.py`: **1,456 checks, ALL PASSED**,
 2 standing warnings. Verified gates: every OSM layer larger than its
 `osm_pre_issue32/` counterpart; core SA1s without a road node **99 → 4, with 0
 agents in them** (all 35,365 stranded agents are on the network); network link
@@ -38,7 +38,7 @@ which is why `results/` was already empty when it landed.
 |---|---|
 | Phase | **P4 (calibration), in progress** — 7 of 9 deliverables met; batch 4.1 (the rebuild) **done 16 Aug** |
 | Blocking state | **None.** #5 CLOSED (§9.43). **Tier 1 of the ride pairing is BUILT, wired and verified at the consumer** (§9.44) — a `BeforeMobsim` lookup naming a household driver, 3–20 ms/iteration, teleport proven to run on the rewritten route time. **It pairs almost nothing, and that is the finding**: fewer than 1 ride trip in 1,000 coincides in space with a household car trip. Active lane is now the **escort↔escorted binding in B2** (§9.44, §13) |
-| Committed data package | **391 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes · `check_package.py` **1,452 checks ALL PASSED** (2 standing warnings) |
+| Committed data package | **391 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes · `check_package.py` **1,456 checks ALL PASSED** (2 standing warnings) |
 | Input registry | **304 fields** (§9.44 added five `B.ride.*`; §9.45 added `RUN.sample.unit`) — every one with units, provenance and a sweep, held-fixed rule or derived identity; ledger **0** with `--strict` gating CI; reach **74/74** |
 | Run inputs assembled | **30** scenario × day-type sets, **regenerated 18 Aug** after the plans gained the `householdId` attribute (§9.45); each config now carries a `ridePairing` module |
 | What is PHYSICALLY simulated (measured 18 Aug) | **5 of 9 modes already in the mobsim**: `car`; **bus** 1,448 vehicles at PCE 2.8 sharing **22,102 road links with cars**; **rail** 332 on 6,766 dedicated links; **tram** 252, incl. **21 links shared on-street**; **ferry** 107. 2,139 transit vehicles move every iteration. **`ride` is now PAIRED but still teleported** (§9.44): a paired passenger takes the driver's realised time, an unpaired one behaves exactly as before. Motorbike / taxi / rideshare are still not modes at all |
