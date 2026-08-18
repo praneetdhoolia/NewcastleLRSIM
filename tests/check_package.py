@@ -567,10 +567,15 @@ else:
         check(len(coords) > 20000,
               '%s: activity destinations are sub-zonal, not centroids (%d distinct)'
               % (day, len(coords)))
-        share_poi = placement.get('poi', 0) / max(sum(placement.values())
-                                                  - placement.get('home', 0), 1)
+        # an 'escorted' destination is a COPY of another household member's
+        # drawn destination (DECISIONS.md 9.46) - it inherits that trip's
+        # placement rather than drawing one, so the observed-attractor share
+        # is asserted over the placements actually drawn
+        drawn = (sum(placement.values()) - placement.get('home', 0)
+                 - placement.get('escorted', 0))
+        share_poi = placement.get('poi', 0) / max(drawn, 1)
         check(share_poi > 0.85,
-              '%s: %.1f%% of activity ends sit on an observed attractor'
+              '%s: %.1f%% of drawn activity ends sit on an observed attractor'
               % (day, 100 * share_poi))
         check('home' not in purposes,
               '%s: no leg carries "home" as a trip purpose' % day)
