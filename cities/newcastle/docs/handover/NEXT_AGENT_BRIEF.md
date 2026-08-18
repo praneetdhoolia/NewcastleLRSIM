@@ -1,12 +1,13 @@
-# Brief for the next agent — TIER 1 IS BUILT; THE DEMAND CANNOT SUPPLY A DRIVER
+# Brief for the next agent — THE GOAL, THE FOUR MISSING MODES, AND A PRUNED PLAN
 
-*Rewritten 18 August 2026, after the Tier 1 ride pairing was built, wired,
-verified at the consumer, and MEASURED to pair almost nothing — because the
-demand it draws on does not contain the drivers. This is a HANDOVER, not a
-source of truth: where it disagrees with [`STATUS.md`](../STATUS.md),
-[`DECISIONS.md`](../DECISIONS.md) or
-[`.claude/CLAUDE.md`](../../../../.claude/CLAUDE.md), those win. Paste it whole
-to start a session cold.*
+*Rewritten 18 August 2026 against the owner's goal statement, replacing the
+previous brief entirely. It does three things the old one did not: it
+**prioritises the four missing modes separately** instead of lumping them, it
+**assesses every open task for alignment and proposes deletions**, and it
+answers **what kind of work comes next** — code, data, or runs. This is a
+HANDOVER, not a source of truth: where it disagrees with
+[`STATUS.md`](../STATUS.md), [`DECISIONS.md`](../DECISIONS.md) or
+[`.claude/CLAUDE.md`](../../../../.claude/CLAUDE.md), those win.*
 
 ---
 
@@ -15,388 +16,437 @@ to start a session cold.*
 ═══════════════════════════════════════════════════════════════════════════════
 
 ```bash
-python src/setup/bootstrap_toolchain.py --verify   # ~1 min, COMPILES THE JAVA (8 sources now)
+python src/setup/bootstrap_toolchain.py --verify   # ~1 min, COMPILES THE JAVA (8 sources)
 python tests/check_manifest.py                     # committed subset intact
 python src/registry/check_hardcoding.py --strict   # must exit 0
 ```
 
-**⚠ OWNER DIRECTIVE: NO MULTI-HOUR RUNS WITHOUT EXPLICIT OWNER APPROVAL.**
-"We can't afford to run full-day runs every now and then." Your lane is code,
-declarations and short verification runs. State the cost and get a yes before
-anything long.
+**⚠ OWNER DIRECTIVES, both standing:**
+1. **NO MULTI-HOUR RUNS WITHOUT EXPLICIT APPROVAL.** State the cost, get a yes.
+2. **DO ONE THING RIGHT rather than bloating the repo.** Do not open ten tasks.
+   Do not harvest data the model cannot yet consume. Do not build a mode whose
+   share is 1% while a mode at 33% is unphysical.
 
-**`results/` right now:** `conv1000_10pct` and `conv1000_25pct` (both rc=0, both
-evaluated). ⚠ **They are baselines for the PRE-pairing model only** — §9.44
-changed the model and §9.45 changed which agents are sampled, so nothing run
-from here is comparable with them. `smoke_postrebuild`;
-`ride_pairing_probe` (a 3-iteration 1% PLUMBING PROBE, not a result);
-**`rp50_declared`, `rp25_declared`, `rp25_control`, `rp25_stress`** — the four
-§9.44 MECHANISM arms, all rc=0 and none of them a result either (see §9.44 for
-what each answers); `results/_aborted_20260816/` is quarantine; ⚠ `results/S2_WEEKDAY_f025_i1000_s20260810/`
-is a dead run with no `_run.json` — not a result, not quarantined, owner may delete.
-
-**`--iterations` below 250 is REFUSED by the resolver.** A short probe needs
-`allow_outside_sweep` in a run overlay with a written justification —
-[`ride_pairing_probe.json`](../../overlays/runs/ride_pairing_probe.json) is the
-worked example. Do not fight the guard; it is correct.
+Start from `main` — nothing is in flight.
 
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§1  THE MISSION
+§1  THE GOAL, AND THE ONE SENTENCE THAT GOVERNS EVERYTHING
 ═══════════════════════════════════════════════════════════════════════════════
 
-The owner's standing goal (treat as the directive):
+> **A digital twin of any city, traffic-wise: simulate the whole population or a
+> percentage of it — and if a percentage, congestion and capacity scale
+> accordingly, and whether that scaling actually predicts the correct ridership
+> per mode must be CHECKED, not assumed.** Implemented for Newcastle, where the
+> light-rail project gives claims we can evaluate. **Every form of transport
+> should be IN ACTION physically.**
 
-> **Goal: a digital twin of any given city (traffic-wise), simulating the
-> entire population or a percentage of it — if a percentage, congestion and
-> capacity are scaled accordingly, and whether that scaling actually predicts
-> the correct ridership per mode must be CHECKED, not assumed.** Implemented
-> for Newcastle, where the light-rail project gives claims we can evaluate.
-> **Fix the ride share by riding actual cars, and the taxi/rideshare
-> ridership.** Token limit applies: do it right rather than bloating the repo.
-> **Every form of transport should be IN ACTION physically** — cars, buses,
-> motorbikes, taxis, ubers, ferries, trains, light rail.
+**"CHECKED, not assumed" is the load-bearing clause.** It has already caught two
+defects that reading code never would have:
 
-**That "CHECKED, not assumed" clause has now caught its first defect** — see
-§2, `RUN.sample.unit`. Keep checking it; it is not decoration.
+- `RUN.sample.unit` (§9.45) — the subsample hashed the *person* id, so household
+  structure dissolved at a rate set by the sample fraction. Every
+  household-coupled mechanism was being decided by the sampler.
+- The ride pairing (§9.44) — built, verified, and then measured to pair **fewer
+  than 1 ride trip in 1,000**, because the demand contains no drivers to pair with.
 
-| | status | evidence |
-|---|---|---|
-| Cars | ✅ | qsim `mainMode`, 175,560 links |
-| Buses | ✅ | 1,448 vehicles, PCE 2.8, sharing **22,102 road links with cars** |
-| Trains | ✅ | 332 vehicles, 6,766 dedicated rail links |
-| Light rail | ✅ | 252 tram vehicles, incl. **21 links shared on-street** |
-| Ferries | ✅ | 107 vehicles (Stockton) |
-| **Car passengers** | ⚠ **PAIRED, still teleported** | Tier 1 built (§9.44). **Pairs <0.1% — the demand has no drivers to name** |
-| Motorbikes | ❌ absent | silently inside `car`/`ride` targets — DECLINED, no target exists |
-| Taxis / Uber | ❌ absent | inside the `Other`/bike bucket (§4) |
+Treat every new mechanism the same way: build it, then measure whether it does
+anything, and publish the answer when it doesn't.
 
-| # | Goal | State |
-|---|---|---|
-| **G1** | The light-rail counterfactual (calibrated base → S0–S6 → 143 sealed holdouts → findings with bands) | Inputs trustworthy; #5 closed; **the active lane is now the escort↔escorted binding in B2** |
-| **G2** | City-agnostic simulator | ✅ 13 CI assertions; ledger 0 `--strict`; reach **74/74** |
-
-The law: **every value DECLARED in `cities/<city>/registry/` and REACHING the
-model through the resolver.** 9 of 10 rail forecasts overestimate patronage
-(avg +106%); a flattering answer is the EXPECTED failure mode.
+**The standing risk:** 9 of 10 rail forecasts overestimate patronage (avg
++106%). A flattering answer is the EXPECTED failure mode of this project.
 
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§2  WHAT IS DONE — do not redo any of it
+§2  THE NINE MODES — WHAT IS PHYSICAL, AND WHAT EACH GAP IS WORTH
 ═══════════════════════════════════════════════════════════════════════════════
 
-**#5 IS CLOSED (§9.43).** `RUN.controler.last_iteration` = **1000**, `measured`.
-Both arms report `relaxed: true` at +0.22 / +0.17 pp. **Declared uncertainty:**
-~2 pp of pre-cutoff search creep never measured (the 1500 arm was cancelled by
-the owner). §9.45 does NOT invalidate this — the horizon was measured on
-post-snap settling, a property of the search rather than of which agents were drawn.
+Measured, not assumed. **Five of nine are already physically in the mobsim** and
+must not be rebuilt:
 
-**★ TIER 1 OF THE RIDE PAIRING IS BUILT AND VERIFIED (§9.44).**
+| mode | state | evidence |
+|---|---|---|
+| Cars | ✅ physical | qsim `mainMode`, 175,560 links |
+| Buses | ✅ physical | 1,448 vehicles, PCE 2.8, sharing **22,102 road links with cars** — genuinely competing for capacity |
+| Trains | ✅ physical | 332 vehicles, 6,766 dedicated rail links |
+| Light rail | ✅ physical | 252 tram vehicles, incl. **21 links shared on-street with cars** |
+| Ferries | ✅ physical | 107 vehicles (Stockton) |
 
-- [`RidePairingEngine.java`](../../../../src/java/citysim/RidePairingEngine.java) —
-  a `BeforeMobsim` listener. Each `ride` leg names a household member whose
-  `car` leg it could be inside; a **paired** passenger takes that driver's
-  **realised** (previous-iteration) travel time, an **unpaired** one behaves
-  exactly as before.
-- **The mechanism, verified against bytecode not API docs:**
-  `decideOnLegTravelTime` is `route.getTravelTime().or(leg.getTravelTime())`, so
-  the **route's** time wins, and both routing modules set leg and route together.
-  The engine therefore writes **only the route's time**, which leaves the
-  router's estimate in `leg.getTravelTime()` as a self-refreshing baseline that
-  survives plan copying. **No side map, no mobsim change.**
-- **Verified at the CONSUMER:** in the probe, 356 legs ended with route ≠ leg
-  time, and every unambiguous case teleported on the **route** value. Realised
-  lookup fires from iteration 1.
-- **Blast radius MEASURED against a control** (`ride_pairing_25pct_control`,
-  the same run with `pairing_enabled` false): per-iteration mode share is
-  **bit-identical to 17 significant figures**, while **7 legs were rewritten in
-  the paired arm and 0 in the control** and `scorestats` differ by 3.8e-05. Both
-  halves are needed — the rewrite count proves it is not a no-op, the identical
-  mode share proves it touched nothing else.
-- **Tested at two horizons** (committed overlays, both rc=0, both flat):
-  **1% × 50** for durability across `ReRoute`/`SubtourModeChoice` (5–6 ms/iter)
-  and **25% × 10** for scale (184–310 ms/iter, **0.4% of an iteration** on
-  136k agents). Cost scales with population and nothing else. 1% alone is NOT
-  sufficient — it is a plumbing fraction (§9.12) and a mechanism that transmits
-  realised congestion cannot be judged there.
-- **Stressed at volume** (`ride_pairing_25pct_stress`, `window_only`): pairs
-  **14,406–18,489 legs an iteration** instead of 3–5, at **the same 192–310 ms**.
-  The cost is the plan WALK, not the pairing. The capacity cap fired for the
-  first time (7–21 refusals), so that branch is exercised, not just written.
-- Five declared fields `B.ride.*`; `ridePairing` module in every emitted config;
-  `ride_pairing.csv` written per iteration with the unpaired share **split by
-  direction**.
+**2,139 transit vehicles move every iteration.** The gap is passengers,
+motorbikes, taxis and Uber — not the fleet.
 
-**★ AND THE MEASUREMENT THAT REFRAMES THE LANE.**
-[`measure_ride_pairability.py`](../../../../src/analyse/measure_ride_pairability.py),
-on the two relaxed arms:
+### The four gaps, prioritised SEPARATELY by what each is worth
 
-| | 10% | 25% |
-|---|---:|---:|
-| ride trips | 79,372 | 185,170 |
-| in a household that drives **at all** that day | 32.6% | 43.1% |
-| **sharing an OD pair with a household car trip, at ANY time** | **0.039%** | **0.104%** |
-| pairable under the declared rule (`both_links`, ±15 min) | 0 | **7** |
+| rank | gap | share of trips | mechanism | data to support it | verdict |
+|---|---|---:|---|---|---|
+| **1** | **Car passengers (`ride`)** | **32.7%** | **BUILT** (Tier 1, §9.44) but **starved** — pairs <0.1% | occupancy 0.35 OBSERVED; who-drives-whom **no target** | **DO THIS. One demand defect stands between a third of all trips and physicality** |
+| **2** | **Freight / heavy vehicles** | **6.52% of vehicles** (MEASURED) | absent — no `truck` mode | share measured from RMS counts; PCE from literature | **DO THIS SECOND.** Cheap, measured, and it changes congestion for *every* mode |
+| **3** | Taxis + Uber | **0.4–1.5%** (10k–35k trips/day of ~2.27M) | absent — inside the `Other` bucket | fares MEASURED; fleet literature; volume band INFERRED, no target | **DEFER.** A ~1% refinement must not precede a 33% defect |
+| **4** | Motorbikes | unknown, inside `car`/`ride` | absent | **NO TRIP-SHARE TARGET ANYWHERE.** Registration data gives FLEET share, not trip share | **STAY DECLINED.** Any split would be invented, and it would shrink both the car and ride targets |
 
-**`ride` is 32.7% of trips and essentially none of it can physically happen.**
-Two independent causes:
+**Why freight outranks taxis** even though it is not in the goal's list of nine:
+it is **measured** rather than inferred, it is **6.5×** the taxi share, and a
+heavy vehicle at PCE > 1 changes the travel time of every car, bus and tram
+sharing its links. It improves the *denominator* every mode is judged against.
+Taxis improve a 1% sliver and rest on an inferred band.
 
-1. **The sampler was shredding households — FIXED (§9.45), and it bought almost
-   nothing, which was MEASURED not assumed.** The household-sampled 25% arm pairs
-   at 0.00004 — the same rate as the person-sampled one. Keeping households
-   intact raises the share of ride legs whose household drives AT ALL (structural,
-   and the real defect), but not OD-coincidence, because B2 never co-locates them.
-   **So cause 2 below is the whole of the remaining problem.** The subsample hashed
-   the PERSON id, so a household of size *n* kept *f·n* members and the chance of
-   keeping any co-member was `1−(1−f)^(n−1)` — 0.14 at 10%, 0.32 at 25%. Every
-   household mechanism was being decided by the *sampler*, differently at each
-   fraction. `RUN.sample.unit` = `household` now; the sample still nests, is
-   still seeded, and `unit = person` reproduces the old draw byte for byte.
-   Membership travels as a `householdId` person attribute — one mechanism, read
-   by both the sampler and the Java.
-2. **B2 draws an escort tour's destination from a DISTRIBUTION, not from the
-   person being escorted — OPEN, and it is your lane (§3).**
+**Why motorbikes stay declined:** the HTS data document is explicit — `Other` =
+*Taxi/rideshare/carshare, wheelchair, bicycle, aircraft*. Motorcycle is **not**
+in it; it sits inside `Vehicle driver`/`Vehicle passenger`. So `car` and `ride`
+targets have always silently contained motorcycles, and carving them out without
+a trip-share observation would be invention. ([`fit.py:49`](../../../../src/calibrate/fit.py)'s
+caveat states this wrongly and must be corrected when touched.)
 
-**HTS mode categories, verbatim:** `Other` = Taxi/rideshare/carshare,
-wheelchair, bicycle, aircraft. So motorcycle is **not** in `Other` — it sits
-inside `Vehicle driver`/`passenger`, and `car`/`ride` targets have always
-silently contained motorcycles. [`fit.py:49`](../../../../src/calibrate/fit.py)'s
-caveat is WRONG and must be corrected when touched.
+---
 
-**A POPULATION DEFECT, found and NOT fixed.** `build_population.py` claims
-age-conditional labour force status (G46); it applies **one flat 15+ employment
-rate** from G43 to every adult — **65–74 at 52.2% employed, 75+ at 47.7%**
-against real ~15–25% and ~3–5%. **~35,000 phantom elderly commuters**, and they
-are exactly the population that RIDES. Also `student_status` is `full_time` for
-**100% of under-18s**, including all 22,115 aged 0–4.
+═══════════════════════════════════════════════════════════════════════════════
+§3  WHAT DATA WE ACTUALLY HAVE ON HOW PEOPLE CHOOSE A MODE
+═══════════════════════════════════════════════════════════════════════════════
+
+The owner asked for this assessment explicitly. **It is the least comfortable
+section in this brief, and it should stay that way.**
+
+### What we have — all of it OUTCOMES, none of it PREFERENCES
+
+| what | source | grade |
+|---|---|---|
+| Mode share by trip, by LGA | `hts_mode.csv` (NSW HTS) | **OBSERVED** |
+| Trip purpose split | `hts_purpose.csv` — incl. `Serve passenger` 10–19.5% | **OBSERVED** |
+| Trip length + duration per mode | `C4_mode_constraints.json` | **OBSERVED** |
+| Vehicle occupancy 1.35 / passenger:driver 0.35 | HTS, 7 survey years | **OBSERVED** |
+| Journey to work, SA1 × mode | `census2021_G62_SA1.csv` — car driver 56.0%, **car passenger 3.35%** | **OBSERVED** |
+| Value of time | `C.vot.*`, TfNSW published parameters | literature |
+| Patronage / boardings | Opal, **unlinked only** | OBSERVED but unlinked |
+
+### What we do NOT have, and cannot get
+
+- **No stated-preference or revealed-preference survey for Newcastle.** Nothing
+  in the package records *why* anyone chose a mode.
+- **No journey-linked Opal.** Unpublished. So the actual path a PT passenger
+  took — the transfers they accepted, the walk they tolerated — is unobserved.
+  Carried as a 3–15 min transfer-penalty sweep, never pinned.
+- **No mode-choice model estimated on Newcastle data.** The ASCs are *not*
+  estimates.
+
+### The consequence, stated plainly
+
+The behavioural layer is **55 fields: 20 assumed, 12 literature, 11 measured, 8
+derived, 4 definition**. **58% of how this model decides a mode is assumed or
+imported literature.** We have excellent data on *what people did* and none on
+*why*, so the ASCs must be either held fixed on a pre-intervention period or
+constrained-and-reported (§8.5) — never fitted to make the answer look right.
+That is exactly why §8.5 exists and why ASC absorption is named as the primary
+threat to validity.
+
+**The honest implication for the goal:** the twin can be made to *reproduce*
+observed mode shares. Whether it *predicts* ridership under an intervention
+rests on transferred coefficients, and the sweep bands are the only honest
+expression of that uncertainty. **Every headline must carry its band.**
+
+**More outcome data will not fix this.** Harvesting another mode-share table
+adds a target, not an explanation. The two acquisitions that *would* move it —
+journey-linked Opal and a local preference survey — are unpublished and
+non-existent respectively.
+
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+§4  ★ WHAT TO DO NEXT — CODE, NOT DATA, NOT RUNS
+═══════════════════════════════════════════════════════════════════════════════
+
+The owner asked whether the next work is realigning values, harvesting data, or
+testing runs. **It is none of the three. It is two demand-model defects, then a
+modelling decision.** Reasoning:
+
+- **Not data harvesting.** The package has 391 committed files and passes 1,456
+  checks. The binding constraint is not missing data — §3 shows the one gap that
+  matters cannot be filled from any source we can reach.
+- **Not runs.** The two convergence arms cost 42 h and are spent. Running the
+  model again *now* would spend another 30 h measuring a demand we already know
+  is broken in two specific ways.
+- **Not value realignment.** Realigning ASCs before the demand is coherent would
+  fit the constants to absorb a structural defect — the §8.5 failure mode by name.
+
+### The order, and why
+
+| step | task | why it comes here | ETA |
+|---|---|---|---|
+| **1** | **Bind the escort tour to the person escorted** (§5) | Unblocks **32.7% of trips**. The coupling is already built and waiting; this is the one defect between it and working | attended 2–3 days |
+| **2** | **Fix the elderly employment defect** (§6) | ~35,000 phantom elderly commuters, and they are *exactly* the population that rides rather than drives — so it contaminates step 1's validation | attended 1 day |
+| **3** | **Re-measure pairability, then re-validate** | "CHECKED, not assumed." Steps 1–2 either move the 0.1% or they do not, and either answer is publishable | attended 0.5 day + one 25% arm |
+| **4** | **#24 freight** — real `truck` mode, vehicle type + PCE | Measured 6.52%; improves the congestion every mode is judged against | attended 1–2 days |
+| **5** | **#14 the §8.5 calibration decision** | ASCs on era 3 (2018), HELD FIXED. **Log the departure BEFORE any result is seen.** Only sensible once the demand is coherent | attended 1–2 days |
+
+**Do steps 1–3 and stop.** That is a complete, publishable unit of work. Steps
+4–5 are the next session's.
+
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+§5  STEP 1 IN DETAIL — THE ESCORT BINDING
+═══════════════════════════════════════════════════════════════════════════════
+
+A DEMAND change, in
+[`build_activity_chains.py`](../../../../src/build/build_activity_chains.py).
+
+**The mechanism, inventoried.** B2 *does* generate escort tours — `HX` is a real
+purpose, **44,258 escort trips** in the relaxed 25% arm. What is missing is the
+binding:
+
+- `ATTRACTION_ALIAS = {'HX': 'HE'}` — an escort destination draws from the
+  education attractor **distribution**, never the escorted child's actual school.
+- `DEPART['HX'] = DEPART['HE']` — same for departure time.
+
+So a parent escorts to *a* school at *a* plausible time while their own child
+travels to *another* school at *another* time. Measured consequence: **0.104% of
+ride trips share an OD with a household car trip at any time of day.**
+
+Reproduce before changing anything:
+
+```bash
+python src/analyse/measure_ride_pairability.py --run conv1000_25pct
+```
+
+**Do:** when a person draws an `HX` tour, bind it to an actual household
+member's already-drawn trip — take that member's destination and departure.
+
+**Must NOT:**
+- **Invent a target.** There is no observation of who drives whom in a
+  household. Derive eligibility from **licence + vehicle only**, as `rideAvail`
+  does, and declare every choice with a sweep.
+- **Manufacture trips.** The `HX` rate is already calibrated to
+  `Serve passenger` 10–19.5% (OBSERVED). **Re-target existing HX tours, do not
+  add any.** If the binding changes HX trip length, report it against the
+  observed 6.4 km mean — do not tune it away.
+- **Force return symmetry.** Return trips pair independently (§9.44). Forcing
+  symmetry would manufacture car trips — the error direction this project is
+  most exposed to. The measured direction split is **uniform** (outbound and
+  return within 0.3%), so there is no return-specific defect to chase.
+
+**Structural facts to respect:** 26.2% of households are lone-person (64,334
+people with no possible in-household driver, ever); 91.5% of under-15s have one;
+77.3% of the population is ride-eligible; external/through agents in the
+`9xxxxxxxx` id space have no household and any lookup must tolerate them.
+
+**A second, smaller incoherence in the same family:** 4,791 escort trips were
+made *by* `ride` — a passenger being driven in order to convey somebody.
+`B.activity.escort_requires_licence` constrains generation; mode choice can
+still turn the tour into a ride. Fix where the lock exists: `lockedMode` +
+`AvailabilityModesCalculator` are the precedent.
+
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+§6  STEP 2 IN DETAIL — THE POPULATION DEFECT
+═══════════════════════════════════════════════════════════════════════════════
+
+`build_population.py`'s docstring claims age-conditional labour force status
+(G46). **It is not:** one flat 15+ employment rate from G43 is applied to every
+adult. Result — **65–74 modelled at 52.2% employed, 75+ at 47.7%**, against real
+~15–25% and ~3–5%. That is **~35,000 phantom elderly commuters**, ~6% of the
+population, and they are exactly the cohort that rides rather than drives.
+
+Also: `student_status` is `full_time` for **100% of under-18s**, including all
+22,115 aged 0–4. Children are otherwise correct (0 employed, 0 licensed, tours
+thinned, cannot escort).
+
+G46 is age-conditional and is already in the package. This is a real fix with
+real data behind it, not a re-parameterisation.
+
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+§7  THE FULL PLAN, ASSESSED — WITH FOUR PROPOSED DELETIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+Every open task, its ETA, and **an alignment verdict against the goal**.
+[`STATUS.md`](../STATUS.md) §"The plan" is the plan of record and carries the
+same numbering; this table adds the assessment the owner asked for.
+
+### Aligned — keep, in this order
+
+| # | task | ETA | alignment |
+|---|---|---|---|
+| **NEW 4.2.5** | **Escort binding** (§5) | 2–3 d | **CRITICAL** — 32.7% of trips |
+| **NEW 4.2.6** | **Elderly employment defect** (§6) | 1 d | **CRITICAL** — contaminates the above |
+| 4.2.4 | §8.5 calibration decision + calibrated base (#14) | 1–2 d + 2–3 d wall | **CORE** — G1 depends on it |
+| 4.3 | Deliverable 0b: derive 15–25 of the 78 `assumed` fields from data already held | 2–3 d | **HIGH, and under-rated** — attacks §3's 58%-assumed problem directly |
+| #24 | Freight `truck` mode, own PR | 1–2 d | **HIGH** — measured, and improves every mode's congestion |
+| 5.4 | Scenario × day-type runs S0–S6 (prioritise S0/S1/S2 × WEEKDAY) | wall: weeks | **CORE** — this is the counterfactual |
+| 5.5 | Per-run close-out: metrics → fit → summary | ~1 h/run | **CORE** |
+| 6.3 | Open the 143 holdouts **once**, at the end | 0.5 d | **CORE** — the pre-registered test |
+| 6.4 | Hypothesis tests with every headline bound to its sweep band | 1–2 wk | **CORE** |
+| 7.1 | Findings paper | 1–2 wk | **CORE** |
+| 4.4 | Taxi + rideshare p2p mode | 2–3 d | **DEFER** — 0.4–1.5% of trips; correct as written, wrong to do now |
+| 5.1 | SUMO corridor harness + outer loop | 3–5 d | **KEEP, lower** — answers corridor cost, not ridership |
+| 7.2 | Method note on the SCATS refusal | 2–3 d | **KEEP** — cheap, and citable |
+| 7.3 / 7.4 | Containerise; publish the data package | 1–2 d each | **KEEP** — deliverables 1 and 2 |
+
+### ⚠ Proposed for deletion or rework — bring these to the owner
+
+| # | task | why it is misaligned | proposal |
+|---|---|---|---|
+| **5.2** | SUMO version change for pedestrian crossings (`--osm.crossings` segfaults 1.27.1) | A **§14 toolchain change invalidates every prior run**, spent for pedestrian crossings on one corridor. Enormous blast radius, near-zero ridership value | **DELETE** from the plan. Record crossings as a stated corridor limitation |
+| **5.3** | Charging dwell field measurement (physical visit to Civic or Crown St) | One tram parameter, already swept, affecting LR travel time marginally. A site visit is disproportionate | **REWORK** to "stays swept, never pinned". Delete the visit |
+| **6.1** | Pedestrian counts — temporary counters on Hunter St | Elapsed **weeks** for hypothesis B1 (street-level activity). B1 is a secondary retail-outcome hypothesis, not ridership | **REWORK** — attempt the land-use + modelled-alightings fallback only; if that fails, **report B1 as untestable** rather than buying counters |
+| **6.2** | Retail floorspace + vacancy audit (`D.retail.vacancy_rate` is `unobtained`) | Same family as 6.1, same distance from the goal | **REWORK** — scope to what the existing land-use layer supports; do not commission an audit |
+
+**The through-line:** 5.2, 5.3, 6.1 and 6.2 are the four most expensive tasks
+per unit of goal in the plan. They are about the *corridor's street life*, not
+about *whether the twin predicts ridership per mode*. Cutting them is the
+single biggest protection against the owner's "don't bloat the repo" directive.
+
+### Backlog — do not start
+
+2014 public timetable · LiDAR DTM (gradient reaches the behavioural model
+through **nothing**, #21) · event attendance · socnetsim joint plans (measured
+at ~10×, reverted) · 2013 historical reconstruction (dropped; do not reopen).
+
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+§8  WHAT IS DONE — do not redo any of it
+═══════════════════════════════════════════════════════════════════════════════
+
+**#5 CLOSED (§9.43).** `RUN.controler.last_iteration` = **1000**, `measured`.
+Both arms `relaxed: true` at +0.22 / +0.17 pp. Declared uncertainty: ~2 pp of
+pre-cutoff search creep never measured (the 1500 arm was cancelled).
+
+**TIER 1 RIDE PAIRING BUILT, VERIFIED, MERGED (§9.44, PR #40).**
+[`RidePairingEngine.java`](../../../../src/java/citysim/RidePairingEngine.java) —
+a `BeforeMobsim` listener naming a household driver per `ride` leg; a paired
+passenger takes that driver's **realised** travel time, an unpaired one is
+untouched.
+
+- **Mechanism verified against bytecode, not API docs.**
+  `decideOnLegTravelTime` = `route.getTravelTime().or(leg.getTravelTime())`, and
+  both routing modules set leg and route together — so the engine writes **only
+  the route's time**, leaving the router's estimate in the leg as a
+  self-refreshing baseline that survives plan copying. No side map, no mobsim change.
+- **Blast radius MEASURED against a control:** mode share **bit-identical to 17
+  s.f.**, **7 legs rewritten vs 0**, `scorestats` differ 3.8e-05.
+- **Two horizons:** 1% × 50 (5–6 ms/iter) and 25% × 10 (184–310 ms/iter = **0.4%
+  of an iteration**). **Stressed** at `window_only`: 14,406–18,489 pairings an
+  iteration at *the same cost* — the cost is the plan WALK, not the pairing.
+
+**SAMPLING UNIT IS THE HOUSEHOLD (§9.45).** And it bought **almost nothing** for
+pairability — measured, not assumed: the household-sampled 25% arm pairs at
+0.00004, the same as person-sampled. It removes a real fraction-dependence in
+"does this household drive at all" (32.6% → 43.1%), but not OD-coincidence.
 
 **Phases:** P0–P3 ✅ · **P4 in progress** · P5–P7 not started.
 
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§3  ★ YOUR JOB: BIND THE ESCORT TOUR TO THE PERSON BEING ESCORTED
+§9  WHAT INVALIDATES YOUR WORK
 ═══════════════════════════════════════════════════════════════════════════════
 
-**This is the change that makes Tier 1 bite.** It is a DEMAND change, in
-[`build_activity_chains.py`](../../../../src/build/build_activity_chains.py),
-not a coupling change — the coupling is built and waiting.
-
-### 3.1 The mechanism, inventoried
-
-B2 **does** generate escort tours — `HX` is a real purpose and there were
-**44,258 escort trips** in the relaxed 25% arm. (The note in
-`B.counts.vehicles_per_ride_leg`'s description that "B2 generates none" is
-STALE — correct it when you touch it.) What is missing is the **binding**:
-
-- `PURPOSES` includes `HX`; only licence holders draw one
-  (`B.activity.escort_requires_licence`).
-- `ATTRACTION_ALIAS = {'HX': 'HE'}` — an escort destination draws from the
-  **education attractor vector**, i.e. from the same *distribution* a child's
-  school is drawn from, never the same *instance*.
-- `DEPART['HX'] = DEPART['HE']` — same for the departure time.
-
-So a parent escorts to *a* school at *a* plausible time while their own child
-travels to *another* school at *another* time. Measured consequence: **0.10% of
-ride trips share an OD with a household car trip.** Reading the code would not
-have found this; the measurement did. Reproduce it before changing anything:
-
-```bash
-python src/analyse/measure_ride_pairability.py --run conv1000_25pct
-```
-
-### 3.2 What the fix has to do, and what it must NOT do
-
-**Do:** when a person draws an `HX` tour, bind it to an actual household
-member's already-drawn trip — take that member's destination and departure, and
-mark the escorted person's corresponding trip as the one being served.
-
-**Must not:**
-- **Invent a target.** There is **NO observation anywhere** of who drives whom
-  inside a household (§3.3 row 11 of the previous brief still holds). Derive the
-  eligibility from **licence + vehicle only**, exactly as `rideAvail` does, and
-  declare every choice with a sweep.
-- **Manufacture trips.** The `HX` tour rate is already calibrated to
-  `Serve passenger` = 10–19.5% of journeys by LGA (OBSERVED, `hts_purpose.csv`).
-  Binding must **re-target existing HX tours**, not add them. If the bound
-  destination changes the HX trip-length distribution, that is a real effect and
-  must be reported against the observed HX mean (6.4 km) — not tuned away.
-- **Force symmetry.** Return trips pair INDEPENDENTLY (§9.44). A passenger owns
-  no vehicle, `ride` is correctly not chain-based, and forcing a return lift
-  would manufacture car trips — the direction of error this project is most
-  exposed to.
-- **Touch the 143 holdouts.**
-
-**The measured direction split says the failure is UNIFORM**, not asymmetric:
-outbound and return unpaired shares are within 0.3% of each other at every rule
-and window. So there is no return-specific demand defect to chase.
-
-### 3.3 The data that exists for each scenario, unchanged from the last search
-
-| # | Scenario | Data | Grade |
-|---|---|---|---|
-| 1 | **Child → school** (dominant) | private vehicle = **61% of school trips** nationally; **~4 in 10** children under 1 km still driven | literature |
-| 3 | **Elderly driven** | NSW 60+ licence holding 22%→28% (2010→2024); family transport major post-cessation | literature |
-| 4 | Work with colleague/partner | **3.35% of JTW, passenger:driver 0.0598**, at SA1 | **OBSERVED** (`census2021_G62_SA1.csv`, in package) |
-| 5 | Driver side, all purposes | `Serve passenger` **10–19.5% of journeys** | **OBSERVED** (`hts_purpose.csv`) |
-| 6 | All-purpose passenger share | `Vehicle passenger` **18–32% of trips** | **OBSERVED** (`hts_mode.csv`) |
-| 8 | Occupancy | **0.35** passengers/driver (0.25–0.394) | declared, `C.constraint.passenger_per_driver` |
-| 10 | **Non-household lift** | **NO TARGET ANYWHERE** | do not build; stated limitation |
-| 11 | **Who drives whom in the household** | **NO TARGET** | licence + vehicle only |
-
-**Commute carpooling is RARE** (passenger:driver 0.0598 for JTW against 18–32%
-of all trips), so the ride demand is overwhelmingly **non-commute** — which is
-why the school run and the elderly lift are the scenarios that matter.
-**HTS carries no age split**, so 1 and 3 are literature-graded, swept, and may
-never be validation targets.
-
-**Structural facts the binding must respect** (measured from B1):
-**26.2% of households are lone-person** — 64,334 people with no possible
-in-household driver, ever; **91.5% of under-15s** have an in-household licensed
-driver; **77.3%** of the population is ride-eligible; plans carry
-**external/through agents in the `9xxxxxxxx` id space with no household at all**
-and any household lookup must tolerate them (the engine already does).
-
-### 3.4 A second, smaller incoherence found in the same measurement
-
-**4,791 escort trips were made by `ride`** — a passenger being driven in order
-to convey somebody. `B.activity.escort_requires_licence` constrains
-*generation*; mode choice may still turn the tour into a ride. Fix it where the
-lock already exists: the `lockedMode` attribute and
-`AvailabilityModesCalculator` are the precedent.
-
-### 3.5 After that, in order
-
-1. **The elderly employment defect** (§2) — and re-validate the pairing after.
-2. **Taxi + rideshare** ([`point-to-point-mode.md`](../design/point-to-point-mode.md)):
-   fares measured (flagfall $5.17, $2.61/km first 12 km), fleet ~175 taxis,
-   inferred band 10k–35k trips/day. **Uber goes WITH taxis.** Carving it out of
-   `Other` **shrinks the bike target**; the split is inferred, declared, swept.
-   Validate against the band as a **constraint, never a target**.
-3. **#14** calibrated base: ASCs on era 3 (2018), HELD FIXED; log the departure
-   BEFORE any result is seen.
-4. **#24** freight, own PR: real `truck` mode with vehicle type + PCE.
-5. **Tier 2** of the pairing (passenger as a real `MobsimPassengerAgent`, seats
-   binding physically) — an increment, and **not worth building until the demand
-   can pair**.
-6. **P5** — SUMO harness; still deliberately unsimulated.
-
----
-
-═══════════════════════════════════════════════════════════════════════════════
-§4  WHAT INVALIDATES YOUR WORK
-═══════════════════════════════════════════════════════════════════════════════
-
-- **No multi-hour run without owner approval** (§0). State cost, get a yes.
+- **No multi-hour run without owner approval.** State cost, get a yes.
 - **The two pilot arms are baselines for the PRE-pairing model ONLY.** §9.44 and
-  §9.45 landed together, deliberately, so there is one comparability break and
-  not two.
+  §9.45 landed together so there is one comparability break, not two.
 - **NEVER compare across sample fractions** (1% is a plumbing fraction), and
   `target_lga_pct`, never `all_residents_pct`.
-- **THE 67/143 SPLIT IS PRE-REGISTERED.** Never calibrate on, re-split or peek
-  at a holdout row; `fit.py` enforces it. Need one? SAY SO AND STOP.
+- **THE 67/143 SPLIT IS PRE-REGISTERED.** Never calibrate on, re-split or peek at
+  a holdout row; `fit.py` enforces it. Need one? SAY SO AND STOP.
 - **One build of the network per comparison.** Threads = 10, part of run identity.
-- **No invented data.** Scenario 1/3 values are literature, labelled and swept.
+- **No invented data.** A value that is not measured is assumed or modelled, and
+  must be labelled and swept.
 - **A run without `_run.json` is not a result.**
-- **`controler_sha256()` hashes only `src/java/`.** A jar change would alter the
-  model and leave the run identity untouched — still unfixed, fix it when any
-  toolchain change actually lands.
+- **`controler_sha256()` hashes only `src/java/`** — a jar change would alter the
+  model and leave the run identity untouched. Still unfixed; fix it when any
+  toolchain change lands.
 
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§5  EXACT STATE — 18 August 2026
+§10  EXACT STATE — 18 August 2026
 ═══════════════════════════════════════════════════════════════════════════════
 
 | | |
 |---|---|
-| Branch | **start from `main`** — the pairing work is merged, nothing is in flight |
-| `main` | **PR #40 (18 Aug): Tier 1 ride pairing + household sampling unit.** CI green, 6/6. The 16 Aug rebuild (PR #38) is beneath it |
-| Toolchain | **3 pinned components** — JDK 25.0.4+7, pt2matsim 26.6, SUMO 1.27.1. **UNCHANGED by this work** — the pairing adds compiled source beside the shaded jar, not a contrib |
-| Java | **8 sources** in `src/java/citysim/` (added `RidePairingEngine`, `RidePairingConfigGroup`) |
-| Registry | **304 fields** (5 × `B.ride.*`, 1 × `RUN.sample.unit`); ledger **0** `--strict`; reach **74/74** |
-| Plans | regenerated 18 Aug, now carrying `householdId`; 30 run-input sets reassembled, each config carrying a `ridePairing` module |
-| Machine | 63.5 GiB RAM, 24 logical cores; memory is the binding constraint |
-| Open issues | **5** — #9 #14 #24 #28 #31. **#31 moves from "unmodelled" to "modelled and measured to be starved of supply" — it does NOT close** |
+| Branch | **start from `main`** — nothing in flight |
+| `main` | PR #40 (Tier 1 pairing + household sampling), PR #41 (board currency). CI green |
+| Toolchain | 3 pinned — JDK 25.0.4+7, pt2matsim 26.6, SUMO 1.27.1. **Unchanged** by the pairing |
+| Java | **8 sources** in `src/java/citysim/` |
+| Registry | **304 fields**; ledger **0** `--strict`; reach **74/74** |
+| Package | 391 files; `check_package.py` **1,456 checks ALL PASSED**, 2 standing warnings |
+| Machine | 63.5 GiB RAM, 24 cores; **memory is the binding constraint** (~24 GiB fixed + 0.09–0.3 MB/agent → a 100% run needs 80–160 GiB) |
+| Run cost | 33.3 s/iter at 10%, 90.2 s at 25% → a 1000-iteration arm is 11 h / 31 h |
+| Open issues | **5** — #9 #14 #24 #28 #31 |
 | **Results** | **NONE. Nothing in this repository is an output of the model.** |
 
 ### Bootstrap reading, in this order
 
 ```
 cities/newcastle/docs/STATUS.md                               the board + numbered plan
-cities/newcastle/docs/DECISIONS.md  §9.44, §9.45              THE PAIRING AND THE SAMPLER
+cities/newcastle/docs/DECISIONS.md  §9.44, §9.45              the pairing and the sampler
 cities/newcastle/docs/audit/CONVERGENCE_PILOT_EVALUATION.md   the pilot evidence
-cities/newcastle/docs/design/point-to-point-mode.md           taxi dossier + build plan
 .claude/CLAUDE.md                                             conventions + hard constraints
 ```
 
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§6  DECISIONS TAKEN — do not re-litigate
+§11  DECISIONS TAKEN — do not re-litigate
 ═══════════════════════════════════════════════════════════════════════════════
-• **#5 IS DECLARED AND CLOSED** at 1000 with a snap-aware drift window. The 1500
-  probe was cancelled by the owner; the residual creep is declared uncertainty.
-• **THE RIDE PAIRING IS A `BeforeMobsim` LOOKUP, TIER 1, AND IT IS BUILT.** NOT
-  joint plans — socnetsim was built, measured at ~10×
-  (`CourtesyEventsGenerator`, 16.7 M events by sim-hour 15), and REVERTED by
-  owner instruction. Do not reintroduce it.
-• **THE SAMPLING UNIT IS THE HOUSEHOLD.** Person-wise sampling made every
-  household mechanism a function of the fraction.
-• **RETURN TRIPS PAIR INDEPENDENTLY**, not as round trips. Report by direction.
-• **DO NOT add `ride` to qsim main modes** (phantom vehicles) **or to
-  `chainBasedModes`**. eqasim's `PassengerConstraint` consults no driver: it
-  compiles, runs, constrains nothing and reports success.
-• **A PICKUP FRICTION IS NOT A FITTED PARAMETER.** The measured residual is
-  ~5 s at 25% / ~13 s at 10%, FLAT across distance bins; a 1-minute friction is
-  5–12× it. `B.ride.pickup_dwell_s` defaults to **0.0** and is swept, never fitted.
-• **`both_links` IS THE DECLARED PAIRING RULE.** It is the only one under which
-  handing over the driver's realised time is correct. The looser rules are
-  sensitivities — under `window_only` a paired passenger inherits an unrelated
-  trip and comes out **+493 to +725 s** wrong.
+• **#5 DECLARED AND CLOSED** at 1000. Do not relaunch the 1500 arm.
+• **THE RIDE PAIRING IS A `BeforeMobsim` LOOKUP, TIER 1, BUILT.** NOT joint
+  plans — socnetsim measured at ~10× (`CourtesyEventsGenerator`, 16.7 M events)
+  and REVERTED by owner instruction.
+• **THE SAMPLING UNIT IS THE HOUSEHOLD.**
+• **RETURN TRIPS PAIR INDEPENDENTLY.** Report the unpaired share by direction.
+• **DO NOT add `ride` to qsim main modes or `chainBasedModes`.** eqasim's
+  `PassengerConstraint` consults no driver: it compiles, runs, constrains
+  nothing, reports success.
+• **A PICKUP FRICTION IS NOT A FITTED PARAMETER.** Measured residual ~5 s at 25%
+  / ~13 s at 10%, flat across bins. `B.ride.pickup_dwell_s` = **0.0**, swept.
+• **`both_links` IS THE DECLARED PAIRING RULE** — the only one under which the
+  driver's realised time is *correct*. Looser rules are sensitivities; under
+  `window_only` a paired passenger comes out **+493 to +725 s** wrong.
 • **NON-HOUSEHOLD LIFTS ARE NOT BUILT** — no target exists. Stated limitation.
-• **TAXI/RIDESHARE**: re-opened; Uber goes with taxis; the split is inferred,
-  declared and swept; constraint never target. Owner said NO to data requests.
+• **TAXI/RIDESHARE**: Uber goes with taxis; the split is inferred, declared and
+  swept; validated as a **constraint, never a target**. Owner said NO to lodging
+  data requests.
 • **DELIVERABLE 5 TAKES §8.5's FIRST BRANCH:** ASCs on era 3 (2018), HELD FIXED.
-  LOG THE DEPARTURE BEFORE ANY RESULT IS SEEN.
-• SCATS refused by policy, journey-linked Opal unpublished (3–15 min sweep),
-  charging dwell field-measurement-only — all swept, never pinned.
-• ONE ARM AT A TIME. n_replications stays 30 until seed variance is MEASURED.
+  **LOG THE DEPARTURE BEFORE ANY RESULT IS SEEN.**
+• SCATS refused by policy; journey-linked Opal unpublished (3–15 min sweep);
+  charging dwell swept — never pinned.
+• ONE ARM AT A TIME. `n_replications` stays 30 until seed variance is MEASURED.
 • STILL DECLINED: touching the 143 holdouts; weather in mode choice;
-  **motorcycle as its own mode** (no target); year-long simulation.
+  **motorcycle as its own mode** (§2); year-long simulation.
 
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§7  TRAPS — each has already cost a day (or nearly)
+§12  TRAPS — each has already cost a day (or nearly)
 ═══════════════════════════════════════════════════════════════════════════════
-1. **HEREDOCS MANGLE OR FAIL — bash AND PowerShell.** Write scripts with the
-   Write tool, run the file. **This bit again this session**, on an escaped
-   quote inside a Python string.
-2. **`compileall` does not catch a NameError.** Import the module and call it.
-   It also does not catch a `TypeError` from a schema shape — `sweep` may be a
-   bare list OR `{"interval": [...]}`, and both are legal.
+1. **HEREDOCS MANGLE OR FAIL — bash AND PowerShell.** Write the script with the
+   Write tool, run the file. Bit again last session, on an escaped quote.
+2. **`compileall` catches neither a NameError nor a schema-shape `TypeError`.**
+   Import the module and CALL it. (`sweep` may be a bare list OR
+   `{"interval": [...]}` — both legal.)
 3. Everything is seeded **20260810**. After ANY registry edit: `render_docs.py`
    AND `render_schema.py`. After any data change: `normalise_eol.py` →
    `build_manifest.py` → `normalise_eol.py`.
 4. **VERIFY THE CONSUMER, NOT THE MECHANISM.** Reading code has never once
-   caught a dead binding here. This session it earned its keep twice: the
-   teleport binding was confirmed by decompiling the pinned jar and then by a
-   probe run, and **the direction split shipped silently all-zero** because a
-   ride trip's adjacent activity is a `ride interaction` STAGE activity, not the
-   real one.
-5. **Reproduce a defect before attributing it.** The previous brief's ride fix
-   (a) was already implemented; three sessions could have been spent "adding" it.
+   caught a dead binding here. Last session it earned its keep twice — and the
+   pairing's **direction split shipped silently all-zero** because a ride trip's
+   adjacent activity is a `ride interaction` STAGE activity, not the real one.
+5. **Reproduce a defect before attributing it.** A previous brief's "fix" was
+   already implemented; three sessions could have been spent adding it.
 6. **The hardcoding ledger is not a formality.** It caught a five-number
-   reporting grid in a brand-new analysis script this session. Derive the grid
-   from the declared sweep instead.
-7. `pkill` does not work; PowerShell `Stop-Process`, then VERIFY it died.
-8. Branch `<git-handle>/<short-kebab>`, never `claude/*`. No attribution
+   reporting grid in a brand-new analysis script. Derive grids from declared sweeps.
+7. **A broad log grep will false-positive.** `IllegalArgumentException:
+   Unsupported class file major version 69` is **benign and pre-existing** —
+   Guice's bundled ASM cannot read Java 25 class files while attaching line
+   numbers. It appears in every run including the 31 h pilot. Exclude it.
+8. `pkill` does not work; PowerShell `Stop-Process`, then VERIFY it died.
+9. Branch `<git-handle>/<short-kebab>`, never `claude/*`. No attribution
    trailers, no session links. **Keep `STATUS.md` current in the SAME commit.**
-9. **Big agency PDFs (TfNSW, IPART) return HTTP 403 to WebFetch.** The HTS data
-   document is ALREADY IN THE PACKAGE at
-   `data/raw/hts/hts_data_document_2020_2024.pdf` — read it locally.
-10. **A DOCTYPE in a MATSim input sends the parser to the network** for a DTD;
-    what came back was an HTML error page and the parse died. Omit it.
+10. **Big agency PDFs (TfNSW, IPART) return HTTP 403 to WebFetch.** The HTS data
+    document is already local at `data/raw/hts/hts_data_document_2020_2024.pdf`.
+11. **A DOCTYPE in a MATSim input sends the parser to the network** for a DTD;
+    an HTML error page came back and the parse died. Omit it.
