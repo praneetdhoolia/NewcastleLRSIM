@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 18 August 2026 (#5 closed; **ride pairing Tier 1 BUILT and verified**; the sampling unit is now the household) · branch `praneetdhoolia/convergence-pilot-arms`
+**Last updated:** 18 August 2026 (#5 closed; **ride pairing Tier 1 BUILT, verified and MERGED to `main` in PR #40**; the sampling unit is now the household) · branch `main`
 
 > **This file is a board, not a diary.** The dated build narrative that used to live
 > here (944 lines) is archived in
