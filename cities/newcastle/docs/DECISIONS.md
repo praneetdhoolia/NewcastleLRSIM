@@ -4772,6 +4772,24 @@ behind a control. And the identical mode share proves it did that something to
 **7 legs of ~120,000 and to nothing else** — which is what a bounded blast
 radius looks like when it is measured rather than asserted.
 
+**And the paired path was stressed at volume.** The declared rule pairs so
+little that arm A barely exercises the arithmetic, so `ride_pairing_25pct_stress`
+runs `window_only` at the sweep's upper bound: rc=0, and it pairs
+**14,406 → 18,489 legs an iteration** (13.5–14.6%) instead of 3–5. The cost is
+**192–310 ms after the first iteration — the same as the arm that paired five
+legs.** That is the design's complexity showing itself honestly: the cost is the
+plan WALK, O(persons × plan elements), and the pairing itself disappears into it.
+The capacity cap also fired for the first time (7–21 refusals an iteration), so
+that branch is exercised rather than merely written, and the realised-time
+lookup carried 12,954 of 14,255 pairings at iteration 1 with the rest taking the
+routed fallback, exactly as specified.
+
+Iteration duration is NOT a clean reading here — 80.0 s against arm A's 53.7 s
+and the control's 61.7 s, on a machine where the control did LESS work than arm A
+and still ran slower. The listener's own cost is measured directly and is 0.3% of
+an iteration; the rest is model state and machine variance, and §9.5's warning
+that iteration duration does not survive contention applies.
+
 The cost scales with the population and with nothing else — ~25× the agents for
 ~25× the cost — and it is **0.4% of a 25% iteration**. Neither arm drifts,
 leaks or slows across its horizon. **1% was not sufficient on its own and is not

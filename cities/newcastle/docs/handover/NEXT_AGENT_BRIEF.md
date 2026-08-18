@@ -119,6 +119,10 @@ post-snap settling, a property of the search rather than of which agents were dr
   136k agents). Cost scales with population and nothing else. 1% alone is NOT
   sufficient — it is a plumbing fraction (§9.12) and a mechanism that transmits
   realised congestion cannot be judged there.
+- **Stressed at volume** (`ride_pairing_25pct_stress`, `window_only`): pairs
+  **14,406–18,489 legs an iteration** instead of 3–5, at **the same 192–310 ms**.
+  The cost is the plan WALK, not the pairing. The capacity cap fired for the
+  first time (7–21 refusals), so that branch is exercised, not just written.
 - Five declared fields `B.ride.*`; `ridePairing` module in every emitted config;
   `ride_pairing.csv` written per iteration with the unpaired share **split by
   direction**.
