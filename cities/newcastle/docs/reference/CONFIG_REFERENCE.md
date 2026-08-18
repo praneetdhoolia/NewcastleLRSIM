@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 304 fields are made of
+## What the 309 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 4 | read directly from a raw download |
 | `measured` | 23 | computed from observed data in this package |
-| `derived` | 26 | follows from another registry field by identity |
+| `derived` | 27 | follows from another registry field by identity |
 | `literature` | 35 | a published value, not specific to this city |
-| `assumed` | 130 | chosen without direct empirical support |
-| `definition` | 86 | fixed by the formulation, not an empirical quantity |
+| `assumed` | 133 | chosen without direct empirical support |
+| `definition` | 87 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 284 | usable point value |
+| `active` | 289 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -799,7 +799,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 48 fields*
+*`cities/newcastle/registry/B_demand.json` - 53 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -813,6 +813,10 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.departure_profile` | `{"HE": [0.0, 0.0, 0.0, 0.0, 0.002, 0.01, 0.06, 0.23, 0.27, 0.09, 0.035, 0.03, 0.035, 0.04, 0.075, 0.06, 0.0...` | probability_by_hour | `assumed` | plus/minus 25% |
 | `B.activity.detour_factor` | `1.3376` | ratio | `measured` | 1.25 - 1.423 |
 | `B.activity.duration_cv` | `0.3` | coefficient_of_variation | `assumed` | 0.2 - 0.45 |
+| `B.activity.escort_binding_enabled` | `true` | boolean | `definition` | - |
+| `B.activity.escort_binding_min_gap_s` | `2700` | seconds | `assumed` | 900 - 5400 |
+| `B.activity.escort_binding_scope` | `any_member_trip` | enum | `assumed` | `any_member_trip`, `unlicensed_or_education` |
+| `B.activity.escort_excludes_ride` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
 | `B.activity.escort_requires_licence` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
 | `B.activity.hts_rate_per_person_day` | `3.473` | trips_per_person_per_day | `measured` | 3.3 - 3.65 |
 | `B.activity.p_intermediate_stop` | `{"HW": 0.22, "HE": 0.12, "HS": 0.18, "HO": 0.2, "WB": 0.3, "HX": 0.15}` | probability | `assumed` | 0.1 - 0.35 |
@@ -847,6 +851,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.population.build_sample_share` | `1.0` | share_of_population | `definition` | - |
 | `B.population.licence_rate_by_age_band` | `[0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]` | probability | `literature` | plus/minus 10% |
 | `B.population.ride_requires_household_driver` | `true` | boolean | `derived` | derived: a person may be a car passenger only if their B1 household holds at le |
+| `B.population.tertiary_ft_share` | `{"18_24": 0.7, "25_ov": 0.35}` | share_of_attendees | `assumed` | plus/minus 30% |
 | `B.ride.max_passengers_per_vehicle` | `4` | persons | `assumed` | 1 - 4 |
 | `B.ride.pairing_enabled` | `true` | boolean | `definition` | - |
 | `B.ride.pairing_rule` | `both_links` | enum | `assumed` | `both_links`, `origin_link`, `dest_link`, `window_only` |
@@ -905,6 +910,34 @@ Straight-line to network distance, routed over the observed A1 road graph. Repla
 Spread of activity duration around its mean.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
+
+#### `B.activity.escort_binding_enabled`
+
+Whether an HX (serve passenger) tour takes its destination and departure from an actual household member's already-drawn trip, instead of drawing both from the education-attractor distribution and the HE departure profile. Not an empirical quantity: it selects which of two mechanisms builds the escort tour, exactly as B.ride.pairing_enabled does on the supply side, and false restores the pre-9.46 behaviour so the two demands are comparable within one build. Binding RE-TARGETS existing HX tours and never adds one - the HX rate stays calibrated to the observed Serve passenger share. An escorter with no bindable household trip that day (lone-person households are 26.2% of all households) falls back to the distribution draw.
+
+***definition** · status **active** · DECISIONS.md §9.46*
+
+#### `B.activity.escort_binding_min_gap_s`
+
+Minimum separation between the departures of two escort tours BOUND for the same escorter, so the driver can physically make both runs.
+
+***assumed** · status **active** · DECISIONS.md §9.46*
+
+> **Sweep basis.** no observation bears on how closely one driver can stack two escort runs; 45 minutes covers a school-run drop-off (dwell ~5 min) plus the return at the model's own seed speeds over the observed 6.4 km escort distance. The bounds are a 15-minute back-to-back stack and a 90-minute spacing. Finer overlap - a drawn intermediate stop stretching one bound tour into the next - resolves at placement, where the later binding drops rather than shifts.
+
+#### `B.activity.escort_binding_scope`
+
+Which classes of already-drawn household trips an HX escort tour may take its destination and departure from.
+
+***assumed** · status **active** · DECISIONS.md §9.46*
+
+#### `B.activity.escort_excludes_ride`
+
+Whether a person whose day includes an escort (HX) tour is denied `ride` for that day type. Measured motivation: 4,791 escort trips on the relaxed 25% arm were made BY ride - a passenger being driven in order to convey somebody, with no driver bound to either of them. Consumed by build_matsim_plans.py, which forces rideAvail=never for that person-day; the existing AvailabilityModesCalculator then withholds ride with no Java change.
+
+***derived** · status **active** · DECISIONS.md §9.46*
+
+> **Derived from** `B.activity.escort_requires_licence`: an escort trip is a trip made in order to convey another person, so the traveller is the driver - the same identity that already restricts HX generation to licence holders, taken through to mode choice: a person whose plan carries an escort activity cannot make that day's trips as a car passenger. Applied at the day-plan level (rideAvail=never on the escort day's population file) because MATSim's PermissibleModesCalculator is per-plan, not per-subtour; the collateral - the escorting driver cannot be driven on OTHER tours the same day - is stated, small and plausibly the truth
 
 #### `B.activity.escort_requires_licence`
 
@@ -1145,6 +1178,14 @@ Whether `ride` is withheld from a person with nobody to drive them. MATSim's sta
 ***derived** · status **active** · DECISIONS.md §8.5, 9.10, 15 · proposal §9*
 
 > **Derived from** `B.seed.master`: a person may be a car passenger only if their B1 household holds at least one vehicle AND contains at least one OTHER licence holder who could drive them; computed from B1_synthetic_population.csv household_id, household_vehicles and licence_holder, so it is derived from the synthetic population rather than chosen
+
+#### `B.population.tertiary_ft_share`
+
+Of persons 18+ attending an educational institution (G01, observed per SA1), the share that are full-time students - the ones who draw a mandatory HE tour. Under-18 attendees are full-time by definition (school). Replaces a flat assumed 0.35 full-time-student rate for all 18-24s and a hardcoded 0.04 part-time rate that no audit could see.
+
+***assumed** · status **active** · DECISIONS.md §9.46*
+
+> **Sweep basis.** the census table that would measure it (G15, full-time/part-time student status by age) is not in the package - a deliberate non-acquisition (age-structure dossier 5): it decides HE tour-making only within the full-time fraction of the 38% of 20-24s and 5.5% of 25+ who attend at all. National context brackets it: university study is majority full-time and VET majority part-time, and 18-24 attendance is university-dominant while 25+ is not. A G15 harvest is a deliverable-0b candidate that would move this to measured.
 
 #### `B.ride.max_passengers_per_vehicle`
 

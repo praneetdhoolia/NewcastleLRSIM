@@ -144,6 +144,19 @@ P_SECOND_STOP_SWEEP = (0.12, 0.40)
 # holder cannot make one. Derived from the same identity as the `ride` driver
 # requirement, taken on the driver side (DECISIONS.md 9.15).
 ESCORT_REQUIRES_LICENCE = CFG.get('B.activity.escort_requires_licence')
+# Whether an HX tour is BOUND to an actual household member's already-drawn
+# trip - destination and departure taken from the person being escorted -
+# instead of drawing both from the education-attractor distribution and the
+# HE profile. Binding re-targets existing tours and never adds one; false
+# restores the pre-9.46 behaviour (DECISIONS.md 9.46).
+ESCORT_BINDING = CFG.get('B.activity.escort_binding_enabled')
+# Which household trips an escort may bind to. Assumed and swept - there is no
+# observation of who-drives-whom. 'unlicensed_or_education' stops at priority
+# class 2 (see bind_escort_tours); 'any_member_trip' allows all four.
+ESCORT_SCOPE = CFG.get('B.activity.escort_binding_scope')
+# Two bindings for the same escorter must sit at least this far apart, so the
+# driver can physically make both runs. Assumed and swept.
+ESCORT_MIN_GAP_S = CFG.get('B.activity.escort_binding_min_gap_s')
 # Share of an under-12's drawn secondary tours that are actually made alone.
 # Applied as per-tour thinning, not as a scaling of the count.
 CHILD_TOUR_RETENTION = CFG.get('B.activity.child_tour_retention')
@@ -582,19 +595,114 @@ def draw_hour(profile, shift, u):
     return (23 + shift) % 24
 
 
-def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
+def draw_tour_spec(purpose, hz, CUM, store, zone_arr, u, fixed_dest=None):
+    """The stochastic content of one tour - destination chain, in-zone
+    placements and activity durations - drawn exactly once, so that moving the
+    tour's start in the timeline (to flow around an immovable escort tour)
+    never redraws it.
+
+    `fixed_dest` is the escort binding (DECISIONS.md 9.46): the primary
+    destination is the escorted household member's own drawn destination, not a
+    draw from the attractor distribution. Intermediate stops still chain off it
+    at the ordinary rate - a driver who drops a passenger may link another stop
+    before returning.
+    """
+    X, Y, ZX, ZY, RAD, SA1 = zone_arr
+    if fixed_dest is None:
+        primary_k = int(np.searchsorted(CUM[purpose][hz], u()))
+        if primary_k >= X.size:
+            primary_k = X.size - 1
+        dx, dy, how = place_in_zone(store, purpose, primary_k,
+                                    float(ZX[primary_k]), float(ZY[primary_k]),
+                                    float(RAD[primary_k]), u)
+    else:
+        primary_k, dx, dy = fixed_dest
+        how = 'escorted'
+    chain = [(purpose, primary_k, dx, dy, how)]
+    if u() < P_INTERMEDIATE_STOP.get(purpose, 0.15):
+        stop_purpose = 'HS' if u() < 0.5 else 'HO'
+        k = min(int(np.searchsorted(CUM[stop_purpose][primary_k], u())),
+                X.size - 1)
+        sx, sy, show = place_in_zone(store, stop_purpose, k, float(ZX[k]),
+                                     float(ZY[k]), float(RAD[k]), u)
+        chain.append((stop_purpose, k, sx, sy, show))
+        if u() < P_SECOND_STOP:
+            k2 = min(int(np.searchsorted(CUM['HO'][k], u())), X.size - 1)
+            s2x, s2y, s2how = place_in_zone(store, 'HO', k2, float(ZX[k2]),
+                                            float(ZY[k2]), float(RAD[k2]), u)
+            chain.append(('HO', k2, s2x, s2y, s2how))
+    durs = []
+    for idx, entry in enumerate(chain):
+        hint = entry[0]
+        if idx == 0:
+            base = ACT_DURATION[hint]
+        else:
+            base = ACT_DURATION['NHB'] if hint == 'HO' else ACT_DURATION[hint]
+        durs.append(int(max(300, base * 60
+                            * (1.0 + DURATION_CV * (2.0 * u() - 1.0)))))
+    return dict(purpose=purpose, chain=chain, durs=durs)
+
+
+def time_tour(spec, t_start, person, hx, hy, hz, SA1):
+    """Pure time arithmetic: the legs of one tour at the given start.
+
+    No draw happens here, so the same spec can be re-timed when the timeline
+    pushes it, without perturbing the random stream.
+    """
+    spd = 26.0 if person['cav'] else 16.0
+    cur_x, cur_y, cur_z, cur_act = hx, hy, hz, 'home'
+    t = t_start
+    pending = []
+    for idx, (hint, k, dx, dy, how) in enumerate(spec['chain']):
+        act = ACT_OF_PURPOSE[hint]
+        dist_km = math.hypot(dx - cur_x, dy - cur_y) / 1000.0
+        tt = int(dist_km / spd * 3600) + 240
+        arr = t + tt
+        dur = spec['durs'][idx]
+        pending.append(dict(
+            purpose=leg_purpose(cur_act, act), dest_activity_type=act,
+            origin_sa1=SA1[cur_z], dest_sa1=SA1[k],
+            origin_x=cur_x, origin_y=cur_y, dest_x=dx, dest_y=dy,
+            dep_time_s=t, arr_time_s=arr, straight_dist_km=dist_km,
+            activity_duration_s=dur, is_tour_anchor=int(idx == 0),
+            dest_placement=how))
+        cur_x, cur_y, cur_z, cur_act = dx, dy, k, act
+        t = arr + dur
+    dist_km = math.hypot(hx - cur_x, hy - cur_y) / 1000.0
+    tt = int(dist_km / spd * 3600) + 240
+    arr_home = t + tt
+    pending.append(dict(
+        purpose=leg_purpose(cur_act, 'home'), dest_activity_type='home',
+        origin_sa1=SA1[cur_z], dest_sa1=SA1[hz],
+        origin_x=cur_x, origin_y=cur_y, dest_x=hx, dest_y=hy,
+        dep_time_s=t, arr_time_s=arr_home, straight_dist_km=dist_km,
+        activity_duration_s=0, is_tour_anchor=0, dest_placement='home'))
+    return pending, arr_home
+
+
+def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped,
+              fixed_tours=()):
     """One person's tours for one day type.
 
-    Returns a list of leg dicts. Every tour starts and ends at the person's
-    home, so the day decomposes into proper sub-tours for MATSim, and a tour
-    that will not fit inside the day horizon is dropped rather than allowed to
-    run past midnight.
+    Returns (legs, anchors). Every tour starts and ends at the person's home,
+    so the day decomposes into proper sub-tours for MATSim, and a tour that
+    will not fit inside the day horizon is dropped rather than allowed to run
+    past midnight.
+
+    `fixed_tours` are escort (HX) tours BOUND to another household member's
+    already-drawn trip (DECISIONS.md 9.46): their start and destination are the
+    escorted trip's own and are IMMOVABLE - moving them would unmake the
+    co-location the binding exists to create. The person's movable tours flow
+    around them: one that would overlap an immovable tour is pushed past its
+    end, which is the school run's own logic - drop the child, then go to work.
+
+    `anchors` describes each placed tour's primary destination and departure,
+    so a later household member's escort tour can bind to it.
     """
     X, Y, ZX, ZY, RAD, SA1 = zone_arr
     hx, hy, hz = person['hx'], person['hy'], person['hzi']
-    legs = []
 
-    # ---- which tours does this person make today ----
+    # ---- which movable tours does this person make today ----
     tours = []
     if person['employed'] and u() < P_MANDATORY[day]['work']:
         tours.append('HW')
@@ -615,8 +723,29 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
             # every under-12 secondary tour instead of 60% of them.
             n = sum(1 for _ in range(n) if u() < CHILD_TOUR_RETENTION)
         tours += [p] * n
-    if not tours:
-        return legs
+    if not tours and not fixed_tours:
+        return [], []
+
+    # ---- immovable escort tours first: content drawn, time taken as bound ----
+    placed = []   # (start_s, arr_home_s, spec, legs)
+    for ft in sorted(fixed_tours, key=lambda f: f['start_s']):
+        spec = draw_tour_spec('HX', hz, CUM, store, zone_arr, u,
+                              fixed_dest=(ft['k'], ft['dx'], ft['dy']))
+        if ft['start_s'] > DAY_HORIZON_S - 3600:
+            dropped[0] += 1
+            continue
+        legs_f, arr_home = time_tour(spec, ft['start_s'], person, hx, hy, hz, SA1)
+        if arr_home > DAY_HORIZON_S:
+            dropped[0] += 1
+            continue
+        if any(ft['start_s'] < e and arr_home > s for s, e, _, _ in placed):
+            # the binder keeps bound departures escort_binding_min_gap_s apart,
+            # but a drawn intermediate stop can stretch one binding into the
+            # next; a bound time may not move, so the collision drops, not shifts
+            dropped[0] += 1
+            continue
+        placed.append((ft['start_s'], arr_home, spec, legs_f))
+    fixed_intervals = [(s, e) for s, e, _, _ in placed]
 
     shift = WEEKEND_DEPARTURE_SHIFT_H[day]
     starts = [draw_hour(DEPART[p], shift, u) * 3600 + int(3600 * u())
@@ -624,79 +753,40 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
     order = sorted(range(len(tours)), key=lambda i: (starts[i], tours[i], i))
 
     t_now = None
-    tour_id = 0
     for oi in order:
         purpose = tours[oi]
         t_start = starts[oi]
         if t_now is not None and t_start < t_now + 600:
             t_start = t_now + 600
-        if t_start > DAY_HORIZON_S - 3600:
+        spec = draw_tour_spec(purpose, hz, CUM, store, zone_arr, u)
+        # flow around the immovable escort tours: a movable tour that would
+        # overlap one is pushed past its end and re-timed (never redrawn)
+        legs_m = None
+        while t_start <= DAY_HORIZON_S - 3600:
+            legs_m, arr_home = time_tour(spec, t_start, person, hx, hy, hz, SA1)
+            hit = next(((fs, fe) for fs, fe in fixed_intervals
+                        if t_start < fe + 600 and arr_home > fs), None)
+            if hit is None:
+                break
+            t_start = hit[1] + 600
+            legs_m = None
+        if legs_m is None:
             dropped[0] += len(order) - order.index(oi)
             break
-
-        # ---- destination sequence for this tour ----
-        primary_k = int(np.searchsorted(CUM[purpose][hz], u()))
-        if primary_k >= X.size:
-            primary_k = X.size - 1
-        chain = [(purpose, primary_k)]
-        if u() < P_INTERMEDIATE_STOP.get(purpose, 0.15):
-            stop_purpose = 'HS' if u() < 0.5 else 'HO'
-            k = int(np.searchsorted(CUM[stop_purpose][primary_k], u()))
-            chain.append((stop_purpose, min(k, X.size - 1)))
-            if u() < P_SECOND_STOP:
-                k2 = int(np.searchsorted(CUM['HO'][chain[-1][1]], u()))
-                chain.append(('HO', min(k2, X.size - 1)))
-
-        # ---- walk the tour, home -> ... -> home ----
-        cur_x, cur_y, cur_z, cur_act = hx, hy, hz, 'home'
-        t = t_start
-        pending = []
-        ok = True
-        for idx, (leg_purpose_hint, k) in enumerate(chain):
-            act = ACT_OF_PURPOSE[leg_purpose_hint]
-            dx, dy, how = place_in_zone(store, leg_purpose_hint, k,
-                                        float(ZX[k]), float(ZY[k]), float(RAD[k]), u)
-            dist_km = math.hypot(dx - cur_x, dy - cur_y) / 1000.0
-            spd = 26.0 if person['cav'] else 16.0
-            tt = int(dist_km / spd * 3600) + 240
-            arr = t + tt
-            if idx == 0:
-                dur = ACT_DURATION[leg_purpose_hint]
-            else:
-                dur = ACT_DURATION['NHB'] if leg_purpose_hint == 'HO' else \
-                    ACT_DURATION[leg_purpose_hint]
-            dur = int(max(300, dur * 60 * (1.0 + DURATION_CV * (2.0 * u() - 1.0))))
-            pending.append(dict(
-                purpose=leg_purpose(cur_act, act), dest_activity_type=act,
-                origin_sa1=SA1[cur_z], dest_sa1=SA1[k],
-                origin_x=cur_x, origin_y=cur_y, dest_x=dx, dest_y=dy,
-                dep_time_s=t, arr_time_s=arr, straight_dist_km=dist_km,
-                activity_duration_s=dur, is_tour_anchor=int(idx == 0),
-                dest_placement=how))
-            cur_x, cur_y, cur_z, cur_act = dx, dy, k, act
-            t = arr + dur
-        # closing leg home
-        dist_km = math.hypot(hx - cur_x, hy - cur_y) / 1000.0
-        spd = 26.0 if person['cav'] else 16.0
-        tt = int(dist_km / spd * 3600) + 240
-        arr_home = t + tt
         if arr_home > DAY_HORIZON_S:
-            ok = False
-        if not ok:
             dropped[0] += 1
             continue
-        pending.append(dict(
-            purpose=leg_purpose(cur_act, 'home'), dest_activity_type='home',
-            origin_sa1=SA1[cur_z], dest_sa1=SA1[hz],
-            origin_x=cur_x, origin_y=cur_y, dest_x=hx, dest_y=hy,
-            dep_time_s=t, arr_time_s=arr_home, straight_dist_km=dist_km,
-            activity_duration_s=0, is_tour_anchor=0, dest_placement='home'))
-        tour_id += 1
-        for r in pending:
-            r['tour_id'] = tour_id
-            r['tour_purpose'] = purpose
-        legs += pending
-        t_now = arr_home
+        placed.append((t_start, arr_home, spec, legs_m))
+        t_now = arr_home if t_now is None else max(t_now, arr_home)
+
+    # ---- assemble the day in chronological order ----
+    placed.sort(key=lambda pl: pl[0])
+    legs = []
+    for tid, (s, e, spec, tour_legs) in enumerate(placed, start=1):
+        for r in tour_legs:
+            r['tour_id'] = tid
+            r['tour_purpose'] = spec['purpose']
+        legs += tour_legs
 
     # The 30-hour-day cap (issue #37, DECISIONS.md 9.38). The qsim horizon's
     # tail exists so a late-evening chain can arrive after midnight - hours
@@ -712,7 +802,59 @@ def build_day(person, day, rates, CUM, store, zone_arr, u, pre, dropped):
         if bad:
             dropped[1] += len(bad)
             legs = [l for l in legs if l['tour_id'] not in bad]
-    return legs
+
+    kept = {l['tour_id'] for l in legs}
+    anchors = []
+    for tid, (s, e, spec, _tour_legs) in enumerate(placed, start=1):
+        if tid not in kept:
+            continue
+        first = spec['chain'][0]
+        anchors.append(dict(tour_id=tid, purpose=spec['purpose'], dep_s=s,
+                            k=first[1], dx=first[2], dy=first[3],
+                            escorted=(first[4] == 'escorted')))
+    return legs, anchors
+
+
+def bind_escort_tours(n_hx, candidates, claimed):
+    """Choose which household trips up to `n_hx` escort tours are bound to.
+
+    Deterministic - no draw. Priority reflects who actually needs conveying:
+    an unlicensed member's education trip (the school run) first, then any
+    unlicensed member's trip, then a licensed member's education trip, then
+    any remaining trip. One escort per escorted trip household-wide
+    (`claimed`), and two bindings for the same escorter must sit at least
+    B.activity.escort_binding_min_gap_s apart so the driver can physically
+    make both; finer overlap from a drawn intermediate stop resolves at
+    placement, where the collision drops.
+    An HX tour that finds no candidate stays UNBOUND and draws from the
+    distribution exactly as before - lone-person households (26.2%) have
+    nobody to bind to and must keep their observed escort rate.
+    """
+    def pri(c):
+        if not c['licence'] and c['purpose'] == 'HE':
+            return 0
+        if not c['licence']:
+            return 1
+        if c['purpose'] == 'HE':
+            return 2
+        return 3
+
+    max_pri = 2 if ESCORT_SCOPE == 'unlicensed_or_education' else 3
+    fixed = []
+    for c in sorted(candidates, key=lambda c: (pri(c), c['member'], c['tour_id'])):
+        if len(fixed) >= n_hx:
+            break
+        if pri(c) > max_pri:
+            break
+        key = (c['member'], c['tour_id'])
+        if key in claimed:
+            continue
+        if any(abs(c['dep_s'] - f['start_s']) < ESCORT_MIN_GAP_S for f in fixed):
+            continue
+        claimed.add(key)
+        fixed.append(dict(start_s=c['dep_s'], k=c['k'], dx=c['dx'], dy=c['dy'],
+                          priority=pri(c)))
+    return fixed
 
 
 
@@ -1192,18 +1334,39 @@ def main(seed=SEED, max_persons=None, day_types=None):
     hid = persons.household_id.to_numpy()
     hsa = persons.home_sa1.to_numpy()
     age = persons.age.to_numpy()
-    emp = np.char.startswith(persons.employment_status.astype(str)
-                             .to_numpy().astype('U24'), 'employed')
+    est = persons.employment_status.astype(str).to_numpy().astype('U24')
+    emp = np.char.startswith(est, 'employed')
+    emp_ft = (est == 'employed_full_time')
     stu = (persons.student_status.astype(str).to_numpy() == 'full_time')
     cav = (persons.car_available.to_numpy() == 1)
     lic = (persons.licence_holder.to_numpy() == 1)
     del persons
 
-    employed_frac = float(emp.mean())
+    # The weekday priority between work and study (age-structure dossier 3.4):
+    # full-time work outranks study, full-time study outranks a part-time job -
+    # a 16-year-old with a weekend job goes to school on a weekday. The old
+    # rule sent every employed full-time student to work, which mattered
+    # little while the population had no age-conditional employment and every
+    # under-18 was a full-time student; with G46/G01 rates it would misdirect
+    # the 15-19 band, whose employment is 67% part-time alongside study.
+    work_first = emp_ft | (emp & ~stu)
+    edu_first = stu & ~work_first
+
+    # households whole, members in person order, for the escort binding
+    hh_members = {}
+    hh_order = []
+    for i in range(n_persons):
+        h = int(hid[i])
+        if h not in hh_members:
+            hh_members[h] = []
+            hh_order.append(h)
+        hh_members[h].append(i)
+
+    employed_frac = float(work_first.mean())
     # a person only makes an education tour if they are not already making a
     # work tour, so the student fraction used for the rate solve is the
-    # non-employed full-time students
-    student_frac = float((stu & ~emp).mean())
+    # full-time students not directed to work
+    student_frac = float(edu_first.mean())
     child_frac = float((age < 12).mean())
     licence_frac = float(lic.mean())
     day_rate = solve_day_rates(HTS_RATE_PER_PERSON_DAY, day_shape)
@@ -1264,46 +1427,88 @@ def main(seed=SEED, max_persons=None, day_types=None):
         n_legs = n_tours = n_travel = 0
         dropped = [0, 0]   # [over-horizon, midnight-collision (issue #37)]
         by_purpose = collections.Counter()
-        anchors = collections.Counter()
-        for i in range(n_persons):
-            hxy = home.get(hid[i])
-            if hxy is None:
-                continue
-            hz = zi.get(hsa[i])
-            if hz is None:
-                continue
-            person = dict(hx=float(hxy[0]), hy=float(hxy[1]), hzi=hz,
-                          age=int(age[i]), employed=bool(emp[i]),
-                          student=bool(stu[i]), cav=bool(cav[i]),
-                          licence=bool(lic[i]))
-            pre = {p: int(counts[p][i]) for p in ('HS', 'HO', 'WB', 'HX')}
-            legs = build_day(person, d, rates, CUM, store, zone_arr, u, pre,
-                             dropped)
-            if not legs:
-                continue
-            n_travel += 1
-            for seq, leg in enumerate(legs, start=1):
-                leg['person_id'] = pid[i]
-                leg['day_type'] = d
-                leg['trip_seq'] = seq
-                leg['party_size'] = 1
-                leg['agent_tier'] = 'core'
-                leg['time_flexibility_band'] = (
-                    'fixed' if leg['tour_purpose'] in ('HW', 'HE') else 'flexible')
-                leg['origin_x'] = round(leg['origin_x'], 1)
-                leg['origin_y'] = round(leg['origin_y'], 1)
-                leg['dest_x'] = round(leg['dest_x'], 1)
-                leg['dest_y'] = round(leg['dest_y'], 1)
-                leg['straight_dist_km'] = round(leg['straight_dist_km'], 3)
-                by_purpose[leg['purpose']] += 1
-                stats['placement'][leg['dest_placement']] += 1
-                w.writerow(leg)
-            # the #37 cap can drop the highest-numbered tour, so count the
-            # tours that exist rather than reading the last id
-            ntp = len({l['tour_id'] for l in legs})
-            anchors[ntp] += 1
-            n_legs += len(legs)
-            n_tours += ntp
+        tours_hist = collections.Counter()
+        esc = dict(requested=0, bound=0, unbound=0,
+                   by_priority=collections.Counter(),
+                   bound_km=0.0, bound_n=0, unbound_km=0.0, unbound_n=0)
+        for h in hh_order:
+            members = hh_members[h]
+            # Escort binding (DECISIONS.md 9.46): members without an HX draw
+            # build first, so an escorter binds to a trip that already exists.
+            # A second escorter in the same household sees the first one's
+            # tours too; nothing is ever bound to an HX tour itself.
+            if ESCORT_BINDING:
+                pass1 = [i for i in members if counts['HX'][i] == 0]
+                pass2 = [i for i in members if counts['HX'][i] > 0]
+            else:
+                pass1, pass2 = members, []
+            candidates = []
+            claimed = set()
+            legs_of = {}
+            for i in pass1 + pass2:
+                hxy = home.get(hid[i])
+                if hxy is None:
+                    continue
+                hz = zi.get(hsa[i])
+                if hz is None:
+                    continue
+                person = dict(hx=float(hxy[0]), hy=float(hxy[1]), hzi=hz,
+                              age=int(age[i]), employed=bool(work_first[i]),
+                              student=bool(edu_first[i]), cav=bool(cav[i]),
+                              licence=bool(lic[i]))
+                pre = {p: int(counts[p][i]) for p in ('HS', 'HO', 'WB', 'HX')}
+                fixed = ()
+                may_escort = person['licence'] or not ESCORT_REQUIRES_LICENCE
+                if pre['HX'] > 0 and ESCORT_BINDING and may_escort:
+                    esc['requested'] += pre['HX']
+                    fixed = bind_escort_tours(pre['HX'], candidates, claimed)
+                    pre['HX'] -= len(fixed)
+                    esc['bound'] += len(fixed)
+                    esc['unbound'] += pre['HX']
+                    for f in fixed:
+                        esc['by_priority'][f['priority']] += 1
+                legs, tour_anchors = build_day(person, d, rates, CUM, store,
+                                               zone_arr, u, pre, dropped,
+                                               fixed_tours=fixed)
+                for a in tour_anchors:
+                    if a['purpose'] == 'HX':
+                        continue
+                    candidates.append(dict(
+                        member=int(pid[i]), tour_id=a['tour_id'],
+                        purpose=a['purpose'], dep_s=a['dep_s'], k=a['k'],
+                        dx=a['dx'], dy=a['dy'], licence=bool(lic[i])))
+                if legs:
+                    legs_of[i] = legs
+            for i in sorted(legs_of):
+                legs = legs_of[i]
+                n_travel += 1
+                for seq, leg in enumerate(legs, start=1):
+                    leg['person_id'] = pid[i]
+                    leg['day_type'] = d
+                    leg['trip_seq'] = seq
+                    leg['party_size'] = 1
+                    leg['agent_tier'] = 'core'
+                    leg['time_flexibility_band'] = (
+                        'fixed' if leg['tour_purpose'] in ('HW', 'HE') else 'flexible')
+                    leg['origin_x'] = round(leg['origin_x'], 1)
+                    leg['origin_y'] = round(leg['origin_y'], 1)
+                    leg['dest_x'] = round(leg['dest_x'], 1)
+                    leg['dest_y'] = round(leg['dest_y'], 1)
+                    leg['straight_dist_km'] = round(leg['straight_dist_km'], 3)
+                    by_purpose[leg['purpose']] += 1
+                    stats['placement'][leg['dest_placement']] += 1
+                    if leg['tour_purpose'] == 'HX' and leg['is_tour_anchor'] == 1:
+                        side = 'bound' if leg['dest_placement'] == 'escorted' \
+                            else 'unbound'
+                        esc[side + '_km'] += leg['straight_dist_km']
+                        esc[side + '_n'] += 1
+                    w.writerow(leg)
+                # the #37 cap can drop the highest-numbered tour, so count the
+                # tours that exist rather than reading the last id
+                ntp = len({l['tour_id'] for l in legs})
+                tours_hist[ntp] += 1
+                n_legs += len(legs)
+                n_tours += ntp
         ext_legs, n_ext = external_agents(zones, core, decay, u, d,
                                           EXTERNAL_PERSON_ID_BASE, store, cordon)
         for leg in ext_legs:
@@ -1321,11 +1526,32 @@ def main(seed=SEED, max_persons=None, day_types=None):
             tours_per_traveller=round(n_tours / max(n_travel, 1), 3),
             tours_dropped_over_horizon=dropped[0],
             tours_dropped_midnight_collision=dropped[1],
-            by_purpose=dict(by_purpose))
+            by_purpose=dict(by_purpose),
+            # DECISIONS.md 9.46. The trip-length comparison is REPORTED, never
+            # tuned: an escort's length is now the escorted trip's own.
+            escort_binding=dict(
+                enabled=bool(ESCORT_BINDING),
+                scope=ESCORT_SCOPE,
+                hx_tours_requested=esc['requested'],
+                hx_tours_bound=esc['bound'],
+                hx_tours_unbound_no_candidate=esc['unbound'],
+                bound_by_priority={str(k): v for k, v
+                                   in sorted(esc['by_priority'].items())},
+                anchors_placed_bound=esc['bound_n'],
+                anchors_placed_unbound=esc['unbound_n'],
+                mean_network_km_bound=(
+                    round(esc['bound_km'] / esc['bound_n'] * DETOUR_FACTOR, 2)
+                    if esc['bound_n'] else None),
+                mean_network_km_unbound=(
+                    round(esc['unbound_km'] / esc['unbound_n'] * DETOUR_FACTOR, 2)
+                    if esc['unbound_n'] else None),
+                hts_network_km=(round(meandist['HX'], 2)
+                                if 'HX' in meandist else None)))
         print('%-8s %9d legs %8d tours %6.3f legs/person  dropped=%d '
-              'midnight-capped=%d  through=%d'
+              'midnight-capped=%d  through=%d  HX bound=%d/%d'
               % (d, n_legs, n_tours, n_legs / max(n_persons, 1), dropped[0],
-                 dropped[1], n_thr),
+                 dropped[1], n_thr, esc['bound'],
+                 esc['bound'] + esc['unbound']),
               flush=True)
 
     stats['placement'] = dict(stats['placement'])

@@ -173,9 +173,9 @@ modelling decision.** Reasoning:
 
 | step | task | why it comes here | ETA |
 |---|---|---|---|
-| **1** | **Bind the escort tour to the person escorted** (§5) | Unblocks **32.7% of trips**. The coupling is already built and waiting; this is the one defect between it and working | attended 2–3 days |
-| **2** | **Fix the elderly employment defect** (§6) | ~35,000 phantom elderly commuters, and they are *exactly* the population that rides rather than drives — so it contaminates step 1's validation | attended 1 day |
-| **3** | **Re-measure pairability, then re-validate** | "CHECKED, not assumed." Steps 1–2 either move the 0.1% or they do not, and either answer is publishable | attended 0.5 day + one 25% arm |
+| **1** | ✅ **DONE 18 Aug (§9.46).** Escort binding — 68.6% of weekday HX tours bound exactly to a household member's trip | Unblocks **32.7% of trips**. The coupling is already built and waiting; this is the one defect between it and working | ✅ |
+| **2** | ✅ **DONE 18 Aug (§9.47).** Age structure — and the defect was three-fold: flat employment, universal child students, AND ~27,000 missing 75+ persons (grouped G04 columns never read) | ~40,000 phantom elderly commuters, and they are *exactly* the population that rides rather than drives — so it contaminates step 1's validation | ✅ |
+| **3** | **Re-measure pairability, then re-validate** — the 25% × 1000 WEEKDAY arm on the §9.46/§9.47 demand | "CHECKED, not assumed." Steps 1–2 either move the 0.1% or they do not, and either answer is publishable | attended 0.5 day + one 25% arm |
 | **4** | **#24 freight** — real `truck` mode, vehicle type + PCE | Measured 6.52%; improves the congestion every mode is judged against | attended 1–2 days |
 | **5** | **#14 the §8.5 calibration decision** | ASCs on era 3 (2018), HELD FIXED. **Log the departure BEFORE any result is seen.** Only sensible once the demand is coherent | attended 1–2 days |
 

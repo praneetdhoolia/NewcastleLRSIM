@@ -364,6 +364,17 @@ STRUCTURAL = {
         'gzip compression level. FIXED FOR DETERMINISM rather than chosen for a '
         'model reason: the level changes the bytes, so it is pinned and must '
         'not vary. It affects file size, never content',
+    'src/build/build_population.py:ABS_LF_BANDS':
+        'the ABS G46 table\'s own age banding, read off its published column '
+        'names (15_19 .. 85ov). A property of the census file being read, not '
+        'a choice: the model\'s own banding is B.population.age_bands',
+    'src/build/build_population.py:ABS_EDU_GROUPS':
+        'the ABS G01 education-attendance age groups, likewise the table\'s '
+        'own published column structure',
+    'src/build/build_population.py:G04_GROUPED':
+        'the ABS G04 grouped age columns (80_84 .. 95_99) that exist because '
+        'G04 stops publishing single years at 79 - the file\'s structure, and '
+        'exactly what the pre-9.46 build failed to read',
     'src/build/measure_osm_defaults.py:MIN_TAGGED':
         'the minimum tagged-edge count before an observed class median replaces '
         'an assumed default. It governs HOW A MEASUREMENT IS TAKEN, not what '

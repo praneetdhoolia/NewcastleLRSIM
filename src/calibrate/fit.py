@@ -46,8 +46,10 @@ C3 = _city.path('params/C3_count_comparison.json')
 C4 = _city.path('params/C4_mode_constraints.json')
 
 # MATSim mode -> the HTS category it is comparable with. `bike` carries HTS
-# "Other", which also holds taxi, motorcycle and rideshare: an imperfect map,
-# stated here rather than hidden in a lookup.
+# "Other", which also holds taxi/rideshare/carshare, wheelchair, bicycle and
+# aircraft - the HTS data document's own list. Motorcycle is NOT in it: it sits
+# inside Vehicle driver/passenger, so the car and ride targets silently contain
+# motorcycles. An imperfect map, stated here rather than hidden in a lookup.
 MODE_TO_HTS = {'car': 'Vehicle driver', 'ride': 'Vehicle passenger',
                'pt': 'Public transport', 'walk': 'Walk only', 'bike': 'Other'}
 BASE_YEAR_HTS = '2024/25'

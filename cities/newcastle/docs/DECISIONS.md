@@ -3,7 +3,7 @@
 **NewcastleLRSIM** — counterfactual microsimulation of the Newcastle Light Rail
 **Stage:** P4 calibration, in progress. **No scenario has been run to a
 reportable state, and nothing in this repository is a result.**
-**Started:** 10 August 2026 · **last entry:** §9.45, 18 August 2026
+**Started:** 10 August 2026 · **last entry:** §9.47, 18 August 2026
 
 Proposal §8.1: *"`DECISIONS.md` is not optional. Every parameter chosen without
 direct empirical support must be recorded here with its rationale and its sweep
@@ -42,12 +42,12 @@ otherwise cost you an hour:
 | **Behavioural parameters, mode constants, VOT** | §8; **§8.5 is the rule on ASCs** — read before touching a constant |
 | **Transfer penalty** | **§9.32** — not estimable from this package; the 3–15 min sweep stands |
 | **Taxi / rideshare as modes** | §9.21 declined for want of a target; **§9.42 re-opened on new evidence** — inferred from open sources, no data request lodged, nothing built before deliverable 5 |
-| **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15; **the escort tour is not bound to the person escorted — §9.44** |
+| **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15; **§9.46 binds the escort tour to the person escorted** (it was not, §9.44); **§9.47 repairs the age structure** — phantom elderly commuters, missing 75+, universal child students |
 | **MATSim plans, C1 translation, what does not survive it** | §9.3 |
 | **Run cost, memory, threads** | §9.5 |
 | **Convergence and the iteration count** | **§9.43 DECLARES 1000** (issue #5, two measured arms); §9.7, §9.27 are the history. **The drift window changed with it** — it starts after the cutoff, not at it |
 | **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions. **§9.45: the sampling UNIT is the household**, not the person, or every household mechanism varies with the fraction |
-| **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26; **§9.44 pairs a passenger to a household driver** — and measures that fewer than 1 ride trip in 1,000 can physically be carried |
+| **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26; **§9.44 pairs a passenger to a household driver** — and measures that fewer than 1 ride trip in 1,000 can physically be carried; **§9.46 is the demand-side repair** |
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
 | **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
@@ -4989,6 +4989,167 @@ mechanism.
 - The plans were regenerated to carry `householdId` and the 30 run-input sets
   reassembled. Both are deterministic and produced by committed scripts; the
   mode seed split is unchanged (`ride` 0.183 on the weekday set, as before).
+
+---
+
+## 9.46 The escort tour binds to the person being escorted (18 August 2026, issue #31)
+
+§9.44 measured the starvation and §9.45 ended with its cause: *"B2 never
+co-locates household members in the first place. The escort binding is the
+whole of the remaining problem."* This entry is that binding.
+
+### What was wrong
+
+B2 generated escort (`HX`) tours — 44,258 trips on the relaxed 25% arm, the
+rate calibrated to the observed `Serve passenger` 10–19.5% — but two lines
+made the escort and the escorted strangers:
+
+- `ATTRACTION_ALIAS = {'HX': 'HE'}` — the escort's destination was drawn from
+  the education attractor **distribution**, never the escorted child's actual
+  school;
+- `DEPART['HX'] = DEPART['HE']` — the hour from the profile, never the child's
+  own departure.
+
+So a parent escorted to *a* school at *a* plausible time while their own child
+travelled to *another* school at *another* time. Measured consequence: **0.104%
+of ride trips shared an OD with a household car trip at any time of day** — the
+supply the Tier 1 pairing (§9.44) was starved of.
+
+### What changed
+
+B2 now generates **households whole**: members without an escort draw build
+first, and an escorter's `HX` tour takes an already-drawn household trip's
+**destination and departure, exactly** — same coordinates, same second. The
+bound tour is **immovable** in the escorter's timeline; their other tours flow
+around it (a movable tour that would overlap is pushed past the escort's end —
+drop the child, then go to work). An HX tour with no bindable candidate stays
+unbound and draws from the distribution exactly as before — lone-person
+households (26.2%) have nobody to bind to and must keep their observed escort
+rate. **No tour is added or removed**: binding re-targets the tours the
+calibrated rate already draws.
+
+Four declared fields govern it (all `B.activity.*`): `escort_binding_enabled`
+(definition — `false` restores §9.44's demand for comparison within one
+build), `escort_binding_scope` (**assumed, categorical sweep** — with no
+observation of who-drives-whom, *which* household trips may be bound to is a
+declared choice: `any_member_trip` in priority order school-run first, against
+`unlicensed_or_education` as the sensitivity), `escort_binding_min_gap_s`
+(assumed, swept — how closely one driver can stack two runs), and
+`escort_excludes_ride` (derived — below).
+
+### Measured on the rebuilt demand (full population, 612,687 persons)
+
+| | WEEKDAY | SAT | SUN |
+|---|---:|---:|---:|
+| HX tours drawn (rate unchanged) | 177,370 | 99,613 | 69,294 |
+| **bound to a household trip** | **121,621 (68.6%)** | 68,935 (69.2%) | 47,399 (68.4%) |
+| — to an unlicensed member's education trip (the school run) | 20,425 | 531 | 171 |
+| — to an unlicensed member's other trip | 24,010 | 23,261 | 16,467 |
+| — to an education trip | 2,799 | 77 | 17 |
+| — to any member trip (4th class) | 74,387 | 45,066 | 30,744 |
+| unbound (no candidate — lone-person households etc.) | 55,749 | 30,678 | 21,895 |
+| mean network km, bound / unbound / HTS observed | 11.58 / 7.74 / 7.84 | 9.97 / 7.78 / 7.84 | 10.00 / 7.78 / 7.84 |
+
+A bound anchor leg's destination coordinates and departure second are the
+escorted trip's own — verified on the artefact, not the mechanism: **all
+120,980 bound weekday anchors coincide exactly with another household
+member's trip** (0 exceptions). The school-run class collapses at
+the weekend (20,425 → 531 → 171) with the education tours it binds to, which
+is the §9.2 day-purpose-mix expectation showing up in a mechanism that never
+read it. The realised week trip rate is 3.382 against the HTS 3.473 (−2.6%;
+the pre-binding build realised −2.2%) — binding re-targeted, it did not
+inflate.
+
+The bound escort's trip length is **reported against the observed
+serve-passenger distance and not tuned**: a bound escort's length is the
+escorted trip's own, and under `any_member_trip` the fourth priority class
+(licensed members' own trips) pulls the mean above the HTS 7.84 km aggregate.
+That is what the scope sweep exists to expose, and the number stands in
+`_activity_chains_report.json` beside the observed value.
+
+### The second incoherence: an escort trip made BY `ride`
+
+4,791 escort trips on the relaxed 25% arm were made as a car **passenger** — a
+person being driven in order to convey somebody, with no driver bound to
+either. `B.activity.escort_requires_licence` constrains *generation*; mode
+choice could still hand the tour to `ride`. Fixed where the lock already
+exists: `build_matsim_plans.py` writes `rideAvail = never` for a person-day
+whose plan carries an escort activity, and the existing
+`AvailabilityModesCalculator` withholds `ride` with **no Java change**
+(`B.activity.escort_excludes_ride`, derived from the same the-traveller-is-
+the-driver identity). The approximation is plan-level because
+`PermissibleModesCalculator` is per-plan, not per-subtour: the escorting
+driver also cannot be *driven* on their other tours that day — stated, small,
+and plausibly the truth.
+
+### What this deliberately does not do
+
+- **No invented target.** Eligibility derives from licence and household
+  membership only; the binding priority is declared and swept, not fitted.
+- **No return symmetry.** Return trips pair independently (§9.44); the
+  measured direction split was uniform, and forcing symmetry would manufacture
+  car trips — the error direction this project is most exposed to.
+- **No non-household lifts.** Still not built; no target exists (§9.44).
+
+### Consequences
+
+- **A third comparability break, planned**: every run from here is a new
+  demand family (with §9.44's model change and §9.45's sampler change, three
+  breaks have landed as one).
+- Whether the binding actually moves **realised pairability** is re-measured
+  on the next 25% arm with `measure_ride_pairability.py` — "CHECKED, not
+  assumed", and either answer is publishable.
+
+---
+
+## 9.47 The population had ~40,000 phantom elderly commuters and almost nobody over 84 (18 August 2026)
+
+Task 4.2.6, sequenced after §9.46 because the escorted population — children
+attending education, elderly non-drivers — is exactly the population this
+entry repairs. Full evidence:
+[`docs/design/age-structure.md`](design/age-structure.md). Three defects, all
+in `build_population.py`, all measured on the built package before fixing
+(the brief's numbers were reproduced, not trusted):
+
+1. **The 75+ population mostly did not exist.** `age_sex_dist()` read
+   single-year `Age_yr_<N>` columns, which G04 stops publishing at 79; ages
+   80–99 live in grouped columns it never touched. Built: **186 persons 85+
+   against a census 15,151**; 75–84 short 32%; ≈27,000 missing elderly, their
+   mass redistributed to younger bands (+13–19% each). Fixed by apportioning
+   the grouped columns to bands by year overlap.
+2. **One flat employment rate for every adult.** The docstring claimed
+   age-conditional labour force status; the code applied one flat G43 15+ rate
+   (~57%), one flat FT share and a hardcoded 6% unemployment to everyone:
+   65–74 built at **52.2% employed against a census 16.1%**, 75–84 at 47.8%
+   against 2.4% — and prime age at 59% against 83%, so the model
+   simultaneously over-generated elderly commuters and under-generated
+   prime-age ones. Now drawn per **(SA1, sex, ABS band)** from G46A/B — loaded
+   since P1, read by nothing — with the core-region band rate as fallback for
+   the 7.4% of empty cells. Employment, FT/PT split and unemployment all take
+   the cell's own rates; the flat scalars are deleted.
+3. **Every under-18 was a full-time student, including all 22,115 aged 0–4.**
+   G01 measures attendance: 32.0% at 0–4, 94.9% at 5–14, 72.6% at 15–19,
+   37.9% at 20–24, 5.5% at 25+ — now drawn per SA1 with regional fallback.
+   Under-18 attendees are full-time by definition (school); how an 18+
+   attendee splits full/part-time is **not held** (G15 is the table, a
+   deliberate non-acquisition) and is declared and swept as
+   `B.population.tertiary_ft_share`.
+
+**One structural consequence in B2:** the tour draw was `employed → work, elif
+full-time student → education`, sending every employed student to work. With
+real rates that would misdirect the 15–19 band, whose employment is 67%
+part-time alongside study. Priority is now full-time work → full-time study →
+part-time work; the rate solve uses the same reclassified fractions, so the
+week-average trip rate stays calibrated to the HTS 3.473.
+
+**Rebuilt population (612,687 persons):** 75–84 = 41,791 and 85+ = 16,188
+(census 38,507 / 15,151); employment 65–74 = 15.3%, 75–84 = 1.5%, prime-age
+83–84%, overall **53.3%** of persons (was 50.4% — the phantom elderly left,
+the understated prime-age returned); students 0–4 = 31.9%, 5–14 = 94.7%.
+Occupation and income stay drawn from SA1-wide distributions (they drive no
+tour); the mobility-impairment ramp stays the only brake on the restored 85+
+band's travel, and the private-dwelling assumption (no aged-care institutions)
+is a stated limitation.
 
 ---
 

@@ -99,6 +99,88 @@
         "src/build/build_population.py"
       ]
     },
+    "B.population.tertiary_ft_share": {
+      "value": {
+        "18_24": 0.7,
+        "25_ov": 0.35
+      },
+      "units": "share_of_attendees",
+      "source": "assumed",
+      "sweep": {
+        "proportional": 0.3
+      },
+      "sweep_basis": "the census table that would measure it (G15, full-time/part-time student status by age) is not in the package - a deliberate non-acquisition (age-structure dossier 5): it decides HE tour-making only within the full-time fraction of the 38% of 20-24s and 5.5% of 25+ who attend at all. National context brackets it: university study is majority full-time and VET majority part-time, and 18-24 attendance is university-dominant while 25+ is not. A G15 harvest is a deliverable-0b candidate that would move this to measured.",
+      "status": "active",
+      "decisions_ref": "9.46",
+      "description": "Of persons 18+ attending an educational institution (G01, observed per SA1), the share that are full-time students - the ones who draw a mandatory HE tour. Under-18 attendees are full-time by definition (school). Replaces a flat assumed 0.35 full-time-student rate for all 18-24s and a hardcoded 0.04 part-time rate that no audit could see.",
+      "consumers": [
+        "src/build/build_population.py"
+      ]
+    },
+    "B.activity.escort_binding_enabled": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.46",
+      "description": "Whether an HX (serve passenger) tour takes its destination and departure from an actual household member's already-drawn trip, instead of drawing both from the education-attractor distribution and the HE departure profile. Not an empirical quantity: it selects which of two mechanisms builds the escort tour, exactly as B.ride.pairing_enabled does on the supply side, and false restores the pre-9.46 behaviour so the two demands are comparable within one build. Binding RE-TARGETS existing HX tours and never adds one - the HX rate stays calibrated to the observed Serve passenger share. An escorter with no bindable household trip that day (lone-person households are 26.2% of all households) falls back to the distribution draw.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.escort_binding_scope": {
+      "value": "any_member_trip",
+      "units": "enum",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "any_member_trip",
+          "unlicensed_or_education"
+        ],
+        "basis": "No observation of who-drives-whom exists, so WHICH household trips an escort tour may bind to is an assumed choice, declared and swept rather than silently made. `any_member_trip` binds to any household member's trip in priority order (unlicensed member's education trip, unlicensed member's any trip, education trip, any trip) - the maximal coupling. `unlicensed_or_education` stops after the first three classes: the escorted-person interpretation is strongest for someone who cannot drive themselves, and the fourth class binds escorts to licensed adults' own (often long) trips. MEASURED consequence on the first full build (9.46): the fourth class carries most bindings and pulls the bound escort's trip length above the observed HTS serve-passenger distance, which is REPORTED in _activity_chains_report.json against the observed value, never tuned away."
+      },
+      "status": "active",
+      "decisions_ref": "9.46",
+      "description": "Which classes of already-drawn household trips an HX escort tour may take its destination and departure from.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.escort_binding_min_gap_s": {
+      "value": 2700,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        900,
+        5400
+      ],
+      "sweep_basis": "no observation bears on how closely one driver can stack two escort runs; 45 minutes covers a school-run drop-off (dwell ~5 min) plus the return at the model's own seed speeds over the observed 6.4 km escort distance. The bounds are a 15-minute back-to-back stack and a 90-minute spacing. Finer overlap - a drawn intermediate stop stretching one bound tour into the next - resolves at placement, where the later binding drops rather than shifts.",
+      "status": "active",
+      "decisions_ref": "9.46",
+      "description": "Minimum separation between the departures of two escort tours BOUND for the same escorter, so the driver can physically make both runs.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.escort_excludes_ride": {
+      "value": true,
+      "units": "boolean",
+      "source": "derived",
+      "derived_from": {
+        "fields": [
+          "B.activity.escort_requires_licence"
+        ],
+        "identity": "an escort trip is a trip made in order to convey another person, so the traveller is the driver - the same identity that already restricts HX generation to licence holders, taken through to mode choice: a person whose plan carries an escort activity cannot make that day's trips as a car passenger. Applied at the day-plan level (rideAvail=never on the escort day's population file) because MATSim's PermissibleModesCalculator is per-plan, not per-subtour; the collateral - the escorting driver cannot be driven on OTHER tours the same day - is stated, small and plausibly the truth"
+      },
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.46",
+      "description": "Whether a person whose day includes an escort (HX) tour is denied `ride` for that day type. Measured motivation: 4,791 escort trips on the relaxed 25% arm were made BY ride - a passenger being driven in order to convey somebody, with no driver bound to either of them. Consumed by build_matsim_plans.py, which forces rideAvail=never for that person-day; the existing AvailabilityModesCalculator then withholds ride with no Java change.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
+    },
     "B.activity.hts_rate_per_person_day": {
       "value": 3.473,
       "units": "trips_per_person_per_day",

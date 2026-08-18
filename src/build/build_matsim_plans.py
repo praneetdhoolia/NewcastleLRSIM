@@ -65,6 +65,15 @@ BIKE_AVAILABLE_RATE = CFG.get('B.population.bike_available_rate')
 # follows from having no household at all rather than from an unknown one.
 EXTERNAL_PROFILE = CFG.get('B.external.agent_profile')
 EXTERNAL_RIDE_AVAILABLE = CFG.get('B.external.agent_ride_available')
+# An escort trip's traveller is the driver - the identity that already limits
+# HX generation to licence holders, carried through to mode choice: a person
+# whose day includes an escort activity is denied `ride` FOR THAT DAY TYPE.
+# Measured motivation: 4,791 escort trips on the relaxed 25% arm were made BY
+# ride, a passenger being driven in order to convey somebody (DECISIONS.md
+# 9.46). Day-plan level because PermissibleModesCalculator is per plan; the
+# collateral - the escorting driver cannot be driven on their OTHER tours the
+# same day - is stated, small, and plausibly the truth.
+ESCORT_EXCLUDES_RIDE = CFG.get('B.activity.escort_excludes_ride')
 
 PLANS = _city.path('demand/plans')
 POP = _city.path('demand/population')
@@ -296,6 +305,7 @@ def write_day(day, attrs, rng, report, seed_table=None):
     modes = collections.Counter()
     act_counts = collections.Counter()
     tours = 0
+    escort_ride_denied = [0]
 
     with gzip_writer(dst) as w:
         w.write('<?xml version="1.0" encoding="utf-8"?>\n')
@@ -348,6 +358,10 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 if a is None:
                     continue
                 car_av, age, lic, emp, stu, mob, ride_av, bike_av, hh_id = a
+                if ESCORT_EXCLUDES_RIDE and ride_av and any(
+                        r['dest_activity_type'] == 'escort' for r in rows):
+                    ride_av = 0
+                    escort_ride_denied[0] += 1
 
             # one mode per tour keeps chain-based modes conserved from the start
             tour_mode = {}
@@ -427,6 +441,7 @@ def write_day(day, attrs, rng, report, seed_table=None):
 
     report[day] = dict(persons=n_persons, legs=n_legs, activities=n_acts,
                        tours=tours, bytes=os.path.getsize(dst),
+                       escort_ride_denied=escort_ride_denied[0],
                        seed_mode_share={k: round(v / max(n_legs, 1), 4)
                                         for k, v in sorted(modes.items())},
                        activity_types=dict(sorted(act_counts.items())))
