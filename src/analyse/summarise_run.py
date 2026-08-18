@@ -58,6 +58,13 @@ _CITY_NAME = _city.descriptor()['name']
 # It was `DRIFT_THRESHOLD_PP = 0.5` in this file; the value moved unchanged.
 DRIFT_TOLERANCE_PP = registry.load().get('RUN.relaxation.drift_tolerance_pp')
 
+# How many iterations after the innovation cutoff the drift window starts.
+# DECLARED for the same reason as the tolerance: it decides the verdict. The
+# window used to start AT the cutoff, which swept in a ONE-ITERATION selection
+# snap (+3.4 pp car at both fractions) and made the gate unpassable at any
+# horizon - a defect in the instrument, not in the runs (DECISIONS.md 9.43).
+SETTLE_MARGIN_ITERS = registry.load().get('RUN.relaxation.settle_margin_iterations')
+
 
 def _load(path, default=None):
     try:
@@ -116,42 +123,98 @@ def _modestats(path):
     return out
 
 
-def relaxation(modes, innovation_off_at, tolerance_pp=None):
-    """Movement per mode between the innovation cutoff and the last iteration.
+def relaxation(modes, innovation_off_at, tolerance_pp=None, settle_margin=None):
+    """Movement per mode between the SETTLE POINT and the last iteration.
 
     Reports the two iteration numbers the movement was measured BETWEEN, not
     just the verdict: "settled" means nothing without the window it was settled
     over, and a reader applying a different tolerance needs both ends.
+
+    **The window does not start at the innovation cutoff, and this is the whole
+    point of the function.** When innovation is disabled, exploration stops in a
+    single step and selection concentrates every agent onto its best-scoring
+    plan. Measured on both 1000-iteration arms, that snap lands entirely in
+    iteration 801: car +3.256 pp at 10% and +3.380 pp at 25%, walk 3.97 -> 1.02%,
+    pt 1.08 -> 0.25%. It is a property of the scoring structure, and a window
+    starting at the cutoff includes it - so a run of ANY length failed the gate
+    by ~3.5 pp no matter how well it had relaxed (DECISIONS.md 9.43).
+
+    So the window starts at cutoff + `RUN.relaxation.settle_margin_iterations`,
+    and the snap is REPORTED rather than discarded: `snap_pp` carries it, and
+    `cutoff_to_final_pp` carries the number the old instrument produced, so
+    nothing that was previously visible has been hidden by the fix.
     """
     if tolerance_pp is None:
         tolerance_pp = DRIFT_TOLERANCE_PP
+    if settle_margin is None:
+        settle_margin = SETTLE_MARGIN_ITERS
     block = {'innovation_off_at': innovation_off_at, 'drift_pp': {},
              'max_abs_drift_pp': None, 'tolerance_pp': tolerance_pp,
+             'settle_margin_iterations': settle_margin,
+             'settle_point': None,
+             'snap_pp': {}, 'max_abs_snap_pp': None,
+             'cutoff_to_final_pp': {},
              'from_iteration': None, 'to_iteration': None,
              'relaxed': None,
-             'basis': ('mode share between the innovation cutoff and the final '
+             'basis': ('mode share between the settle point (the innovation '
+                       'cutoff plus the declared settle margin) and the final '
                        'iteration. After the cutoff MATSim creates no new plans, '
-                       'so what remains is relaxation, not search. This is a '
-                       'statement about the run, not about mode choice.')}
+                       'so what remains is relaxation, not search. The margin '
+                       'excludes the one-iteration selection snap at the cutoff, '
+                       'which is reported separately as snap_pp and is NOT '
+                       'evidence of an unsettled run. This is a statement about '
+                       'the run, not about mode choice.')}
     it = modes.get('iteration')
     if not it or innovation_off_at is None:
         return block
-    try:
-        i0 = next(i for i, v in enumerate(it) if v >= innovation_off_at)
-    except StopIteration:
+
+    def _at(target):
+        """Index of the first recorded iteration at or after `target`."""
+        try:
+            return next(i for i, v in enumerate(it) if v >= target)
+        except StopIteration:
+            return None
+
+    i_cut = _at(innovation_off_at)
+    if i_cut is None:
         block['basis'] += ' The run did not reach the cutoff.'
         return block
-    if len(it) - 1 <= i0:
+
+    settle_point = innovation_off_at + (settle_margin or 0)
+    i0 = _at(settle_point)
+    if i0 is None or len(it) - 1 <= i0:
+        # The run stopped inside the settle margin: there is a cutoff but no
+        # window to score. Report the snap that IS measurable and refuse the
+        # verdict rather than scoring a window shorter than the margin.
+        block['settle_point'] = settle_point
+        block['basis'] += (' The run ended within the settle margin of the '
+                           'cutoff, so no relaxation window exists and no '
+                           'verdict is given.')
         return block
+
+    block['settle_point'] = int(it[i0])
     block['from_iteration'] = int(it[i0])
     block['to_iteration'] = int(it[-1])
     worst = 0.0
+    worst_snap = 0.0
     for k, v in modes.items():
-        if k == 'iteration' or v[i0] is None or v[-1] is None:
+        if k == 'iteration':
             continue
-        d = round((v[-1] - v[i0]) * 100.0, 3)
-        block['drift_pp'][k] = d
-        worst = max(worst, abs(d))
+        if v[i0] is not None and v[-1] is not None:
+            d = round((v[-1] - v[i0]) * 100.0, 3)
+            block['drift_pp'][k] = d
+            worst = max(worst, abs(d))
+        # The snap, and the number the pre-9.43 instrument reported. Kept so a
+        # reader can see exactly what the window change did and re-derive the
+        # old verdict without re-reading the run.
+        if v[i_cut] is not None and v[i0] is not None:
+            s = round((v[i0] - v[i_cut]) * 100.0, 3)
+            block['snap_pp'][k] = s
+            worst_snap = max(worst_snap, abs(s))
+        if v[i_cut] is not None and v[-1] is not None:
+            block['cutoff_to_final_pp'][k] = round((v[-1] - v[i_cut]) * 100.0, 3)
+    if block['snap_pp']:
+        block['max_abs_snap_pp'] = round(worst_snap, 3)
     if block['drift_pp']:
         block['max_abs_drift_pp'] = round(worst, 3)
         block['relaxed'] = worst <= tolerance_pp
@@ -368,13 +431,29 @@ def markdown(doc):
     if rel.get('drift_pp'):
         A('## Relaxation — drift after innovation was disabled')
         A('')
-        A('Innovation off at iteration **%s** of %s.'
-          % (rel.get('innovation_off_at'), r.get('iterations')))
+        A('Innovation off at iteration **%s** of %s. Drift is measured from '
+          'iteration **%s** — the cutoff plus the declared settle margin of %s '
+          '— because the cutoff itself carries a one-iteration selection snap '
+          'that is not relaxation (`DECISIONS.md` §9.43).'
+          % (rel.get('innovation_off_at'), r.get('iterations'),
+             rel.get('from_iteration'), rel.get('settle_margin_iterations')))
         A('')
-        A('| mode | drift |')
-        A('|---|---:|')
+        A('| mode | snap at cutoff | drift %s → %s | cutoff → %s |'
+          % (rel.get('from_iteration'), rel.get('to_iteration'),
+             rel.get('to_iteration')))
+        A('|---|---:|---:|---:|')
         for k in sorted(rel['drift_pp']):
-            A('| %s | %+.2f pp |' % (k, rel['drift_pp'][k]))
+            A('| %s | %s | **%+.2f pp** | %s |'
+              % (k,
+                 ('%+.2f pp' % rel['snap_pp'][k]) if k in rel.get('snap_pp', {})
+                 else '—',
+                 rel['drift_pp'][k],
+                 ('%+.2f pp' % rel['cutoff_to_final_pp'][k])
+                 if k in rel.get('cutoff_to_final_pp', {}) else '—'))
+        A('')
+        A('The middle column is the verdict. The last column is what the '
+          'pre-§9.43 instrument reported: it includes the snap, which is why it '
+          'failed at every horizon and for every run.')
         A('')
 
     if integ.get('conservation_detail'):

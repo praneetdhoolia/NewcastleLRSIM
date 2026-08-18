@@ -27,25 +27,25 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 297 fields are made of
+## What the 298 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 4 | read directly from a raw download |
-| `measured` | 21 | computed from observed data in this package |
+| `measured` | 23 | computed from observed data in this package |
 | `derived` | 25 | follows from another registry field by identity |
 | `literature` | 35 | a published value, not specific to this city |
-| `assumed` | 127 | chosen without direct empirical support |
+| `assumed` | 126 | chosen without direct empirical support |
 | `definition` | 85 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 276 | usable point value |
+| `active` | 278 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
-| `unobtained` | 6 | the datum does not exist in the package; must be swept, never pinned |
+| `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
 
-### The 6 fields with no value
+### The 5 fields with no value
 
 These carry `value: null` and the resolver refuses to return a point value for them. They are the project's honest edge: what it does not know, declared rather than guessed.
 
@@ -55,7 +55,6 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `A.signals.scats_phasing` | `proxy_no_priority`, `proxy_partial_priority`, `proxy_full_priority` | NOT OBTAINED - a formal TfNSW request is outstanding |
 | `B.opal.journey_linked` | `tap_sequence_matching_model` | NOT OBTAINED - a formal TfNSW request is outstanding |
 | `D.retail.vacancy_rate` | 0 - 0.25 | NOT OBTAINED and not currently consumed by any metric |
-| `RUN.controler.last_iteration` | 250 - 2000 | NO JUSTIFIED VALUE HAS BEEN MEASURED |
 | `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
 ### The 10 fields held fixed
@@ -1935,7 +1934,7 @@ Tram service deceleration.
 
 ## Execution control
 
-*`cities/newcastle/registry/RUN_execution.json` - 52 fields*
+*`cities/newcastle/registry/RUN_execution.json` - 53 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -1943,7 +1942,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 |---|---|---|---|---|
 | `RUN.controler.compression_type` | `gzip` | enum | `definition` | - |
 | `RUN.controler.first_iteration` | `0` | iterations | `definition` | - |
-| `RUN.controler.last_iteration` | *(null - unobtained)* | iterations | `assumed` | 250 - 2000 |
+| `RUN.controler.last_iteration` | `1000` | iterations | `measured` | 250 - 2000 |
 | `RUN.controler.overwrite_files` | `failIfDirectoryExists` | policy | `definition` | - |
 | `RUN.controler.write_events_interval` | `10` | iterations | `definition` | - |
 | `RUN.controler.write_plans_interval` | `10` | iterations | `definition` | - |
@@ -1967,6 +1966,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
 | `RUN.qsim.vehicles_source` | `defaultVehicle` | policy | `definition` | - |
 | `RUN.relaxation.drift_tolerance_pp` | `0.5` | percentage_points | `assumed` | 0.1 - 1 |
+| `RUN.relaxation.settle_margin_iterations` | `10` | iterations | `measured` | 1 - 100 |
 | `RUN.replanning.fraction_to_disable_innovation` | `0.8` | share_of_iterations | `literature` | 0.7 - 0.9 |
 | `RUN.replanning.max_agent_plan_memory` | `5` | plans | `literature` | 3 - 10 |
 | `RUN.replanning.subpopulations` | `["person", "external"]` | subpopulation_names | `definition` | - |
@@ -2008,9 +2008,9 @@ Start iteration.
 
 #### `RUN.controler.last_iteration`
 
-Iterations to relaxation. NO JUSTIFIED VALUE HAS BEEN MEASURED. Two 1% runs of 250 iterations showed the model had NOT converged: innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. The shipped scenario configs carry 250 - the sweep floor, the largest value measured insufficient, emitted so a config is runnable while remaining visibly provisional; run_matsim.py deliberately gives --iterations NO DEFAULT. Everything downstream needs this number (issue 5).
+Iterations to relaxation. MEASURED at 1000 by two full post-rebuild arms - 10% x 1000 (11.0 h, 54,617 agents) and 25% x 1000 (30.8 h, 136,068 agents), one arm at a time, same network build, seed 20260810 - and declared on that evidence (9.43, issue 5). WHAT IS MEASURED IS NARROWER THAN THE FIELD NAME: at 1000 the post-snap state is settled at both fractions (worst-mode drift +0.22 pp / +0.17 pp over the snap-aware window, inside RUN.relaxation.drift_tolerance_pp), and that result is fraction-independent. WHAT IS NOT MEASURED is whether 1000 iterations of SEARCH suffice: car mode share was still creeping +0.76 pp per 100 iterations at the cutoff, decaying x0.73 per 100, which extrapolates to roughly 2 pp of movement left in the innovated state when innovation was disabled. The 1500-iteration arm that would have measured that directly was CANCELLED BY THE OWNER for compute economy; the residual is carried as declared uncertainty, not resolved. Read this value with 9.43 beside it. Prior state, kept because it is the floor: two 1% runs of 250 iterations showed the model had NOT converged - innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. Shipped scenario configs now carry this measured value rather than the sweep floor; run_matsim.py still gives --iterations no default so a run states its own horizon.
 
-***assumed** · status **unobtained** · DECISIONS.md §9.7, 15 · MATSim `controler.lastIteration`*
+***measured** · status **active** · DECISIONS.md §9.7, 9.43, 15 · MATSim `controler.lastIteration`*
 
 #### `RUN.controler.overwrite_files`
 
@@ -2150,9 +2150,15 @@ Where the mobsim gets a private vehicle's characteristics. `defaultVehicle` give
 
 #### `RUN.relaxation.drift_tolerance_pp`
 
-Largest absolute mode-share movement, in percentage points, that a run may still show after innovation is disabled and still be reported as settled. Measured per mode between the innovation cutoff and the final iteration: after the cutoff MATSim creates no new plans, so whatever movement remains is relaxation rather than search. This decides a VERDICT ABOUT A RUN, not a model input - no agent sees it and changing it cannot move a mode share. It was 0.5 hard-coded as DRIFT_THRESHOLD_PP in summarise_run.py; the value is carried over unchanged so the migration is a move, not a re-decision. 9.7 measured mode share still drifting while innovation was already off and 9.27 put the iteration count needed at ~1000, so this is a floor for calling a run unsettled, never a claim that anything under it has converged.
+Largest absolute mode-share movement, in percentage points, that a run may still show after innovation is disabled and still be reported as settled. Measured per mode between the SETTLE POINT (the innovation cutoff plus RUN.relaxation.settle_margin_iterations) and the final iteration: after the cutoff MATSim creates no new plans, so whatever movement remains is relaxation rather than search. This decides a VERDICT ABOUT A RUN, not a model input - no agent sees it and changing it cannot move a mode share. It was 0.5 hard-coded as DRIFT_THRESHOLD_PP in summarise_run.py; the value is carried over unchanged so the migration is a move, not a re-decision. 9.7 measured mode share still drifting while innovation was already off and 9.27 put the iteration count needed at ~1000, so this is a floor for calling a run unsettled, never a claim that anything under it has converged. NOTE the window moved in 9.43: it used to start AT the cutoff, which included the one-iteration selection snap and made the gate unpassable at any horizon.
 
 ***assumed** · status **active** · DECISIONS.md §9.27*
+
+#### `RUN.relaxation.settle_margin_iterations`
+
+Iterations to skip AFTER the innovation cutoff before drift is measured, so the relaxation verdict scores relaxation and not the selection snap. When MATSim disables innovation, exploration noise stops in a single step and selection concentrates every agent onto its best-scoring plan: measured at iteration 801 of both 1000-iteration arms, car jumps +3.256 pp (10%) and +3.380 pp (25%) in that ONE iteration, walk falls 3.97 to 1.02% and pt 1.08 to 0.25%. That is a property of the scoring structure, not a run failing to settle - but the old window started at the cutoff and swept it into the drift number, so EVERY run of EVERY length failed the gate by ~3.5 pp regardless of horizon (9.43). The margin is 10 rather than 1 because a 10x guard on a one-iteration phenomenon costs nothing and matches the 10-iteration interval the outputs are written on; it is NOT tuned to pass. HONEST RESIDUAL: at 10 the worst-mode drift is +0.22 pp (10%) and +0.17 pp (25%), which passes the declared 0.5 pp tolerance but NOT the 0.1 pp floor of that tolerance's own sweep. The movement keeps decaying with margin (+0.089/+0.088 pp at 50, -0.008/+0.033 at 100), which is the signature of relaxation rather than of a metric artefact - a larger margin would pass the whole sweep, and is declined precisely because it would pass by measuring a shorter window.
+
+***measured** · status **active** · DECISIONS.md §9.43*
 
 #### `RUN.replanning.fraction_to_disable_innovation`
 

@@ -44,7 +44,7 @@
         "innovation_off_at": {"type": ["integer", "null"]},
         "drift_pp": {
           "type": "object",
-          "description": "percentage-point change per mode between the innovation cutoff and the final iteration",
+          "description": "percentage-point change per mode between the settle point and the final iteration. THIS IS THE QUANTITY THE VERDICT IS SCORED ON.",
           "additionalProperties": {"type": "number"}
         },
         "max_abs_drift_pp": {"type": ["number", "null"]},
@@ -52,9 +52,28 @@
           "type": ["number", "null"],
           "description": "largest movement a mode may still show and be reported as settled, in percentage points. Declared as RUN.relaxation.drift_tolerance_pp and swept, never asserted: it decides the verdict, so it is reported beside it and a reader may apply their own."
         },
+        "settle_margin_iterations": {
+          "type": ["integer", "null"],
+          "description": "iterations skipped after the innovation cutoff before drift is measured. Declared as RUN.relaxation.settle_margin_iterations. It exists because disabling innovation produces a one-iteration selection snap that is a property of the scoring structure, not a failure to relax; a window starting at the cutoff includes it and fails at every horizon (DECISIONS.md 9.43)."
+        },
+        "settle_point": {
+          "type": ["integer", "null"],
+          "description": "innovation cutoff plus the settle margin - the iteration the scored window starts at. Non-null but with a null from_iteration when the run ended inside the margin, which is the one case where a cutoff was reached and no verdict is given."
+        },
+        "snap_pp": {
+          "type": "object",
+          "description": "percentage-point change per mode ACROSS the settle margin - the selection snap itself. Reported, not discarded: it is real movement and a reader must be able to see its size. It is not evidence of an unsettled run.",
+          "additionalProperties": {"type": "number"}
+        },
+        "max_abs_snap_pp": {"type": ["number", "null"]},
+        "cutoff_to_final_pp": {
+          "type": "object",
+          "description": "percentage-point change per mode from the innovation cutoff to the final iteration - what the pre-9.43 instrument reported, kept so the window change is auditable and the old verdict re-derivable without re-reading the run.",
+          "additionalProperties": {"type": "number"}
+        },
         "from_iteration": {
           "type": ["integer", "null"],
-          "description": "first iteration of the window the movement was measured over - the first iteration at or after the innovation cutoff. Null when the run did not reach it."
+          "description": "first iteration of the window the movement was measured over - the first recorded iteration at or after the settle point. Null when the run did not reach the cutoff, or ended within the settle margin of it."
         },
         "to_iteration": {
           "type": ["integer", "null"],
@@ -62,7 +81,7 @@
         },
         "relaxed": {
           "type": ["boolean", "null"],
-          "description": "false when any mode is still moving by more than tolerance_pp between from_iteration and to_iteration. Null when the run did not reach the cutoff."
+          "description": "false when any mode is still moving by more than tolerance_pp between from_iteration and to_iteration. Null when the run did not reach the cutoff, or ended within the settle margin of it - in which case no window exists and the verdict is refused rather than scored over a window shorter than the margin."
         },
         "basis": {"type": "string"}
       }

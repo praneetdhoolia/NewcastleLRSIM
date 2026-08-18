@@ -3,7 +3,7 @@
 **NewcastleLRSIM** — counterfactual microsimulation of the Newcastle Light Rail
 **Stage:** P4 calibration, in progress. **No scenario has been run to a
 reportable state, and nothing in this repository is a result.**
-**Started:** 10 August 2026 · **last entry:** §9.42, 18 August 2026
+**Started:** 10 August 2026 · **last entry:** §9.43, 18 August 2026
 
 Proposal §8.1: *"`DECISIONS.md` is not optional. Every parameter chosen without
 direct empirical support must be recorded here with its rationale and its sweep
@@ -41,11 +41,11 @@ otherwise cost you an hour:
 | **Land use, POI, frontage** | §7 |
 | **Behavioural parameters, mode constants, VOT** | §8; **§8.5 is the rule on ASCs** — read before touching a constant |
 | **Transfer penalty** | **§9.32** — not estimable from this package; the 3–15 min sweep stands |
-| **Taxi / rideshare as modes** | §9.21 declined for want of a target; **§9.42 re-opened on new evidence** — levy request lodged, nothing built before deliverable 5 |
+| **Taxi / rideshare as modes** | §9.21 declined for want of a target; **§9.42 re-opened on new evidence** — inferred from open sources, no data request lodged, nothing built before deliverable 5 |
 | **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15 |
 | **MATSim plans, C1 translation, what does not survive it** | §9.3 |
 | **Run cost, memory, threads** | §9.5 |
-| **Convergence and the iteration count** | **§9.7, §9.27** — ~1000 iterations; 250 is not relaxation |
+| **Convergence and the iteration count** | **§9.43 DECLARES 1000** (issue #5, two measured arms); §9.7, §9.27 are the history. **The drift window changed with it** — it starts after the cutoff, not at it |
 | **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions |
 | **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26 |
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
@@ -4510,22 +4510,170 @@ decision is re-examined exactly when new evidence appears:
    the same route this project already uses for TfNSW inputs. Levy counts for
    the five study LGAs would be a genuinely observed daily volume.
 
-**Decision taken:** (a) the data request to the Commissioner is drafted and
-lodged now — it costs nothing and has a long lead time (§13 item 13); (b)
+**Decision taken:** (a) **no data request is lodged.** The levy aggregates
+exist, but the owner's directive (18 August) is that this project infers the
+volume from open sources rather than waiting on an agency response: a request
+has a long lead time, an uncertain answer and no bearing on work that can
+proceed now. The IPART survey incidence, the regulated fare schedule and the
+published fleet size are open, and every value inferred from them is
+**labelled with its grade and swept** — never quoted as observed. (b)
 **nothing is built before deliverable 5** — a point-to-point mode is a
 refinement inside the 3.2% "Other" bucket and sits behind three measured
 multi-point defects (ride, walk, counts); (c) if built, it enters as a **priced
 teleported mode** — IPART-regulated taxi fares as `measured`, rideshare base
 rates as `literature`, surge and fleet unknowns swept — and is validated
-against the levy/IPART-derived volume as a **constraint, never a target**: the
+against the IPART-derived volume band as a **constraint, never a target**: the
 67/143 split is pre-registered and does not grow (§12). No fleet simulation —
 a DRT contrib is a §14 toolchain change unjustified at this share. The HTS
 decomposition remains impossible; that half of §9.21's finding is unchanged.
+
+Recorded so the trade is visible: declining the request means the point-to-point
+volume stays a **derived and weak** observable — an inferred band, not a
+measured count. That is the accepted cost of not blocking on an agency, and it
+is why the band constrains rather than targets.
 
 Relevance recorded for honesty: rideshare competes with the light rail for
 short CBD and night-time trips — the same trips hypotheses B1/B2 measure — so
 the mode's absence is a stated limitation of the footfall analysis until this
 lands.
+
+---
+
+## 9.43 The iteration count is declared at 1000, and the drift window it is scored on was measuring the wrong thing (18 August 2026)
+
+Issue #5 — *how many iterations does this model need?* — has blocked every
+downstream deliverable since §9.7. It is now closed on measurement, and closing
+it required fixing the instrument first, because **the declared relaxation gate
+could not have been passed by a run of any length.**
+
+### What was run
+
+Two full arms on the 16 August rebuild, one at a time, same network build
+(§3.5), threads 10, seed 20260810:
+
+| | `conv1000_10pct` | `conv1000_25pct` |
+|---|---|---|
+| fraction × iterations | 10% × 1000 | 25% × 1000 |
+| agents | 54,617 | 136,068 |
+| wall clock | 10 h 59 m | 30 h 47 m |
+| median iteration | 33.3 s | 90.2 s |
+| exit / accounting / telemetry | 0 / closes / clean | 0 / closes / clean |
+
+Full evaluation, including the structural findings that are not about
+convergence, in
+[`docs/audit/CONVERGENCE_PILOT_EVALUATION.md`](audit/CONVERGENCE_PILOT_EVALUATION.md).
+
+### The instrument was broken, and it was broken in a way that always failed
+
+The declared gate measured per-mode mode-share movement **from the innovation
+cutoff to the final iteration**, against `RUN.relaxation.drift_tolerance_pp`
+= 0.5 pp. Both arms failed it identically: worst-mode drift **+3.54 pp** (10%)
+and **+3.60 pp** (25%), car in both. Identical failure at two sample fractions
+is not the signature of a run that needs longer; it is the signature of a
+measurement artefact.
+
+Reading the per-iteration trace rather than the 10-iteration grid identifies it
+exactly. **The entire movement is one iteration wide.** At iteration 801 —
+the first iteration after innovation is disabled — car jumps **+3.256 pp**
+(10%) and **+3.380 pp** (25%), walk falls 3.97 → 1.02% and pt 1.08 → 0.25%.
+Iteration 802 onward moves by hundredths of a point. When MATSim stops creating
+new plans, exploration noise stops with it and selection concentrates every
+agent onto its best-scoring remembered plan in a single step. That is a
+property of the scoring and replanning structure — it would occur at iteration
+201 of a 250-iteration run and at iteration 1201 of a 1500-iteration one — and
+a window that begins at the cutoff swallows it whole.
+
+**So the gate was unpassable by construction.** A perfectly relaxed run of any
+horizon reports ~3.5 pp of "drift" and is declared unsettled. The pilots did
+not fail to converge; the instrument failed to measure convergence. This is
+recorded as a defect of the metric, not a finding about the model.
+
+### The window now starts after the snap, and the snap is still reported
+
+A new field, `RUN.relaxation.settle_margin_iterations`, declares how many
+iterations after the cutoff the drift window opens. **Value 10, swept 1–100.**
+
+- The **lower bound is the measured snap duration** — one iteration, at both
+  fractions — so 1 is the smallest margin that can exclude it.
+- **10 rather than 1** is a 10× guard on a one-iteration phenomenon, and matches
+  the 10-iteration interval the outputs are written on. It is not tuned to pass:
+  margin 1 already passes at both fractions.
+- The **upper bound is where the excluded window becomes a meaningful share of
+  the 200-iteration post-cutoff tail.** Beyond it the metric would pass by
+  measuring less rather than by the run being flatter, which is the one failure
+  mode this field must not have. That is also why the margin was NOT set to 50
+  or 100 even though both pass more of the tolerance sweep (below).
+
+`summarise_run.py` now reports three quantities instead of one, so the fix
+hides nothing: `snap_pp` (the movement across the margin), `drift_pp` (the
+settle point to the final iteration — **the verdict is scored on this**), and
+`cutoff_to_final_pp` (**exactly what the old instrument reported**, kept so the
+window change is auditable and the old verdict re-derivable without re-reading
+the run). The re-derived old numbers reproduce +3.537 and +3.599, matching the
+evaluation to the third decimal, which confirms this is a window change and not
+a recomputation.
+
+### The declaration
+
+`RUN.controler.last_iteration` moves from `unobtained` / null to **`measured` /
+1000**, and the corresponding entry leaves `city.json`'s `unobtained` list. The
+sweep stays 250–2000, with a changed basis — see the honest limit below.
+
+Measured at the declared margin:
+
+| | 10% arm | 25% arm |
+|---|---|---|
+| snap at cutoff (worst mode) | +3.31 pp | +3.43 pp |
+| **drift, iteration 810 → 1000** | **+0.22 pp** | **+0.17 pp** |
+| verdict at tolerance 0.5 pp | ✅ settled | ✅ settled |
+
+**Fraction-independence is established** — snap size, post-snap drift, creep
+decay and stuck-agent profile replicate at both fractions — so the 10% arm is a
+valid convergence probe for 25% conclusions.
+
+### What is NOT measured, stated plainly
+
+Three limits ride with this declaration and must be quoted with it.
+
+1. **1000 is measured to leave the model RELAXED. It is not measured to be
+   enough SEARCH.** Car mode share was still creeping at the cutoff: per 100
+   iterations at 25%, +1.94, +1.43, +1.04, +0.76 across iterations 400→800, a
+   geometric decay of ×0.73 per block, with the 10% arm showing the same +0.75
+   at 700→800. Extrapolated, **roughly 2 pp of movement remained in the
+   innovated state when innovation froze it.** The post-cutoff state is settled;
+   what it settled *onto* is a state the search had not finished exploring.
+2. **The arm that would have measured this directly was cancelled.**
+   `conv1500_10pct` (cutoff at 1200) was launched to test the extrapolation and
+   was **stopped by the owner for compute economy** — the two completed arms had
+   already cost 42 hours, and the ride-scoring defect (§9.44 lane, issues #28
+   #31 #9) was judged the better use of the machine. **This is a deliberate
+   trade of certainty for compute, and it is recorded as such.** The residual is
+   carried as declared uncertainty, not resolved. The sweep's upper bound is
+   therefore no longer a budget limit: it is the open half of the question.
+3. **The verdict does not survive the whole tolerance sweep.**
+   `RUN.relaxation.drift_tolerance_pp` sweeps 0.1–1.0 pp. At the declared
+   margin the arms pass at 0.25, 0.5 and 1.0 pp and **fail at the 0.1 pp
+   floor**. The movement keeps decaying with margin — +0.089/+0.088 pp at 50,
+   −0.008/+0.033 at 100 — which is the signature of genuine relaxation rather
+   than a metric artefact, and a larger margin would pass the entire sweep. It
+   was declined for the reason given above: passing by measuring a shorter
+   window is not passing.
+
+Anyone reporting a result from a 1000-iteration run states limit 1 beside it.
+
+### Consequences
+
+- Shipped scenario configs carry 1000 instead of the sweep floor of 250.
+  `shipped_iterations()` resolves the declared value and falls back to the floor
+  only if the field is ever returned to `unobtained`, so making it provisional
+  again cannot silently ship an undeclared number. `run_matsim.py` still gives
+  `--iterations` no default: a run states the horizon it used.
+- The 25% × 1000 arm costs ~31 h on the current machine. **Run economics, not
+  convergence, are now the binding constraint on the campaign** — memory model
+  ≈ 24 GiB fixed + 0.09–0.3 MB/agent, so a 100% run needs ~80–160 GiB of heap
+  (§9.5).
+- Issue #5 closes. #9, #14 and the ride sitting are unblocked.
+
 
 ---
 
@@ -4804,11 +4952,6 @@ should be revisited, because at that point the bus level *would* be identifying.
     Saturday:Sunday division within the weekend is the last assumed part of the
     day-type shape (the weekday/weekend ratio itself is now measured from RMS
     traffic counts, §9.2).
-13. **Passenger service levy trip counts, five study LGAs** (Point to Point
-    Transport Commissioner request, §9.42) — daily/monthly point-to-point trip
-    aggregates by pickup LGA, taxi vs rideshare if separable. Would give the
-    only observed volume for a future priced point-to-point mode; enters as a
-    constraint, never a target.
 
 ---
 

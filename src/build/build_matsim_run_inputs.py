@@ -665,19 +665,33 @@ def hts_purpose_share():
 
 
 def shipped_iterations(cfg):
-    """The iteration count written into a SHIPPED config, or the refusal.
+    """The iteration count written into a SHIPPED config.
 
-    `RUN.controler.last_iteration` is `unobtained`: 100 and 250 are both MEASURED
-    to be short of relaxation and no sufficient value has been established
-    (DECISIONS.md 9.7). This builder used to supply 100 from an argparse default,
-    which walked straight past the resolver's refusal and shipped the known-wrong
-    number into all thirty configs.
+    This builder used to supply 100 from an argparse default, which walked
+    straight past the resolver's refusal and shipped a known-wrong number into
+    all thirty configs. While `RUN.controler.last_iteration` was `unobtained` it
+    shipped the LOWER BOUND OF THE DECLARED SWEEP instead - the largest value
+    measured to be insufficient - so a config run outside the harness was short
+    rather than plausible.
 
-    It no longer invents one. A shipped config carries the LOWER BOUND OF THE
-    DECLARED SWEEP, which is the largest value measured to be insufficient - so
-    a config run directly, outside the harness, is short rather than plausible.
-    The harness resolves the real value per run and re-emits.
+    The field is now MEASURED and active (DECISIONS.md 9.43, issue 5): two full
+    arms at 1000 iterations settle after the selection snap at both sample
+    fractions. So a shipped config carries the declared value, resolved through
+    the registry like any other - not a floor, and still not a literal typed
+    here. The harness continues to resolve per run and re-emit, and
+    `run_matsim.py` still gives `--iterations` no default so every run states
+    the horizon it actually used.
+
+    It falls back to the sweep floor if the field is ever returned to
+    `unobtained`, so making the value provisional again cannot silently ship a
+    number that is no longer declared.
     """
+    try:
+        value = cfg.get('RUN.controler.last_iteration')
+    except Exception:                                     # noqa: BLE001
+        value = None
+    if value is not None:
+        return int(value)
     sweep = cfg.sweep('RUN.controler.last_iteration')
     interval = sweep['interval'] if isinstance(sweep, dict) else sweep
     return int(interval[0])
