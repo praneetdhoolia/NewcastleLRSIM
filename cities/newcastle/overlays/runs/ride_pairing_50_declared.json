@@ -1,0 +1,16 @@
+{
+  "overlay": "ride_pairing_50_declared",
+  "description": "Arm A of the three-arm 50-iteration MECHANISM test for the Tier 1 ride pairing (DECISIONS.md 9.44). This arm runs the DECLARED configuration - the one that would actually ship - so what is under test is the code as configured, not a variant of it. Under `both_links` almost nothing pairs (7 of 185,170 ride trips on the relaxed 25% arm), which is the finding, so this arm answers stability rather than effect: does the listener survive 50 rounds of ReRoute and SubtourModeChoice without crashing, leaking, or drifting. Read it beside ride_pairing_50_control, which is the same run with the pairing switched off: because this arm pairs almost nothing, the two must come out nearly identical, and that is the direct test of the claim that an UNPAIRED leg behaves exactly as it did before the mechanism existed. NOT A RESULT: 50 iterations is short of relaxation by a factor of twenty and 1% is a plumbing fraction (DECISIONS.md 9.12).",
+  "set": {
+    "RUN.sample.fraction": 0.01,
+    "RUN.controler.last_iteration": 50,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "12g"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the whole range describes candidate MODELLING runs. This is not one. It is a MECHANISM test: 50 iterations is the smallest horizon that exercises replanning properly - ReRoute replaces routes and SubtourModeChoice copies plans, which is where a pairing made at BeforeMobsim could rot and where the three-iteration wiring probe could see nothing. The value is deliberately far below the declared range so that any output carrying it is obviously not a result."
+  }
+}

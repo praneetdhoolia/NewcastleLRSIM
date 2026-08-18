@@ -1114,6 +1114,7 @@
       "kind": "file",
       "read_by": [
         "src/analyse/extract_metrics.py",
+        "src/analyse/measure_ride_pairability.py",
         "tests/check_package.py"
       ],
       "columns_in_reference_city": [

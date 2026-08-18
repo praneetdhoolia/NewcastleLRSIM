@@ -192,6 +192,16 @@ def load_person_attributes(rng_bike):
     Core MATSim honours `carAvail` but has no equivalent for `ride` or `bike`,
     so both attributes are consumed by
     src/java/citysim/AvailabilityModesCalculator.
+
+    `householdId` is carried through unchanged. It is not a behavioural
+    parameter and nothing chooses it: it is the B1 membership that makes a
+    household-coupled mechanism possible at all. Two consumers need it and
+    neither could derive it - src/java/citysim/RidePairingEngine, which finds
+    the driver a `ride` leg rides with, and src/run/sample_population.py, which
+    must keep WHOLE households or destroy that coupling in a way that varies
+    with the sample fraction (DECISIONS.md 9.45). Carrying it as a person
+    attribute rather than as a side file means there is ONE mechanism, and one
+    place it can be wrong.
     """
     p = pd.read_csv(os.path.join(POP, 'B1_synthetic_population.csv'),
                     usecols=['person_id', 'household_id', 'age', 'car_available',
@@ -222,7 +232,7 @@ def load_person_attributes(rng_bike):
         int(r.person_id): (int(r.car_available), int(r.age), int(r.licence_holder),
                            str(r.employment_status), str(r.student_status),
                            int(r.mobility_impairment_flag), int(r.ride_avail),
-                           int(r.bike_avail))
+                           int(r.bike_avail), int(r.household_id))
         for r in p.itertuples()
     }
 
@@ -307,7 +317,7 @@ def write_day(day, attrs, rng, report, seed_table=None):
                     EXTERNAL_PROFILE['employment_status'],
                     EXTERNAL_PROFILE['student_status'],
                     EXTERNAL_PROFILE['mobility_impairment_flag'])
-                ride_av, bike_av = 0, 0
+                ride_av, bike_av, hh_id = 0, 0, None
             elif external:
                 # An external boundary agent has no B1 household, so its
                 # attributes are definitional placeholders (B.external
@@ -329,11 +339,15 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 # exists to deny bike from; the choice is recorded in
                 # DECISIONS.md 9.39 rather than silently made
                 bike_av = 1
+                # A boundary agent has no B1 household by construction, so it
+                # carries no householdId and can never pair with a driver. That
+                # is the same identity that already denies it `ride`.
+                hh_id = None
             else:
                 a = attrs.get(pid)
                 if a is None:
                     continue
-                car_av, age, lic, emp, stu, mob, ride_av, bike_av = a
+                car_av, age, lic, emp, stu, mob, ride_av, bike_av, hh_id = a
 
             # one mode per tour keeps chain-based modes conserved from the start
             tour_mode = {}
@@ -366,6 +380,14 @@ def write_day(day, attrs, rng, report, seed_table=None):
                     '%s</attribute>\n' % ('always' if ride_av else 'never'))
             w.write('\t\t\t<attribute name="bikeAvail" class="java.lang.String">'
                     '%s</attribute>\n' % ('always' if bike_av else 'never'))
+            if hh_id is not None:
+                # B1 household membership, consumed by
+                # src/java/citysim/RidePairingEngine and by
+                # src/run/sample_population.py. Absent on the boundary tiers,
+                # which have no household - so its absence is meaningful, and it
+                # is exactly what those two consumers test for.
+                w.write('\t\t\t<attribute name="householdId" '
+                        'class="java.lang.String">%d</attribute>\n' % hh_id)
             if tier == 'through':
                 # locks SubtourModeChoice to {car} for this agent - a volume
                 # anchored on a road count must stay on the road

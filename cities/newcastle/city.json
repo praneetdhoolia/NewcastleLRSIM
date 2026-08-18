@@ -157,12 +157,6 @@
       "field": "D.retail.vacancy_rate"
     },
     {
-      "input": "A justified MATSim iteration count",
-      "reason": "100 and 250 are both MEASURED to be short of relaxation; no sufficient value has been established. Every run must name its own.",
-      "handled_by": "declared per run",
-      "field": "RUN.controler.last_iteration"
-    },
-    {
       "input": "A justified SUMO replication count",
       "reason": "Seed variance across corridor replications has not been measured.",
       "handled_by": "declared per run",

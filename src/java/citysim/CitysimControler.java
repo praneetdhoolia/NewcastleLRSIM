@@ -46,7 +46,17 @@ import org.matsim.core.scenario.ScenarioUtils;
  * installed and bills a car for the time it stands still. The module is absent
  * from a config that does not want it, and the handler is then never built.
  *
- * <p><b>4. Live telemetry.</b> When the `telemetry` module is present,
+ * <p><b>4. Ride pairing, Tier 1 (DECISIONS.md 9.44, issue #31).</b> The note
+ * above says ride experiences congestion without causing it, "which is correct
+ * only insofar as every ride trip is paired with a driver trip, and it is not".
+ * {@link RidePairingEngine} is what makes that pairing exist: at the
+ * BeforeMobsim boundary each `ride` leg looks up a household member whose `car`
+ * leg it could be inside, and a paired passenger then takes THAT DRIVER's
+ * realised travel time rather than its own routed one. The module is absent
+ * from a config that does not want it, and `ridePairing.enabled = false`
+ * restores exactly the previous behaviour for comparison within one build.
+ *
+ * <p><b>5. Live telemetry.</b> When the `telemetry` module is present,
  * {@link RunTelemetry} publishes what is moving, of what kind and where it is
  * piling up, <em>while the mobsim runs</em>. It needs no change to
  * {@code writeEventsInterval}: a registered handler receives the full event
@@ -73,7 +83,9 @@ public final class CitysimControler {
         }
         final ParkingConfigGroup parking = new ParkingConfigGroup();
         final TelemetryConfigGroup telemetry = new TelemetryConfigGroup();
-        final Config config = ConfigUtils.loadConfig(args[0], parking, telemetry);
+        final RidePairingConfigGroup ridePairing = new RidePairingConfigGroup();
+        final Config config =
+                ConfigUtils.loadConfig(args[0], parking, telemetry, ridePairing);
         // The price file is written beside the config, like the network and the
         // schedule, so it is named relatively there and resolved here. MATSim
         // resolves its own input paths against the config's directory; this
@@ -107,6 +119,19 @@ public final class CitysimControler {
                     bind(ParkingChargeHandler.class).in(Singleton.class);
                     addEventHandlerBinding().to(ParkingChargeHandler.class);
                     addControllerListenerBinding().to(ParkingChargeHandler.class);
+                }
+            });
+        }
+        if (ridePairing.isEnabled()) {
+            controler.addOverridingModule(new AbstractModule() {
+                @Override
+                public void install() {
+                    // One instance in two roles: it accumulates the drivers'
+                    // realised times as an event handler, and makes the pairing
+                    // as a controler listener at the BeforeMobsim boundary.
+                    bind(RidePairingEngine.class).in(Singleton.class);
+                    addEventHandlerBinding().to(RidePairingEngine.class);
+                    addControllerListenerBinding().to(RidePairingEngine.class);
                 }
             });
         }

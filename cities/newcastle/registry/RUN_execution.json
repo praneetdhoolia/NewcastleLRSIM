@@ -89,20 +89,20 @@
       "description": "Minimum seats after scaling, so a vehicle never becomes unusable. Capacity floors at 1 seat below about a 1.5% sample, which makes capacity systematically too generous at small fractions. Acceptable while crowding scoring is off; revisit if it is enabled (issue 12)."
     },
     "RUN.controler.last_iteration": {
-      "value": null,
+      "value": 1000,
       "units": "iterations",
-      "source": "assumed",
+      "source": "measured",
       "sweep": {
         "interval": [
           250,
           2000
         ],
-        "basis": "the lower bound is the largest value MEASURED to be insufficient, not a value known to be sufficient. The upper bound is a budget limit, not a convergence claim"
+        "basis": "the lower bound is the largest value MEASURED to be insufficient. The upper bound is NOT a budget limit any more: it is the open half of the question. 1000 is measured to leave the post-cutoff state settled, and is NOT measured to be enough SEARCH - the pre-cutoff creep was still decaying geometrically when innovation froze it (9.43), so the range above 1000 stays declared rather than closed"
       },
-      "status": "unobtained",
-      "decisions_ref": "9.7, 15",
+      "status": "active",
+      "decisions_ref": "9.7, 9.43, 15",
       "matsim_param": "controler.lastIteration",
-      "description": "Iterations to relaxation. NO JUSTIFIED VALUE HAS BEEN MEASURED. Two 1% runs of 250 iterations showed the model had NOT converged: innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. The shipped scenario configs carry 250 - the sweep floor, the largest value measured insufficient, emitted so a config is runnable while remaining visibly provisional; run_matsim.py deliberately gives --iterations NO DEFAULT. Everything downstream needs this number (issue 5)."
+      "description": "Iterations to relaxation. MEASURED at 1000 by two full post-rebuild arms - 10% x 1000 (11.0 h, 54,617 agents) and 25% x 1000 (30.8 h, 136,068 agents), one arm at a time, same network build, seed 20260810 - and declared on that evidence (9.43, issue 5). WHAT IS MEASURED IS NARROWER THAN THE FIELD NAME: at 1000 the post-snap state is settled at both fractions (worst-mode drift +0.22 pp / +0.17 pp over the snap-aware window, inside RUN.relaxation.drift_tolerance_pp), and that result is fraction-independent. WHAT IS NOT MEASURED is whether 1000 iterations of SEARCH suffice: car mode share was still creeping +0.76 pp per 100 iterations at the cutoff, decaying x0.73 per 100, which extrapolates to roughly 2 pp of movement left in the innovated state when innovation was disabled. The 1500-iteration arm that would have measured that directly was CANCELLED BY THE OWNER for compute economy; the residual is carried as declared uncertainty, not resolved. Read this value with 9.43 beside it. Prior state, kept because it is the floor: two 1% runs of 250 iterations showed the model had NOT converged - innovation switches off at iteration 200 and ride still moved 0.619 to 0.664 over the last 50 iterations with no new plans being created. Shipped scenario configs now carry this measured value rather than the sweep floor; run_matsim.py still gives --iterations no default so a run states its own horizon."
     },
     "RUN.controler.first_iteration": {
       "value": 0,
@@ -219,7 +219,25 @@
         "src/analyse/summarise_run.py",
         "src/analyse/run_view.py"
       ],
-      "description": "Largest absolute mode-share movement, in percentage points, that a run may still show after innovation is disabled and still be reported as settled. Measured per mode between the innovation cutoff and the final iteration: after the cutoff MATSim creates no new plans, so whatever movement remains is relaxation rather than search. This decides a VERDICT ABOUT A RUN, not a model input - no agent sees it and changing it cannot move a mode share. It was 0.5 hard-coded as DRIFT_THRESHOLD_PP in summarise_run.py; the value is carried over unchanged so the migration is a move, not a re-decision. 9.7 measured mode share still drifting while innovation was already off and 9.27 put the iteration count needed at ~1000, so this is a floor for calling a run unsettled, never a claim that anything under it has converged."
+      "description": "Largest absolute mode-share movement, in percentage points, that a run may still show after innovation is disabled and still be reported as settled. Measured per mode between the SETTLE POINT (the innovation cutoff plus RUN.relaxation.settle_margin_iterations) and the final iteration: after the cutoff MATSim creates no new plans, so whatever movement remains is relaxation rather than search. This decides a VERDICT ABOUT A RUN, not a model input - no agent sees it and changing it cannot move a mode share. It was 0.5 hard-coded as DRIFT_THRESHOLD_PP in summarise_run.py; the value is carried over unchanged so the migration is a move, not a re-decision. 9.7 measured mode share still drifting while innovation was already off and 9.27 put the iteration count needed at ~1000, so this is a floor for calling a run unsettled, never a claim that anything under it has converged. NOTE the window moved in 9.43: it used to start AT the cutoff, which included the one-iteration selection snap and made the gate unpassable at any horizon."
+    },
+    "RUN.relaxation.settle_margin_iterations": {
+      "value": 10,
+      "units": "iterations",
+      "source": "measured",
+      "sweep": {
+        "interval": [
+          1,
+          100
+        ],
+        "basis": "the lower bound is the MEASURED duration of the snap itself - one iteration, at both fractions - so it is the smallest margin that can exclude it. The upper bound is where the excluded window starts to be a meaningful share of a 200-iteration post-cutoff tail: beyond it the metric passes by measuring less rather than by the run being flatter, which is the failure mode this field must not have"
+      },
+      "status": "active",
+      "decisions_ref": "9.43",
+      "consumers": [
+        "src/analyse/summarise_run.py"
+      ],
+      "description": "Iterations to skip AFTER the innovation cutoff before drift is measured, so the relaxation verdict scores relaxation and not the selection snap. When MATSim disables innovation, exploration noise stops in a single step and selection concentrates every agent onto its best-scoring plan: measured at iteration 801 of both 1000-iteration arms, car jumps +3.256 pp (10%) and +3.380 pp (25%) in that ONE iteration, walk falls 3.97 to 1.02% and pt 1.08 to 0.25%. That is a property of the scoring structure, not a run failing to settle - but the old window started at the cutoff and swept it into the drift number, so EVERY run of EVERY length failed the gate by ~3.5 pp regardless of horizon (9.43). The margin is 10 rather than 1 because a 10x guard on a one-iteration phenomenon costs nothing and matches the 10-iteration interval the outputs are written on; it is NOT tuned to pass. HONEST RESIDUAL: at 10 the worst-mode drift is +0.22 pp (10%) and +0.17 pp (25%), which passes the declared 0.5 pp tolerance but NOT the 0.1 pp floor of that tolerance's own sweep. The movement keeps decaying with margin (+0.089/+0.088 pp at 50, -0.008/+0.033 at 100), which is the signature of relaxation rather than of a metric artefact - a larger margin would pass the whole sweep, and is declined precisely because it would pass by measuring a shorter window."
     },
     "RUN.replanning.weights": {
       "value": {
@@ -676,6 +694,22 @@
         "src/registry/param_config.py"
       ],
       "description": "Simulated seconds between live telemetry snapshots while the mobsim runs. The boundary is SIMULATED time, never wall clock, so a repeated run writes the same snapshots in the same places - the determinism rule applies to an observer as much as to a build script. 3600 puts one snapshot per simulated hour, which at the measured sweep rate (a 30 h day in about 15 s of wall clock) is roughly one every half second. Lowering it loses nothing - the file carries the accumulating profile of the day, not a single instant - it only refines the bins. This does NOT require writeEventsInterval to change: a registered handler receives the full event stream on every iteration whether or not that stream is also written to disk, which the package demonstrates at 26 event files against 251 leg histograms."
+    },
+    "RUN.sample.unit": {
+      "value": "household",
+      "units": "enum",
+      "source": "derived",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.45",
+      "proposal_ref": "9",
+      "derived_from": {
+        "fields": [
+          "RUN.sample.fraction"
+        ],
+        "identity": "a sample drawn per PERSON keeps each household member independently, so a household of size n retains on average f*n of its members and the probability that a given person keeps any co-member at all is 1-(1-f)^(n-1) - 0.14 at f=0.10 and 0.32 at f=0.25 for the mean household size here. Every household-coupled mechanism is therefore destroyed by the sampler in a way that is a function of the fraction, which is the one thing a sample fraction must not be. Sampling by household makes the retained population a set of WHOLE households, so the coupling is fraction-independent by construction. The identity, not a preference: it follows from what a fraction is meant to mean."
+      },
+      "description": "Whether the population subsample keeps whole HOUSEHOLDS or independent PERSONS. It was person-wise and undeclared until 9.45, and the cost was measured on the completed pilot arms: the share of ride legs whose household drives at all was 32.6% at a 10% sample and 43.1% at 25%, rising with the fraction because the sampler - not the demand - was deciding it. The sample still NESTS (a household id hashes to one number, so the 1% sample stays a strict subset of the 10%) and is still seeded and deterministic. The external and through boundary tiers hold no household by construction and continue to hash on their own id. What this buys is bought at a price that is stated rather than hidden: a household-clustered sample has higher variance at a given size than a person-wise one. Consumed by src/run/sample_population.py."
     }
   }
 }

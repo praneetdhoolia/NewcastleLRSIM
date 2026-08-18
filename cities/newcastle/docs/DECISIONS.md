@@ -3,7 +3,7 @@
 **NewcastleLRSIM** — counterfactual microsimulation of the Newcastle Light Rail
 **Stage:** P4 calibration, in progress. **No scenario has been run to a
 reportable state, and nothing in this repository is a result.**
-**Started:** 10 August 2026 · **last entry:** §9.41, 15 August 2026
+**Started:** 10 August 2026 · **last entry:** §9.45, 18 August 2026
 
 Proposal §8.1: *"`DECISIONS.md` is not optional. Every parameter chosen without
 direct empirical support must be recorded here with its rationale and its sweep
@@ -41,12 +41,13 @@ otherwise cost you an hour:
 | **Land use, POI, frontage** | §7 |
 | **Behavioural parameters, mode constants, VOT** | §8; **§8.5 is the rule on ASCs** — read before touching a constant |
 | **Transfer penalty** | **§9.32** — not estimable from this package; the 3–15 min sweep stands |
-| **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15 |
+| **Taxi / rideshare as modes** | §9.21 declined for want of a target; **§9.42 re-opened on new evidence** — inferred from open sources, no data request lodged, nothing built before deliverable 5 |
+| **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15; **the escort tour is not bound to the person escorted — §9.44** |
 | **MATSim plans, C1 translation, what does not survive it** | §9.3 |
 | **Run cost, memory, threads** | §9.5 |
-| **Convergence and the iteration count** | **§9.7, §9.27** — ~1000 iterations; 250 is not relaxation |
-| **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions |
-| **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26 |
+| **Convergence and the iteration count** | **§9.43 DECLARES 1000** (issue #5, two measured arms); §9.7, §9.27 are the history. **The drift window changed with it** — it starts after the cutoff, not at it |
+| **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions. **§9.45: the sampling UNIT is the household**, not the person, or every household mechanism varies with the fraction |
+| **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26; **§9.44 pairs a passenger to a household driver** — and measures that fewer than 1 ride trip in 1,000 can physically be carried |
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
 | **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
@@ -4485,6 +4486,509 @@ share is tuned against it — it is a calibration row, that use is what
 calibration rows are for, and this note is the record of it. Count-based
 calibration near the boundary remains gated on this tier being examined
 (§9.14); freight remains absent and tracked by #24.
+
+---
+
+## 9.42 The taxi/rideshare separation is re-opened on new evidence; nothing is built yet (18 August 2026)
+
+§9.21's subsection "Taxi, motorcycle and rideshare cannot be separated" declined
+separate point-to-point modes because **no target existed**: the HTS reports
+"Other" as one bucket, and IPART's survey measures usage incidence, not
+Newcastle trip share. That reasoning stands. Two things about the evidence have
+changed since it was written, and the rule this file lives by is that a settled
+decision is re-examined exactly when new evidence appears:
+
+1. **IPART's annual Survey of Point to Point Transport Use now samples
+   "Newcastle and Hunter" as its own region**, with year-on-year trend
+   (rideshare use growing ~18%/yr in Newcastle in the survey the Herald
+   reported). Incidence × reported frequency × population yields an
+   approximate regional daily point-to-point trip volume — an observable,
+   though a derived and weak one.
+2. **The NSW passenger service levy ($1.20/trip) means the Point to Point
+   Transport Commissioner records every taxi, hire and rideshare trip.**
+   Regional aggregates are not published, but they exist, and a data request is
+   the same route this project already uses for TfNSW inputs. Levy counts for
+   the five study LGAs would be a genuinely observed daily volume.
+
+**Decision taken:** (a) **no data request is lodged.** The levy aggregates
+exist, but the owner's directive (18 August) is that this project infers the
+volume from open sources rather than waiting on an agency response: a request
+has a long lead time, an uncertain answer and no bearing on work that can
+proceed now. The IPART survey incidence, the regulated fare schedule and the
+published fleet size are open, and every value inferred from them is
+**labelled with its grade and swept** — never quoted as observed. (b)
+**nothing is built before deliverable 5** — a point-to-point mode is a
+refinement inside the 3.2% "Other" bucket and sits behind three measured
+multi-point defects (ride, walk, counts); (c) if built, it enters as a **priced
+teleported mode** — IPART-regulated taxi fares as `measured`, rideshare base
+rates as `literature`, surge and fleet unknowns swept — and is validated
+against the IPART-derived volume band as a **constraint, never a target**: the
+67/143 split is pre-registered and does not grow (§12). No fleet simulation —
+a DRT contrib is a §14 toolchain change unjustified at this share. The HTS
+decomposition remains impossible; that half of §9.21's finding is unchanged.
+
+Recorded so the trade is visible: declining the request means the point-to-point
+volume stays a **derived and weak** observable — an inferred band, not a
+measured count. That is the accepted cost of not blocking on an agency, and it
+is why the band constrains rather than targets.
+
+Relevance recorded for honesty: rideshare competes with the light rail for
+short CBD and night-time trips — the same trips hypotheses B1/B2 measure — so
+the mode's absence is a stated limitation of the footfall analysis until this
+lands.
+
+---
+
+## 9.43 The iteration count is declared at 1000, and the drift window it is scored on was measuring the wrong thing (18 August 2026)
+
+Issue #5 — *how many iterations does this model need?* — has blocked every
+downstream deliverable since §9.7. It is now closed on measurement, and closing
+it required fixing the instrument first, because **the declared relaxation gate
+could not have been passed by a run of any length.**
+
+### What was run
+
+Two full arms on the 16 August rebuild, one at a time, same network build
+(§3.5), threads 10, seed 20260810:
+
+| | `conv1000_10pct` | `conv1000_25pct` |
+|---|---|---|
+| fraction × iterations | 10% × 1000 | 25% × 1000 |
+| agents | 54,617 | 136,068 |
+| wall clock | 10 h 59 m | 30 h 47 m |
+| median iteration | 33.3 s | 90.2 s |
+| exit / accounting / telemetry | 0 / closes / clean | 0 / closes / clean |
+
+Full evaluation, including the structural findings that are not about
+convergence, in
+[`docs/audit/CONVERGENCE_PILOT_EVALUATION.md`](audit/CONVERGENCE_PILOT_EVALUATION.md).
+
+### The instrument was broken, and it was broken in a way that always failed
+
+The declared gate measured per-mode mode-share movement **from the innovation
+cutoff to the final iteration**, against `RUN.relaxation.drift_tolerance_pp`
+= 0.5 pp. Both arms failed it identically: worst-mode drift **+3.54 pp** (10%)
+and **+3.60 pp** (25%), car in both. Identical failure at two sample fractions
+is not the signature of a run that needs longer; it is the signature of a
+measurement artefact.
+
+Reading the per-iteration trace rather than the 10-iteration grid identifies it
+exactly. **The entire movement is one iteration wide.** At iteration 801 —
+the first iteration after innovation is disabled — car jumps **+3.256 pp**
+(10%) and **+3.380 pp** (25%), walk falls 3.97 → 1.02% and pt 1.08 → 0.25%.
+Iteration 802 onward moves by hundredths of a point. When MATSim stops creating
+new plans, exploration noise stops with it and selection concentrates every
+agent onto its best-scoring remembered plan in a single step. That is a
+property of the scoring and replanning structure — it would occur at iteration
+201 of a 250-iteration run and at iteration 1201 of a 1500-iteration one — and
+a window that begins at the cutoff swallows it whole.
+
+**So the gate was unpassable by construction.** A perfectly relaxed run of any
+horizon reports ~3.5 pp of "drift" and is declared unsettled. The pilots did
+not fail to converge; the instrument failed to measure convergence. This is
+recorded as a defect of the metric, not a finding about the model.
+
+### The window now starts after the snap, and the snap is still reported
+
+A new field, `RUN.relaxation.settle_margin_iterations`, declares how many
+iterations after the cutoff the drift window opens. **Value 10, swept 1–100.**
+
+- The **lower bound is the measured snap duration** — one iteration, at both
+  fractions — so 1 is the smallest margin that can exclude it.
+- **10 rather than 1** is a 10× guard on a one-iteration phenomenon, and matches
+  the 10-iteration interval the outputs are written on. It is not tuned to pass:
+  margin 1 already passes at both fractions.
+- The **upper bound is where the excluded window becomes a meaningful share of
+  the 200-iteration post-cutoff tail.** Beyond it the metric would pass by
+  measuring less rather than by the run being flatter, which is the one failure
+  mode this field must not have. That is also why the margin was NOT set to 50
+  or 100 even though both pass more of the tolerance sweep (below).
+
+`summarise_run.py` now reports three quantities instead of one, so the fix
+hides nothing: `snap_pp` (the movement across the margin), `drift_pp` (the
+settle point to the final iteration — **the verdict is scored on this**), and
+`cutoff_to_final_pp` (**exactly what the old instrument reported**, kept so the
+window change is auditable and the old verdict re-derivable without re-reading
+the run). The re-derived old numbers reproduce +3.537 and +3.599, matching the
+evaluation to the third decimal, which confirms this is a window change and not
+a recomputation.
+
+### The declaration
+
+`RUN.controler.last_iteration` moves from `unobtained` / null to **`measured` /
+1000**, and the corresponding entry leaves `city.json`'s `unobtained` list. The
+sweep stays 250–2000, with a changed basis — see the honest limit below.
+
+Measured at the declared margin:
+
+| | 10% arm | 25% arm |
+|---|---|---|
+| snap at cutoff (worst mode) | +3.31 pp | +3.43 pp |
+| **drift, iteration 810 → 1000** | **+0.22 pp** | **+0.17 pp** |
+| verdict at tolerance 0.5 pp | ✅ settled | ✅ settled |
+
+**Fraction-independence is established** — snap size, post-snap drift, creep
+decay and stuck-agent profile replicate at both fractions — so the 10% arm is a
+valid convergence probe for 25% conclusions.
+
+### What is NOT measured, stated plainly
+
+Three limits ride with this declaration and must be quoted with it.
+
+1. **1000 is measured to leave the model RELAXED. It is not measured to be
+   enough SEARCH.** Car mode share was still creeping at the cutoff: per 100
+   iterations at 25%, +1.94, +1.43, +1.04, +0.76 across iterations 400→800, a
+   geometric decay of ×0.73 per block, with the 10% arm showing the same +0.75
+   at 700→800. Extrapolated, **roughly 2 pp of movement remained in the
+   innovated state when innovation froze it.** The post-cutoff state is settled;
+   what it settled *onto* is a state the search had not finished exploring.
+2. **The arm that would have measured this directly was cancelled.**
+   `conv1500_10pct` (cutoff at 1200) was launched to test the extrapolation and
+   was **stopped by the owner for compute economy** — the two completed arms had
+   already cost 42 hours, and the ride-scoring defect (§9.44 lane, issues #28
+   #31 #9) was judged the better use of the machine. **This is a deliberate
+   trade of certainty for compute, and it is recorded as such.** The residual is
+   carried as declared uncertainty, not resolved. The sweep's upper bound is
+   therefore no longer a budget limit: it is the open half of the question.
+3. **The verdict does not survive the whole tolerance sweep.**
+   `RUN.relaxation.drift_tolerance_pp` sweeps 0.1–1.0 pp. At the declared
+   margin the arms pass at 0.25, 0.5 and 1.0 pp and **fail at the 0.1 pp
+   floor**. The movement keeps decaying with margin — +0.089/+0.088 pp at 50,
+   −0.008/+0.033 at 100 — which is the signature of genuine relaxation rather
+   than a metric artefact, and a larger margin would pass the entire sweep. It
+   was declined for the reason given above: passing by measuring a shorter
+   window is not passing.
+
+Anyone reporting a result from a 1000-iteration run states limit 1 beside it.
+
+### Consequences
+
+- Shipped scenario configs carry 1000 instead of the sweep floor of 250.
+  `shipped_iterations()` resolves the declared value and falls back to the floor
+  only if the field is ever returned to `unobtained`, so making it provisional
+  again cannot silently ship an undeclared number. `run_matsim.py` still gives
+  `--iterations` no default: a run states the horizon it used.
+- The 25% × 1000 arm costs ~31 h on the current machine. **Run economics, not
+  convergence, are now the binding constraint on the campaign** — memory model
+  ≈ 24 GiB fixed + 0.09–0.3 MB/agent, so a 100% run needs ~80–160 GiB of heap
+  (§9.5).
+- Issue #5 closes. #9, #14 and the ride sitting are unblocked.
+
+
+---
+
+## 9.44 A car passenger names a driver — and the measurement says there is almost never one to name (18 August 2026, issue #31)
+
+The standing goal asks that **every form of transport be in action physically**.
+Five of nine modes already are (§9.36 measured them: 1,448 buses, 332 trains,
+252 trams, 107 ferries, all sharing road links with cars where they should).
+`ride` — a car passenger — was the one whose absence was structural rather than
+missing: it is routed over the network, reads congested car travel times since
+§9.26, and is then **teleported**, consuming no capacity and, decisively,
+**bound to no driver**. Tier 1 of the pairing is built. What it measured on the
+way is more important than what it does.
+
+### The mechanism, and why it is a lookup rather than a search
+
+A joint-plans implementation on socnetsim was built, measured and reverted by
+owner instruction: it ran **iteration 0 alone for over 16 minutes** against a
+~42 s baseline, and the cost was not the group replanning but
+`CourtesyEventsGenerator` firing an event for every social-contact pair at every
+activity start and end — 16.7 M events by sim-hour 15 — which is joint-ACTIVITY
+machinery answering a different research question.
+
+What makes boarding a bus cheap in MATSim is that the timetable is **fixed
+before routing**, so the passenger does a lookup. A household car can work the
+same way. The pairing is made in a `BeforeMobsim` listener
+([`RidePairingEngine`](../../../src/java/citysim/RidePairingEngine.java)):
+MATSim's loop is `replan → all plans final → mobsim`, so at that boundary every
+selected plan is stable and nothing will move until the mobsim runs. **That is
+the timetable.** A pairing made there is re-made every iteration, exactly as a
+public-transport connection is re-found on every re-route — which dissolves the
+objection that sent the previous attempt to socnetsim, since a pairing baked
+into *plans* is destroyed by `SubtourModeChoice` and a pairing made *after*
+replanning is not.
+
+**How a passenger takes the driver's time with no mobsim change.** Verified
+against the pinned jar's bytecode rather than assumed from the API:
+`DefaultTeleportationEngine.handleDeparture` asks the agent for
+`getExpectedTravelTime()`, which is `TimeInterpretation.decideOnLegTravelTime`,
+which is exactly `route.getTravelTime().or(leg.getTravelTime())`. The **route's**
+time therefore wins — and both routing modules set the leg's and the route's
+time *together*. So the engine writes **only the route's time and never the
+leg's**, and that single choice buys three things with no bookkeeping:
+
+- the router's own estimate survives in `leg.getTravelTime()` and is the baseline;
+- an **unpaired leg is restored to exactly that baseline**, which is what makes
+  "an unpaired leg behaves exactly as it does today" a guarantee rather than a hope;
+- the baseline refreshes itself when the router re-routes, and survives the plan
+  copying that replanning does, because it lives in the plan and not in a side map.
+
+The driver's time is the one **realised in the previous mobsim** — that is where
+the sample-dependent queueing lives, which a teleported passenger is structurally
+immune to (§9.12), and it is the same one-iteration lag every travel time in
+MATSim carries. Before the first mobsim the driver's routed time is used and the
+fallback is counted.
+
+**Verified at the consumer, not at the mechanism.** A three-iteration probe at 1%
+(`ride_pairing_probe`, `window_only` so the paired path executes at all):
+356 ride legs ended with a route time differing from their leg time, and for
+every unambiguously testable case the **realised teleport duration equalled the
+route time the engine wrote, never the baseline**. The realised-time lookup fires
+from iteration 1 (284 of 336 pairings realised, 52 routed).
+
+**And then tested at two horizons, because the probe could not see replanning.**
+Three iterations proves a binding; it does not prove the binding survives
+`ReRoute` replacing routes and `SubtourModeChoice` copying plans, which is
+exactly where a pairing made at `BeforeMobsim` could rot. Two arms, each with a
+committed overlay:
+
+| | `ride_pairing_50_declared` | `ride_pairing_25pct_declared` |
+|---|---|---|
+| what it answers | durability over iterations | cost and behaviour AT SCALE |
+| fraction × iterations | 1% × 50 | **25% × 10** |
+| exit / accounting | 0 / closes | 0 / closes |
+| median iteration | 7.2 s | 53.7 s |
+| ride legs | 3,923 → 7,736 | 103,240 → 126,925 |
+| **pairing cost per iteration** | **5–6 ms, flat** | **184–310 ms, flat** |
+| driver time source | realised on every pairing after iteration 0 | same |
+| capacity refusals | 0 | 0 |
+
+**The blast radius was then MEASURED against a control**, because "an unpaired
+leg behaves exactly as before" is a claim and not an observation.
+`ride_pairing_25pct_control` is the same run with `B.ride.pairing_enabled`
+false — which is what that field exists for. Against the declared arm:
+
+| | result |
+|---|---|
+| per-iteration mode share, all 5 modes, all 11 iterations | **BIT-IDENTICAL to 17 significant figures** |
+| ride legs whose route time was rewritten | **7 in the paired arm, 0 in the control** |
+| `ride_pairing.csv` | present / **absent** — the module governs installation, so a config that does not want it never builds the listener |
+| `scorestats`, max abs difference | **3.8e-05** utils |
+
+The two halves matter together. The rewrite count and the score delta prove the
+mechanism DID something, so the identical mode share is not a no-op hiding
+behind a control. And the identical mode share proves it did that something to
+**7 legs of ~120,000 and to nothing else** — which is what a bounded blast
+radius looks like when it is measured rather than asserted.
+
+**And the paired path was stressed at volume.** The declared rule pairs so
+little that arm A barely exercises the arithmetic, so `ride_pairing_25pct_stress`
+runs `window_only` at the sweep's upper bound: rc=0, and it pairs
+**14,406 → 18,489 legs an iteration** (13.5–14.6%) instead of 3–5. The cost is
+**192–310 ms after the first iteration — the same as the arm that paired five
+legs.** That is the design's complexity showing itself honestly: the cost is the
+plan WALK, O(persons × plan elements), and the pairing itself disappears into it.
+The capacity cap also fired for the first time (7–21 refusals an iteration), so
+that branch is exercised rather than merely written, and the realised-time
+lookup carried 12,954 of 14,255 pairings at iteration 1 with the rest taking the
+routed fallback, exactly as specified.
+
+Iteration duration is NOT a clean reading here — 80.0 s against arm A's 53.7 s
+and the control's 61.7 s, on a machine where the control did LESS work than arm A
+and still ran slower. The listener's own cost is measured directly and is 0.3% of
+an iteration; the rest is model state and machine variance, and §9.5's warning
+that iteration duration does not survive contention applies.
+
+The cost scales with the population and with nothing else — ~25× the agents for
+~25× the cost — and it is **0.4% of a 25% iteration**. Neither arm drifts,
+leaks or slows across its horizon. **1% was not sufficient on its own and is not
+claimed to be:** it is a plumbing fraction whose flow-capacity granularity
+strands car legs (§9.12), so a mechanism that transmits REALISED congestion
+cannot be judged there. The 25% arm is the one that speaks to the shipping
+configuration; the 1% arm is what makes the long horizon affordable.
+
+### What was declared, and one thing that was refused
+
+Five fields, all in `B.ride.*`: `pairing_enabled`, `pairing_window_min` (15,
+swept 5–60), `pairing_rule` (`both_links`, swept over four), `pickup_dwell_s`
+(**0.0**, swept 0–120) and `max_passengers_per_vehicle` (4, swept 1–4).
+
+**A pickup friction is not a fitted parameter, and the default is neutral for a
+reason.** The car-minus-ride residual this lane exists to remove was measured
+from the arms' own `output_legs` at **≈5 s at 25% and ≈13 s at 10%**, flat across
+every distance bin below 50 km — a fixed overhead, not a speed error. A
+one-minute pickup friction would be **five to twelve times the entire quantity it
+was meant to explain**. Sizing one to close that gap is calibration wearing a
+mechanism's clothes, and it was refused. It is swept so the question stays open,
+never pinned.
+
+**Return trips pair independently**, not as round trips. `ride` is correctly not
+chain-based — a chain constraint exists to bring a *vehicle* back to where it was
+parked and a passenger owns none; asymmetric lifts are the realistic case; and
+forcing symmetry would **manufacture car trips**, the direction of error this
+project is most exposed to. The obligation that creates is to report the
+asymmetry, which `ride_pairing.csv` does every iteration, split by direction.
+
+### The measurement, which overturns the lane
+
+[`measure_ride_pairability.py`](../../../src/analyse/measure_ride_pairability.py)
+reads a completed run's own `output_trips.csv.gz`, joins each traveller to their
+B1 household, and asks whether any household member made a car trip the passenger
+could have been inside. On the two relaxed arms:
+
+| | `conv1000_10pct` | `conv1000_25pct` |
+|---|---:|---:|
+| ride trips | 79,372 | 185,170 |
+| in a household that drives **at all** that day | 32.6% | **43.1%** |
+| sharing an origin–destination pair with a household car trip, **at any time** | **0.039%** | **0.104%** |
+| pairable under the declared rule (`both_links`, ±15 min) | 0 | **7** |
+| pairable with **no spatial constraint at all**, ±60 min (the sweep's upper bound) | 3.9% | **9.6%** |
+
+**`ride` is 32.7% of trips in the relaxed 25% arm and essentially none of it can
+physically happen.** The modelled passenger:driver ratio is 0.52 against an
+observed 0.35, but the relevant number is not the ratio — it is that fewer than
+one ride trip in a thousand coincides in space with a household car trip.
+
+Two independent causes, and neither is the pairing's:
+
+1. **The sampler was shredding households.** That is §9.45, and it is fixed.
+2. **B2 generates every person's chain independently.** An escort (`HX`) tour
+   *is* generated — 44,258 escort trips in the 25% arm — but its destination is
+   drawn from the education attractor *distribution*, not from the actual
+   destination of the person being escorted, and its departure is drawn
+   independently too. So a parent escorts to *a* school while their child travels
+   to *another* one. The registry's older note that "B2 generates no escort trip"
+   is stale; the trips exist, and what is missing is the **binding between the
+   escort and the escorted**. A second, smaller incoherence falls out of the same
+   measurement: **4,791 escort trips are made by `ride`** — a passenger being
+   driven in order to convey somebody — because `B.activity.escort_requires_licence`
+   constrains generation while mode choice may still turn the tour into a ride.
+
+**What Tier 1 therefore achieves today is small, and is stated rather than
+dressed up.** It pairs almost nothing under the declared rule, so it removes
+almost none of the ~5 s residual and almost none of the fraction dependence. It
+is still the right thing to have built: it is the mechanism that makes the
+unservable demand a **per-iteration, auditable model output** instead of a
+one-off script, it costs 3–20 ms an iteration, it is a strict improvement with a
+bounded blast radius, and it is ready the moment the demand can supply a driver.
+The looser rules quantify what a laxer assumption would buy and are sensitivities,
+never results — the probe shows why: under `window_only` a paired passenger
+inherits a driver's *unrelated* trip and comes out **+493 to +725 s** against
+their own routed time, which is not a correction but a corruption.
+
+**Tier 2** — the passenger as a real `MobsimPassengerAgent` inside the vehicle,
+seats binding physically — remains an increment on this, not a prerequisite, and
+is not worth building before the demand can pair.
+
+### Not re-litigated
+
+Do **not** add `ride` to qsim main modes (B2 already generates the escort
+driver's car, so a ride vehicle double-counts the traffic) or to
+`chainBasedModes`. eqasim's `PassengerConstraint` is a trip-level biconditional
+on `getInitialMode()` that consults no driver: it compiles, runs, constrains
+nothing and reports success. Non-household lifts are **not built** — no target
+exists anywhere for them, and the 26.2% of households that are lone-person make
+`Vehicle passenger` trips in HTS that this model can never serve; that gap is a
+stated limitation, not a defect to close by invention.
+
+### Consequences
+
+- **Tier 1 changes the model.** Post-pairing runs are a new comparison family;
+  the two convergence arms remain valid baselines for the *pre*-pairing model.
+- The next lane is the **escort↔escorted binding in B2** (§13). It is a demand
+  change, not a coupling change, and it is what would make this mechanism bite.
+- Issue #31 moves from "unmodelled" to "modelled, and measured to be starved of
+  supply". It does not close.
+
+
+---
+
+## 9.45 The sample was drawn per person, so it dissolved the households (18 August 2026)
+
+The standing goal is explicit that if the model simulates a **percentage** of a
+population, *"whether that scaling actually predicts the correct ridership per
+mode must be CHECKED, not assumed"*. This is the first thing that check caught,
+and it was invisible for as long as nothing in the model was household-coupled.
+
+### What was wrong
+
+`sample_population.py` kept a person if `blake2b(person_id | seed)` fell below
+the fraction. Every property that mattered at the time survived it: the sample
+**nests** (1% is a strict subset of 10%), it is seeded and deterministic, and
+per-person attributes are untouched. What does not survive it is the
+**household**, because each member is kept or dropped independently.
+
+The arithmetic is not subtle. At fraction *f*, a household of size *n* retains
+*f·n* members on average, and the probability that a given retained person keeps
+**any** co-member is `1 − (1−f)^(n−1)` — about **0.14 at f = 0.10** and **0.32 at
+f = 0.25** for the mean household size here. So a household-coupled mechanism
+does not merely weaken under sampling: **its strength is a function of the sample
+fraction**, which is the one thing a sample fraction must never decide.
+
+Measured on the two completed arms, exactly as predicted:
+
+| | `conv1000_10pct` | `conv1000_25pct` |
+|---|---:|---:|
+| ride trips in a household that drives at all | **32.6%** | **43.1%** |
+
+That is the sampler talking, not the demand.
+
+**What the fix does NOT buy, measured rather than assumed.** The obvious
+inference — that intact households would raise the pairing rate — was tested and
+is **wrong at any rate that matters**. The 25% × 10 mechanism arm above runs on
+a HOUSEHOLD-sampled population and pairs 3–5 legs of 103,000–127,000, a rate of
+**0.00004: the same as the person-sampled arm**, not higher. An intermediate 1%
+arm showed ~0.0004 and briefly looked like the fix appearing, but that is 3 legs
+out of 7,736 at a plumbing fraction and it did not survive the larger sample.
+
+The two facts are consistent and worth stating together, because only one of
+them is about the sampler. Keeping households intact raises the share of ride
+legs whose household drives **at all** — that is structural, fraction-dependent,
+and is what this section fixes. It does **not** raise
+**origin-destination coincidence**, because B2 never co-locates household
+members in the first place (§9.44). So the sampler was a real defect and had to
+be fixed on its own terms, and fixing it moves the pairing rate essentially not
+at all. **The escort binding is the whole of the remaining problem.**
+
+### What changed
+
+A new declared field, `RUN.sample.unit`, `derived` (it follows from what a
+fraction is meant to mean, so it carries a `derived_from` identity rather than a
+sweep), value **`household`**. The hash is taken on the household id instead of
+the person id, so:
+
+- **whole households are kept**, and every household-coupled mechanism is
+  fraction-independent by construction;
+- the sample still **nests** — one household hashes to one number, so the 1%
+  sample stays a strict subset of the 10%;
+- it stays seeded and deterministic;
+- the **external and through boundary tiers carry no household by construction**
+  and continue to hash on their own id, which is the same identity that already
+  denies them `ride` (§9.15);
+- `unit = person` reproduces every earlier sample **byte for byte** — the person
+  key is unchanged and the household key is namespaced, so a household id and a
+  person id that happen to be the same integer are still two independent draws.
+
+Household membership reaches both consumers through **one** mechanism: a
+`householdId` person attribute written into the plans by `build_matsim_plans.py`,
+read by the sampler out of the plan stream and by
+`citysim.RidePairingEngine` out of the person's attributes. A side file was the
+alternative and was rejected: two copies of the same membership is the drift this
+package cannot absorb (§15).
+
+### The price, stated rather than hidden
+
+A household-clustered sample carries **more variance at a given sample size**
+than a person-wise one — the standard design-effect penalty for cluster
+sampling. Nothing here estimates that penalty, and no seed-variance measurement
+exists yet (`n_replications` stays 30 until it does). It is recorded so that a
+later comparison of two fractions does not mistake cluster variance for a
+mechanism.
+
+### Consequences
+
+- **This invalidates the two convergence arms as baselines for anything run
+  after it**, because the sampled population is a different set of people. It
+  does not invalidate §9.43: the iteration count was measured on the *post-snap
+  settling behaviour*, which is a property of the co-evolutionary search rather
+  than of which agents were drawn, and the arms remain the evidence for it.
+- Every run from here is a new comparison family, which it was going to be
+  anyway because Tier 1 changes the model (§9.44). The two changes therefore land
+  together, deliberately, rather than costing two comparability breaks.
+- The plans were regenerated to carry `householdId` and the 30 run-input sets
+  reassembled. Both are deterministic and produced by committed scripts; the
+  mode seed split is unchanged (`ride` 0.183 on the weekday set, as before).
 
 ---
 

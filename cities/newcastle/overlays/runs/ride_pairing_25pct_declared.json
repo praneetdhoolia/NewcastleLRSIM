@@ -1,0 +1,16 @@
+{
+  "overlay": "ride_pairing_25pct_declared",
+  "description": "Arm A of the three-arm MECHANISM test for the Tier 1 ride pairing (DECISIONS.md 9.44), at 25% - the fraction the run programme actually uses, and the one where the congestion the pairing transmits is representative. This arm runs the DECLARED configuration, so what is under test is the code as it would ship. Under `both_links` almost nothing pairs, which is the finding, so this arm answers cost and stability AT SCALE: the listener walks ~136,000 agents' selected plans every iteration, and at 1% that cost 5 ms. Read it beside ride_pairing_25pct_control, which is the same run with the pairing switched off: because this arm pairs almost nothing the two must come out nearly identical, and that is the direct test of the claim that an UNPAIRED leg behaves exactly as it did before the mechanism existed. NOT A RESULT: ten iterations is short of relaxation by two orders of magnitude.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 10,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "40g"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the whole range describes candidate MODELLING runs. This is not one. It is a MECHANISM test at the fraction the campaign actually uses: 1% is a plumbing fraction whose flow-capacity granularity strands car legs (DECISIONS.md 9.12), so a pairing that transmits REALISED congestion cannot be judged there - the congestion it exists to transmit is not representative. Ten iterations is what that fraction can be afforded for at ~42 s each, and it is enough to exercise ReRoute and SubtourModeChoice, which is where a pairing made at BeforeMobsim could rot. Durability over MANY iterations is answered separately and more cheaply by ride_pairing_50_declared. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}

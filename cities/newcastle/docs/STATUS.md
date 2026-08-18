@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 16 August 2026 · branch `praneetdhoolia/mode-choice-specification`
+**Last updated:** 18 August 2026 (#5 closed; **ride pairing Tier 1 BUILT and verified**; the sampling unit is now the household) · branch `praneetdhoolia/convergence-pilot-arms`
 
 > **This file is a board, not a diary.** The dated build narrative that used to live
 > here (944 lines) is archived in
@@ -23,7 +23,7 @@ network layers, gradients (DEM tile set now **derived** from the boundary —
 100% coverage), speed zones, corridor attributes, scenario GTFS feeds, one
 pt2matsim build of **all 15 feeds (0 unmapped stops each)**, land use, parking
 prices, attractions, B2 demand with the five demand fixes, MATSim plans, and
-the 30 run-input sets. `tests/check_package.py`: **1,452 checks, ALL PASSED**,
+the 30 run-input sets. `tests/check_package.py`: **1,456 checks, ALL PASSED**,
 2 standing warnings. Verified gates: every OSM layer larger than its
 `osm_pre_issue32/` counterpart; core SA1s without a road node **99 → 4, with 0
 agents in them** (all 35,365 stranded agents are on the network); network link
@@ -37,22 +37,33 @@ which is why `results/` was already empty when it landed.
 | | |
 |---|---|
 | Phase | **P4 (calibration), in progress** — 7 of 9 deliverables met; batch 4.1 (the rebuild) **done 16 Aug** |
-| Blocking state | **None on the build.** Next: the 4.2 run campaign (#5 pilot first) |
-| Committed data package | **391 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes · `check_package.py` **1,452 checks ALL PASSED** (2 standing warnings) |
-| Input registry | **297 fields** (the batch added bike availability and the four through-tier fields) — every one with units, provenance and a sweep, held-fixed rule or derived identity; ledger **0** with `--strict` gating CI; reach 69/69 |
-| Run inputs assembled | **30** scenario × day-type sets, regenerated 16 Aug from the rebuilt package through the emitter |
-| Runs on disk | **`smoke_postrebuild`** (1% × 2 iterations, rc=0, 48 s, median iteration 10.1 s vs 9.8 s on the old network) — proves the rebuilt package executes end to end; **not a result**. Everything older was deleted. **A run with no `_run.json` is not a result and is not kept.** |
-| Open issues | Verdicts and measurements: [`docs/audit/ISSUE_VERDICTS.md`](audit/ISSUE_VERDICTS.md) (15 Aug) and its post-rebuild addendum (16 Aug). **Resolved by batch 4.1:** #32 (99 → 4 no-road-node SA1s, 0 agents affected), #37 (zero midnight collisions on all three day types), #34's floorspace question (2,303 out-of-box buildings, nearest 281 m from any segment — the box clips nothing), plus the three stale statements the verdicts surfaced. **Advanced, verify on the first post-rebuild runs:** #30 (destinations now solved per purpose × home LGA, all 30 cells on target), #29 (asymmetry declared, availability drawn at a swept 0.50 — magnitude re-measure pending), #20 (through tier live at 3 gates; V113 non-zero to be confirmed on a run; northern exits recorded as a limitation). **Awaiting runs/decisions:** #5 → #9 → #14, #28's residual, #31, #24 (freight — the next focused change). |
+| Blocking state | **None.** #5 CLOSED (§9.43). **Tier 1 of the ride pairing is BUILT, wired and verified at the consumer** (§9.44) — a `BeforeMobsim` lookup naming a household driver, teleport proven to run on the rewritten route time, and tested at two horizons: **1% × 50** (durability, 5–6 ms/iteration) and **25% × 10** (scale, 184–310 ms/iteration = 0.4% of an iteration), both rc=0, both flat across the horizon, and the blast radius measured against a `pairing_enabled=false` control: **mode share bit-identical, 7 legs rewritten vs 0**; and stressed at volume (14k–18k pairings an iteration at the same cost, capacity cap exercised). **It pairs almost nothing, and that is the finding**: fewer than 1 ride trip in 1,000 coincides in space with a household car trip. Active lane is now the **escort↔escorted binding in B2** (§9.44, §13) |
+| Committed data package | **391 files** in [`data/MANIFEST.csv`](../data/MANIFEST.csv) · `check_manifest.py` passes · `check_package.py` **1,456 checks ALL PASSED** (2 standing warnings) |
+| Input registry | **304 fields** (§9.44 added five `B.ride.*`; §9.45 added `RUN.sample.unit`) — every one with units, provenance and a sweep, held-fixed rule or derived identity; ledger **0** with `--strict` gating CI; reach **74/74** |
+| Run inputs assembled | **30** scenario × day-type sets, **regenerated 18 Aug** after the plans gained the `householdId` attribute (§9.45); each config now carries a `ridePairing` module |
+| What is PHYSICALLY simulated (measured 18 Aug) | **5 of 9 modes already in the mobsim**: `car`; **bus** 1,448 vehicles at PCE 2.8 sharing **22,102 road links with cars**; **rail** 332 on 6,766 dedicated links; **tram** 252, incl. **21 links shared on-street**; **ferry** 107. 2,139 transit vehicles move every iteration. **`ride` is now PAIRED but still teleported** (§9.44): a paired passenger takes the driver's realised time, an unpaired one behaves exactly as before. Motorbike / taxi / rideshare are still not modes at all |
+| **Ride pairability — MEASURED, and it reframes the lane** | On the relaxed arms, **0.10% (25%) and 0.04% (10%) of ride trips share an origin–destination pair with a household car trip at any time**, and only 43.1% / 32.6% are in a household that drives at all. Two causes, both now understood: the sampler was shredding households (**fixed**, §9.45) and **B2 draws an escort tour's destination from a distribution rather than from the person being escorted** (§9.44, open). Reproduce with `python src/analyse/measure_ride_pairability.py --run conv1000_25pct` |
+| Ride scenarios — data grade | **Commute carpooling is RARE and the demand is non-commute**: census G62 (already in the package) gives car-as-passenger **3.35% of journeys to work**, passenger:driver **0.0598**, at SA1 — against an all-purpose HTS `Vehicle passenger` share of 18–32%. OBSERVED: commute (G62), driver-side `Serve passenger` 10–19.5% of journeys, all-purpose share, ride trip length/duration, occupancy 0.35. LITERATURE ONLY: child→school (61% of school trips by private vehicle), elderly driven. **NO TARGET AT ALL: non-household lifts, who-drives-whom, return-trip asymmetry** — not built, stated as limitations |
+| Comparability | **A planned double break, landed together on purpose** (§9.44, §9.45): Tier 1 changes the model and the household sampler changes which agents are drawn, so every run from here is a new family. The two arms stay valid baselines for the PRE-pairing model, and §9.43 is unaffected — the iteration count was measured on post-snap settling, a property of the search rather than of which agents were drawn |
+| Runs on disk | `smoke_postrebuild` (plumbing, 1% × 2) · **`conv1000_10pct`** and **`conv1000_25pct`** (the #5 pilot arms, both rc=0, both **`relaxed: true`** against the snap-aware window declared in §9.43 — evaluation in [`docs/audit/CONVERGENCE_PILOT_EVALUATION.md`](audit/CONVERGENCE_PILOT_EVALUATION.md)). `results/_aborted_20260816/` quarantines three dead runs without `_run.json`, including the cancelled `conv1500_10pct` — **do not relaunch it**. ⚠️ `results/S2_WEEKDAY_f025_i1000_s20260810/` is a fourth dead run with no `_run.json`, not yet quarantined. `ride_pairing_probe` is a 3-iteration 1% PLUMBING PROBE for §9.44 and is not a result. |
+| Open issues | **5** — ~~#5 (iteration count — **CLOSED 18 Aug**, declared at 1000 in §9.43)~~ → #9 → #14; #28 (ride residual, a run measurement); **#31 moves from "unmodelled" to "modelled and measured to be starved of supply" — it does NOT close** (§9.44); #24 (freight, the next focused PR). **Closed on evidence 15–16 Aug:** #32, #36, #37 by the rebuild; #20, #29, #30, #34 after it — each closure comment states its REOPEN IF condition, and the first-run evaluation in [`docs/handover/NEXT_AGENT_BRIEF.md`](handover/NEXT_AGENT_BRIEF.md) §3 owns testing them. Verdicts + post-rebuild addendum: [`docs/audit/ISSUE_VERDICTS.md`](audit/ISSUE_VERDICTS.md). |
 | **Results** | **None. No scenario has been run to a reportable state, and nothing in this repository is an output of the model.** |
 
-### Measured run costs — kept from the dead pilots; the runs themselves are deleted
+### Measured run costs — the binding constraint now that #5 is settled
 
-Every convergence pilot is dead and deleted (`results/` is empty — a run with
-no `_run.json` is not a result and is not kept). What survives them is the
-timing, which task 4.2.1 will need:
+The pre-rebuild pilots are dead and deleted; what survived them was the timing.
+The two post-rebuild arms are on disk and evaluated. **Convergence is no longer
+what limits the campaign — run economics are.** The figures below are what any
+run plan must be costed against, and the owner directive stands: no multi-hour
+run without explicit approval.
 
 - **9.8 s/iteration at 1%, ~24–30 s at 10%, 56–58 s at 25%** — so a
   1,000-iteration arm is ~2.7 h / ~8.3 h / ~16 h.
+- **Post-rebuild, measured on the completed arms (18 Aug):** median 33.3 s at
+  10% (11.0 h, ~29 GiB WS on 30g) and 90.2 s at 25% (30.8 h, ~33–38 GiB on
+  40g). Memory model ≈ 24 GiB fixed + 0.09–0.3 MB/agent → a 100% run needs
+  ~80–160 GiB heap. One unexplained slow block (25% arm, iterations ~200–293)
+  self-recovered — the §9.36-era stall pattern, still unattributed.
 - **Never run convergence arms concurrently.** Three arms declared 78 GiB of
   heap on a 63.5 GiB machine, Windows grew the pagefile from 8.1 to 19.1 GiB,
   and the 10% arm's median iteration went from ~19 s alone to ~42 s alongside
@@ -473,10 +484,11 @@ smaller network) — full memory re-measure belongs to the first 10% arm
 
 | # | Task | Closes | ETA |
 |---|---|---|---|
-| 4.2.1 | Convergence pilot on the rebuilt inputs: **one arm at a time**, 10% × 1,000 first (~8.3 h), 25% (~16 h) only if needed. Decide the iteration count, declare it, update the shipped default | #5 | attended 1–2 h · wall 8–24 h |
-| 4.2.2 | From the pilot's own legs: ride vs car realised speed **in matched distance bins** (never aggregate means) — sizes #28's residual; bike/walk share re-measurement — sizes #29's magnitude before any constraint is tuned | #28 (residual), #29 (magnitude) | attended 2–3 h |
-| 4.2.3 | Re-solve `asc_car_passenger` at the settled iteration count (deterministic, resumable solver) | #9 | attended 1 h · wall 1–2 days |
+| 4.2.1 | ✅ **DONE 18 Aug.** Convergence pilot, one arm at a time: 10% × 1000 and 25% × 1000. Both failed the *declared* gate identically — diagnosed as a defect in the instrument, not the runs: the window started at the innovation cutoff and so included a **one-iteration** selection snap (+3.3 pp car at both fractions), making it unpassable at any horizon. Fixed and declared in one change (§9.43): `RUN.relaxation.settle_margin_iterations` = 10, `RUN.controler.last_iteration` = **1000** (`measured`, off `unobtained`), both arms now `relaxed: true` at +0.22 / +0.17 pp. Arm 3 (`conv1500_10pct`) **cancelled by the owner** for compute economy — the ~2 pp of un-relaxed pre-cutoff search creep is carried as **declared uncertainty**. Evaluation: [`docs/audit/CONVERGENCE_PILOT_EVALUATION.md`](audit/CONVERGENCE_PILOT_EVALUATION.md) | #5 | ✅ 42 h of compute spent |
+| 4.2.2 | ✅ **DONE 18 Aug** — measured on both pilot arms: ride out-runs car in every bin below 50 km (1.13× → 1.01×), the aggregate parity is a Simpson's reversal; bike 4.0% vs 3.2 observed needs no tuning; sub-1 km mass 2.5% vs >~10% reopens #30. [`docs/audit/CONVERGENCE_PILOT_EVALUATION.md`](audit/CONVERGENCE_PILOT_EVALUATION.md) | #28 (sized), #29 (closed) | — |
+| 4.2.3 | **THE RIDE PAIRING — the active lane. RE-SCOPED TWICE on evidence.** (1) The congested-time binding the old plan called fix (a) **already existed** and both arms ran with it. (2) The real residual is a **fixed ~5 s (25%) / ~13 s (10%)** overhead the car pays and a teleported passenger skips — also the mechanism behind the car↔ride margin moving across sample fractions. A 1-minute pickup friction would be 5–12× that, so it is **refused as a fitted parameter**. (3) socnetsim joint plans were built, measured at **~10×** (`CourtesyEventsGenerator`, 16.7 M events) and **REVERTED by owner instruction**. **BUILD INSTEAD:** a `BeforeMobsim` pairing — after replanning, before the mobsim, when every plan is stable — naming a household driver per `ride` leg. **Tier 1** = paired passenger takes the driver's realised time + a declared dwell, occupancy counted, no mobsim change, unpaired legs unchanged. Return trips pair **independently**, not as round trips. Target **< 5 s/iter added** | #28, #31, #9 | attended 2–3 days |
 | 4.2.4 | The §8.5 modelling decision for the calibrated base — estimate ASCs on era 3 (2018) and **hold fixed**, or constrain-and-report; **log the departure before any result is seen** — then produce the calibrated base + parameter provenance (`params/C5_calibration.json`) and regenerate the calibration report | #14, P4 deliverables 0+5, project deliverable 3 | attended 1–2 days · wall 2–3 days |
+| 4.4 | **Point-to-point (taxi + rideshare) mode** — decision re-opened by the owner 18 Aug 2026 on new evidence (IPART now surveys Newcastle and Hunter as its own p2p region; the passenger service levy counts every trip). Build as a teleported priced mode: measured taxi fares, literature rideshare rates (swept), fleet assumed; validated against the inferred 10,000–35,000 trips/day band as a **constraint, never a target**. Evidence dossier and declaration plan: [`docs/design/point-to-point-mode.md`](design/point-to-point-mode.md). **Strictly after 4.2.4** — a ~1% refinement does not precede the measured 10–20 pp defects. First step: extract the Newcastle and Hunter table from the IPART 2025 information paper (PDF fetch timed out on first pass) | p2p mode | attended 2–3 days |
 | 4.3 | Deliverable 0b, parallelisable with 4.1: derive what the data supports (realistic 15–25 of 78 `assumed` fields) — ABS journey-to-work SA2×SA2 extract → `B.external.interaction_rate`; day-of-week split from dated RMS counts; `A.road.*_default` from observed OSM distributions; `A.lightrail.line_speed_kmh` from GTFS ÷ alignment; `C.vot.*` from TfNSW published parameters; resolve the probable `RUN.routing.beeline_distance_factor` ↔ measured 1.3376 duplicate | 0b | attended 2–3 days |
 
 ### P5 — scenario runs (blocked on 4.2)

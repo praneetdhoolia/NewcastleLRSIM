@@ -126,11 +126,17 @@ def build_config(src_dir, run_dir, scenario, day, fraction, seed, overrides, cfg
     veh_src = os.path.join(src_dir, 'transitVehicles.xml.gz')
     veh_dst = os.path.join(run_dir, 'transitVehicles.xml.gz')
     if fraction >= 1.0:
-        n_in = n_out = None
+        n_in = n_out = n_hhless = None
         plans_dst, veh_dst = plans_src, veh_src
         scaled = []
     else:
-        n_in, n_out = subsample_plans(plans_src, plans_dst, fraction, seed)
+        n_in, n_out, n_hhless = subsample_plans(
+            plans_src, plans_dst, fraction, seed,
+            cfg.get('RUN.sample.unit'))
+        # The sampling UNIT is declared (DECISIONS.md 9.45). A person-wise
+        # sample shreds households, and every household-coupled mechanism
+        # then depends on the fraction rather than on the demand - which is
+        # the one thing a sample fraction must not decide.
         # The switch DECIDES this now. It was declared as "not optional in
         # practice - at a 10% sample an unscaled bus carries 700 real people, so
         # capacity never binds and crowding silently disappears" and then read
@@ -195,6 +201,8 @@ def build_config(src_dir, run_dir, scenario, day, fraction, seed, overrides, cfg
                 text = setp(text, key, value)
         open(config_path, 'w', encoding='utf-8', newline='\n').write(text)
     return config_path, dict(persons_in=n_in, persons_kept=n_out,
+                             unit=cfg.get('RUN.sample.unit'),
+                             persons_without_household=n_hhless,
                              transit_capacity_scaled=sorted(set(scaled)))
 
 
