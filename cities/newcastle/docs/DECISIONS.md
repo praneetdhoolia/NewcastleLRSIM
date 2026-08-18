@@ -3,7 +3,7 @@
 **NewcastleLRSIM** — counterfactual microsimulation of the Newcastle Light Rail
 **Stage:** P4 calibration, in progress. **No scenario has been run to a
 reportable state, and nothing in this repository is a result.**
-**Started:** 10 August 2026 · **last entry:** §9.41, 15 August 2026
+**Started:** 10 August 2026 · **last entry:** §9.42, 18 August 2026
 
 Proposal §8.1: *"`DECISIONS.md` is not optional. Every parameter chosen without
 direct empirical support must be recorded here with its rationale and its sweep
@@ -41,6 +41,7 @@ otherwise cost you an hour:
 | **Land use, POI, frontage** | §7 |
 | **Behavioural parameters, mode constants, VOT** | §8; **§8.5 is the rule on ASCs** — read before touching a constant |
 | **Transfer penalty** | **§9.32** — not estimable from this package; the 3–15 min sweep stands |
+| **Taxi / rideshare as modes** | §9.21 declined for want of a target; **§9.42 re-opened on new evidence** — levy request lodged, nothing built before deliverable 5 |
 | **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15 |
 | **MATSim plans, C1 translation, what does not survive it** | §9.3 |
 | **Run cost, memory, threads** | §9.5 |
@@ -4488,6 +4489,46 @@ calibration near the boundary remains gated on this tier being examined
 
 ---
 
+## 9.42 The taxi/rideshare separation is re-opened on new evidence; nothing is built yet (18 August 2026)
+
+§9.21's subsection "Taxi, motorcycle and rideshare cannot be separated" declined
+separate point-to-point modes because **no target existed**: the HTS reports
+"Other" as one bucket, and IPART's survey measures usage incidence, not
+Newcastle trip share. That reasoning stands. Two things about the evidence have
+changed since it was written, and the rule this file lives by is that a settled
+decision is re-examined exactly when new evidence appears:
+
+1. **IPART's annual Survey of Point to Point Transport Use now samples
+   "Newcastle and Hunter" as its own region**, with year-on-year trend
+   (rideshare use growing ~18%/yr in Newcastle in the survey the Herald
+   reported). Incidence × reported frequency × population yields an
+   approximate regional daily point-to-point trip volume — an observable,
+   though a derived and weak one.
+2. **The NSW passenger service levy ($1.20/trip) means the Point to Point
+   Transport Commissioner records every taxi, hire and rideshare trip.**
+   Regional aggregates are not published, but they exist, and a data request is
+   the same route this project already uses for TfNSW inputs. Levy counts for
+   the five study LGAs would be a genuinely observed daily volume.
+
+**Decision taken:** (a) the data request to the Commissioner is drafted and
+lodged now — it costs nothing and has a long lead time (§13 item 13); (b)
+**nothing is built before deliverable 5** — a point-to-point mode is a
+refinement inside the 3.2% "Other" bucket and sits behind three measured
+multi-point defects (ride, walk, counts); (c) if built, it enters as a **priced
+teleported mode** — IPART-regulated taxi fares as `measured`, rideshare base
+rates as `literature`, surge and fleet unknowns swept — and is validated
+against the levy/IPART-derived volume as a **constraint, never a target**: the
+67/143 split is pre-registered and does not grow (§12). No fleet simulation —
+a DRT contrib is a §14 toolchain change unjustified at this share. The HTS
+decomposition remains impossible; that half of §9.21's finding is unchanged.
+
+Relevance recorded for honesty: rideshare competes with the light rail for
+short CBD and night-time trips — the same trips hypotheses B1/B2 measure — so
+the mode's absence is a stated limitation of the footfall analysis until this
+lands.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -4763,6 +4804,11 @@ should be revisited, because at that point the bus level *would* be identifying.
     Saturday:Sunday division within the weekend is the last assumed part of the
     day-type shape (the weekday/weekend ratio itself is now measured from RMS
     traffic counts, §9.2).
+13. **Passenger service levy trip counts, five study LGAs** (Point to Point
+    Transport Commissioner request, §9.42) — daily/monthly point-to-point trip
+    aggregates by pickup LGA, taxi vs rideshare if separable. Would give the
+    only observed volume for a future priced point-to-point mode; enters as a
+    constraint, never a target.
 
 ---
 
