@@ -4735,8 +4735,50 @@ fallback is counted.
 356 ride legs ended with a route time differing from their leg time, and for
 every unambiguously testable case the **realised teleport duration equalled the
 route time the engine wrote, never the baseline**. The realised-time lookup fires
-from iteration 1 (284 of 336 pairings realised, 52 routed). Cost is **3–20 ms per
-iteration**, against a 5 s budget.
+from iteration 1 (284 of 336 pairings realised, 52 routed).
+
+**And then tested at two horizons, because the probe could not see replanning.**
+Three iterations proves a binding; it does not prove the binding survives
+`ReRoute` replacing routes and `SubtourModeChoice` copying plans, which is
+exactly where a pairing made at `BeforeMobsim` could rot. Two arms, each with a
+committed overlay:
+
+| | `ride_pairing_50_declared` | `ride_pairing_25pct_declared` |
+|---|---|---|
+| what it answers | durability over iterations | cost and behaviour AT SCALE |
+| fraction × iterations | 1% × 50 | **25% × 10** |
+| exit / accounting | 0 / closes | 0 / closes |
+| median iteration | 7.2 s | 53.7 s |
+| ride legs | 3,923 → 7,736 | 103,240 → 126,925 |
+| **pairing cost per iteration** | **5–6 ms, flat** | **184–310 ms, flat** |
+| driver time source | realised on every pairing after iteration 0 | same |
+| capacity refusals | 0 | 0 |
+
+**The blast radius was then MEASURED against a control**, because "an unpaired
+leg behaves exactly as before" is a claim and not an observation.
+`ride_pairing_25pct_control` is the same run with `B.ride.pairing_enabled`
+false — which is what that field exists for. Against the declared arm:
+
+| | result |
+|---|---|
+| per-iteration mode share, all 5 modes, all 11 iterations | **BIT-IDENTICAL to 17 significant figures** |
+| ride legs whose route time was rewritten | **7 in the paired arm, 0 in the control** |
+| `ride_pairing.csv` | present / **absent** — the module governs installation, so a config that does not want it never builds the listener |
+| `scorestats`, max abs difference | **3.8e-05** utils |
+
+The two halves matter together. The rewrite count and the score delta prove the
+mechanism DID something, so the identical mode share is not a no-op hiding
+behind a control. And the identical mode share proves it did that something to
+**7 legs of ~120,000 and to nothing else** — which is what a bounded blast
+radius looks like when it is measured rather than asserted.
+
+The cost scales with the population and with nothing else — ~25× the agents for
+~25× the cost — and it is **0.4% of a 25% iteration**. Neither arm drifts,
+leaks or slows across its horizon. **1% was not sufficient on its own and is not
+claimed to be:** it is a plumbing fraction whose flow-capacity granularity
+strands car legs (§9.12), so a mechanism that transmits REALISED congestion
+cannot be judged there. The 25% arm is the one that speaks to the shipping
+configuration; the 1% arm is what makes the long horizon affordable.
 
 ### What was declared, and one thing that was refused
 
@@ -4862,10 +4904,24 @@ Measured on the two completed arms, exactly as predicted:
 |---|---:|---:|
 | ride trips in a household that drives at all | **32.6%** | **43.1%** |
 
-That is the sampler talking, not the demand. It also means the pairing rates in
-§9.44 are **downward-biased by the sampler** and would be higher at 100% — though
-not nearly enough to rescue them, since the same-origin-destination share is
-~0.1% and that half is the demand's doing.
+That is the sampler talking, not the demand.
+
+**What the fix does NOT buy, measured rather than assumed.** The obvious
+inference — that intact households would raise the pairing rate — was tested and
+is **wrong at any rate that matters**. The 25% × 10 mechanism arm above runs on
+a HOUSEHOLD-sampled population and pairs 3–5 legs of 103,000–127,000, a rate of
+**0.00004: the same as the person-sampled arm**, not higher. An intermediate 1%
+arm showed ~0.0004 and briefly looked like the fix appearing, but that is 3 legs
+out of 7,736 at a plumbing fraction and it did not survive the larger sample.
+
+The two facts are consistent and worth stating together, because only one of
+them is about the sampler. Keeping households intact raises the share of ride
+legs whose household drives **at all** — that is structural, fraction-dependent,
+and is what this section fixes. It does **not** raise
+**origin-destination coincidence**, because B2 never co-locates household
+members in the first place (§9.44). So the sampler was a real defect and had to
+be fixed on its own terms, and fixing it moves the pairing rate essentially not
+at all. **The escort binding is the whole of the remaining problem.**
 
 ### What changed
 

@@ -1,0 +1,17 @@
+{
+  "overlay": "ride_pairing_25pct_control",
+  "description": "Arm B, the CONTROL for ride_pairing_25pct_declared: identical except that B.ride.pairing_enabled is false, which restores exactly the pre-9.44 behaviour - a teleported passenger on its own routed time. This is the comparison the `enabled` switch exists for, and it is why that field is a declared value rather than a compile-time constant. A divergence from arm A larger than the handful of legs arm A actually pairs would mean the mechanism is touching legs it has no business touching, and would block the change. NOT A RESULT, for the same reasons as arm A.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 10,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "40g",
+    "B.ride.pairing_enabled": false
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the whole range describes candidate MODELLING runs. This is not one. It is a MECHANISM test at the fraction the campaign actually uses: 1% is a plumbing fraction whose flow-capacity granularity strands car legs (DECISIONS.md 9.12), so a pairing that transmits REALISED congestion cannot be judged there - the congestion it exists to transmit is not representative. Ten iterations is what that fraction can be afforded for at ~42 s each, and it is enough to exercise ReRoute and SubtourModeChoice, which is where a pairing made at BeforeMobsim could rot. Durability over MANY iterations is answered separately and more cheaply by ride_pairing_50_declared. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}

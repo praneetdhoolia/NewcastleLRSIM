@@ -106,7 +106,19 @@ post-snap settling, a property of the search rather than of which agents were dr
   survives plan copying. **No side map, no mobsim change.**
 - **Verified at the CONSUMER:** in the probe, 356 legs ended with route ≠ leg
   time, and every unambiguous case teleported on the **route** value. Realised
-  lookup fires from iteration 1. **Cost 3–20 ms/iteration** against a 5 s budget.
+  lookup fires from iteration 1.
+- **Blast radius MEASURED against a control** (`ride_pairing_25pct_control`,
+  the same run with `pairing_enabled` false): per-iteration mode share is
+  **bit-identical to 17 significant figures**, while **7 legs were rewritten in
+  the paired arm and 0 in the control** and `scorestats` differ by 3.8e-05. Both
+  halves are needed — the rewrite count proves it is not a no-op, the identical
+  mode share proves it touched nothing else.
+- **Tested at two horizons** (committed overlays, both rc=0, both flat):
+  **1% × 50** for durability across `ReRoute`/`SubtourModeChoice` (5–6 ms/iter)
+  and **25% × 10** for scale (184–310 ms/iter, **0.4% of an iteration** on
+  136k agents). Cost scales with population and nothing else. 1% alone is NOT
+  sufficient — it is a plumbing fraction (§9.12) and a mechanism that transmits
+  realised congestion cannot be judged there.
 - Five declared fields `B.ride.*`; `ridePairing` module in every emitted config;
   `ride_pairing.csv` written per iteration with the unpaired share **split by
   direction**.
@@ -125,7 +137,12 @@ on the two relaxed arms:
 **`ride` is 32.7% of trips and essentially none of it can physically happen.**
 Two independent causes:
 
-1. **The sampler was shredding households — FIXED (§9.45).** The subsample hashed
+1. **The sampler was shredding households — FIXED (§9.45), and it bought almost
+   nothing, which was MEASURED not assumed.** The household-sampled 25% arm pairs
+   at 0.00004 — the same rate as the person-sampled one. Keeping households
+   intact raises the share of ride legs whose household drives AT ALL (structural,
+   and the real defect), but not OD-coincidence, because B2 never co-locates them.
+   **So cause 2 below is the whole of the remaining problem.** The subsample hashed
    the PERSON id, so a household of size *n* kept *f·n* members and the chance of
    keeping any co-member was `1−(1−f)^(n−1)` — 0.14 at 10%, 0.32 at 25%. Every
    household mechanism was being decided by the *sampler*, differently at each

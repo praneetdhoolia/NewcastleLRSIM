@@ -1,0 +1,18 @@
+{
+  "overlay": "ride_pairing_25pct_stress",
+  "description": "Arm C, which STRESSES the paired code path at scale. The declared rule pairs so little that arm A barely exercises the arithmetic, so this arm uses `window_only` at the sweep's upper bound - the loosest declared rule - which pairs roughly 9.6% of ride trips and therefore rewrites tens of thousands of route travel times every iteration on a 136,000-agent population. What it tests is that doing so stays cheap, stays deterministic, and does not destabilise the co-evolutionary search. WHAT IT IS NOT is a better model: under `window_only` a paired passenger inherits an UNRELATED household trip and comes out +493 to +725 s against its own routed time (DECISIONS.md 9.44). Nothing about this arm's mode share may be read as anything but a stress test.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 10,
+    "RUN.machine.threads": 8,
+    "RUN.machine.xmx": "40g",
+    "B.ride.pairing_rule": "window_only",
+    "B.ride.pairing_window_min": 60.0
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the whole range describes candidate MODELLING runs. This is not one. It is a MECHANISM test at the fraction the campaign actually uses: 1% is a plumbing fraction whose flow-capacity granularity strands car legs (DECISIONS.md 9.12), so a pairing that transmits REALISED congestion cannot be judged there - the congestion it exists to transmit is not representative. Ten iterations is what that fraction can be afforded for at ~42 s each, and it is enough to exercise ReRoute and SubtourModeChoice, which is where a pairing made at BeforeMobsim could rot. Durability over MANY iterations is answered separately and more cheaply by ride_pairing_50_declared. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}
