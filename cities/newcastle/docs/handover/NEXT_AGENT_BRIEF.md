@@ -1,12 +1,15 @@
-# Brief for the next agent — THE GOAL, THE FOUR MISSING MODES, AND A PRUNED PLAN
+# Brief for the next agent — RUN THE ARM, WATCH IT, EVALUATE IT, THEN DECIDE
 
-*Rewritten 18 August 2026 against the owner's goal statement, replacing the
-previous brief entirely. It does three things the old one did not: it
-**prioritises the four missing modes separately** instead of lumping them, it
-**assesses every open task for alignment and proposes deletions**, and it
-answers **what kind of work comes next** — code, data, or runs. This is a
-HANDOVER, not a source of truth: where it disagrees with
-[`STATUS.md`](../STATUS.md), [`DECISIONS.md`](../DECISIONS.md) or
+*Updated late 18 August 2026 (PR #43 merged): the two demand defects §4 named
+are FIXED and regenerated — the escort binding (§9.46) and the census age
+structure (§9.47). **Your job is step 3: the 25% × 1000 WEEKDAY arm on the
+repaired demand — launch it, watch it, close it out, re-measure pairability,
+and decide the next lane from what the evaluation says.** A first attempt at
+this arm (`bind1000_25pct`) was launched and then STOPPED at the owner's
+instruction for this handover — its partial output is quarantined in
+`results/_aborted_20260818/` and is not a result. This is a HANDOVER, not a
+source of truth: where it disagrees with [`STATUS.md`](../STATUS.md),
+[`DECISIONS.md`](../DECISIONS.md) or
 [`.claude/CLAUDE.md`](../../../../.claude/CLAUDE.md), those win.*
 
 ---
@@ -23,11 +26,14 @@ python src/registry/check_hardcoding.py --strict   # must exit 0
 
 **⚠ OWNER DIRECTIVES, both standing:**
 1. **NO MULTI-HOUR RUNS WITHOUT EXPLICIT APPROVAL.** State the cost, get a yes.
+   **Exception already granted:** the ONE 25% × 1000 WEEKDAY arm in §4 is
+   owner-approved (18 Aug — it was launched, then stopped only for this
+   handover). That approval covers that one arm, nothing else.
 2. **DO ONE THING RIGHT rather than bloating the repo.** Do not open ten tasks.
    Do not harvest data the model cannot yet consume. Do not build a mode whose
    share is 1% while a mode at 33% is unphysical.
 
-Start from `main` — nothing is in flight.
+Start from `main` — nothing is in flight, no run is in progress.
 
 ---
 
@@ -81,7 +87,7 @@ motorbikes, taxis and Uber — not the fleet.
 
 | rank | gap | share of trips | mechanism | data to support it | verdict |
 |---|---|---:|---|---|---|
-| **1** | **Car passengers (`ride`)** | **32.7%** | **BUILT** (Tier 1, §9.44) but **starved** — pairs <0.1% | occupancy 0.35 OBSERVED; who-drives-whom **no target** | **DO THIS. One demand defect stands between a third of all trips and physicality** |
+| **1** | **Car passengers (`ride`)** | **32.7%** | **BUILT** (Tier 1, §9.44); the starving demand defect is **FIXED** (§9.46/§9.47 — 68.6% of weekday escorts bound exactly) | occupancy 0.35 OBSERVED; who-drives-whom **no target** | **MEASURE IT (§4).** Whether the fix moves realised pairability is unmeasured until the approved 25% arm runs |
 | **2** | **Freight / heavy vehicles** | **6.52% of vehicles** (MEASURED) | absent — no `truck` mode | share measured from RMS counts; PCE from literature | **DO THIS SECOND.** Cheap, measured, and it changes congestion for *every* mode |
 | **3** | Taxis + Uber | **0.4–1.5%** (10k–35k trips/day of ~2.27M) | absent — inside the `Other` bucket | fares MEASURED; fleet literature; volume band INFERRED, no target | **DEFER.** A ~1% refinement must not precede a 33% defect |
 | **4** | Motorbikes | unknown, inside `car`/`ride` | absent | **NO TRIP-SHARE TARGET ANYWHERE.** Registration data gives FLEET share, not trip share | **STAY DECLINED.** Any split would be invented, and it would shrink both the car and ride targets |
@@ -153,40 +159,90 @@ non-existent respectively.
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§4  ★ WHAT TO DO NEXT — CODE, NOT DATA, NOT RUNS
+§4  ★ WHAT TO DO NEXT — RUN THE ARM, WATCH IT, EVALUATE, THEN DECIDE
 ═══════════════════════════════════════════════════════════════════════════════
 
-The owner asked whether the next work is realigning values, harvesting data, or
-testing runs. **It is none of the three. It is two demand-model defects, then a
-modelling decision.** Reasoning:
+Steps 1–2 of the previous plan (the two demand-model defects) are **done and
+merged** (PR #43, §9.46/§9.47 — see §8). What remains is the measurement they
+exist for, and the decision that hangs on it.
 
-- **Not data harvesting.** The package has 391 committed files and passes 1,456
-  checks. The binding constraint is not missing data — §3 shows the one gap that
-  matters cannot be filled from any source we can reach.
-- **Not runs.** The two convergence arms cost 42 h and are spent. Running the
-  model again *now* would spend another 30 h measuring a demand we already know
-  is broken in two specific ways.
-- **Not value realignment.** Realigning ASCs before the demand is coherent would
-  fit the constants to absorb a structural defect — the §8.5 failure mode by name.
+### Step A — launch the approved arm (owner approval on record, §0)
 
-### The order, and why
+```bash
+python src/run/run_matsim.py --scenario S2 --day WEEKDAY --fraction 0.25 --threads 10 --xmx 40g --tag bind1000_25pct
+```
 
-| step | task | why it comes here | ETA |
-|---|---|---|---|
-| **1** | ✅ **DONE 18 Aug (§9.46).** Escort binding — 68.6% of weekday HX tours bound exactly to a household member's trip | Unblocks **32.7% of trips**. The coupling is already built and waiting; this is the one defect between it and working | ✅ |
-| **2** | ✅ **DONE 18 Aug (§9.47).** Age structure — and the defect was three-fold: flat employment, universal child students, AND ~27,000 missing 75+ persons (grouped G04 columns never read) | ~40,000 phantom elderly commuters, and they are *exactly* the population that rides rather than drives — so it contaminates step 1's validation | ✅ |
-| **3** | **Re-measure pairability, then re-validate** — the 25% × 1000 WEEKDAY arm on the §9.46/§9.47 demand | "CHECKED, not assumed." Steps 1–2 either move the 0.1% or they do not, and either answer is publishable | attended 0.5 day + one 25% arm |
-| **4** | **#24 freight** — real `truck` mode, vehicle type + PCE | Measured 6.52%; improves the congestion every mode is judged against | attended 1–2 days |
-| **5** | **#14 the §8.5 calibration decision** | ASCs on era 3 (2018), HELD FIXED. **Log the departure BEFORE any result is seen.** Only sensible once the demand is coherent | attended 1–2 days |
+Cost: ~31 h wall at ~90 s/iteration, ~33–38 GiB working set on the 40g heap.
+The earlier partial attempt with this tag is quarantined in
+`results/_aborted_20260818/` — the tag is free again. **One arm at a time;
+nothing else heavy on the machine while it runs.**
 
-**Do steps 1–3 and stop.** That is a complete, publishable unit of work. Steps
-4–5 are the next session's.
+### Step B — WATCH it, don't just wait for it
+
+- The run prints its own `live view:` URL before MATSim starts (deliverable 9):
+  iteration progress, per-mode counts, stuck agents, the relaxation light.
+- Known non-events: the benign `Unsupported class file major version 69` log
+  noise (§12 trap 7), and the §9.36-era stall pattern — one 10% iteration once
+  took 2,415 s at near-zero CPU and self-recovered; the 25% pilot arm had a
+  slow block around iterations ~200–293 that also self-recovered. **Do not
+  kill a run for a slow block; do investigate anything that stops writing
+  iterations for over an hour.**
+- A run without `_run.json` is not a result. If it dies, quarantine and
+  diagnose before relaunching.
+
+### Step C — close out and EVALUATE (attended ~0.5 day)
+
+1. Close-out: the finished run writes `SUMMARY.md` + `_summary.json` (check
+   `relaxed` and the accounting); then metrics → fit as in task 5.5.
+2. **The headline measurement** — pairability on the repaired demand:
+   ```bash
+   python src/analyse/measure_ride_pairability.py --run bind1000_25pct --json pairability_bind1000_25pct.json
+   ```
+   The pre-repair baselines it must be read against: **0.10%** of ride trips
+   shared an OD with a household car trip (conv1000_25pct), pairing rate
+   0.00004 under the declared `both_links` ± 15 min regime.
+3. Also re-measure what §9.46/§9.47 predict should move: the car↔ride
+   travel-time residual (#28, was ~5 s at 25%), mode share against the HTS
+   linked targets (employment fell 6 pp of persons and ~20% of persons lose
+   `ride` on escort days — the shares WILL move; that is the point), and the
+   per-band elderly trip pattern (the restored 75+ cohort should travel
+   HS/HO, not HW).
+4. Record the answer in `DECISIONS.md` (follow-on to §9.46), update
+   `STATUS.md`, this brief, and issues #31, #28, #9 with the measured numbers.
+   **Either answer is publishable — do not massage a disappointing one.**
+
+### Step D — decide from the evaluation, and bring it to the owner
+
+- **If pairability moved materially** (bound escorts realise as paired
+  ride+car trips): the ride lane rests. Next in value order: **#24 freight**
+  (measured 6.52%, improves every mode's congestion denominator), then the
+  **#14 §8.5 calibration decision** (ASCs on era 3, HELD FIXED — log the
+  departure BEFORE any result is seen).
+- **If it did not move**: diagnose BEFORE building anything — the remaining
+  candidates are mode assignment (does MATSim actually give the escorter car
+  and the escortee ride on the bound pair? the seed is uniform and
+  co-evolution decides), the ±15 min window against realised (not planned)
+  departures, and the `both_links` link-resolution of identical coordinates.
+  Measure which one eats the coincidence the demand now provably contains
+  (120,980 exact OD+time pairs on WEEKDAY). That diagnosis is its own
+  publishable finding.
+- Steps beyond that (taxi p2p, 0b derivations, scenario campaign) keep their
+  §7 ranking — do not reorder without the owner.
 
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§5  STEP 1 IN DETAIL — THE ESCORT BINDING
+§5  THE ESCORT BINDING — ✅ DONE (§9.46, PR #43); kept as the spec it was built to
 ═══════════════════════════════════════════════════════════════════════════════
+
+**Implemented 18 Aug exactly as specified below, plus what the spec asked to
+declare:** households generate whole; a bound HX tour takes the escorted
+member's destination and departure to the coordinate and the second (all
+120,980 placed weekday bindings verified coincident, 0 exceptions); binding
+scope and min-gap are declared and swept; the trip-length shift (11.58 km
+bound vs 7.84 observed) is reported, not tuned; the escort-by-ride incoherence
+is closed via `rideAvail=never` on escort days. Read §9.46 first; this section
+stays because its MUST-NOTs still govern any rework.
 
 A DEMAND change, in
 [`build_activity_chains.py`](../../../../src/build/build_activity_chains.py).
@@ -239,8 +295,17 @@ still turn the tour into a ride. Fix where the lock exists: `lockedMode` +
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§6  STEP 2 IN DETAIL — THE POPULATION DEFECT
+§6  THE POPULATION DEFECT — ✅ DONE (§9.47, PR #43), and it was THREE defects
 ═══════════════════════════════════════════════════════════════════════════════
+
+**Implemented 18 Aug.** Measuring before fixing found a third defect this
+brief did not know: the 75+ population mostly did not exist (G04's grouped
+80–99 columns were never read — 186 persons 85+ against a census 15,151, now
+16,188). Employment now draws per (SA1 × sex × ABS band) from G46, students
+from observed G01 attendance, weekday priority full-time work → full-time
+study → part-time work. Evidence dossier:
+[`docs/design/age-structure.md`](../design/age-structure.md). The original
+finding, for the record:
 
 `build_population.py`'s docstring claims age-conditional labour force status
 (G46). **It is not:** one flat 15+ employment rate from G43 is applied to every
@@ -269,9 +334,10 @@ same numbering; this table adds the assessment the owner asked for.
 
 | # | task | ETA | alignment |
 |---|---|---|---|
-| **NEW 4.2.5** | **Escort binding** (§5) | 2–3 d | **CRITICAL** — 32.7% of trips |
-| **NEW 4.2.6** | **Elderly employment defect** (§6) | 1 d | **CRITICAL** — contaminates the above |
-| 4.2.4 | §8.5 calibration decision + calibrated base (#14) | 1–2 d + 2–3 d wall | **CORE** — G1 depends on it |
+| 4.2.5 | ✅ **DONE** — escort binding (§5, §9.46) | ✅ | was CRITICAL — 32.7% of trips |
+| 4.2.6 | ✅ **DONE** — age structure (§6, §9.47) | ✅ | was CRITICAL — contaminated the above |
+| **★ NEXT** | **The re-measure arm + evaluation** (§4 steps A–D) | 0.5 d attended + 31 h wall | **CRITICAL** — everything after it branches on its answer |
+| 4.2.4 | §8.5 calibration decision + calibrated base (#14) | 1–2 d + 2–3 d wall | **CORE** — G1 depends on it; only after the §4 evaluation |
 | 4.3 | Deliverable 0b: derive 15–25 of the 78 `assumed` fields from data already held | 2–3 d | **HIGH, and under-rated** — attacks §3's 58%-assumed problem directly |
 | #24 | Freight `truck` mode, own PR | 1–2 d | **HIGH** — measured, and improves every mode's congestion |
 | 5.4 | Scenario × day-type runs S0–S6 (prioritise S0/S1/S2 × WEEKDAY) | wall: weeks | **CORE** — this is the counterfactual |
@@ -310,6 +376,16 @@ at ~10×, reverted) · 2013 historical reconstruction (dropped; do not reopen).
 §8  WHAT IS DONE — do not redo any of it
 ═══════════════════════════════════════════════════════════════════════════════
 
+**THE DEMAND REPAIR IS MERGED (§9.46, §9.47, PR #43, 18 Aug).** B1/B2/plans
+and the 30 run-input sets are regenerated on it; `check_package.py` 1,460
+checks ALL PASSED; registry 309 fields, ledger 0 `--strict`. Weekday: 121,621
+of 177,370 escort tours bound (68.6%), every placed binding verified
+coincident with the escorted trip; population 612,687 with the census age
+structure (employment 65–74 at 15.3%, 85+ restored to 16,188 persons);
+week trip rate 3.382 vs HTS 3.473. ~20% of weekday persons carry an escort
+activity and are denied `ride` that day (declared, reversible). **Do not
+rebuild any of this — measure it (§4).**
+
 **#5 CLOSED (§9.43).** `RUN.controler.last_iteration` = **1000**, `measured`.
 Both arms `relaxed: true` at +0.22 / +0.17 pp. Declared uncertainty: ~2 pp of
 pre-cutoff search creep never measured (the 1500 arm was cancelled).
@@ -344,9 +420,11 @@ pairability — measured, not assumed: the household-sampled 25% arm pairs at
 §9  WHAT INVALIDATES YOUR WORK
 ═══════════════════════════════════════════════════════════════════════════════
 
-- **No multi-hour run without owner approval.** State cost, get a yes.
-- **The two pilot arms are baselines for the PRE-pairing model ONLY.** §9.44 and
-  §9.45 landed together so there is one comparability break, not two.
+- **No multi-hour run without owner approval.** State cost, get a yes. The §4
+  arm is already approved; that approval covers that one arm.
+- **The two pilot arms are baselines for the PRE-repair model ONLY.** §9.44,
+  §9.45 and §9.46/§9.47 landed as ONE comparability break — every run from
+  here is a new family, and `bind1000_25pct` is its first member.
 - **NEVER compare across sample fractions** (1% is a plumbing fraction), and
   `target_lga_pct`, never `all_residents_pct`.
 - **THE 67/143 SPLIT IS PRE-REGISTERED.** Never calibrate on, re-split or peek at
@@ -367,22 +445,24 @@ pairability — measured, not assumed: the household-sampled 25% arm pairs at
 
 | | |
 |---|---|
-| Branch | **start from `main`** — nothing in flight |
-| `main` | PR #40 (Tier 1 pairing + household sampling), PR #41 (board currency). CI green |
-| Toolchain | 3 pinned — JDK 25.0.4+7, pt2matsim 26.6, SUMO 1.27.1. **Unchanged** by the pairing |
-| Java | **8 sources** in `src/java/citysim/` |
-| Registry | **304 fields**; ledger **0** `--strict`; reach **74/74** |
-| Package | 391 files; `check_package.py` **1,456 checks ALL PASSED**, 2 standing warnings |
+| Branch | **start from `main`** — nothing in flight; the work branch for PR #43 is deleted |
+| `main` | PR #43 (escort binding + age structure) merged on top of #40/#41. CI green |
+| Toolchain | 3 pinned — JDK 25.0.4+7, pt2matsim 26.6, SUMO 1.27.1. **Unchanged** by the demand repair |
+| Java | **8 sources** in `src/java/citysim/` — the repair needed NO Java change |
+| Registry | **309 fields**; ledger **0** `--strict`; reach **74/74** |
+| Package | 391 files; `check_package.py` **1,460 checks ALL PASSED**, 2 standing warnings; demand is the §9.46/§9.47 family |
 | Machine | 63.5 GiB RAM, 24 cores; **memory is the binding constraint** (~24 GiB fixed + 0.09–0.3 MB/agent → a 100% run needs 80–160 GiB) |
 | Run cost | 33.3 s/iter at 10%, 90.2 s at 25% → a 1000-iteration arm is 11 h / 31 h |
-| Open issues | **5** — #9 #14 #24 #28 #31 |
+| Runs | **None in progress.** `results/_aborted_20260818/bind1000_25pct` is the STOPPED first attempt at the §4 arm (stopped for this handover, ~1 h in) — not a result, do not read it; relaunch fresh with the same tag |
+| Open issues | **5** — #9 #14 #24 #28 #31, each carrying an 18 Aug comment saying what the §4 arm must re-measure |
 | **Results** | **NONE. Nothing in this repository is an output of the model.** |
 
 ### Bootstrap reading, in this order
 
 ```
 cities/newcastle/docs/STATUS.md                               the board + numbered plan
-cities/newcastle/docs/DECISIONS.md  §9.44, §9.45              the pairing and the sampler
+cities/newcastle/docs/DECISIONS.md  §9.44–§9.47               the pairing, the sampler, the demand repair
+cities/newcastle/docs/design/age-structure.md                 the age-group evidence dossier
 cities/newcastle/docs/audit/CONVERGENCE_PILOT_EVALUATION.md   the pilot evidence
 .claude/CLAUDE.md                                             conventions + hard constraints
 ```
@@ -407,6 +487,11 @@ cities/newcastle/docs/audit/CONVERGENCE_PILOT_EVALUATION.md   the pilot evidence
   driver's realised time is *correct*. Looser rules are sensitivities; under
   `window_only` a paired passenger comes out **+493 to +725 s** wrong.
 • **NON-HOUSEHOLD LIFTS ARE NOT BUILT** — no target exists. Stated limitation.
+• **THE ESCORT BINDING RE-TARGETS, NEVER ADDS** (§9.46). Its scope
+  (`any_member_trip`) and min-gap are DECLARED AND SWEPT — change them through
+  the registry, never in code; the bound-length excess over the observed
+  7.84 km is REPORTED, not tuned. Escort days exclude `ride`
+  (`B.activity.escort_excludes_ride`) at the day-plan level, stated collateral.
 • **TAXI/RIDESHARE**: Uber goes with taxis; the split is inferred, declared and
   swept; validated as a **constraint, never a target**. Owner said NO to lodging
   data requests.
