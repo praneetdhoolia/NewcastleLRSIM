@@ -221,19 +221,109 @@ def relaxation(modes, innovation_off_at, tolerance_pp=None, settle_margin=None):
     return block
 
 
-def integrity(history):
-    """Whether departures = arrivals + stuck + unresolved, per mode."""
+def events_accounting(out_dir):
+    """Per-mode departures / arrivals / stuck, read from the final iteration's
+    own events stream rather than from telemetry's in-flight tracking (#54).
+
+    Each `stuckAndAbort` is attributed to the PERSON'S OPEN LEG - the leg whose
+    departure event is still unterminated when the abort arrives. Measured on
+    both physical-boarding probes, the mobsim's end-of-day abort and an
+    engine's afterMobsim abort can BOTH fire for the same passenger (ride: 3
+    stuck events against 2 unfinished legs on `allmodes_probe`, 12 against 7 on
+    `jointride_probe`, all at 30:00:00), so a second abort for a person with no
+    open leg is counted in `duplicate_aborts` instead of corrupting the
+    conservation identity - which is exactly how the telemetry-based
+    attribution false-negatived the gate on runs whose events balance.
+
+    Returns None when the events file is absent (e.g. a pruned run), in which
+    case the telemetry snapshot remains the only source and `integrity()` says
+    so. Streams the file; on a 25% arm this reads a few hundred MB of gzip and
+    takes minutes, which a once-per-run close-out can afford.
+    """
+    path = os.path.join(out_dir, 'output_events.xml.gz')
+    if not os.path.exists(path):
+        return None
+    import gzip
+    import xml.etree.ElementTree as ET
+
+    def bump(d, k):
+        d[k] = d.get(k, 0) + 1
+
+    dep, arr, stuck, dup, unresolved = {}, {}, {}, {}, {}
+    open_leg = {}  # person id -> mode of the leg currently in flight
+    try:
+        with gzip.open(path) as f:
+            stream = ET.iterparse(f, events=('start', 'end'))
+            _, root = next(stream)
+            for ev, el in stream:
+                if ev != 'end' or el.tag != 'event':
+                    continue
+                t = el.get('type')
+                if t == 'departure':
+                    open_leg[el.get('person')] = el.get('legMode')
+                    bump(dep, el.get('legMode'))
+                elif t == 'arrival':
+                    open_leg.pop(el.get('person'), None)
+                    bump(arr, el.get('legMode'))
+                elif t == 'stuckAndAbort':
+                    m = open_leg.pop(el.get('person'), None)
+                    if m is None:
+                        bump(dup, el.get('legMode') or 'unknown')
+                    else:
+                        bump(stuck, m)
+                root.clear()
+    except (OSError, ET.ParseError):
+        return None
+    for m in open_leg.values():
+        bump(unresolved, m)
+    return {'departures': dep, 'arrivals': arr, 'stuck': stuck,
+            'duplicate_aborts': dup, 'unresolved': unresolved}
+
+
+def integrity(history, events=None):
+    """Whether departures = arrivals + stuck + unresolved, per mode.
+
+    The counts come from the events stream when the final iteration's events
+    file is on disk (`events_accounting`), because telemetry's own stuck
+    attribution over-assigned end-of-day aborts and would have failed a run
+    whose events conserve exactly (#54). The telemetry snapshot is the
+    fallback for a run whose events file is gone, and where both instruments
+    exist any disagreement between them is reported, never hidden.
+    """
     block = {'iterations_recorded': len(history) or None,
+             'basis': None,
              'conservation_closes': None, 'conservation_detail': {},
              'telemetry_write_failures': None, 'stuck': {}, 'unresolved': {},
+             'duplicate_aborts': {}, 'telemetry_disagrees': {},
              'stuck_share_of_departures': None}
-    if not history:
+    last = history[-1] if history else {}
+    if events is not None:
+        block['basis'] = 'events'
+        dep = events['departures']
+        arr = events['arrivals']
+        stk = events['stuck']
+        unr = events['unresolved']
+        block['duplicate_aborts'] = dict(events['duplicate_aborts'])
+        # The instrument-vs-instrument check that found #54: the telemetry
+        # snapshot saw the same stream, so a differing count means one of the
+        # two attributions is wrong. Reported as a diagnostic, not gated - the
+        # events-based identity above is the gate.
+        for name, tele in (('departures', last.get('departures') or {}),
+                           ('arrivals', last.get('arrivals') or {}),
+                           ('stuck', last.get('stuck') or {})):
+            src = {'departures': dep, 'arrivals': arr, 'stuck': stk}[name]
+            for m in sorted(set(src) | set(k for k in tele if k != 'total')):
+                if tele and src.get(m, 0) != tele.get(m, 0):
+                    block['telemetry_disagrees'].setdefault(m, {})[name] = {
+                        'events': src.get(m, 0), 'telemetry': tele.get(m, 0)}
+    elif history:
+        block['basis'] = 'telemetry'
+        dep = last.get('departures') or {}
+        arr = last.get('arrivals') or {}
+        stk = last.get('stuck') or {}
+        unr = last.get('unresolved') or {}
+    else:
         return block
-    last = history[-1]
-    dep = last.get('departures') or {}
-    arr = last.get('arrivals') or {}
-    stk = last.get('stuck') or {}
-    unr = last.get('unresolved') or {}
     closes = True
     for m in sorted(k for k in dep if k != 'total'):
         d = dep.get(m, 0)
@@ -248,7 +338,7 @@ def integrity(history):
     block['stuck'] = {k: v for k, v in stk.items() if k != 'total'}
     block['unresolved'] = {k: v for k, v in unr.items() if k != 'total'}
     dtot = dep.get('total') or sum(v for k, v in dep.items() if k != 'total')
-    stot = stk.get('total') or sum(v for k, v in stk.items() if k != 'total')
+    stot = sum(v for k, v in stk.items() if k != 'total')
     if dtot:
         block['stuck_share_of_departures'] = round(100.0 * stot / dtot, 4)
     return block
@@ -281,7 +371,7 @@ def build(run_dir):
         except (TypeError, ValueError):
             innovation_off_at = None
 
-    integ = integrity(history)
+    integ = integrity(history, events_accounting(out_dir))
     integ['telemetry_write_failures'] = live.get('write_failures')
 
     last = history[-1] if history else {}
@@ -459,6 +549,17 @@ def markdown(doc):
     if integ.get('conservation_detail'):
         A('## Accounting — every departure has an end')
         A('')
+        if integ.get('basis') == 'events':
+            A('Counted from the final iteration\'s own events stream, with each '
+              'stuck event attributed to the person\'s open leg (#54). The '
+              'telemetry snapshot is a second instrument over the same stream; '
+              'where the two disagree it is reported below.')
+        else:
+            A('> ⚠️ Counted from the TELEMETRY snapshot — the events file is '
+              'not on disk. Telemetry\'s stuck attribution is known to '
+              'over-assign end-of-day aborts (#54), so a ❌ here may be the '
+              'instrument, not the run.')
+        A('')
         A('| mode | departures | arrivals | stuck | unresolved | closes |')
         A('|---|---:|---:|---:|---:|:--:|')
         for m in sorted(integ['conservation_detail']):
@@ -473,6 +574,23 @@ def markdown(doc):
             A('Stuck agents are **%.3f%%** of all departures. A stuck agent is one '
               'the mobsim gave up on; a rising count means the network is '
               'gridlocked or broken.' % share)
+            A('')
+        dup = integ.get('duplicate_aborts') or {}
+        if dup:
+            A('**Duplicate aborts** — a second stuck event for a person whose leg '
+              'was already terminated (the end-of-day netsim abort and an '
+              'engine\'s afterMobsim abort both firing, #54). Counted, excluded '
+              'from the identity above: %s.'
+              % ', '.join('%s %d' % (m, dup[m]) for m in sorted(dup)))
+            A('')
+        dis = integ.get('telemetry_disagrees') or {}
+        if dis:
+            A('⚠️ **Telemetry disagrees with the events stream** on: %s. The '
+              'events-based counts above are the gate; the disagreement is the '
+              'instrument defect #54 tracks.'
+              % '; '.join('%s (%s)' % (m, ', '.join(
+                  '%s %d vs %d' % (f, dis[m][f]['events'], dis[m][f]['telemetry'])
+                  for f in sorted(dis[m]))) for m in sorted(dis)))
             A('')
 
     peak = doc['activity'].get('en_route_vehicle_type_peak') or {}
