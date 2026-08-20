@@ -28,18 +28,18 @@ python src/registry/check_hardcoding.py --strict   # must exit 0
 
 **⚠ OWNER DIRECTIVES, standing:**
 
-1. **NO MULTI-HOUR RUNS WITHOUT EXPLICIT APPROVAL — none is standing.** The
+2. **NO MULTI-HOUR RUNS WITHOUT EXPLICIT APPROVAL — none is standing.** The
    §9.48 approval was spent; the §9.50 base-arm launch was consumed and the
    owner then STOPPED that run. State the cost, get a yes, every time.
-2. **DO ONE THING RIGHT rather than bloating the repo.**
-3. **The four §9.51 directives** (physical ride — enacted §9.53/§9.55;
+3. **DO ONE THING RIGHT rather than bloating the repo.**
+4. **The four §9.51 directives** (physical ride — enacted §9.53/§9.55;
    9+ modes distinct — motorbike enacted §9.52, pt-split/taxi open on #49;
    the sub-1 km walk deficit — decomposed, mechanism open on #30;
    demographic fidelity — inventoried, open on #50).
 
 **The stack landed on `main` via PR #56** (the six stacked PRs #46–#55 had
 been merged into their base branches, so #56 carried the union to `main`).
-Start from `main`; delete the merged work branches. **No run is in
+Start from `main`; the merged work branches are deleted. **No run is in
 progress.**
 
 ---
@@ -112,7 +112,7 @@ displaced ~10 pp settles is the first converged run's headline.
    `params/C5_calibration.json` via `calibrate.py --constrained-base` + the
    §9.50 report (closing #14, #9), and the #48/#31 realised-boarding
    numbers at convergence.
-4. Then by the recorded order: #30's generation mechanism, #49's remaining
+5. Then by the recorded order: #30's generation mechanism, #49's remaining
    tiers (pt reporting split is cheap and break-free), #50's modelled
    table + the mode × age acquisition.
 
@@ -224,6 +224,12 @@ displaced ~10 pp settles is the first converged run's headline.
 ═══════════════════════════════════════════════════════════════════════════════
 §8  TRAPS — new ones first, each paid for today
 ═══════════════════════════════════════════════════════════════════════════════
+1. **PRs target `main` only — never stack a PR on an unmerged work
+   branch.** Merging a stacked PR lands it on its BASE BRANCH: five of
+   six stacked PRs never reached `main` on 20 Aug until a landing PR
+   (#56) carried the union across. Sequentially dependent work stays as
+   commits on one branch until the prior PR merges. (Now a convention in
+   `.claude/CLAUDE.md`.)
 1. **qsim component bindings COLLECT, they do not override** — binding a
    second agent source under the stock name ran BOTH (vehicles parked
    twice). Remove the named component and add yours under a new name.
@@ -238,22 +244,22 @@ displaced ~10 pp settles is the first converged run's headline.
    casts every main-mode leg's route to NetworkRoute — walk-as-main-mode
    dies at agent insertion without `TolerantAgentSource` +
    `GenericRouteTeleporter`.
-5. **MATSim's BUILT-IN teleported defaults conflict with network walk/bike**
+6. **MATSim's BUILT-IN teleported defaults conflict with network walk/bike**
    (`clearDefaultTeleportedModeParams`), and clearing them also clears
    `non_network_walk` — declare the helper explicitly or PT breaks.
-6. **A mode subnetwork with unreachable links is REFUSED** — road-rule
+7. **A mode subnetwork with unreachable links is REFUSED** — road-rule
    exclusions sever pockets; strip the mode outside its largest SCC at build
    (done in `build_matsim_run_inputs.py`), report the counts.
-7. **`PersonPrepareForSim` refuses a route inconsistent with link modes** —
+8. **`PersonPrepareForSim` refuses a route inconsistent with link modes** —
    when re-moding a leg, CLEAR its route so it re-routes on the new mode's
    network.
-8. HEREDOCS mangle (Write the file, run it). `compileall` catches neither a
+9. HEREDOCS mangle (Write the file, run it). `compileall` catches neither a
    NameError nor a schema TypeError — import and CALL. After registry edits:
    `render_docs` + `render_schema`; after data changes: `normalise_eol` →
    `build_manifest` → `normalise_eol`. `check_package` asserts every
    `decisions_ref` section EXISTS — write the DECISIONS entry before citing
    it.
-9. `pkill` fails; PowerShell `Stop-Process` then VERIFY. The live log is
+10. `pkill` fails; PowerShell `Stop-Process` then VERIFY. The live log is
    `<run>/matsim.log`. `Unsupported class file major version 69` is benign.
    Branch `<git-handle>/<kebab>`, no attribution, STATUS in the same commit.
 

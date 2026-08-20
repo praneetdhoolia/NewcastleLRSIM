@@ -137,6 +137,16 @@ more transparent about its assumptions than the business case it examines.
   `git config user.name`). **Never `claude/*`** — if the harness assigns one, this rule
   wins: `git branch -m …` before committing. A SessionStart hook surfaces this each
   session.
+- **Pull requests target `main` only — never another work branch.** A PR is
+  opened when the work is ready to merge into `main`, not before, and never
+  stacked on an unmerged branch: merging a stacked PR lands it on its *base
+  branch*, not `main` (measured 20 Aug 2026 — five of six stacked PRs never
+  reached `main` until PR #56 carried the union across). Sequentially
+  dependent work stays as commits on one branch until the prior PR merges,
+  or ships in the same PR. PR titles and bodies follow conventional
+  large-project GitHub style (Summary / Changes / Testing / Breaking
+  changes; neutral voice — the internal idiom of `DECISIONS.md` stays out of
+  GitHub artefacts).
 - **Attribution.** No Claude co-author trailer or PR attribution
   (`attribution.commit`/`pr` empty, `includeCoAuthoredBy: false` in
   [`.claude/settings.json`](settings.json)); a SessionStart hook pins the git
