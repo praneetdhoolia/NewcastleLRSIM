@@ -106,7 +106,32 @@ story lives in DECISIONS.md.
 ## Phase 5 — NEXT_AGENT_BRIEF.md
 
 Rewrite in place, keeping its shape (goal → do-this-first → state → next
-lane → done-do-not-redo → traps):
+lane → done-do-not-redo → traps).
+
+**The brief must exhaustively answer the six state-of-the-project questions**
+— research each against the repo and GitHub, never from memory of the
+session alone, and every number must be traceable to a document, artefact or
+run record:
+
+1. **Goals & achievement** — the research goal (proposal §1/§3 hypotheses)
+   and the operational goal (brief §1), against what is actually built and
+   measured; the six project deliverables (proposal §8) each with a state.
+2. **Phases** — P0–P7, each ✅/🟡/⬜ with the evidence for the state
+   (`STATUS.md` phase table is the home; the brief points at it).
+3. **Tasks per phase** — the numbered plan, counts of done / evaluated /
+   open per batch, and which open task is the active lane.
+4. **Simulator vs real life** — the latest run's fit table against the
+   calibration targets (modelled / observed / error per mode, occupancy,
+   geometry ratios, counts), labelled for what it is (pre- or
+   post-calibration; diagnostics or results).
+5. **Issue ledger** — every open issue with its last-evidence date and
+   whether it needs evaluation, updating, or is the next lane; totals
+   filed/closed/open.
+6. **PR history and the next PR** — one line per merged PR (what it changed
+   in the model/data/record), and what the next PR should achieve, ranked by
+   the recorded value order.
+
+Then the standing requirements:
 - Completed sections flip from **instructions to record**: what ran, what it
   measured, where it is recorded — so the next agent cannot redo it.
 - The next lane is stated with its **verdict and cost**, ranked by value
@@ -148,3 +173,6 @@ closed/updated/opened, and what the next agent should do first.
 - [ ] Is every issue action (close/update/open) backed by evidence in the
       repo?
 - [ ] Do STATUS, DECISIONS and the brief agree with each other?
+- [ ] Does the brief answer all six state-of-the-project questions
+      (Phase 5), so that `/onboard` can reconstruct the whole picture from
+      `main` alone?
