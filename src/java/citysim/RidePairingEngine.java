@@ -153,6 +153,66 @@ public final class RidePairingEngine implements BeforeMobsimListener,
     private List<Person> ordered = null;
 
     /** Realised car-leg durations from the mobsim that is running now. */
+    /**
+     * This iteration's physical-boarding bookings (DECISIONS.md 9.53): for a
+     * paired ride, which driver's vehicle the passenger should be aboard.
+     * Written here at BeforeMobsim, consumed by {@link JointRideEngine} on the
+     * qsim thread after this listener has finished — never concurrently.
+     */
+    private final Map<Id<Person>, List<Booking>> bookings = new HashMap<>();
+
+    /** One paired ride leg's claim on a driver's vehicle. */
+    public static final class Booking {
+        final Id<Link> from;
+        final Id<Link> to;
+        final double plannedDeparture;
+        final Id<Person> driver;
+
+        Booking(final Id<Link> from, final Id<Link> to,
+                final double plannedDeparture, final Id<Person> driver) {
+            this.from = from;
+            this.to = to;
+            this.plannedDeparture = plannedDeparture;
+            this.driver = driver;
+        }
+
+        public Id<Link> destination() {
+            return this.to;
+        }
+
+        public Id<Person> driver() {
+            return this.driver;
+        }
+    }
+
+    /**
+     * The booking for this passenger departing this link now, or null. The
+     * booking is CONSUMED: a person with two paired ride legs from the same
+     * link holds two bookings, each redeemable once, nearest planned
+     * departure first.
+     */
+    public Booking claimBooking(final Id<Person> person, final Id<Link> link,
+                                final double now) {
+        final List<Booking> list = this.bookings.get(person);
+        if (list == null) {
+            return null;
+        }
+        Booking best = null;
+        for (final Booking b : list) {
+            if (!b.from.equals(link)) {
+                continue;
+            }
+            if (best == null || Math.abs(b.plannedDeparture - now)
+                    < Math.abs(best.plannedDeparture - now)) {
+                best = b;
+            }
+        }
+        if (best != null) {
+            list.remove(best);
+        }
+        return best;
+    }
+
     private Map<Id<Person>, List<Realised>> current = new HashMap<>();
     /** ... and from the one that has finished, which is what pairing reads. */
     private Map<Id<Person>, List<Realised>> previous = new HashMap<>();
@@ -274,6 +334,7 @@ public final class RidePairingEngine implements BeforeMobsimListener,
         previous = current;
         current = new HashMap<>();
         inFlight.clear();
+        bookings.clear();
 
         index();
 
@@ -428,6 +489,16 @@ public final class RidePairingEngine implements BeforeMobsimListener,
             // router's own estimate, which is what makes an unpaired leg
             // restorable to exactly today's behaviour.
             ride.route.setTravelTime(driverTime + dwell);
+            if (cfg.isPhysicalBoarding()) {
+                // The booking JointRideEngine redeems at the qsim's own
+                // departure (DECISIONS.md 9.53). The route time written above
+                // stays: it is exactly what a MISSED boarding falls back to,
+                // so the fallback is Tier 1 verbatim rather than a third
+                // behaviour.
+                bookings.computeIfAbsent(ride.person, k -> new ArrayList<>(2))
+                        .add(new Booking(ride.from, ride.to, ride.departure,
+                                         best.person));
+            }
         }
 
         write(event.getIteration(), rides.size(), nPaired, paired, unpaired,

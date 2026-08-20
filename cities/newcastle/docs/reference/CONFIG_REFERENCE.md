@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 319 fields are made of
+## What the 320 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 27 | follows from another registry field by identity |
 | `literature` | 39 | a published value, not specific to this city |
 | `assumed` | 136 | chosen without direct empirical support |
-| `definition` | 90 | fixed by the formulation, not an empirical quantity |
+| `definition` | 91 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 299 | usable point value |
+| `active` | 300 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -801,7 +801,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 62 fields*
+*`cities/newcastle/registry/B_demand.json` - 63 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -867,6 +867,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.ride.pairing_enabled` | `true` | boolean | `definition` | - |
 | `B.ride.pairing_rule` | `both_links` | enum | `assumed` | `both_links`, `origin_link`, `dest_link`, `window_only` |
 | `B.ride.pairing_window_min` | `15.0` | minutes | `assumed` | 5 - 60 |
+| `B.ride.physical_boarding` | `true` | boolean | `definition` | - |
 | `B.ride.pickup_dwell_s` | `0.0` | seconds | `assumed` | 0 - 120 |
 | `B.seed.master` | `20260810` | integer_seed | `definition` | - |
 
@@ -1297,6 +1298,12 @@ How far apart a passenger's and a driver's PLANNED departures may be and still b
 ***assumed** · status **active** · DECISIONS.md §9.44 · MATSim `ridePairing.windowMinutes`*
 
 > **Sweep basis.** No local observation of how far apart a household lift's two departures may be exists, and HTS carries no household-linked trip records at all, so the tolerance is assumed and swept rather than fitted. The lower bound is a tight coincidence; the upper is an hour, beyond which calling two departures one trip stops being credible. MEASURED SENSITIVITY on the relaxed 25% pilot arm (9.44): the share of ride legs with ANY household car leg in the window runs 1.1% at +-5 min, 3.1% at +-15, 5.6% at +-30 and 15.1% at +-120, so this field moves the pairing rate by an order of magnitude and may not be pinned.
+
+#### `B.ride.physical_boarding`
+
+Whether a PAIRED ride passenger physically BOARDS the driver's vehicle in the mobsim (a real PersonEntersVehicleEvent, every link ridden, alighting at the shared destination link) instead of inheriting the driver's clock by teleport. Selects a mechanism under the 9.51 owner directive (every ride physically in a car); false restores the 9.44 Tier-1 behaviour exactly, so the two are comparable within one build. A booked passenger whose car has already left falls back to Tier 1 and is counted - a miss is the measured window layer of the realisation gap wearing its physical face, reported never hidden. Consumed by citysim.JointRideEngine via citysim.RidePairingEngine's bookings.
+
+***definition** · status **active** · DECISIONS.md §9.53 · MATSim `ridePairing.physicalBoarding`*
 
 #### `B.ride.pickup_dwell_s`
 

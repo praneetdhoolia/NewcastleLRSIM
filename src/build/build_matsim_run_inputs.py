@@ -343,6 +343,14 @@ def write_mode_vehicles(dst_path, cfg):
     seat count here would be a literal doing nothing.
     """
     car = cfg.get('RUN.qsim.car_vehicle')
+    # A car's PASSENGER capacity is the declared ride cap (DECISIONS.md 9.53):
+    # the qsim's boarding refusal and the pairing's own capacity rule must be
+    # the same number or one of them is decoration. MATSim counts capacity as
+    # seats + standing EXCLUDING the driver (verified against the jar:
+    # QVehicleImpl's constructor), so seats = the cap itself. Left implicit,
+    # the qsim would default to 4 - equal to the declared value today, which
+    # is this repository's named right-by-accident defect.
+    car_seats = int(cfg.get('B.ride.max_passengers_per_vehicle'))
 
     def car_bodied(mode):
         # `ride` needs a type because PrepareForSim demands one for every
@@ -351,6 +359,8 @@ def write_mode_vehicles(dst_path, cfg):
         # rather than declaring a second value. It never enters the mobsim:
         # ride is not a main mode, so the type is inert beyond loading.
         return ['\t<vehicleType id="%s">' % mode,
+                '\t\t<capacity seats="%d" standingRoomInPersons="0">' % car_seats,
+                '\t\t</capacity>',
                 '\t\t<length meter="%s" />' % car['length_m'],
                 '\t\t<width meter="%s" />' % car['width_m'],
                 '\t\t<passengerCarEquivalents pce="%s" />' % car['pce'],

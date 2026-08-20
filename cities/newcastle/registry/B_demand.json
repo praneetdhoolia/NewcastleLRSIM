@@ -1092,6 +1092,16 @@
       "description": "How many passengers one driver's leg may carry. Without a cap a single driver would serve every passenger their household offered - the same unbounded-supply defect that rideAvail removed on the availability side, where an unconstrained model put 5.9 people in every car (9.10). Consumed by src/java/citysim/RidePairingEngine.",
       "matsim_param": "ridePairing.maxPassengersPerVehicle"
     },
+    "B.ride.physical_boarding": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.53",
+      "description": "Whether a PAIRED ride passenger physically BOARDS the driver's vehicle in the mobsim (a real PersonEntersVehicleEvent, every link ridden, alighting at the shared destination link) instead of inheriting the driver's clock by teleport. Selects a mechanism under the 9.51 owner directive (every ride physically in a car); false restores the 9.44 Tier-1 behaviour exactly, so the two are comparable within one build. A booked passenger whose car has already left falls back to Tier 1 and is counted - a miss is the measured window layer of the realisation gap wearing its physical face, reported never hidden. Consumed by citysim.JointRideEngine via citysim.RidePairingEngine's bookings.",
+      "matsim_param": "ridePairing.physicalBoarding"
+    },
     "B.motorbike.trip_share": {
       "value": 0.0036,
       "units": "share_of_trips",

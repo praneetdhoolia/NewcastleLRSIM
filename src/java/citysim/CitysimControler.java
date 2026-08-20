@@ -7,6 +7,8 @@ import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
+import org.matsim.core.mobsim.qsim.AbstractQSimModule;
+import org.matsim.core.mobsim.qsim.TeleportationModule;
 import org.matsim.core.population.algorithms.PermissibleModesCalculator;
 import org.matsim.core.scenario.ScenarioUtils;
 
@@ -133,6 +135,30 @@ public final class CitysimControler {
                     addEventHandlerBinding().to(RidePairingEngine.class);
                     addControllerListenerBinding().to(RidePairingEngine.class);
                 }
+            });
+        }
+        if (ridePairing.isEnabled() && ridePairing.isPhysicalBoarding()) {
+            // Physical boarding (DECISIONS.md 9.53, issue #48). The engine is
+            // a qsim component, so it lives in the qsim's own injector and is
+            // re-created per iteration; the bookings it redeems live in the
+            // parent-scoped RidePairingEngine singleton bound above.
+            controler.addOverridingQSimModule(new AbstractQSimModule() {
+                @Override
+                protected void configureQSim() {
+                    bind(JointRideEngine.class).asEagerSingleton();
+                    addQSimComponentBinding(JointRideEngine.COMPONENT)
+                            .to(JointRideEngine.class);
+                }
+            });
+            // The teleportation engine claims EVERY departure that reaches it,
+            // so this engine must be consulted first: remove and re-append
+            // teleportation so the consultation order is
+            // [... network, jointRide, teleportation]. A missed boarding then
+            // still falls through to the teleported Tier 1 behaviour.
+            controler.configureQSimComponents(components -> {
+                components.removeNamedComponent(TeleportationModule.COMPONENT_NAME);
+                components.addNamedComponent(JointRideEngine.COMPONENT);
+                components.addNamedComponent(TeleportationModule.COMPONENT_NAME);
             });
         }
         if (config.getModules().containsKey(TelemetryConfigGroup.NAME)) {
