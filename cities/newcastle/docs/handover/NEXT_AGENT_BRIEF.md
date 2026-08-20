@@ -9,7 +9,9 @@ so per §4D the ride lane RESTS. The defect changed sign (occupancy 0.4855 vs
 observed 0.3503, outside the range in the flattering direction); that is
 4.2.4's problem to confront openly. **Next in value order, pending the
 owner's confirmation: #24 freight, then 4.2.4/#14 (the §8.5 calibration
-decision).** This is a HANDOVER, not a source of truth: where it disagrees
+decision).** Session boundaries are now procedure: start with `/onboard`,
+close with `/handoff`; §13 answers the six state-of-the-project questions.
+This is a HANDOVER, not a source of truth: where it disagrees
 with [`STATUS.md`](../STATUS.md), [`DECISIONS.md`](../DECISIONS.md) or
 [`.claude/CLAUDE.md`](../../../../.claude/CLAUDE.md), those win.*
 
@@ -18,6 +20,11 @@ with [`STATUS.md`](../STATUS.md), [`DECISIONS.md`](../DECISIONS.md) or
 ═══════════════════════════════════════════════════════════════════════════════
 §0  DO THIS FIRST
 ═══════════════════════════════════════════════════════════════════════════════
+
+**Run `/onboard`** — it executes this section as a skill: the checks below,
+the reading in precedence order, a cross-check against live GitHub state, and
+the six state-of-the-project answers (§13). At session end, run `/handoff`.
+The checks, for a session without the skills:
 
 ```bash
 python src/setup/bootstrap_toolchain.py --verify   # ~1 min, COMPILES THE JAVA (8 sources)
@@ -509,3 +516,84 @@ cities/newcastle/docs/audit/CONVERGENCE_PILOT_EVALUATION.md   the pilot evidence
     document is already local at `data/raw/hts/hts_data_document_2020_2024.pdf`.
 11. **A DOCTYPE in a MATSim input sends the parser to the network** for a DTD;
     an HTML error page came back and the parse died. Omit it.
+12. **A run's live log is `<run_dir>/matsim.log`, NOT `output/logfile.log`**
+    (a 0-byte stub). A watcher tailing the stub raised a false one-hour stall
+    alarm against a healthy run. Watch `matsim.log` mtime and its
+    `ITERATION n BEGINS` lines.
+
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+§13  STATE OF THE PROJECT — THE SIX QUESTIONS (20 August 2026)
+═══════════════════════════════════════════════════════════════════════════════
+
+Every number here traces to a document, artefact or run record; where a home
+document exists this section points rather than copies.
+
+### 1. Goals, and what is achieved
+
+**Research goal** ([proposal](../design/newcastle-lr-proposal.md) §1, §3):
+test the two untested claims about the Newcastle Light Rail against a
+constructed counterfactual — hypotheses A1–A6 (integration), B1–B4 (business
+access; B3 decisive), secondary S-a–S-d. **Operational goal** (§1 above): a
+per-mode-checked traffic digital twin. **Achieved**: the 391-file provenance
+package; networks (175,560 links, 15 mapped feeds, 4 SUMO nets); the
+612,687-person demand with census age structure and bound escorts; the
+309-field registry at ledger 0; the run harness with live telemetry; the
+ride-pairing mechanism **measured to work** (§9.48); one valid run.
+**No hypothesis is tested yet.** Proposal §8 deliverables: model 🟡 (not
+containerised), data package 🟡, calibration report 🟡 (no calibrated base),
+paper ⬜, explorer 🟡 (replay + live view only), method note 🟡.
+
+### 2. Phases — 4 of 8 complete
+
+P0 ✅ · P1 ✅ (for P4's needs) · P2 ✅ (rebuilt 16 Aug) · P3 ✅ (regenerated
+18 Aug) · **P4 🟡 (7 of 9 deliverables; 0 and 5 open)** · P5 ⬜ · P6 ⬜ ·
+P7 ⬜. Home: [`STATUS.md`](../STATUS.md) phase table.
+
+### 3. Tasks — done and evaluated, per batch
+
+- **Batch 4.1 (rebuild): 9/9 done**, each gate measured (16 Aug).
+- **Batch 4.2: 5 of 8 done AND evaluated** — 4.2.1 (iterations=1000,
+  §9.43), 4.2.2 (pilot evaluation), 4.2.3 (pairing built §9.44 + re-measured
+  §9.48), 4.2.5 (escort binding §9.46), 4.2.6 (age structure §9.47).
+  **Open: 4.2.4/#14 (calibration decision — P4's exit gate), 4.3
+  (deliverable 0b), 4.4 (p2p mode, deferred).**
+- **P5 0/5, P6 0/5, P7 0/4** — with 5.2 proposed DELETE and 5.3/6.1/6.2
+  proposed REWORK (§7), awaiting the owner.
+
+### 4. Simulator vs real life (§9.48 — pre-calibration diagnostics, NOT results)
+
+From `bind1000_25pct` (the only valid run): car 63.95 vs 59.0 observed;
+ride 31.05 vs 20.6; walk-only 0.71 vs 13.4; pt 0.36 vs 3.8 (LR boardings 40
+in-sample); occupancy 0.4855 vs 0.3503 (OUTSIDE range, flattering
+direction); car length 10.40 vs 10.20 km (in range), ride:car ratio 0.862
+vs 0.961; bike/pt/walk lengths out of range (1.74× / 0.50× / 3.47×); counts
+mean −91% (the #20 leg→vehicle conversion is unwired — not a finding);
+pairability 0.0130 declared-regime vs no direct target. Full table: §4
+above and `results/bind1000_25pct/_fit.json`.
+
+### 5. Issue ledger — 32 filed, 27 closed, 5 open
+
+| # | tracks | last evidence | state |
+|---|---|---|---|
+| #31 | ride constraint family | 20 Aug (§9.48) | supply half measured to work; open for the constraint half (`C.constraint.passenger_per_driver` unwired) and the realisation gap |
+| #28 | ride residual | 20 Aug (§9.48: ~11.6 s) | open while ride stays teleported |
+| #9 | asc_car_passenger re-solve | 20 Aug (§9.48 shares) | queued — belongs to 4.2.4 |
+| #24 | freight absent | 15 Aug (body current) | **THE NEXT LANE**, pending owner confirmation |
+| #14 | calibrated base | 20 Aug (§9.48 occupancy hand-off) | queued — after #24 |
+
+Every closed issue carries its REOPEN IF condition.
+
+### 6. PR history, and the next PR
+
+#1 P1 data package · #2 P2 networks · #3 P3 demand · #4 P4 stage 0 (run
+inputs loadable, run cost measured) · #38 spec-audit verdicts + issue-32
+rebuild · #40 ride-pairing engine + the starvation measurement · #41 board ·
+#42 handover + four deletion proposals · #43 escort binding + age structure ·
+#44 §9.48 evaluation of the first post-repair run · #45 (open) /handoff +
+/onboard tooling · #39 closed unmerged (superseded handover). **The next
+substantive PR**: `P4 (0d(3)/#24): freight` — a `truck` mode from the
+measured 6.52% heavy share, PCE from literature, swept never pinned —
+**pending owner confirmation**, then `P4 (4.2.4/#14)`: the calibration
+decision and calibrated base.
