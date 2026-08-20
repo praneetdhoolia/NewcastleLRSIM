@@ -4,7 +4,7 @@ Single source of truth for **where the build is, what's next, and how to resume*
 this at session start. **Keep it current in the same commit/PR as the work it describes**
 — if a change makes a line here wrong, fix the line in that change, not later.
 
-**Last updated:** 20 August 2026 (**the re-measure arm RAN and is EVALUATED, §9.48**: `bind1000_25pct` — 25% × 1000 WEEKDAY on the repaired demand — completed rc=0, `relaxed: true`, accounting closed. **The escort binding moved realised pairability two orders of magnitude**: OD-coincidence 0.104% → 15.31%, declared-regime pairing 0.00004 → 0.0130. The defect changed sign — occupancy 0.4855 passengers/driver vs observed 0.3503, outside the range in the flattering direction, handed to 4.2.4. Per the brief's §4D branch **the ride lane rests**; next, pending owner confirmation: **#24 freight, then 4.2.4/#14**) · branch `main`
+**Last updated:** 20 August 2026 (**the re-measure arm RAN and is EVALUATED, §9.48**: `bind1000_25pct` — 25% × 1000 WEEKDAY on the repaired demand — completed rc=0, `relaxed: true`, accounting closed. **The escort binding moved realised pairability two orders of magnitude**: OD-coincidence 0.104% → 15.31%, declared-regime pairing 0.00004 → 0.0130. The defect changed sign — occupancy 0.4855 passengers/driver vs observed 0.3503, outside the range in the flattering direction, handed to 4.2.4. Per the brief's §4D branch **the ride lane rests**; next, pending owner confirmation: **#24 freight, then 4.2.4/#14**. Session close-out and onboarding are now skills — `/handoff` and `/onboard`, PR #45) · branch `main`
 
 > **This file is a board, not a diary.** The dated build narrative that used to live
 > here (944 lines) is archived in
@@ -552,6 +552,12 @@ reopen without the user).
 ---
 
 ## How to resume
+
+**Run `/onboard`** — it executes the sequence below as a skill: the reading in
+precedence order, the §0 environment checks, a cross-check of these documents
+against live GitHub state, and the six state-of-the-project answers. At
+session end, **run `/handoff`** to close out. The manual sequence, for a
+session without the skills:
 
 **For P4 specifically, read [`docs/handover/P4_CHECKPOINT.md`](handover/P4_CHECKPOINT.md)** —
 the long-form handoff: what has been measured and is true, the traps, the errors
