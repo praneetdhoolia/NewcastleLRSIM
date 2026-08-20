@@ -289,32 +289,96 @@ def set_link_attribute(tail, name, value):
 
 MODES_ATTR_RE = re.compile(r'modes="([^"]*)"')
 
+# The modes a car link also carries, and why each is there. `ride` is ROUTED
+# on the road network but not simulated (a passenger is not a second vehicle);
+# `truck` is ROUTED AND SIMULATED (DECISIONS.md 9.49) - a heavy vehicle at
+# B.freight.pce car-equivalents genuinely occupies the link. Both ride on the
+# car network because no truck-route or passenger-route layer exists to say
+# otherwise; unconstrained truck routing is a stated limitation of the
+# background load.
+CAR_COMPANION_MODES = ('ride', 'truck')
 
-def allow_ride(xml):
-    """Let `ride` use the roads `car` uses.
 
-    The mapped network permits `car`, never `ride`, so a config that declared
-    `ride` a network mode produced `checking 0 nodes and 0 links for dead-ends`
-    and then threw during `PrepareForSim` - the run inputs could not be used
-    even once the schedules were fixed (DECISIONS.md 9.4, defect 4).
+def allow_car_companions(xml):
+    """Let `ride` and `truck` use the roads `car` uses.
 
-    A car passenger is not a second vehicle, so `ride` is *routed* on the road
-    network - which is what gives it a congested travel time rather than a
-    beeline guess - but is not simulated in the mobsim, so it occupies no
-    capacity. `travelTimeCalculator.separateModes=false` makes it read the car
-    travel times, since no ride vehicle is ever observed to generate its own.
+    The mapped network permits `car` alone, so a config that declared `ride` a
+    network mode produced `checking 0 nodes and 0 links for dead-ends` and
+    then threw during `PrepareForSim` - the run inputs could not be used even
+    once the schedules were fixed (DECISIONS.md 9.4, defect 4). `truck` needs
+    the same permission and, unlike ride, is a qsim main mode: a link that did
+    not carry it would refuse the vehicle outright.
+
+    `travelTimeCalculator.separateModes=false` makes both read the car travel
+    times for routing.
     """
     n = 0
 
-    def add_ride(m):
+    def add_modes(m):
         nonlocal n
         modes = [x for x in m.group(1).split(',') if x]
-        if 'car' not in modes or 'ride' in modes:
+        if 'car' not in modes:
+            return m.group(0)
+        add = [x for x in CAR_COMPANION_MODES if x not in modes]
+        if not add:
             return m.group(0)
         n += 1
-        return 'modes="%s"' % ','.join(sorted(modes + ['ride']))
+        return 'modes="%s"' % ','.join(sorted(modes + add))
 
-    return MODES_ATTR_RE.sub(add_ride, xml), n
+    return MODES_ATTR_RE.sub(add_modes, xml), n
+
+
+def write_mode_vehicles(dst_path, cfg):
+    """The vehicles file `qsim.vehiclesSource=modeVehicleTypesFromVehiclesData` reads.
+
+    One vehicle type per qsim main mode, keyed by the mode's own name - that is
+    the contract of the vehicles source. `car` restates MATSim's default
+    vehicle EXACTLY (RUN.qsim.car_vehicle - equality is what keeps the car
+    fleet's physics unchanged by the freight change); `truck` carries the
+    declared PCE and the regulated speed cap (DECISIONS.md 9.49). Written by
+    the assembly AND re-written per run by run_matsim.build_config against
+    that run's own resolution, so a swept B.freight.pce reaches the mobsim.
+
+    Capacity is omitted: a private vehicle boards nobody in the qsim, and a
+    seat count here would be a literal doing nothing.
+    """
+    car = cfg.get('RUN.qsim.car_vehicle')
+
+    def car_bodied(mode):
+        # `ride` needs a type because PrepareForSim demands one for every
+        # NETWORK mode, not only the main modes - and a ride vehicle IS a car
+        # by identity (a passenger rides in one), so it restates the car type
+        # rather than declaring a second value. It never enters the mobsim:
+        # ride is not a main mode, so the type is inert beyond loading.
+        return ['\t<vehicleType id="%s">' % mode,
+                '\t\t<length meter="%s" />' % car['length_m'],
+                '\t\t<width meter="%s" />' % car['width_m'],
+                '\t\t<passengerCarEquivalents pce="%s" />' % car['pce'],
+                '\t\t<networkMode networkMode="%s" />' % mode,
+                '\t</vehicleType>']
+
+    lines = [
+        "<?xml version='1.0' encoding='utf-8'?>",
+        '<vehicleDefinitions xmlns="http://www.matsim.org/files/dtd" '
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'xsi:schemaLocation="http://www.matsim.org/files/dtd '
+        'http://www.matsim.org/files/dtd/vehicleDefinitions_v2.0.xsd">',
+    ] + car_bodied('car') + car_bodied('ride') + [
+        '\t<vehicleType id="truck">',
+        '\t\t<length meter="%s" />' % cfg.get('B.freight.length_m'),
+        '\t\t<width meter="%s" />' % car['width_m'],
+        # declared in km/h because that is what the regulation states;
+        # MATSim reads metres per second
+        '\t\t<maximumVelocity meterPerSecond="%.4f" />'
+        % (float(cfg.get('B.freight.max_speed_kmh')) / 3.6),
+        '\t\t<passengerCarEquivalents pce="%s" />' % cfg.get('B.freight.pce'),
+        '\t\t<networkMode networkMode="truck" />',
+        '\t</vehicleType>',
+        '</vehicleDefinitions>',
+        '']
+    with open(dst_path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('\n'.join(lines))
+    return dst_path
 
 
 def patch_network(src_net, dst_net, patches, drop_turns):
@@ -364,8 +428,8 @@ def patch_network(src_net, dst_net, patches, drop_turns):
         return head + tail
 
     body = LINK_BLOCK_RE.sub(patch_link, xml)
-    body, ride_links = allow_ride(body)
-    applied['ride_links'] = ride_links
+    body, companion_links = allow_car_companions(body)
+    applied['ride_truck_links'] = companion_links
     os.makedirs(os.path.dirname(dst_net), exist_ok=True)
     with gzip_writer(dst_net) as f:
         f.write(body)
@@ -509,6 +573,12 @@ def scoring_from_c1(cfg, c1, purpose_share):
                      marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_walk_mode'))),
         'bike': dict(constant=asc['asc_cycle'][0],
                      marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_bike_mode'))),
+        # truck (DECISIONS.md 9.49): scoring params must exist for any leg mode
+        # MATSim scores, but a freight agent's mode is LOCKED - the choice this
+        # block prices never happens for it. The car time rate is carried so
+        # the values are unremarkable, and the constant is zero because there
+        # is no alternative for it to be relative to.
+        'truck': dict(constant=0.0, marginalUtilityOfTraveling=traveling(1.0)),
     }
     tp = c1['transfer_penalty']['base']
     return dict(
@@ -593,6 +663,9 @@ def config_runtime(cfg, scoring, day, paths):
         'plans.inputPlansFile': (paths['plans'], 'path', 'day-type plans'),
         'transit.transitScheduleFile': (paths['schedule'], 'path', 'filtered schedule'),
         'transit.vehiclesFile': (paths['vehicles'], 'path', 'transit vehicles'),
+        'vehicles.vehiclesFile': (paths['mode_vehicles'], 'path',
+                                  'per-main-mode vehicle types (car restates the '
+                                  'MATSim default; truck carries B.freight.pce)'),
         'parking.priceFile': (paths['parking_prices'], 'path', 'per-link price table'),
         # The two capacity factors are identities on the sample fraction, not
         # choices. Both registry fields are declared `computed`, so the emitter
@@ -755,6 +828,7 @@ def main(day_types=None, scenarios=None, set_overrides=None):
             scoring = scoring_from_c1(cfg, c1, purpose_share)
             dst = os.path.join(OUT, sid, d)
             counts = split_schedule(sched_dir, dst, d, cfg)
+            write_mode_vehicles(os.path.join(dst, 'vehicles.xml'), cfg)
             paths = dict(
                 output='output',
                 network=os.path.relpath(net_dst, dst).replace('\\', '/'),
@@ -762,6 +836,7 @@ def main(day_types=None, scenarios=None, set_overrides=None):
                                       dst).replace('\\', '/'),
                 schedule='transitSchedule.xml.gz',
                 vehicles='transitVehicles.xml.gz',
+                mode_vehicles='vehicles.xml',
                 parking_prices=os.path.relpath(price_dst, dst).replace('\\', '/'),
                 fraction=cfg.get('RUN.sample.fraction'))
             write_config(os.path.join(dst, 'config.xml'), cfg, scoring, d, paths)

@@ -581,7 +581,10 @@
       "sweep_basis": "the observed range across the 23 stations that carry a classified count",
       "status": "active",
       "decisions_ref": "12.2a",
-      "description": "Heavy vehicle share, applied AT COMPARISON TIME to the comparison and not to the model, because the model represents no freight. At the 23 stations with a classified count the station own observed share is used; at the remaining 96 this median is assumed. Only 3 of the 34 calibration stations are classified, so the assumed case is the usual one."
+      "description": "Heavy vehicle share, in two roles. (1) AT COMPARISON TIME: the count comparison uses the station's own observed share where classified and this median at the remaining 96 stations - only 3 of the 34 calibration stations are classified, so the assumed case is the usual one there. (2) AT GENERATION TIME (9.49): the through tier splits each cordon gate's volume into car and truck by the gate station's own observed heavy share, and a gate whose station is unclassified falls back to this median.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
     },
     "B.counts.vehicles_per_car_leg": {
       "value": 1.0,
@@ -1088,6 +1091,102 @@
       "decisions_ref": "9.44",
       "description": "How many passengers one driver's leg may carry. Without a cap a single driver would serve every passenger their household offered - the same unbounded-supply defect that rideAvail removed on the availability side, where an unconstrained model put 5.9 people in every car (9.10). Consumed by src/java/citysim/RidePairingEngine.",
       "matsim_param": "ridePairing.maxPassengersPerVehicle"
+    },
+    "B.freight.trip_ratio": {
+      "value": 0.0697,
+      "units": "heavy_vehicle_trips_per_light_vehicle_trip",
+      "source": "assumed",
+      "sweep": [
+        0.0,
+        0.14
+      ],
+      "sweep_basis": "The default restates the MEASURED median heavy share of classified station flow (B.counts.heavy_vehicle_share, 0.0652) as a ratio to light vehicles: 0.0652 / (1 - 0.0652). What is ASSUMED is the transfer from a flow share at count stations to a trip share of the resident vehicle-trip base - trucks travel further per trip than cars, so a flow share overstates a trip share by an unobserved factor, and no freight OD survey exists for this or any comparable city in the package. The lower bound is zero, which turns the internal freight layer off entirely so its whole effect is measurable as a sweep member; the upper bound is roughly the classified stations' upper-quartile share expressed the same way.",
+      "status": "active",
+      "decisions_ref": "9.49",
+      "description": "Internal heavy-vehicle trips generated per resident light-vehicle trip, applied to the observed car-driver share of the day's generated person trips. This is the background freight VOLUME knob: it is a declared, sweepable background load, not an estimate of freight demand (issue #24). Through freight is seeded separately at the cordon gates from each gate station's own observed heavy share and is not scaled by this field.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.freight.gravity_beta_per_km": {
+      "value": 0.08,
+      "units": "per_km",
+      "source": "assumed",
+      "sweep": [
+        0.03,
+        0.2
+      ],
+      "sweep_basis": "No freight OD observation exists for the study area, so the destination-choice decay is assumed and swept wide. The bounds bracket the person-purpose decays this package SOLVES from observed trip lengths (roughly 0.05-0.25 per km across purposes and home LGAs, DECISIONS.md 9.40): the lower bound lets a truck trip run materially longer than a discretionary person trip, which is what line-haul freight does; the upper bound pins it to short urban delivery.",
+      "status": "active",
+      "decisions_ref": "9.49",
+      "description": "Distance decay (negative-exponential, per km) for the internal freight destination draw over the freight-employment attractor. Controls the modelled truck trip length, which no local observation constrains.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.freight.attractor_divisions": {
+      "value": [
+        "AgFF",
+        "Min",
+        "Mnf",
+        "EGWWS",
+        "Const",
+        "WST",
+        "RetT",
+        "TPW"
+      ],
+      "units": "anzsic_division_column_stems",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.49",
+      "description": "The ANZSIC divisions counted as freight-generating when weighting zones for the internal freight OD draw: agriculture, mining, manufacturing, utilities, construction, wholesale, retail and transport/warehousing - the goods-handling divisions of the standard classification. A vocabulary over the observed census place-of-work table (D1_employment_by_anzsic_POW_SA2.csv), not a tuned value: the WEIGHT each zone gets is its observed employment in these divisions.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.freight.pce": {
+      "value": 2.0,
+      "units": "passenger_car_equivalents",
+      "source": "literature",
+      "sweep": [
+        1.5,
+        3.5
+      ],
+      "sweep_basis": "Austroads and HCM passenger-car-equivalent ranges for heavy commercial vehicles on level urban roads run from about 1.5 (rigid truck, flat) to 3.5 (articulated, interrupted flow); no Newcastle-specific fleet mix is observed, so the class mid-value is taken and the published range is swept. For scale: the bus fleet in this package carries the pt2matsim literature figure 2.8.",
+      "status": "active",
+      "decisions_ref": "9.49",
+      "description": "Passenger-car equivalents of one modelled heavy vehicle - how much road capacity and storage a truck consumes in the mobsim relative to a car. This is the field that makes freight PHYSICAL: at PCE > 1 a truck changes the travel time of every vehicle sharing its links.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "B.freight.max_speed_kmh": {
+      "value": 100.0,
+      "units": "km/h",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.49",
+      "description": "Maximum speed of a modelled heavy vehicle: the NSW regulated limit for vehicles over 4.5 t GVM. A fact of law, not a tunable - it binds only on links whose free speed exceeds it (motorway classes at 110 km/h).",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "B.freight.length_m": {
+      "value": 12.5,
+      "units": "metres",
+      "source": "literature",
+      "held_fixed": {
+        "rule": "Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.freight.pce), not through vehicle length, so no output varies across this value. Recorded because the vehicle type must state a length; a typical rigid-truck figure is used.",
+        "decisions_ref": "9.49"
+      },
+      "status": "active",
+      "decisions_ref": "9.49",
+      "description": "Stated length of the truck vehicle type in the vehicles file. Does not reach the traffic model - space and flow consumption run on PCE - and is held fixed rather than swept for exactly that reason.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     }
   }
 }

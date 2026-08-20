@@ -900,6 +900,22 @@ THROUGH_MIN_SEP_KM = CFG.get('B.external.through_min_separation_km')
 AADT_TARGETS = _city.path('data/processed/validation/road_aadt_targets.csv')
 LGA_ZONES = _city.path('data/processed/zones/zones_LGA.gpkg')
 
+# Freight (issue #24, DECISIONS.md 9.49). A heavy-vehicle BACKGROUND LOAD, not
+# a freight demand model: the through tier's gate volumes split into car and
+# truck by each gate station's own observed heavy share, and an internal tier
+# adds truck trips over the observed freight-employment attractor, scaled by a
+# declared, swept ratio. Departure times and the weekend drop are MEASURED
+# from the classified hourly counts (extract_freight_profile.py); the volume
+# and the distance decay are the assumptions, and both are declared and swept.
+FREIGHT_TRIP_RATIO = CFG.get('B.freight.trip_ratio')
+FREIGHT_BETA_PER_KM = CFG.get('B.freight.gravity_beta_per_km')
+FREIGHT_DIVISIONS = list(CFG.get('B.freight.attractor_divisions'))
+HEAVY_SHARE_FALLBACK = CFG.get('B.counts.heavy_vehicle_share')
+FREIGHT_PROFILE = _city.path('data/processed/observed/freight_hourly_profile.csv')
+FREIGHT_DAY_FACTORS = _city.path('data/processed/observed/freight_day_factors.csv')
+EMPLOYMENT_ANZSIC = _city.path(
+    'data/processed/landuse/D1_employment_by_anzsic_POW_SA2.csv')
+
 
 def cordon_nodes(ext):
     """External stations: where boundary demand enters the modelled network.
@@ -1139,8 +1155,19 @@ def through_gates():
         if float(d[j]) > THROUGH_CORRIDOR_KM * 1000.0:
             continue
         st = same.iloc[j]
+        # The gate's heavy share (DECISIONS.md 9.49): the station's own
+        # classified observation where one exists, the declared measured
+        # median where it does not. Splits the gate's through volume into
+        # car and truck; before this, through trucks rode in the model as
+        # PCE-1 cars.
+        hs = st.get('heavy_share')
+        observed_hs = hs == hs and hs is not None
         gates.append(dict(x=float(gx), y=float(gy), road=str(row['name']),
                           volume=float(st.volume),
+                          heavy_share=(float(hs) if observed_hs
+                                       else float(HEAVY_SHARE_FALLBACK)),
+                          heavy_share_source=('observed' if observed_hs
+                                              else 'median_fallback'),
                           station_key=str(st.station_key),
                           station_name=str(st['name']),
                           station_dist_m=round(float(d[j]), 0),
@@ -1171,7 +1198,31 @@ def through_gates():
     return kept
 
 
-def through_agents(gates, u, day, seq_base):
+def load_freight_profile():
+    """The MEASURED heavy-vehicle temporal profile (extract_freight_profile.py).
+
+    Returns ({day_type: (hours, cumulative shares)}, {day_type: day factor}).
+    The hourly shape and the weekend factors are observed at the study slice's
+    classified count stations - the two temporal facts the freight layer does
+    not have to assume.
+    """
+    prof = pd.read_csv(FREIGHT_PROFILE)
+    cum = {}
+    for dt, grp in prof.groupby('day_type'):
+        g = grp.sort_values('hour')
+        cum[dt] = (g.hour.to_numpy(dtype=int), np.cumsum(g.share.to_numpy()))
+    fac = {str(r.day_type): float(r.factor)
+           for r in pd.read_csv(FREIGHT_DAY_FACTORS).itertuples()}
+    return cum, fac
+
+
+def draw_freight_hour(profile, day, u):
+    hours, cum = profile[day]
+    j = int(np.searchsorted(cum, u() * float(cum[-1])))
+    return int(hours[min(j, hours.size - 1)])
+
+
+def through_agents(gates, u, day, seq_base, freight_profile, freight_factor):
     """Through trips: enter at one gate, cross the study area, exit at another.
 
     One agent is one direction: inbound volume at gate i is half the through
@@ -1179,11 +1230,17 @@ def through_agents(gates, u, day, seq_base):
     the opposite gate generates as its own inbound). The exit gate is drawn
     weighted by the candidate gates' observed volumes, restricted to gates at
     least THROUGH_MIN_SEP_KM away so the trip genuinely crosses the area. The
-    mode is locked to car downstream (build_matsim_plans writes lockedMode) -
-    a volume anchored on a road count must stay on the road.
+    mode is locked downstream (build_matsim_plans writes lockedMode) - a
+    volume anchored on a road count must stay on the road.
+
+    The volume splits into car and truck by the gate's heavy share
+    (DECISIONS.md 9.49): each half takes its own observed day-of-week
+    behaviour (the external day factor for cars, the measured freight day
+    factor for trucks) and its own departure profile (HO for cars, which have
+    no observed profile; the MEASURED classified hourly shape for trucks).
     """
     legs = []
-    n_agents = 0
+    n_car = n_truck = 0
     pid = seq_base
     shift = WEEKEND_DEPARTURE_SHIFT_H[day]
     for i, gi in enumerate(gates):
@@ -1194,31 +1251,160 @@ def through_agents(gates, u, day, seq_base):
             continue
         w = norm([gj['volume'] for _, gj in cand])
         cum = np.cumsum(w)
-        n = int(round(0.5 * THROUGH_SHARE * gi['volume']
-                      * EXTERNAL_DAY_FACTOR[day]))
-        for _ in range(n):
-            pid += 1
-            n_agents += 1
-            j = int(np.searchsorted(cum, u()))
-            gj = cand[min(j, len(cand) - 1)][1]
-            dist_km = math.hypot(gj['x'] - gi['x'], gj['y'] - gi['y']) / 1000.0
-            # HO is the broadest declared daytime departure profile; through
-            # traffic has no observed profile of its own (DECISIONS.md 9.41)
-            t0 = draw_hour(DEPART['HO'], shift, u) * 3600 + int(3600 * u())
-            tt = int(dist_km / 26.0 * 3600) + 240
-            legs.append(dict(person_id=pid, day_type=day, tour_id=1, trip_seq=1,
-                             party_size=1, tour_purpose='through',
-                             agent_tier='through',
-                             time_flexibility_band='flexible',
-                             purpose='through', dest_activity_type='home',
-                             origin_sa1=gi['sa1'], dest_sa1=gj['sa1'],
-                             origin_x=round(gi['x'], 1), origin_y=round(gi['y'], 1),
-                             dest_x=round(gj['x'], 1), dest_y=round(gj['y'], 1),
-                             dep_time_s=t0, arr_time_s=t0 + tt,
-                             straight_dist_km=round(dist_km, 3),
-                             activity_duration_s=0, is_tour_anchor=1,
-                             dest_placement='cordon'))
-    return legs, n_agents
+        inbound = 0.5 * THROUGH_SHARE * gi['volume']
+        counts = (('through', int(round(inbound * (1.0 - gi['heavy_share'])
+                                        * EXTERNAL_DAY_FACTOR[day]))),
+                  ('through_freight', int(round(inbound * gi['heavy_share']
+                                                * freight_factor[day]))))
+        for kind, n in counts:
+            is_truck = kind == 'through_freight'
+            for _ in range(n):
+                pid += 1
+                if is_truck:
+                    n_truck += 1
+                else:
+                    n_car += 1
+                j = int(np.searchsorted(cum, u()))
+                gj = cand[min(j, len(cand) - 1)][1]
+                dist_km = math.hypot(gj['x'] - gi['x'],
+                                     gj['y'] - gi['y']) / 1000.0
+                if is_truck:
+                    t0 = (draw_freight_hour(freight_profile, day, u) * 3600
+                          + int(3600 * u()))
+                else:
+                    # HO is the broadest declared daytime departure profile;
+                    # through CAR traffic has no observed profile of its own
+                    # (DECISIONS.md 9.41)
+                    t0 = draw_hour(DEPART['HO'], shift, u) * 3600 + int(3600 * u())
+                tt = int(dist_km / 26.0 * 3600) + 240
+                legs.append(dict(person_id=pid, day_type=day, tour_id=1,
+                                 trip_seq=1, party_size=1, tour_purpose=kind,
+                                 agent_tier=('freight' if is_truck else 'through'),
+                                 time_flexibility_band='flexible',
+                                 purpose=kind, dest_activity_type='home',
+                                 origin_sa1=gi['sa1'], dest_sa1=gj['sa1'],
+                                 origin_x=round(gi['x'], 1),
+                                 origin_y=round(gi['y'], 1),
+                                 dest_x=round(gj['x'], 1), dest_y=round(gj['y'], 1),
+                                 dep_time_s=t0, arr_time_s=t0 + tt,
+                                 straight_dist_km=round(dist_km, 3),
+                                 activity_duration_s=0, is_tour_anchor=1,
+                                 dest_placement='cordon'))
+    return legs, n_car, n_truck
+
+
+def freight_attractor(core):
+    """Per-SA1 freight weight: SA1 jobs x the SA2's observed freight-industry share.
+
+    Jobs are already disaggregated to SA1 (D1_zone_attractions_SA1.csv, an
+    observed layer); the census place-of-work table gives each SA2's
+    employment by ANZSIC division, and the declared freight-generating
+    divisions' share of it weights the SA1 jobs underneath. Both inputs are
+    observed; the only choice is WHICH divisions count, and that vocabulary
+    is declared (B.freight.attractor_divisions).
+    """
+    emp = pd.read_csv(EMPLOYMENT_ANZSIC, dtype={'SA2_CODE21': str})
+    cols = ['%s_Tot_P' % d for d in FREIGHT_DIVISIONS]
+    missing = [c for c in cols if c not in emp.columns]
+    if missing:
+        raise SystemExit('freight attractor divisions not in %s: %s'
+                         % (EMPLOYMENT_ANZSIC, missing))
+    tot = emp[[c for c in emp.columns if c.endswith('_Tot_P')]].sum(axis=1)
+    share = (emp[cols].sum(axis=1) / tot.replace(0, np.nan)).fillna(0.0)
+    sa2_share = dict(zip(emp.SA2_CODE21, share))
+    jobs = core['jobs'].to_numpy(dtype=float)
+    sa2 = core['SA2_CODE21'].astype(str).to_numpy()
+    w = jobs * np.array([sa2_share.get(s, 0.0) for s in sa2])
+    if w.sum() <= 0:
+        raise SystemExit('the freight attractor is zero everywhere - the '
+                         'employment table or the declared divisions changed')
+    return w
+
+
+def freight_agents(core, u, day, seq_base, n_light_trips, car_share,
+                   freight_profile, freight_factor, person_day_shape):
+    """Internal heavy-vehicle trips over the freight-employment attractor.
+
+    A BACKGROUND LOAD, declared as such (DECISIONS.md 9.49): the volume is
+    B.freight.trip_ratio x the observed car-driver share of the day's
+    generated core person trips, re-shaped from the person day-of-week curve
+    to freight's own MEASURED one - the person-trip base already carries the
+    person weekend drop, so it is divided out before the freight factor is
+    applied, or the weekend would be dropped twice. One agent is one one-way
+    trip, like the through tier: no local observation supports a tour
+    structure, and inventing depots would be structure pretending to be
+    rigour. Origins draw on the freight attractor; destinations draw on the
+    same attractor under the declared distance decay. Departures take the
+    measured classified hourly shape.
+    """
+    person_shape = (person_day_shape[day]
+                    / person_day_shape.get('WEEKDAY', 1.0)) or 1.0
+    n = int(round(FREIGHT_TRIP_RATIO * car_share * n_light_trips
+                  * freight_factor[day] / person_shape))
+    if n <= 0:
+        return [], 0
+    w = freight_attractor(core)
+    X = core['x_mga56'].to_numpy(dtype=float)
+    Y = core['y_mga56'].to_numpy(dtype=float)
+    SA1 = core['SA1_CODE21'].to_numpy()
+    RAD = np.sqrt(np.maximum(core['area_km2'].to_numpy(dtype=float), 1e-4)
+                  * 1e6 / math.pi) * 0.6
+    cum_origin = np.cumsum(norm(w))
+    dest_cum = {}   # per-origin-zone destination distribution, built lazily
+
+    def jitter(k):
+        return (round(X[k] + RAD[k] * (2.0 * u() - 1.0), 1),
+                round(Y[k] + RAD[k] * (2.0 * u() - 1.0), 1))
+
+    legs = []
+    pid = seq_base
+    for _ in range(n):
+        pid += 1
+        k0 = min(int(np.searchsorted(cum_origin, u())), X.size - 1)
+        if k0 not in dest_cum:
+            d_km = np.hypot(X - X[k0], Y - Y[k0]) / 1000.0
+            wd = w * np.exp(-FREIGHT_BETA_PER_KM * d_km)
+            s = wd.sum()
+            dest_cum[k0] = (np.cumsum(wd / s) if s > 0
+                            else np.linspace(0, 1, X.size))
+        k1 = min(int(np.searchsorted(dest_cum[k0], u())), X.size - 1)
+        ox, oy = jitter(k0)
+        dx, dy = jitter(k1)
+        dist_km = math.hypot(dx - ox, dy - oy) / 1000.0
+        t0 = draw_freight_hour(freight_profile, day, u) * 3600 + int(3600 * u())
+        tt = int(dist_km / 26.0 * 3600) + 240
+        legs.append(dict(person_id=pid, day_type=day, tour_id=1, trip_seq=1,
+                         party_size=1, tour_purpose='freight',
+                         agent_tier='freight',
+                         time_flexibility_band='flexible',
+                         purpose='freight', dest_activity_type='home',
+                         origin_sa1=SA1[k0], dest_sa1=SA1[k1],
+                         origin_x=ox, origin_y=oy, dest_x=dx, dest_y=dy,
+                         dep_time_s=t0, arr_time_s=t0 + tt,
+                         straight_dist_km=round(dist_km, 3),
+                         activity_duration_s=0, is_tour_anchor=1,
+                         dest_placement='freight'))
+    return legs, n
+
+
+def hts_car_driver_share():
+    """The observed car-driver share of trips, study LGAs, latest survey year.
+
+    Sizes the internal freight base (trip_ratio is heavy trips PER LIGHT
+    VEHICLE TRIP, and a light vehicle trip is a car-driver person trip).
+    An observed HTS quantity read from the slice, like the purpose shares -
+    not a model output, so the identity is evaluable at build time.
+    """
+    m = pd.read_csv(_city.path('data/processed/hts/hts_mode.csv'))
+    m = m[m.geography == 'lga']
+    yr = sorted(m.FINANCIAL_YEAR.unique())[-1]
+    m = m[m.FINANCIAL_YEAR == yr]
+    mode = m.TRAVEL_MODE.astype(str).str.replace('*', '', regex=False).str.strip()
+    drv = float(m[mode == 'Vehicle driver'].TRIPS_BY_MODE.sum())
+    tot = float(m.TRIPS_BY_MODE.sum())
+    if not (tot > 0 and drv > 0):
+        raise SystemExit('no Vehicle driver rows in hts_mode.csv for %s' % yr)
+    return drv / tot, yr
 
 
 COLUMNS = ['person_id', 'day_type', 'tour_id', 'trip_seq', 'purpose',
@@ -1286,9 +1472,20 @@ def main(seed=SEED, max_persons=None, day_types=None):
           'calibration count within %.0f km):' % (len(gates), THROUGH_CORRIDOR_KM),
           flush=True)
     for g in gates:
-        print('      %-24s <- station %s %s (%.0f veh/day, %.1f km away)'
+        print('      %-24s <- station %s %s (%.0f veh/day, heavy %.4f [%s], '
+              '%.1f km away)'
               % (g['road'], g['station_key'], g['station_name'], g['volume'],
+                 g['heavy_share'], g['heavy_share_source'],
                  g['station_dist_m'] / 1000.0), flush=True)
+
+    # Freight (DECISIONS.md 9.49): the measured temporal profile, and the
+    # observed car-driver share that sizes the internal truck base.
+    freight_profile, freight_factor = load_freight_profile()
+    car_share, car_share_yr = hts_car_driver_share()
+    print('freight: trip ratio %.4f x observed car-driver share %.4f (HTS %s); '
+          'day factors %s' % (FREIGHT_TRIP_RATIO, car_share, car_share_yr,
+                              {k: round(v, 3) for k, v in freight_factor.items()}),
+          flush=True)
 
     print('calibrating gravity decay against HTS journey distances, '
           'per purpose x home LGA ...', flush=True)
@@ -1399,8 +1596,21 @@ def main(seed=SEED, max_persons=None, day_types=None):
                  through_gates=[dict(road=g['road'], station=g['station_key'],
                                      name=g['station_name'],
                                      volume=g['volume'],
+                                     heavy_share=g['heavy_share'],
+                                     heavy_share_source=g['heavy_share_source'],
                                      station_dist_m=g['station_dist_m'])
                                 for g in gates],
+                 freight_trip_ratio=FREIGHT_TRIP_RATIO,
+                 freight_trip_ratio_sweep=list(CFG.sweep('B.freight.trip_ratio')),
+                 freight_gravity_beta_per_km=FREIGHT_BETA_PER_KM,
+                 freight_gravity_beta_sweep=list(
+                     CFG.sweep('B.freight.gravity_beta_per_km')),
+                 freight_attractor_divisions=FREIGHT_DIVISIONS,
+                 freight_car_driver_share=round(car_share, 4),
+                 freight_car_driver_share_year=car_share_yr,
+                 freight_day_factor={k: round(v, 4)
+                                     for k, v in freight_factor.items()},
+                 heavy_share_fallback=HEAVY_SHARE_FALLBACK,
                  decay=decay,
                  detour_factor=DETOUR_FACTOR, detour_sweep=list(DETOUR_SWEEP),
                  detour_source=DETOUR_SOURCE,
@@ -1513,14 +1723,23 @@ def main(seed=SEED, max_persons=None, day_types=None):
                                           EXTERNAL_PERSON_ID_BASE, store, cordon)
         for leg in ext_legs:
             w.writerow(leg)
-        thr_legs, n_thr = through_agents(gates, u, d,
-                                         EXTERNAL_PERSON_ID_BASE + n_ext)
+        thr_legs, n_thr, n_thr_truck = through_agents(
+            gates, u, d, EXTERNAL_PERSON_ID_BASE + n_ext,
+            freight_profile, freight_factor)
         for leg in thr_legs:
+            w.writerow(leg)
+        frt_legs, n_frt = freight_agents(
+            core, u, d, EXTERNAL_PERSON_ID_BASE + n_ext + n_thr + n_thr_truck,
+            n_legs, car_share, freight_profile, freight_factor, day_shape)
+        for leg in frt_legs:
             w.writerow(leg)
         fh.close()
         stats['by_day'][d] = dict(
             external_agents=n_ext, external_legs=len(ext_legs),
             through_agents=n_thr, through_legs=len(thr_legs),
+            through_freight_agents=n_thr_truck,
+            freight_internal_agents=n_frt,
+            freight_agents_total=n_thr_truck + n_frt,
             legs=n_legs, tours=n_tours, travelling_persons=n_travel,
             legs_per_person=round(n_legs / max(n_persons, 1), 3),
             tours_per_traveller=round(n_tours / max(n_travel, 1), 3),
@@ -1548,10 +1767,11 @@ def main(seed=SEED, max_persons=None, day_types=None):
                 hts_network_km=(round(meandist['HX'], 2)
                                 if 'HX' in meandist else None)))
         print('%-8s %9d legs %8d tours %6.3f legs/person  dropped=%d '
-              'midnight-capped=%d  through=%d  HX bound=%d/%d'
+              'midnight-capped=%d  through=%d  freight=%d (%d through + %d '
+              'internal)  HX bound=%d/%d'
               % (d, n_legs, n_tours, n_legs / max(n_persons, 1), dropped[0],
-                 dropped[1], n_thr, esc['bound'],
-                 esc['bound'] + esc['unbound']),
+                 dropped[1], n_thr, n_thr_truck + n_frt, n_thr_truck, n_frt,
+                 esc['bound'], esc['bound'] + esc['unbound']),
               flush=True)
 
     stats['placement'] = dict(stats['placement'])

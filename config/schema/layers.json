@@ -3,7 +3,7 @@
   "generated_from": "static reads of city.path(...) under src/ and tests/",
   "contract": "A city must produce every artefact below, at the same city-relative path, before the framework can run against it. The producing script may be entirely different - that is what a jurisdiction adapter is for - but the path and the columns the framework reads are the contract.",
   "caveat": "`columns_in_reference_city` is the header of the reference city's own copy, not a proven minimum: a column here may be incidental. Narrowing it to the columns framework code actually reads is not done. Recorded when the reference artefact is on disk and carried forward from the committed document when it is not, so the document regenerates identically on a checkout without the bulk data. Whether an artefact is PRESENT locally is a report, not part of this contract, and is never stored here.",
-  "n_artefacts": 123,
+  "n_artefacts": 125,
   "n_paths_built_at_runtime": 12,
   "artefacts": {
     "build": {
@@ -171,6 +171,7 @@
     "data/processed/hts/hts_mode.csv": {
       "kind": "file",
       "read_by": [
+        "src/build/build_activity_chains.py",
         "src/build/build_matsim_plans.py",
         "src/calibrate/measure_mode_constraints.py"
       ],
@@ -285,6 +286,7 @@
     "data/processed/landuse/D1_employment_by_anzsic_POW_SA2.csv": {
       "kind": "file",
       "read_by": [
+        "src/build/build_activity_chains.py",
         "tests/check_package.py"
       ],
       "columns_in_reference_city": [
@@ -654,6 +656,29 @@
       "kind": "pattern",
       "read_by": [
         "src/build/build_data_dictionary.py"
+      ]
+    },
+    "data/processed/observed/freight_day_factors.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_activity_chains.py"
+      ],
+      "columns_in_reference_city": [
+        "day_type",
+        "factor",
+        "stations",
+        "station_days"
+      ]
+    },
+    "data/processed/observed/freight_hourly_profile.csv": {
+      "kind": "file",
+      "read_by": [
+        "src/build/build_activity_chains.py"
+      ],
+      "columns_in_reference_city": [
+        "day_type",
+        "hour",
+        "share"
       ]
     },
     "data/processed/observed/traffic_aadt.csv": {

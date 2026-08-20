@@ -503,6 +503,7 @@ else:
         n = 0
         bad_zone = bad_time = bad_seq = open_tour = nhb_home = 0
         home_not_core = home_not_external = through_bad = 0
+        freight_bad = freight_n = 0
         coords = set()
         purposes = collections.Counter()
         placement = collections.Counter()
@@ -535,6 +536,23 @@ else:
                     # on a boundary count crosses the area, it does not park.
                     if r['origin_sa1'] == r['dest_sa1'] or int(r['trip_seq']) != 1:
                         through_bad += 1
+                elif r['agent_tier'] == 'freight':
+                    # a freight agent is one one-way heavy-vehicle trip
+                    # (DECISIONS.md 9.49). Through-freight crosses between two
+                    # different gates like the through tier; INTERNAL freight
+                    # deliberately starts and ends inside the core - it is the
+                    # one boundary-id-space tier that does - so the external
+                    # origin rule below does not apply to it either.
+                    freight_n += 1
+                    if int(r['trip_seq']) != 1:
+                        freight_bad += 1
+                    elif (r['tour_purpose'] == 'through_freight'
+                          and r['origin_sa1'] == r['dest_sa1']):
+                        freight_bad += 1
+                    elif (r['tour_purpose'] == 'freight'
+                          and (r['origin_sa1'] not in core_tier
+                               or r['dest_sa1'] not in core_tier)):
+                        freight_bad += 1
                 elif int(r['trip_seq']) == 1 and r['origin_sa1'] in core_tier:
                     home_not_external += 1
         # every tour must close at home, or MATSim gets an agent who never goes home
@@ -555,6 +573,11 @@ else:
               '%s: every through trip is one leg between two different cordon '
               'gates (DECISIONS.md 9.41, issue #20) (%d bad)'
               % (day, through_bad))
+        check(freight_n > 0 and freight_bad == 0,
+              '%s: every freight trip is one leg - through-freight between two '
+              'different gates, internal freight inside the core '
+              '(DECISIONS.md 9.49, issue #24) (%d of %d bad)'
+              % (day, freight_bad, freight_n))
         check(bad_time == 0,
               '%s: no leg arrives before it departs or after the 30 h horizon (%d bad)'
               % (day, bad_time))
@@ -570,9 +593,12 @@ else:
         # an 'escorted' destination is a COPY of another household member's
         # drawn destination (DECISIONS.md 9.46) - it inherits that trip's
         # placement rather than drawing one, so the observed-attractor share
-        # is asserted over the placements actually drawn
+        # is asserted over the placements actually drawn. Freight placements
+        # are a zone-level background draw BY DESIGN (DECISIONS.md 9.49) -
+        # no observed layer locates a freight destination - so they are
+        # outside this assertion the same way escorted copies are.
         drawn = (sum(placement.values()) - placement.get('home', 0)
-                 - placement.get('escorted', 0))
+                 - placement.get('escorted', 0) - placement.get('freight', 0))
         share_poi = placement.get('poi', 0) / max(drawn, 1)
         check(share_poi > 0.85,
               '%s: %.1f%% of drawn activity ends sit on an observed attractor'

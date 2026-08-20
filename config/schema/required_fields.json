@@ -4,15 +4,15 @@
   "contract": "Every key below must be declared by any city, with the stated units and value type. A field whose source is measured, derived, literature or assumed MUST additionally carry a sweep, a held_fixed rule or a derived_from identity - field.schema.json enforces that, and check_city.py tests it.",
   "no_prose": "Field DESCRIPTIONS are deliberately absent. They are the reference city's own wording and would put one city's prose - its suburbs, its agencies, its datasets - inside the portable half of the contract. What a city must supply is a key, its units and its value type; WHY a particular city chose a particular value belongs in that city's docs/reference/CONFIG_REFERENCE.md.",
   "caveat": "`required` means the reference city declares it and the framework will not run without it. A field carrying `required_if_mode` is required ONLY of a city that runs that mode - the one narrowing that can be DERIVED, because the mode name is in the tool binding. The rest is not narrowed: an intervention-specific field is still listed for a city that has no such intervention, and omitting one must be justified rather than assumed.",
-  "n_fields": 309,
+  "n_fields": 316,
   "n_by_layer": {
     "A": 92,
-    "B": 53,
+    "B": 59,
     "C": 55,
     "CAL": 6,
     "D": 5,
     "E": 27,
-    "RUN": 71
+    "RUN": 72
   },
   "fields": {
     "A.active.footway_width_default": {
@@ -1152,6 +1152,60 @@
     "B.external.through_share": {
       "layer": "B",
       "units": "share_of_aadt",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.freight.attractor_divisions": {
+      "layer": "B",
+      "units": "anzsic_division_column_stems",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.freight.gravity_beta_per_km": {
+      "layer": "B",
+      "units": "per_km",
+      "type": "number",
+      "source_in_reference_city": "assumed",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.freight.length_m": {
+      "layer": "B",
+      "units": "metres",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.freight.max_speed_kmh": {
+      "layer": "B",
+      "units": "km/h",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.freight.pce": {
+      "layer": "B",
+      "units": "passenger_car_equivalents",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.freight.trip_ratio": {
+      "layer": "B",
+      "units": "heavy_vehicle_trips_per_light_vehicle_trip",
       "type": "number",
       "source_in_reference_city": "assumed",
       "sweep_required": true,
@@ -2337,6 +2391,15 @@
       "unobtained_in_reference_city": false,
       "declared_in": "RUN_execution.json"
     },
+    "RUN.qsim.car_vehicle": {
+      "layer": "RUN",
+      "units": "metres/metres/passenger_car_equivalents",
+      "type": "object",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
     "RUN.qsim.end_time_h": {
       "layer": "RUN",
       "units": "hours",
@@ -2349,7 +2412,7 @@
     "RUN.qsim.main_mode": {
       "layer": "RUN",
       "units": "enum",
-      "type": "string",
+      "type": "array",
       "source_in_reference_city": "definition",
       "sweep_required": false,
       "unobtained_in_reference_city": false,

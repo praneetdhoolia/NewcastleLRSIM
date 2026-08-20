@@ -16,6 +16,7 @@
         "network",
         "plans",
         "transit",
+        "vehicles",
         "controler",
         "qsim",
         "scoring",

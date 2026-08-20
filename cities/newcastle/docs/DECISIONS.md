@@ -50,6 +50,7 @@ otherwise cost you an hour:
 | **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26; **§9.44 pairs a passenger to a household driver** — and measures that fewer than 1 ride trip in 1,000 can physically be carried; **§9.46 is the demand-side repair**; **§9.48 measures the repair on the re-measure arm — pairing 0.00004 → 0.0130, and the defect changes sign** |
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
 | **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
+| **Freight / heavy vehicles (`truck`)** | **§9.49** — a physical background load: measured profile and gate shares, assumed and swept volume ratio, PCE and decay; issue #24 |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
 | **Bike availability (issue #29)** | **§9.39** |
 | **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
@@ -5241,6 +5242,121 @@ then **4.2.4 / #14** — the §8.5 calibration decision, whose first branch
 
 ---
 
+## 9.49 Freight enters the mobsim as a physical background load (20 August 2026, issue #24)
+
+**Decision:** a `truck` mode is added to the model as a **declared, sweepable
+background load** — not a freight demand model. Taken 20 August 2026, on the
+owner's confirmation of the §9.48 value order. Issue #24's business-travel
+half stays struck (B2 already generates WB at 2.11% against an observed 2.0%);
+this entry is the freight half.
+
+### What was absent, and what was silently wrong
+
+No truck object existed anywhere in the build. `B.counts.heavy_vehicle_share`
+(**measured** median 0.0652 across the classified stations) was applied at
+comparison time only, so the corridor's road-space externality — hypothesis
+B3, the decisive test of Claim B — was measured without the 6.52% of vehicles
+that consume the most capacity per vehicle. Worse, the through tier (§9.41)
+anchored each cordon gate's volume on an observed AADT **that includes its
+heavy vehicles** and locked all of it to `car`: through trucks were already in
+the model, riding as PCE-1 cars. The Hunter Expressway gate is observed at
+**15.29% heavy** — roughly one in seven of its through vehicles was a truck
+travelling with a car's footprint.
+
+### The mechanism, in three parts
+
+1. **Physical simulation.** `qsim.mainMode` = `car,truck`;
+   `qsim.vehiclesSource` moves from `defaultVehicle` to
+   `modeVehicleTypesFromVehiclesData`, with the run inputs emitting an explicit
+   vehicles file: the `car` type restates MATSim's own default **exactly**
+   (`RUN.qsim.car_vehicle`, 7.5 m / 1.0 m / PCE 1.0 — equality is what keeps
+   the car fleet's physics unchanged), and the `truck` type carries
+   `B.freight.pce` (**literature** 2.0, swept 1.5–3.5) and the regulated
+   100 km/h cap (`B.freight.max_speed_kmh`, definition). The harness
+   regenerates the vehicles file per run from that run's own resolution, so a
+   swept PCE reaches the mobsim rather than a stale shipped file. Truck is
+   allowed on every car link; **truck routing is otherwise unconstrained and
+   is a stated limitation** — no truck-route network, curfew or bridge-limit
+   layer exists in the package.
+2. **Through freight.** Each §9.41 gate's volume now splits into car and truck
+   by the gate station's **own observed heavy share** where classified (the
+   Hunter Expressway, 0.1529) and the declared median where not (the M1 and
+   the southern Pacific Highway, 0.0652 — their calibration stations carry no
+   classified count). Each half takes its own observed day-of-week behaviour:
+   the external day factor for cars, the **measured** freight day factor for
+   trucks.
+3. **Internal freight.** Truck trips = `B.freight.trip_ratio` (**assumed**
+   0.0697 = 0.0652/(1−0.0652), swept **0.0–0.14** — zero turns the layer off
+   so its whole effect is a sweep member) × the **observed** HTS car-driver
+   share × the day's generated core person trips, re-shaped from the person
+   day-of-week curve to freight's own measured one. Origins draw on an
+   **observed** attractor — SA1 jobs weighted by the SA2's census
+   place-of-work employment in the declared freight-generating ANZSIC
+   divisions (`B.freight.attractor_divisions`) — and destinations draw on the
+   same attractor under `B.freight.gravity_beta_per_km` (**assumed** 0.08,
+   swept 0.03–0.20; no freight OD observation exists). One agent is one
+   one-way trip: no local observation supports a tour or depot structure.
+
+### What is measured, and what is assumed
+
+**Measured, new to this change** (`extract_freight_profile.py`, from the RMS
+classified hourly counts — 33,816 complete non-holiday station-days at 12
+study-area stations): the heavy-vehicle **hourly departure profile** per day
+type (the freight double-hump — 6.8% at 06:00, 6.9% at 07:00, 6.7% at 15:00 —
+against near-zero overnight person travel) and the **weekend day factors**
+(SAT 0.4627, SUN 0.4104 of weekday — person travel drops far less, which is
+why the person shape is divided out before the freight factor applies).
+**Assumed and swept:** the flow-share→trip-share transfer (`trip_ratio`), the
+distance decay, the PCE. **Locked, not chosen:** a freight agent carries
+`lockedMode=truck` in subpopulation `freight` — the existing
+`AvailabilityModesCalculator` singleton path, no Java change — so mode choice
+never trades a truck against anything; its scoring block exists because MATSim
+requires one and is inert by construction.
+
+### Verified, not asserted
+
+- **The trucks physically move.** Smoke run `freight_smoke` (1% × 2
+  iterations, rc=0, accounting closes): **913 truck trips completed, 922
+  truck vehicles entered traffic, 140,380 link traversals across 28,428
+  distinct links** — and 913 of the generated 90,393 weekday trucks at a 1%
+  person-hash sample is exactly the expected scaling. Trucks appear in
+  `all_residents_pct` visibly labelled and are structurally absent from
+  `target_lga_pct` (a truck is not a resident of anywhere).
+- **The car fleet's physics is unchanged, proven against the tool's
+  bytecode, not the API docs** (the §9.44 discipline): the shaded jar's
+  `VehicleType` constructor defaults are width 1.0 m, maxVelocity ∞, length
+  7.5 m, PCE 1.0, flowEfficiencyFactor 1.0 — exactly what
+  `RUN.qsim.car_vehicle` declares (omitted elements keep the constructor
+  value). `createDefaultVehicleType()` adds only seats = 4, which is inert
+  for a private vehicle: nobody boards a qsim car but its driver.
+- **The loading path is real**: the first smoke attempt FAILED with `Could
+  not find requested vehicle type = ride` — PrepareForSim demands a type for
+  every NETWORK mode, not only the main modes — which is how we know the
+  vehicles file is read at all. `ride` now carries a type restating the car
+  values (a passenger rides in a car); it never enters the mobsim.
+- **Generation conserves the through tier exactly**: 16,264 through cars +
+  1,691 through trucks = the 17,955 through agents the §9.41 tier carried
+  before the split. The escort binding is untouched: 121,621 of 177,370
+  weekday HX tours bound, identical to §9.46. Week trip rate 3.383 vs HTS
+  3.473 (trucks are not persons and do not enter the rate).
+
+### What this is not, and what it breaks
+
+Not an estimate of freight demand: a background load whose only purpose is to
+make the congestion denominator every mode is judged against carry the heavy
+vehicles the counts say are there. **No holdout row is read** — the gate split
+uses the same structurally-filtered calibration rows §9.41 already reads.
+**This is a planned comparability break**: the demand family changes again
+(through composition, new freight tier, new vehicles source), so
+`bind1000_25pct` becomes the last run of the §9.46/§9.47 family and nothing
+run after this change compares to it. The count-comparison interaction is
+recorded, not silently absorbed: modelled link volumes now contain trucks
+while the #20 leg→vehicle conversion remains unwired — counts stay unusable as
+fit evidence either way, and #20 owns making the light-vehicle comparison
+truck-aware when it lands.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -5739,6 +5855,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-20 | **Freight becomes physical (§9.49, issue #24): a `truck` mode in the mobsim at declared PCE, seeded from the counts the model already holds.** `qsim.mainMode` = `car,truck`; `vehiclesSource` → `modeVehicleTypesFromVehiclesData` with the car type restating MATSim's default exactly (`RUN.qsim.car_vehicle`) and the truck type at `B.freight.pce` (literature 2.0, swept 1.5–3.5) under the regulated 100 km/h cap. Through-gate volumes split into car and truck by each gate station's own observed heavy share (Hunter Expressway 0.1529 observed; median 0.0652 fallback) — through trucks had been riding as PCE-1 cars. An internal freight tier draws over the observed freight-industry attractor at the assumed, swept `B.freight.trip_ratio` (0.0697, sweep 0.0–0.14). NEW MEASUREMENTS from the classified RMS hourly counts (`extract_freight_profile.py`, 33,816 station-days): the heavy hourly profile per day type and the weekend factors (SAT 0.4627, SUN 0.4104). Six new registry fields + `RUN.qsim.car_vehicle`; subpopulation `freight` with `lockedMode=truck` (no Java change). **A planned comparability break: the demand family changes again — `bind1000_25pct` is the last run of the §9.46/§9.47 family.** No toolchain change; no target touched; nothing here is a result. |
 | 2026-08-20 | **Session close-out and onboarding become procedure, not recollection — no model or data value changed.** Two project skills land in `.claude/skills/`: **`/handoff`** (evidence-gated close-out: deletion-disciplined hygiene, issue grooming that closes only with evidence and a REOPEN IF condition, the DECISIONS entry + §14 row + index, the board repaired in the same commit, and the brief rewritten in place with completed sections flipped from instructions to record) and **`/onboard`** (session start: read in precedence order — constraints → record → board → brief, artefact over document — run the §0 checks, cross-check the documents against live GitHub state, answer the six state-of-the-project questions with sourced numbers, recite the invalidating constraints, then brief and stop). The handover is now REQUIRED to answer six questions exhaustively — goals vs achievement, phase states, tasks done-and-evaluated, simulator vs observation, the issue ledger, PR history + next PR — so a next agent reconstructs the whole picture from `main` alone. One home per document class is stated as a rule (new audit reports under `docs/audit/<YYYY-MM-DD>/`; a new document class is an owner decision). **PR titles now carry the phase and task number** (`P<phase> (<task>): …`; `P<n> board:` / `P<n> handover:` / `Tooling:`), and all twelve existing PRs were retitled to the scheme. No target value changed, the 67/143 split is untouched, nothing here is a result. |
 | 2026-08-20 | **The re-measure arm ran, and the escort binding is measured to move realised pairability by two orders of magnitude (§9.48, issues #31, #28, #9).** `bind1000_25pct` — 25% × 1000 WEEKDAY on the §9.46/§9.47 demand, the first run of the post-repair family — completed rc=0 in 34 h 44 m, median iteration 105.9 s, **`relaxed: true`** (max post-margin drift +0.09 pp), accounting closed, stuck 0.028%. **OD-coincidence 0.104% → 15.31%; declared-regime (`both_links` ±15 min) pairing 0.00004 → 0.0130**; the #28 residual is ~11.6 s at 25% (was ~5 s); the direction split stays non-zero (239 return pairings at iteration 1000). The defect **changed sign**: occupancy is now 0.4855 passengers per driver against the observed 0.3503, outside the declared range in the **flattering** direction — recorded, not tuned, and handed to the 4.2.4 calibration decision. Ride's LGA linked share moved 37.17 → 31.05 against observed 20.60; the restored 75+ cohort makes 0.7% of its trips to work. The realisation gap (15.31% coincident vs 1.30% paired) is named and deliberately not chased. Per the brief's §4D branch the ride lane rests; next in value order, pending owner confirmation: #24 freight, then 4.2.4/#14. **Pre-calibration, one scenario, one seed, no counterfactual: nothing here is a finding about the light rail, and no holdout row was opened.** |
 | 2026-08-15 | **The city selector never worked, Java was never audited, and G2 is now exercised rather than asserted (§9.38 cont.).** Reporting zero hardcoding against an audit that did not look at Java, for a framework whose second-city claim had never been run, was a verdict on a scoreboard rather than on the repository. Both gaps contained a live defect. **THE CITY SELECTOR WAS BROKEN AND ALWAYS HAD BEEN.** `README.md`, `docs/README.md` and `.claude/CLAUDE.md` all state that the city is selected by `CITYSIM_CITY`. Setting it to ANY value - *including its own default* - made every `registry.load()` raise *"env CITYSIM_CITY matches no registry field"*, because the resolver reads `CITYSIM_*` from the environment as field overrides and skipped only `CITYSIM_REPO`. Nobody had ever set it: there is one city and the default applies when the variable is absent. The documented mechanism for goal G2 could not be used, and it took actually building a second city to find out. `city.py` now owns the reserved names and the resolver skips them, so the two copies cannot disagree; an EMPTY value also resolved to `cities/` itself and now falls back. **JAVA WAS NEVER SCANNED.** `check_hardcoding` read `src/java/` only for key mentions, never for values, and two MATSim `ConfigGroup` defaults EQUALLED the registry values they shadow - `TelemetryConfigGroup.liveIntervalS = 3600.0` against `RUN.telemetry.live_interval_s = 3600`, and `ParkingConfigGroup.chargedModes = "car"` against `A.parking.charged_modes`. That is the signature defect in its worst form: right by accident, every test passing, and silently wrong the moment anyone sweeps the field, because a config that lost the binding would run on the Java number and report success. Both are now a sentinel or a neutral value with `checkConsistency` refusing the run, and the audit gained a detector for the class - **verified by reintroducing the defect and watching the gate go red**. **G2 IS EXERCISED.** `tests/check_city_agnostic.py` builds a second city from the reference city's own declarations under a different identity - different projection, base year, seed, day types, **three modes not five**, different scenarios - emits its MATSim config through the same emitter and asserts DIFFERENCES, because a test that only checked the config parsed would pass even if every value in it were Newcastle's. It **invents no observation**: fabricating a city's census or counts would breach the rule that no unsupported number may be presented as observed, so the fixture is explicitly not a study, is built at test time and is deleted after. It also hashes `src/`, `config/schema/` and `run.py` either side to prove **no framework file changed while it ran**. 13 assertions, all passing, and a CI job runs it on every push. **THE CONTRACT WAS OVER-STRICT AND SAID SO ABOUT ITSELF.** `required_fields.json` demanded all 292 fields of every city while its own caveat admitted *"a city with no light rail has no use for A.lightrail.dwell_fixed_s - narrowing this set per model layer is not done"*; a three-mode city was refused for not declaring bike parameters it has no bike to apply to. The mode case is the one narrowing that can be DERIVED rather than judged, because the mode name is in the tool binding: fields carry `required_if_mode`, and `check_city` both excuses a missing one and now FAILS a city that declares a mode it does not run. **THE THIRTY RUN-INPUT SETS WERE REGENERATED** and now carry the emitter's output rather than the deleted template's - `lastIteration` 100 → 250 (the declared sweep floor, set through the resolver), threads 8 → 10 (`RUN.machine.threads`), and both capacity factors 1.0 → the resolved sample fraction. Manifest **376 → 378** files. Rebuilding the scenario GTFS feeds is **blocked by the empty OSM harvest (#32)** and was not attempted; the scenario rewiring was instead proved **value-neutral against git** - 23 declared values and every relocated coordinate identical to the literals they replaced. One more defect found by running the builder: `split_schedule` still referenced the deleted module-level `CFG`, which compiles and dies on use, exactly trap #11 - and a repo-wide AST sweep for the class now returns zero. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
