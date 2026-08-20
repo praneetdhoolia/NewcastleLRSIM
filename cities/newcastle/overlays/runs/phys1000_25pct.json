@@ -1,0 +1,12 @@
+{
+  "overlay": "phys1000_25pct",
+  "description": "The FIRST CONVERGED ARM of the all-physical model (DECISIONS.md 9.49-9.55): S2 x WEEKDAY at the campaign fraction, 1000 iterations, owner-approved 21 August 2026 with the cost stated from the measured phys50_25pct pace (~190-200 s/iteration with the 9.56 events threads; ~48-58 h wall). It re-baselines everything at once: the emergent ride share against the observed 20.60% (expected FAR below - the reported non-household-lift gap, 9.55), walk against 13.40% (carrying both #30's generation deficit and the displaced ride mass), the 9.50 constrained base (C5 + report from its fit), and the #48/#31 realised-boarding ledgers at convergence. 500 iterations was CONSIDERED AND REJECTED on the reference arm's own trajectory: car still moved +2.14 pp and ride -1.28 pp between iterations 500 and 790 of bind1000_25pct - a 500-iteration horizon truncates SEARCH, not relaxation. The write intervals are 100 (from 10): declared wall-time-only fields, the final iteration is always written (the #54 accounting gate reads it), and ten intermediate dumps are checkpoints enough for a 1000-iteration arm.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 1000,
+    "RUN.machine.threads": 10,
+    "RUN.machine.xmx": "40g",
+    "RUN.controler.write_events_interval": 100,
+    "RUN.controler.write_plans_interval": 100
+  }
+}
