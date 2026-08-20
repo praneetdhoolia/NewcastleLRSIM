@@ -162,14 +162,20 @@ changed in the model/data/record (not which script ran), no attribution
 trailers or session links. **PR titles carry the phase and task number**:
 `P<phase> (<task>): <what changed>` — e.g. `P4 (4.2.3): …` — with `P<n>
 board:` / `P<n> handover:` for record-only PRs and `Tooling:` for
-phase-agnostic tooling. **One PR, based on `main` — never stacked on an
-unmerged work branch** (a stacked PR merges into its base branch, not
-`main`; this stranded five PRs on 20 Aug 2026 until a landing PR carried the
-union). If session work is still unmerged, fold the handover into that same
+phase-agnostic tooling. **A PR is not required for every handoff.** Open one
+only when the session changed the model, the data, or the record
+substantively; a documentation-only close-out (board/brief refresh, branch
+cleanup, convention notes) lands as a commit directly on `main`. When a PR
+IS warranted: **one PR, based on `main` — never stacked on an unmerged work
+branch** (a stacked PR merges into its base branch, not `main`; this
+stranded five PRs on 20 Aug 2026 until a landing PR carried the union), and
+if session work is still unmerged, fold the handover into that same
 branch/PR rather than stacking a second one. The PR body lists: what was
 recorded, what was deleted (with the supersession evidence), which issues
 were closed/updated/opened, and what the next agent should do first — in
-conventional GitHub style, without the internal house idiom.
+conventional GitHub style, without the internal house idiom. **Either way,
+finish with branch cleanup**: delete merged work branches, local and remote,
+after verifying their tips carry no content absent from `main`.
 
 ## Final self-check before opening the PR
 
