@@ -47,7 +47,7 @@ otherwise cost you an hour:
 | **Run cost, memory, threads** | §9.5 |
 | **Convergence and the iteration count** | **§9.43 DECLARES 1000** (issue #5, two measured arms); §9.7, §9.27 are the history. **The drift window changed with it** — it starts after the cutoff, not at it |
 | **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions. **§9.45: the sampling UNIT is the household**, not the person, or every household mechanism varies with the fraction |
-| **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26; **§9.44 pairs a passenger to a household driver** — and measures that fewer than 1 ride trip in 1,000 can physically be carried; **§9.46 is the demand-side repair** |
+| **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26; **§9.44 pairs a passenger to a household driver** — and measures that fewer than 1 ride trip in 1,000 can physically be carried; **§9.46 is the demand-side repair**; **§9.48 measures the repair on the re-measure arm — pairing 0.00004 → 0.0130, and the defect changes sign** |
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
 | **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
@@ -5153,6 +5153,94 @@ is a stated limitation.
 
 ---
 
+## 9.48 The re-measure arm: the binding moves pairability by two orders of magnitude, and the defect changes sign (20 August 2026, issues #31, #28, #9)
+
+§9.46 ended with the measurement it owed: whether binding escort tours to the
+person escorted moves **realised** pairability. The owner-approved 25% × 1000
+WEEKDAY arm (`bind1000_25pct` — S2 reference scenario, seed 20260810,
+household sampling, threads 10, xmx 40g) is the **first run of the post-repair
+demand family** (§9.44 + §9.45 + §9.46/§9.47, the planned triple break). It is
+a valid run record: rc = 0, wall 34 h 44 m, median iteration 105.9 s,
+**`relaxed: true`** (largest post-margin drift +0.09 pp, car), accounting
+closes on every mode, stuck agents 0.028%, controler `5724c0df81fc1af9`.
+`ITERS` pruned (124.5 GiB reclaimed); `_run.json`, `_summary.json`,
+`_metrics.json`, `_fit.json` and `pairability_bind1000_25pct.json` stand in
+`results/bind1000_25pct/`.
+
+### The headline: pairability moved materially
+
+| measure | pre-repair (`conv1000_25pct`) | post-repair (`bind1000_25pct`) |
+|---|---:|---:|
+| ride trips sharing an OD with a household car trip, at any time | 0.104% | **15.31%** (23,738 of 155,085) |
+| paired under the declared regime (`both_links`, ±15 min) | 0.00004 | **0.0130** (2,014 trips) |
+
+78.5% of ride trips are now in a household that drives at all that day.
+Sensitivity across the declared grid: `both_links` ±60 min 0.0561;
+`window_only` ±15 min 0.1303; `dest_link` ±60 min 0.1511 — full surface in the
+JSON. Pairing is no longer outbound-only (engine telemetry at iteration 1000:
+1,679 outbound, 239 return; the §9.44-era all-zero direction split stays
+fixed). Capacity refusals: 0.
+
+### The realisation gap, named and deliberately not chased
+
+The demand provably contains the coincidence (15.31% OD-coincident; the build
+placed 120,980 exact OD+time weekday bindings) but the declared regime
+realises 1.30%. The factor of ~12 between them lives in the realisation
+layers the handover brief anticipated: co-evolution must hand the escorter
+`car` and the escortee `ride` on the same day before a bound pair can pair;
+the ±15 min window applies to **realised**, not planned, departures; and
+`both_links` requires both trips to resolve identical coordinates to
+identical links. Under the brief's §4D branch this diagnosis is **not**
+pursued now — pairability moved, the ride lane rests — and the gap is
+recorded as the first question to reopen if #31's realised occupancy under
+the declared regime (0.0053) ever becomes load-bearing.
+
+### What else the arm measured (pre-calibration; §8.5's first branch was on record before this run)
+
+- **The #28 residual**: `mean_driver_minus_baseline_s` settled at **~11.6 s**
+  (was ~5 s at 25% pre-repair) — a paired passenger now takes a realised time
+  measurably different from the router's estimate. Still not a fitted
+  friction; `B.ride.pickup_dwell_s` stays 0.0, swept.
+- **Mode share, Newcastle LGA linked, calibration targets only (35 of 67
+  scorable)**: ride **31.05** (was 37.17; observed 20.60), car **63.95** (was
+  57.76; observed 59.00), pt 0.36 (observed 3.80), walk-only 0.71 (observed
+  13.40), other 3.92 (observed 3.20); MAE 6.45 pp over the 5 mode rows. The
+  repair moved ride 6.1 pp toward its target; car crossed its own (−1.24 →
+  +4.95 pp error).
+- **Occupancy**: **0.4855** passengers per driver against the observed 0.3503,
+  **outside** the declared [0.2493, 0.394] — the defect changed sign. The
+  demand used to starve ride of drivers; the model now carries too many
+  passengers per driver, and that is the **flattering** direction (more ride,
+  fewer cars) for a rail forecast. Recorded, not tuned; it is the calibration
+  decision's (4.2.4) problem to confront in the open.
+- **ride:car trip-length ratio** 0.862 against the observed 0.961 (car
+  geometry itself near-exact: modelled 10.40 km vs observed 10.20).
+- **The restored elderly travel like the census says**: in the arm's plans,
+  75–84 makes **0.7%** of its trips to work (52.4% other, 26.0% shopping);
+  85+ **0%** work; 65–74 6.9% work; 0–14 zero work, zero escort, 49.5%
+  education.
+- **Traffic counts remain unusable as fit evidence** (mean −91%): the
+  leg→vehicle conversion (#20's `B.counts.vehicles_per_*` fields) is
+  declared-ahead and unwired, and 7 stations carry modelled zero (#19).
+  Not new to this arm; recorded so −91% is not read as a finding.
+
+### What this does not say
+
+No number above is a finding about the light rail: the arm is the reference
+scenario alone, pre-calibration (deliverable 5 not met), one seed, one day
+type, no counterfactual. The fit rows are diagnostics feeding the calibration
+decision. **No holdout row was opened.**
+
+### The decision this evaluation feeds (brief §4D)
+
+Pairability moved materially → **the ride lane rests**. Next in value order,
+unchanged from the brief and pending the owner's confirmation: **#24 freight**
+(measured 6.52% of vehicles; improves every mode's congestion denominator),
+then **4.2.4 / #14** — the §8.5 calibration decision, whose first branch
+(ASCs on era 3, held fixed) was on record before this arm ran.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -5651,6 +5739,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-20 | **The re-measure arm ran, and the escort binding is measured to move realised pairability by two orders of magnitude (§9.48, issues #31, #28, #9).** `bind1000_25pct` — 25% × 1000 WEEKDAY on the §9.46/§9.47 demand, the first run of the post-repair family — completed rc=0 in 34 h 44 m, median iteration 105.9 s, **`relaxed: true`** (max post-margin drift +0.09 pp), accounting closed, stuck 0.028%. **OD-coincidence 0.104% → 15.31%; declared-regime (`both_links` ±15 min) pairing 0.00004 → 0.0130**; the #28 residual is ~11.6 s at 25% (was ~5 s); the direction split stays non-zero (239 return pairings at iteration 1000). The defect **changed sign**: occupancy is now 0.4855 passengers per driver against the observed 0.3503, outside the declared range in the **flattering** direction — recorded, not tuned, and handed to the 4.2.4 calibration decision. Ride's LGA linked share moved 37.17 → 31.05 against observed 20.60; the restored 75+ cohort makes 0.7% of its trips to work. The realisation gap (15.31% coincident vs 1.30% paired) is named and deliberately not chased. Per the brief's §4D branch the ride lane rests; next in value order, pending owner confirmation: #24 freight, then 4.2.4/#14. **Pre-calibration, one scenario, one seed, no counterfactual: nothing here is a finding about the light rail, and no holdout row was opened.** |
 | 2026-08-15 | **The city selector never worked, Java was never audited, and G2 is now exercised rather than asserted (§9.38 cont.).** Reporting zero hardcoding against an audit that did not look at Java, for a framework whose second-city claim had never been run, was a verdict on a scoreboard rather than on the repository. Both gaps contained a live defect. **THE CITY SELECTOR WAS BROKEN AND ALWAYS HAD BEEN.** `README.md`, `docs/README.md` and `.claude/CLAUDE.md` all state that the city is selected by `CITYSIM_CITY`. Setting it to ANY value - *including its own default* - made every `registry.load()` raise *"env CITYSIM_CITY matches no registry field"*, because the resolver reads `CITYSIM_*` from the environment as field overrides and skipped only `CITYSIM_REPO`. Nobody had ever set it: there is one city and the default applies when the variable is absent. The documented mechanism for goal G2 could not be used, and it took actually building a second city to find out. `city.py` now owns the reserved names and the resolver skips them, so the two copies cannot disagree; an EMPTY value also resolved to `cities/` itself and now falls back. **JAVA WAS NEVER SCANNED.** `check_hardcoding` read `src/java/` only for key mentions, never for values, and two MATSim `ConfigGroup` defaults EQUALLED the registry values they shadow - `TelemetryConfigGroup.liveIntervalS = 3600.0` against `RUN.telemetry.live_interval_s = 3600`, and `ParkingConfigGroup.chargedModes = "car"` against `A.parking.charged_modes`. That is the signature defect in its worst form: right by accident, every test passing, and silently wrong the moment anyone sweeps the field, because a config that lost the binding would run on the Java number and report success. Both are now a sentinel or a neutral value with `checkConsistency` refusing the run, and the audit gained a detector for the class - **verified by reintroducing the defect and watching the gate go red**. **G2 IS EXERCISED.** `tests/check_city_agnostic.py` builds a second city from the reference city's own declarations under a different identity - different projection, base year, seed, day types, **three modes not five**, different scenarios - emits its MATSim config through the same emitter and asserts DIFFERENCES, because a test that only checked the config parsed would pass even if every value in it were Newcastle's. It **invents no observation**: fabricating a city's census or counts would breach the rule that no unsupported number may be presented as observed, so the fixture is explicitly not a study, is built at test time and is deleted after. It also hashes `src/`, `config/schema/` and `run.py` either side to prove **no framework file changed while it ran**. 13 assertions, all passing, and a CI job runs it on every push. **THE CONTRACT WAS OVER-STRICT AND SAID SO ABOUT ITSELF.** `required_fields.json` demanded all 292 fields of every city while its own caveat admitted *"a city with no light rail has no use for A.lightrail.dwell_fixed_s - narrowing this set per model layer is not done"*; a three-mode city was refused for not declaring bike parameters it has no bike to apply to. The mode case is the one narrowing that can be DERIVED rather than judged, because the mode name is in the tool binding: fields carry `required_if_mode`, and `check_city` both excuses a missing one and now FAILS a city that declares a mode it does not run. **THE THIRTY RUN-INPUT SETS WERE REGENERATED** and now carry the emitter's output rather than the deleted template's - `lastIteration` 100 → 250 (the declared sweep floor, set through the resolver), threads 8 → 10 (`RUN.machine.threads`), and both capacity factors 1.0 → the resolved sample fraction. Manifest **376 → 378** files. Rebuilding the scenario GTFS feeds is **blocked by the empty OSM harvest (#32)** and was not attempted; the scenario rewiring was instead proved **value-neutral against git** - 23 declared values and every relocated coordinate identical to the literals they replaced. One more defect found by running the builder: `split_schedule` still referenced the deleted module-level `CFG`, which compiles and dies on use, exactly trap #11 - and a repo-wide AST sweep for the class now returns zero. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-15 | **Zero hardcoding: the config is BUILT from the registry, and 69 bound fields are PROVEN to reach the model by moving them (§9.38).** The MATSim config was a hand-written template with substitution holes, so every parameter nobody had cut a hole for stayed a literal - **47 of them**, including `fractionOfIterationsToDisableInnovation`, which the entire relaxation measurement hinges on, the four strategy weights that bound how far co-evolution can move mode share, and `BrainExpBeta`, the logit scale, which **had no registry field at all**. Six more had fields carrying a `matsim_param` binding the template ignored: right by accident, and wrong the moment anyone swept them. Patching them one at a time leaves the template, and **the template is the defect** - a place where typing a number is possible. `src/registry/param_config.py` now builds the MATSim config and pt2matsim's two from the fields that declare a binding; a parameter exists only if a field claims it or the caller supplies it under one of three declared runtime roles (a path, the city's own identity, a value derived from declared fields), and `closure()` returns anything else. **Emitting rather than patching also fixed what an overlay could reach**: `run_matsim.py` read the shipped config and rewrote SIX parameters, so a run overlay setting any other field was validated against its sweep, written into `_config.json` as the run's provenance, and changed nothing - the snapshot said one thing and the run did another. **Four quantities were bound to a parameter of a different kind, and the emitter found each by refusing to write it**: an exponent to a factor (`storage_capacity_exponent` 1.0 into a 0.01 factor - MATSim rejects that in one second), a time RATIO to a util/hour rate (`beta_walk_mode`, `beta_bike_mode`), a per-day-type window dict to two scalar hours (parking), and an activity duration table with no clock format. Each is now the input to a `computed` field carrying its identity. **The network builder held a second copy of the road class defaults** and the comment above it said it was kept there so the MATSim network, the SUMO corridor and `A1_road_edges.csv` could not drift apart; **they had** - six classes carried a different free speed from `A.road.speed_default`, in both directions (motorway 100 v 110, trunk 80 v 60, plus motorway_link, primary_link, secondary_link, service). Nothing compared them, because a second copy with no `legacy_symbol` is invisible to `check_legacy_drift.py`. One copy now, and **the network takes the declared speed** - a real change to six classes' free speed, taken because the registry is the declared source of truth and the network is rebuilt by #32 anyway. **The shipped configs stopped carrying a value supplied past the resolver**: `RUN.controler.last_iteration` is `unobtained` because 100 is MEASURED to be too low, and an argparse default shipped exactly 100 into all thirty sets; a shipped config now carries the sweep's lower bound, set THROUGH the resolver so it is recorded and range-checked. **22 coordinates left the scripts** into `cities/<city>/geometry/scenario_alignments.json` - among them the eight stops of the S1 shuttle and the six of the S3 BRT, the whole alignment of both counterfactuals the light rail is reported against, with the S3 list a copy of the S1 list that could drift; S3 is now expressed as which S1 stops it omits. Their service specifications went too, and were worse than unswept: `make_bus_shuttle(speed_kmh=28.0, dwell_s=15.0)` were **dead defaults** - the S1 call site passed 26.0 and 18.0, so the signature advertised a specification the model never used. **`0.75` was the S2b intervention**: "full transit signal priority" removes 75% of corridor signal delay, and that share - the thing S2b exists to measure - was a bare literal inside an arithmetic expression. `A.lightrail.tsp_enabled`, which all ten scenario overlays set, **reached nothing**; it now decides whether the S2b saving applies at all. **`DWELL_CHARGING = 20.0` pinned an UNOBTAINED input in a script**, walking past the one refusal the registry exists to make; the handover brief said it was pinned by `legacy_symbol` and should be left alone, and it carried none - its `EXPECTED_DIVERGENCE` entry compared nothing and the constant was unguarded. The seed existed in **nine copies** against a declared `B.seed.master`. `DEPART` was **144 assumed numbers** deciding when every tour starts. `build_matsim_plans.py` held a second activity-duration table, six keys against the field's seven - it had no `escort`. **The audit itself was counting the wrong things**: it asked whether a key was a SUBSTRING of any file, so a key named only in a comment or a test passed as wired, and **the count FELL when someone added a comment**. It now counts a key only where it appears as a complete string literal, understands a key built by format at the call site, and asks a sixth question no text search can - change each bound value and watch the emitted config change. **69 of 69 pass, 0 inert.** Honest baseline **185 items, not the 95 the previous audit could see; now 0**, with 18 structural exceptions and 7 declared-ahead-of-consumer fields each carrying a written reason and the issue that will wire it. `--strict` is a CI gate. **The CI provenance job had been failing since the city restructure** - it tested `docs/DECISIONS.md`, which moved. **No scenario was run, no target value changed, the 67/143 split is untouched and nothing here is a result.** |
 | 2026-08-14 | **One city moves into `cities/<city>/`, and the framework stops knowing which city it models (§9.37).** No model or data value changed: the manifest was regenerated and diffed - **376 rows before and after, no path added or removed, not one sha256 changed**, only `produced_by`. `cities/newcastle/` now holds the registry, the overlays, the acquisition adapters, the seven builders that encode this city's intervention, and every data, network, schedule, demand and scenario artefact; `config/` is `config/schema/` alone. `src/city.py` is the only module that knows where a city lives and 338 path literals across 46 scripts resolve through it. **The input contract now exists**: `city.schema.json` (identity, and a boundary that must be DERIVED - `bbox` is deliberately not a property), plus the generated `required_fields.json` (210 keys) and `layers.json` (119 artefacts, read from the framework's own `city.path(...)` calls), gated by `check_city.py` in CI. The CRS left seven modules and the mode-share filter value left three, into `city.json`; the #34 CBD box and the harbourside window are declared in `geometry/` at **byte-identical values** - relocated, NOT fixed, #34 still open. **#36 closed**: `CITYSIM_*`, `src/java/citysim/`, `CitysimControler`, generic OSM layer names. **One breaking output change taken deliberately**: `newcastle_lga_pct` -> `target_lga_pct`, so run records written earlier cannot be read by `fit.py`. **Two defects found by measurement**: four scripts named a city directory relative to the working directory and one wrote 32 MB of GTFS into the repo root (`check_city.py` now fails on the class, verified by reintroducing it), and `build_manifest.py` still stamped **GDA2020** where §2.6 established GDA94. Still no scenario run; no falsification condition altered. |

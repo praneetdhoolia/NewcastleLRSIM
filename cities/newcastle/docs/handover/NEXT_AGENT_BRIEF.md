@@ -1,15 +1,16 @@
-# Brief for the next agent — RUN THE ARM, WATCH IT, EVALUATE IT, THEN DECIDE
+# Brief for the next agent — THE ARM HAS RUN; THE NEXT LANE IS THE OWNER'S CALL
 
-*Updated late 18 August 2026 (PR #43 merged): the two demand defects §4 named
-are FIXED and regenerated — the escort binding (§9.46) and the census age
-structure (§9.47). **Your job is step 3: the 25% × 1000 WEEKDAY arm on the
-repaired demand — launch it, watch it, close it out, re-measure pairability,
-and decide the next lane from what the evaluation says.** A first attempt at
-this arm (`bind1000_25pct`) was launched and then STOPPED at the owner's
-instruction for this handover — its partial output is quarantined in
-`results/_aborted_20260818/` and is not a result. This is a HANDOVER, not a
-source of truth: where it disagrees with [`STATUS.md`](../STATUS.md),
-[`DECISIONS.md`](../DECISIONS.md) or
+*Updated 20 August 2026: **§4's job is DONE.** The approved 25% × 1000 WEEKDAY
+arm (`bind1000_25pct`) ran to completion (rc=0, 34 h 44 m, `relaxed: true`,
+accounting closed), was evaluated, and the answer is recorded in
+[`DECISIONS.md`](../DECISIONS.md) **§9.48**: **pairability moved materially**
+— OD-coincidence 0.104% → 15.31%, declared-regime pairing 0.00004 → 0.0130 —
+so per §4D the ride lane RESTS. The defect changed sign (occupancy 0.4855 vs
+observed 0.3503, outside the range in the flattering direction); that is
+4.2.4's problem to confront openly. **Next in value order, pending the
+owner's confirmation: #24 freight, then 4.2.4/#14 (the §8.5 calibration
+decision).** This is a HANDOVER, not a source of truth: where it disagrees
+with [`STATUS.md`](../STATUS.md), [`DECISIONS.md`](../DECISIONS.md) or
 [`.claude/CLAUDE.md`](../../../../.claude/CLAUDE.md), those win.*
 
 ---
@@ -26,9 +27,8 @@ python src/registry/check_hardcoding.py --strict   # must exit 0
 
 **⚠ OWNER DIRECTIVES, both standing:**
 1. **NO MULTI-HOUR RUNS WITHOUT EXPLICIT APPROVAL.** State the cost, get a yes.
-   **Exception already granted:** the ONE 25% × 1000 WEEKDAY arm in §4 is
-   owner-approved (18 Aug — it was launched, then stopped only for this
-   handover). That approval covers that one arm, nothing else.
+   The one granted exception (the §4 arm) is **spent** — it ran to completion
+   on 20 Aug. There is no standing approval for any further run.
 2. **DO ONE THING RIGHT rather than bloating the repo.** Do not open ten tasks.
    Do not harvest data the model cannot yet consume. Do not build a mode whose
    share is 1% while a mode at 33% is unphysical.
@@ -87,7 +87,7 @@ motorbikes, taxis and Uber — not the fleet.
 
 | rank | gap | share of trips | mechanism | data to support it | verdict |
 |---|---|---:|---|---|---|
-| **1** | **Car passengers (`ride`)** | **32.7%** | **BUILT** (Tier 1, §9.44); the starving demand defect is **FIXED** (§9.46/§9.47 — 68.6% of weekday escorts bound exactly) | occupancy 0.35 OBSERVED; who-drives-whom **no target** | **MEASURE IT (§4).** Whether the fix moves realised pairability is unmeasured until the approved 25% arm runs |
+| **1** | **Car passengers (`ride`)** | **32.7%** | **BUILT and MEASURED to work** (§9.44 mechanism, §9.46/§9.47 demand, §9.48 measurement: pairing 0.00004 → 0.0130, OD-coincidence 15.31%) | occupancy 0.35 OBSERVED; who-drives-whom **no target** | **RESTS (§9.48).** Occupancy is now 0.4855 vs 0.3503 — over-supplied, the flattering direction — which is the calibration decision's problem, not a reason to rebuild the mechanism |
 | **2** | **Freight / heavy vehicles** | **6.52% of vehicles** (MEASURED) | absent — no `truck` mode | share measured from RMS counts; PCE from literature | **DO THIS SECOND.** Cheap, measured, and it changes congestion for *every* mode |
 | **3** | Taxis + Uber | **0.4–1.5%** (10k–35k trips/day of ~2.27M) | absent — inside the `Other` bucket | fares MEASURED; fleet literature; volume band INFERRED, no target | **DEFER.** A ~1% refinement must not precede a 33% defect |
 | **4** | Motorbikes | unknown, inside `car`/`ride` | absent | **NO TRIP-SHARE TARGET ANYWHERE.** Registration data gives FLEET share, not trip share | **STAY DECLINED.** Any split would be invented, and it would shrink both the car and ride targets |
@@ -159,75 +159,42 @@ non-existent respectively.
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§4  ★ WHAT TO DO NEXT — RUN THE ARM, WATCH IT, EVALUATE, THEN DECIDE
+§4  ✅ DONE 20 AUGUST — THE ARM RAN, THE EVALUATION IS §9.48
 ═══════════════════════════════════════════════════════════════════════════════
 
-Steps 1–2 of the previous plan (the two demand-model defects) are **done and
-merged** (PR #43, §9.46/§9.47 — see §8). What remains is the measurement they
-exist for, and the decision that hangs on it.
+All four steps executed as written; the full record is
+[`DECISIONS.md`](../DECISIONS.md) **§9.48**. What was measured:
 
-### Step A — launch the approved arm (owner approval on record, §0)
+- **The arm**: `bind1000_25pct` — rc=0, wall 34 h 44 m, median iteration
+  105.9 s, `relaxed: true` (max post-margin drift +0.09 pp), accounting
+  closed, stuck 0.028%, `_run.json` present, ITERS pruned (124.5 GiB). One
+  false stall alarm was the watcher's own defect (it read the 0-byte
+  `output/logfile.log`; the real log is `<run>/matsim.log`); the run itself
+  never stalled.
+- **The headline**: OD-coincidence **0.104% → 15.31%** (23,738 of 155,085
+  ride trips); declared-regime (`both_links` ±15 min) pairing
+  **0.00004 → 0.0130** (2,014 trips). Direction split non-zero (239 return
+  pairings at iteration 1000). **Pairability moved materially.**
+- **The residual (#28)**: ~11.6 s at 25% (was ~5 s pre-repair).
+- **Mode share** (Newcastle LGA linked, calibration rows only, 35/67
+  scorable): ride 37.17 → **31.05** vs observed 20.60; car 57.76 → **63.95**
+  vs 59.00; pt 0.36 vs 3.80; walk-only 0.71 vs 13.40; MAE 6.45 pp.
+- **The defect changed sign**: occupancy **0.4855** passengers/driver vs
+  observed 0.3503 — outside the declared [0.2493, 0.394], in the flattering
+  direction. Recorded, not tuned; 4.2.4 must confront it openly.
+- **The elderly repair holds in the demand the arm ran**: 75–84 makes 0.7%
+  of trips to work (HS/HO 78%), 85+ zero, 0–14 zero work and zero escort.
+- **The realisation gap is named, not chased** (§9.48): 15.31% coincident vs
+  1.30% paired — mode co-assignment, the window against realised departures,
+  and `both_links` link resolution — first thing to reopen if realised
+  occupancy ever becomes load-bearing.
 
-```bash
-python src/run/run_matsim.py --scenario S2 --day WEEKDAY --fraction 0.25 --threads 10 --xmx 40g --tag bind1000_25pct
-```
-
-Cost: ~31 h wall at ~90 s/iteration, ~33–38 GiB working set on the 40g heap.
-The earlier partial attempt with this tag is quarantined in
-`results/_aborted_20260818/` — the tag is free again. **One arm at a time;
-nothing else heavy on the machine while it runs.**
-
-### Step B — WATCH it, don't just wait for it
-
-- The run prints its own `live view:` URL before MATSim starts (deliverable 9):
-  iteration progress, per-mode counts, stuck agents, the relaxation light.
-- Known non-events: the benign `Unsupported class file major version 69` log
-  noise (§12 trap 7), and the §9.36-era stall pattern — one 10% iteration once
-  took 2,415 s at near-zero CPU and self-recovered; the 25% pilot arm had a
-  slow block around iterations ~200–293 that also self-recovered. **Do not
-  kill a run for a slow block; do investigate anything that stops writing
-  iterations for over an hour.**
-- A run without `_run.json` is not a result. If it dies, quarantine and
-  diagnose before relaunching.
-
-### Step C — close out and EVALUATE (attended ~0.5 day)
-
-1. Close-out: the finished run writes `SUMMARY.md` + `_summary.json` (check
-   `relaxed` and the accounting); then metrics → fit as in task 5.5.
-2. **The headline measurement** — pairability on the repaired demand:
-   ```bash
-   python src/analyse/measure_ride_pairability.py --run bind1000_25pct --json pairability_bind1000_25pct.json
-   ```
-   The pre-repair baselines it must be read against: **0.10%** of ride trips
-   shared an OD with a household car trip (conv1000_25pct), pairing rate
-   0.00004 under the declared `both_links` ± 15 min regime.
-3. Also re-measure what §9.46/§9.47 predict should move: the car↔ride
-   travel-time residual (#28, was ~5 s at 25%), mode share against the HTS
-   linked targets (employment fell 6 pp of persons and ~20% of persons lose
-   `ride` on escort days — the shares WILL move; that is the point), and the
-   per-band elderly trip pattern (the restored 75+ cohort should travel
-   HS/HO, not HW).
-4. Record the answer in `DECISIONS.md` (follow-on to §9.46), update
-   `STATUS.md`, this brief, and issues #31, #28, #9 with the measured numbers.
-   **Either answer is publishable — do not massage a disappointing one.**
-
-### Step D — decide from the evaluation, and bring it to the owner
-
-- **If pairability moved materially** (bound escorts realise as paired
-  ride+car trips): the ride lane rests. Next in value order: **#24 freight**
-  (measured 6.52%, improves every mode's congestion denominator), then the
-  **#14 §8.5 calibration decision** (ASCs on era 3, HELD FIXED — log the
-  departure BEFORE any result is seen).
-- **If it did not move**: diagnose BEFORE building anything — the remaining
-  candidates are mode assignment (does MATSim actually give the escorter car
-  and the escortee ride on the bound pair? the seed is uniform and
-  co-evolution decides), the ±15 min window against realised (not planned)
-  departures, and the `both_links` link-resolution of identical coordinates.
-  Measure which one eats the coincidence the demand now provably contains
-  (120,980 exact OD+time pairs on WEEKDAY). That diagnosis is its own
-  publishable finding.
-- Steps beyond that (taxi p2p, 0b derivations, scenario campaign) keep their
-  §7 ranking — do not reorder without the owner.
+**The §4D branch taken: pairability moved → the ride lane rests.** Next in
+value order, pending the owner's confirmation: **#24 freight** (measured
+6.52% of vehicles, improves every mode's congestion denominator), then
+**4.2.4/#14** — the §8.5 calibration decision, whose first branch (ASCs on
+era 3, HELD FIXED) was on record before this arm ran. Steps beyond keep
+their §7 ranking — do not reorder without the owner.
 
 ---
 
@@ -336,10 +303,10 @@ same numbering; this table adds the assessment the owner asked for.
 |---|---|---|---|
 | 4.2.5 | ✅ **DONE** — escort binding (§5, §9.46) | ✅ | was CRITICAL — 32.7% of trips |
 | 4.2.6 | ✅ **DONE** — age structure (§6, §9.47) | ✅ | was CRITICAL — contaminated the above |
-| **★ NEXT** | **The re-measure arm + evaluation** (§4 steps A–D) | 0.5 d attended + 31 h wall | **CRITICAL** — everything after it branches on its answer |
-| 4.2.4 | §8.5 calibration decision + calibrated base (#14) | 1–2 d + 2–3 d wall | **CORE** — G1 depends on it; only after the §4 evaluation |
+| ★ | ✅ **DONE 20 Aug** — the re-measure arm + evaluation (§4, §9.48): pairability moved, the ride lane rests | ✅ | was CRITICAL — the branch is taken |
+| **#24** | **Freight `truck` mode, own PR — THE NEXT LANE (pending owner confirmation)** | 1–2 d | **HIGH** — measured 6.52% of vehicles, improves every mode's congestion denominator |
+| 4.2.4 | §8.5 calibration decision + calibrated base (#14) | 1–2 d + 2–3 d wall | **CORE** — G1 depends on it; must confront the §9.48 occupancy excess openly |
 | 4.3 | Deliverable 0b: derive 15–25 of the 78 `assumed` fields from data already held | 2–3 d | **HIGH, and under-rated** — attacks §3's 58%-assumed problem directly |
-| #24 | Freight `truck` mode, own PR | 1–2 d | **HIGH** — measured, and improves every mode's congestion |
 | 5.4 | Scenario × day-type runs S0–S6 (prioritise S0/S1/S2 × WEEKDAY) | wall: weeks | **CORE** — this is the counterfactual |
 | 5.5 | Per-run close-out: metrics → fit → summary | ~1 h/run | **CORE** |
 | 6.3 | Open the 143 holdouts **once**, at the end | 0.5 d | **CORE** — the pre-registered test |
@@ -375,6 +342,13 @@ at ~10×, reverted) · 2013 historical reconstruction (dropped; do not reopen).
 ═══════════════════════════════════════════════════════════════════════════════
 §8  WHAT IS DONE — do not redo any of it
 ═══════════════════════════════════════════════════════════════════════════════
+
+**THE RE-MEASURE ARM IS RUN AND EVALUATED (§9.48, 20 Aug).** `bind1000_25pct`
+— 25% × 1000 WEEKDAY, the first run of the post-repair family — rc=0,
+`relaxed: true`, accounting closed. Pairing 0.00004 → 0.0130, OD-coincidence
+15.31%, residual ~11.6 s, occupancy 0.4855 vs observed 0.3503 (outside range,
+flattering direction). **Do not re-run it, and do not compare it to the
+pre-repair pilots** — they are different demand families.
 
 **THE DEMAND REPAIR IS MERGED (§9.46, §9.47, PR #43, 18 Aug).** B1/B2/plans
 and the 30 run-input sets are regenerated on it; `check_package.py` 1,460
@@ -440,7 +414,7 @@ pairability — measured, not assumed: the household-sampled 25% arm pairs at
 ---
 
 ═══════════════════════════════════════════════════════════════════════════════
-§10  EXACT STATE — 18 August 2026
+§10  EXACT STATE — 20 August 2026
 ═══════════════════════════════════════════════════════════════════════════════
 
 | | |
@@ -453,9 +427,9 @@ pairability — measured, not assumed: the household-sampled 25% arm pairs at
 | Package | 391 files; `check_package.py` **1,460 checks ALL PASSED**, 2 standing warnings; demand is the §9.46/§9.47 family |
 | Machine | 63.5 GiB RAM, 24 cores; **memory is the binding constraint** (~24 GiB fixed + 0.09–0.3 MB/agent → a 100% run needs 80–160 GiB) |
 | Run cost | 33.3 s/iter at 10%, 90.2 s at 25% → a 1000-iteration arm is 11 h / 31 h |
-| Runs | **None in progress.** `results/_aborted_20260818/bind1000_25pct` is the STOPPED first attempt at the §4 arm (stopped for this handover, ~1 h in) — not a result, do not read it; relaunch fresh with the same tag |
-| Open issues | **5** — #9 #14 #24 #28 #31, each carrying an 18 Aug comment saying what the §4 arm must re-measure |
-| **Results** | **NONE. Nothing in this repository is an output of the model.** |
+| Runs | **None in progress.** `results/bind1000_25pct/` is the COMPLETED re-measure arm (rc=0, relaxed, `_run.json`, ITERS pruned) — the first run of the post-repair family, evaluated in §9.48. The quarantines in `results/_aborted_*/` stay non-results |
+| Open issues | **5** — #9 #14 #24 #28 #31, each now carrying a 20 Aug comment with the §9.48 measured numbers |
+| **Results** | **No findings.** One reference-scenario run exists as a valid record; its fit rows are pre-calibration diagnostics. No counterfactual has run; **nothing is a finding about the light rail** |
 
 ### Bootstrap reading, in this order
 
