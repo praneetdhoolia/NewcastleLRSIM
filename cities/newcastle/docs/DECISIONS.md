@@ -51,6 +51,7 @@ otherwise cost you an hour:
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
 | **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
 | **Freight / heavy vehicles (`truck`)** | **§9.49** — a physical background load: measured profile and gate shares, assumed and swept volume ratio, PCE and decay; issue #24 |
+| **The calibrated base (deliverable 5)** | **§9.50** — constrain-and-report, logged before the base run's results; ASCs stay §8.5 priors, #9 resolved by decision, the §9.48 occupancy excess reported not absorbed |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
 | **Bike availability (issue #29)** | **§9.39** |
 | **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
@@ -5357,6 +5358,71 @@ truck-aware when it lands.
 
 ---
 
+## 9.50 The calibrated base is constrained-and-reported, and the decision is logged before its run exists (20 August 2026, issues #14, #9)
+
+**Decision:** deliverable 5 takes **§8.5's second branch — constrain and
+report** — and this entry is written **before the base run of the §9.49
+family has produced a single result**, which is the ordering §8.5 demands.
+Taken 20 August 2026.
+
+### Why not the first branch, which was on record
+
+The plan of record said *ASCs on era 3 (2018), held fixed*. Attempting to
+make that concrete exposes what it needs and does not have: **no 2018 demand
+exists.** The population is synthesised from the 2021 census for a 2026 base
+year; the era-3 GTFS feed is mapped, but a schedule is not a travel demand,
+and the historical reconstruction that could carry one was **considered and
+dropped** (backlog — *do not reopen*). Estimating 2018 constants by running a
+2018 schedule under a 2026 population would fit the constants to a
+year-hybrid that exists in no observation — manufacturing exactly the
+confound §8.5 exists to prevent, with the extra step of looking rigorous.
+The second branch is the one the rule offers for this situation, and the
+project has used it before (§9.8, §9.17: `asc_car_passenger` constrained to
+observed occupancy, the constraint reported).
+
+### What "constrained" means, exactly
+
+- **The six mode constants stay at their §8.5 priors, held fixed** —
+  car passenger −0.85, bus −1.05, light rail −0.75, rail −0.65, walk +0.35,
+  cycle −1.35 — with `asc_car_passenger` keeping its §9.8 occupancy-derived
+  value. **Issue #9 (re-solve `asc_car_passenger`) is resolved by DECISION,
+  not by a solve:** §9.48 measured occupancy at 0.4855 against the observed
+  0.3503 — outside the declared range, in the flattering direction — and
+  re-solving the constant against that would absorb a modelled defect into a
+  behavioural parameter, the precise ASC-absorption move proposal §9 names as
+  the primary threat to validity. **The excess is REPORTED in the calibration
+  record instead.**
+- **No parameter search runs.** The corrected loop (this change also fixed
+  its rebuild-stage table, which had been defaulting unclassified consumers
+  to "movable at run time" — the OSM harvest margins were in the movable
+  set) identifies exactly **two** legitimately searchable parameters:
+  `A.parking.max_stay_min` and `C.scoring.activity_minimal_duration_s`, at
+  up to 21 full runs ≈ a month of 25% × 1000 compute. Neither can reach the
+  structural misfits (§9.48: pt −3.4 pp, walk −12.7 pp, both diagnosed
+  structural in §9.25/§9.28), so the search would spend weeks polishing a
+  6.45 pp MAE it cannot materially move while LOOKING like calibration.
+  Declined, with the cost stated. The loop remains built and gated for a
+  future owner-approved search.
+- **The base is one reference run** of the §9.49 family — S2 × WEEKDAY,
+  25% × 1000, seed 20260810 — whose fit against the 67 calibration targets
+  is reported **as it comes out**. `params/C5_calibration.json` records the
+  constrained parameter set with provenance, the branch decision, and that
+  run's fit; the calibration report (deliverable 3) is generated from it.
+  Misfits are stated with their §9.25 diagnoses, never tuned away by a
+  constant.
+
+### What this claims, and what it does not
+
+This meets deliverable 5 in the only form the evidence supports: **a
+declared, constrained base whose distance from observation is stated**, not
+a fitted base whose distance has been absorbed. Every headline downstream
+carries its sweep band (§8.1); the ASCs' provenance is `assumed (priors,
+held fixed under 8.5)`; and the pre-registered 67/143 split is untouched.
+If a future search is approved, it starts from this record and its
+already-stated costs.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -5855,6 +5921,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-20 | **The calibrated base takes §8.5's second branch — constrain and report — and the decision is logged before its run exists (§9.50, issues #14, #9).** The first branch (ASCs on era 3) is recorded infeasible as stated: no 2018 demand exists and the historical reconstruction is dropped, so estimating 2018 constants under a 2026 population would manufacture the confound §8.5 prevents. ASCs stay at the §8.5 priors, held fixed; `asc_car_passenger` is NOT re-solved against the §9.48 occupancy excess (that would be ASC absorption — #9 resolved by decision, the excess reported). No parameter search: the corrected loop identifies exactly two searchable parameters at ~21 × 35 h runs, neither able to reach the structural misfits — declined with the cost stated. Also fixed: the loop's rebuild-stage table defaulted unclassified consumers to "movable at run time", putting the OSM harvest margins in the movable set — unclassified consumers are now excluded with the reason stated. The base is one reference run of the §9.49 family whose fit is reported as it comes out. |
 | 2026-08-20 | **Freight becomes physical (§9.49, issue #24): a `truck` mode in the mobsim at declared PCE, seeded from the counts the model already holds.** `qsim.mainMode` = `car,truck`; `vehiclesSource` → `modeVehicleTypesFromVehiclesData` with the car type restating MATSim's default exactly (`RUN.qsim.car_vehicle`) and the truck type at `B.freight.pce` (literature 2.0, swept 1.5–3.5) under the regulated 100 km/h cap. Through-gate volumes split into car and truck by each gate station's own observed heavy share (Hunter Expressway 0.1529 observed; median 0.0652 fallback) — through trucks had been riding as PCE-1 cars. An internal freight tier draws over the observed freight-industry attractor at the assumed, swept `B.freight.trip_ratio` (0.0697, sweep 0.0–0.14). NEW MEASUREMENTS from the classified RMS hourly counts (`extract_freight_profile.py`, 33,816 station-days): the heavy hourly profile per day type and the weekend factors (SAT 0.4627, SUN 0.4104). Six new registry fields + `RUN.qsim.car_vehicle`; subpopulation `freight` with `lockedMode=truck` (no Java change). **A planned comparability break: the demand family changes again — `bind1000_25pct` is the last run of the §9.46/§9.47 family.** No toolchain change; no target touched; nothing here is a result. |
 | 2026-08-20 | **Session close-out and onboarding become procedure, not recollection — no model or data value changed.** Two project skills land in `.claude/skills/`: **`/handoff`** (evidence-gated close-out: deletion-disciplined hygiene, issue grooming that closes only with evidence and a REOPEN IF condition, the DECISIONS entry + §14 row + index, the board repaired in the same commit, and the brief rewritten in place with completed sections flipped from instructions to record) and **`/onboard`** (session start: read in precedence order — constraints → record → board → brief, artefact over document — run the §0 checks, cross-check the documents against live GitHub state, answer the six state-of-the-project questions with sourced numbers, recite the invalidating constraints, then brief and stop). The handover is now REQUIRED to answer six questions exhaustively — goals vs achievement, phase states, tasks done-and-evaluated, simulator vs observation, the issue ledger, PR history + next PR — so a next agent reconstructs the whole picture from `main` alone. One home per document class is stated as a rule (new audit reports under `docs/audit/<YYYY-MM-DD>/`; a new document class is an owner decision). **PR titles now carry the phase and task number** (`P<phase> (<task>): …`; `P<n> board:` / `P<n> handover:` / `Tooling:`), and all twelve existing PRs were retitled to the scheme. No target value changed, the 67/143 split is untouched, nothing here is a result. |
 | 2026-08-20 | **The re-measure arm ran, and the escort binding is measured to move realised pairability by two orders of magnitude (§9.48, issues #31, #28, #9).** `bind1000_25pct` — 25% × 1000 WEEKDAY on the §9.46/§9.47 demand, the first run of the post-repair family — completed rc=0 in 34 h 44 m, median iteration 105.9 s, **`relaxed: true`** (max post-margin drift +0.09 pp), accounting closed, stuck 0.028%. **OD-coincidence 0.104% → 15.31%; declared-regime (`both_links` ±15 min) pairing 0.00004 → 0.0130**; the #28 residual is ~11.6 s at 25% (was ~5 s); the direction split stays non-zero (239 return pairings at iteration 1000). The defect **changed sign**: occupancy is now 0.4855 passengers per driver against the observed 0.3503, outside the declared range in the **flattering** direction — recorded, not tuned, and handed to the 4.2.4 calibration decision. Ride's LGA linked share moved 37.17 → 31.05 against observed 20.60; the restored 75+ cohort makes 0.7% of its trips to work. The realisation gap (15.31% coincident vs 1.30% paired) is named and deliberately not chased. Per the brief's §4D branch the ride lane rests; next in value order, pending owner confirmation: #24 freight, then 4.2.4/#14. **Pre-calibration, one scenario, one seed, no counterfactual: nothing here is a finding about the light rail, and no holdout row was opened.** |
