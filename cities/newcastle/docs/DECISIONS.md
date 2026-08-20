@@ -51,6 +51,11 @@ otherwise cost you an hour:
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
 | **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
 | **Freight / heavy vehicles (`truck`)** | **§9.49** — a physical background load: measured profile and gate shares, assumed and swept volume ratio, PCE and decay; issue #24 |
+| **The calibrated base (deliverable 5)** | **§9.50** — constrain-and-report, logged before the base run's results; ASCs stay §8.5 priors, #9 resolved by decision, the §9.48 occupancy excess reported not absorbed. **The base arm was stopped (§9.51) — C5 and the report await its relaunch** |
+| **The four owner directives (20 Aug)** | **§9.51** — physical ride (no teleportation), 9+ modes individualised (G62 verified to carry them), the sub-1 km walk deficit (#30 re-opened), demographic-conditional mode fidelity. These set the value order |
+| **Motorbike as a mode** | **§9.52** — a physical person-level locked carve from car-driver demand, anchored on the measured G62 JTW share (0.363%), swept 0–1%; fit compares car+motorbike against the Vehicle-driver target |
+| **Physical ride boarding** | **§9.53** — a paired passenger enters the driver's car in the qsim (`JointRideEngine`); misses fall back to Tier 1 and are counted; **§9.55 re-modes the unpaired to physical walk — the ride share becomes EMERGENT from the driver supply** |
+| **Walk and bike physical; the transit stubs** | **§9.54** — walk at PCE 0.0 / bike at PCE 0.2 in the qsim, road-rule exclusions + per-mode SCC cleaning, teleported fields retired (the measured 1.6902 survives as the access-stub factor), `TolerantAgentSource` + `GenericRouteTeleporter` for the transit router's generic walk stubs |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
 | **Bike availability (issue #29)** | **§9.39** |
 | **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
@@ -5357,6 +5362,351 @@ truck-aware when it lands.
 
 ---
 
+## 9.50 The calibrated base is constrained-and-reported, and the decision is logged before its run exists (20 August 2026, issues #14, #9)
+
+**Decision:** deliverable 5 takes **§8.5's second branch — constrain and
+report** — and this entry is written **before the base run of the §9.49
+family has produced a single result**, which is the ordering §8.5 demands.
+Taken 20 August 2026.
+
+### Why not the first branch, which was on record
+
+The plan of record said *ASCs on era 3 (2018), held fixed*. Attempting to
+make that concrete exposes what it needs and does not have: **no 2018 demand
+exists.** The population is synthesised from the 2021 census for a 2026 base
+year; the era-3 GTFS feed is mapped, but a schedule is not a travel demand,
+and the historical reconstruction that could carry one was **considered and
+dropped** (backlog — *do not reopen*). Estimating 2018 constants by running a
+2018 schedule under a 2026 population would fit the constants to a
+year-hybrid that exists in no observation — manufacturing exactly the
+confound §8.5 exists to prevent, with the extra step of looking rigorous.
+The second branch is the one the rule offers for this situation, and the
+project has used it before (§9.8, §9.17: `asc_car_passenger` constrained to
+observed occupancy, the constraint reported).
+
+### What "constrained" means, exactly
+
+- **The six mode constants stay at their §8.5 priors, held fixed** —
+  car passenger −0.85, bus −1.05, light rail −0.75, rail −0.65, walk +0.35,
+  cycle −1.35 — with `asc_car_passenger` keeping its §9.8 occupancy-derived
+  value. **Issue #9 (re-solve `asc_car_passenger`) is resolved by DECISION,
+  not by a solve:** §9.48 measured occupancy at 0.4855 against the observed
+  0.3503 — outside the declared range, in the flattering direction — and
+  re-solving the constant against that would absorb a modelled defect into a
+  behavioural parameter, the precise ASC-absorption move proposal §9 names as
+  the primary threat to validity. **The excess is REPORTED in the calibration
+  record instead.**
+- **No parameter search runs.** The corrected loop (this change also fixed
+  its rebuild-stage table, which had been defaulting unclassified consumers
+  to "movable at run time" — the OSM harvest margins were in the movable
+  set) identifies exactly **two** legitimately searchable parameters:
+  `A.parking.max_stay_min` and `C.scoring.activity_minimal_duration_s`, at
+  up to 21 full runs ≈ a month of 25% × 1000 compute. Neither can reach the
+  structural misfits (§9.48: pt −3.4 pp, walk −12.7 pp, both diagnosed
+  structural in §9.25/§9.28), so the search would spend weeks polishing a
+  6.45 pp MAE it cannot materially move while LOOKING like calibration.
+  Declined, with the cost stated. The loop remains built and gated for a
+  future owner-approved search.
+- **The base is one reference run** of the §9.49 family — S2 × WEEKDAY,
+  25% × 1000, seed 20260810 — whose fit against the 67 calibration targets
+  is reported **as it comes out**. `params/C5_calibration.json` records the
+  constrained parameter set with provenance, the branch decision, and that
+  run's fit; the calibration report (deliverable 3) is generated from it.
+  Misfits are stated with their §9.25 diagnoses, never tuned away by a
+  constant.
+
+### What this claims, and what it does not
+
+This meets deliverable 5 in the only form the evidence supports: **a
+declared, constrained base whose distance from observation is stated**, not
+a fitted base whose distance has been absorbed. Every headline downstream
+carries its sweep band (§8.1); the ASCs' provenance is `assumed (priors,
+held fixed under 8.5)`; and the pre-registered 67/143 split is untouched.
+If a future search is approved, it starts from this record and its
+already-stated costs.
+
+---
+
+## 9.51 Four owner directives reset the value order, and the base arm is stopped (20 August 2026)
+
+**Decision: the owner issued four standing directives at session close, each
+overriding a recorded stance.** The 4.2.4 base arm (`base1000_25pct`,
+~iteration 20 of 1000) was **stopped on the owner's instruction** and
+quarantined to `results/_aborted_20260820/` — deliverable 5's C5/report
+therefore remain open (#14, #9 stay open; PR #47 lands the §9.50 decision and
+machinery only). Taken 20 August 2026, recorded before any research begins.
+
+The directives, and what each supersedes:
+
+1. **Every `ride` trip is a passenger PHYSICALLY in a car — no exceptions,
+   no teleportation — and the ride share tuned to real life** (modelled
+   31.05 vs observed 20.60; occupancy 0.4855 vs 0.3503). This **un-rests the
+   ride lane** (§9.48's §4D branch) and **re-opens the joint-plans question**
+   the owner had previously closed (socnetsim measured ~10× and reverted) —
+   the cost is on record and any mechanism must re-confront it. Tier 1
+   (§9.44) stays merged as the baseline mechanism until its successor lands.
+2. **All nine or more modes distinguished and unique** — bus, train, light
+   rail and ferry never reported under a `pt` umbrella; motorbike and
+   taxi/rideshare individualised out of `car`/`Other`. This supersedes the
+   *"motorcycle as its own mode: declined for want of a target"* stance to
+   the extent an observed target exists — and one does: **verified at
+   handoff, `census2021_G62_SA1.csv` carries per-SA1 journey-to-work counts
+   for Motorbike/scooter, Taxi/Rideshare, Tram/light rail, Train, Bus,
+   Ferry and Truck as distinct observed modes.** The no-invented-data rule
+   stands: non-commute shares without an observation are swept, never
+   pinned.
+3. **The walk deficit is the priority structural defect**: the model
+   generates too little sub-1 km trip mass (measured 2.5% of trips under
+   1 km against an observed >~10%; walk 0.71% modelled vs 13.40% observed;
+   modelled walk trips 2.43 km mean vs ~0.7 observed). **Issue #30 re-opens
+   under its own REOPEN IF clause** — the first-run evaluation showed
+   exactly the condition it named.
+4. **Mode distributions conditioned on demographics — age, employment and
+   the like — must match real life.** New observables enter as
+   **constraints, never targets** (§9.8/§9.13 pattern); the pre-registered
+   67/143 split is untouched.
+
+**What did not change:** no target value moved, no holdout row was read,
+nothing here is a finding. The §9.49 freight layer and the §9.50 branch
+decision stand; what stopped was the base *run*, which needs relaunching
+(~35 h at 25% × 1000, owner approval required per the standing directive)
+before C5 and the calibration report can exist.
+
+---
+
+## 9.52 Motorbike becomes a physical mode, carved from the demand that always contained it (20 August 2026, issue #49)
+
+**Decision:** motorbike enters the mobsim as a **person-level locked carve
+from car-driver demand**, anchored on the measured census journey-to-work
+share. Taken 20 August 2026 under the §9.51 mode-individualisation
+directive. This partially supersedes the old *"motorcycle as its own mode:
+declined for want of a target"* stance — a target was found (below); the
+no-invented-data rule still bounds what the mode can claim.
+
+### The observed anchor, and what stays assumed
+
+`census2021_G62_SA1.csv`, one-method journeys to work, 1,500 core SA1s:
+**653 of 179,761 journeys (0.363%) by motorbike/scooter** — a genuinely
+observed commute share for a mode the HTS cannot see (its data document
+places motorcyclists inside `Vehicle driver`/`Vehicle passenger`, NOT in
+`Other`). What remains assumed is the commute→all-purpose transfer:
+`B.motorbike.trip_share` = 0.0036, **swept 0.0–0.01** (zero turns the mode
+off). PCE is literature (0.4, swept 0.3–0.75 — a motorbike consumes LESS
+road space than a car).
+
+### The mechanism
+
+- A licensed, car-available person becomes a motorbike user with the
+  probability that makes carved persons' trips the declared share
+  (q = 0.00518 over 426,129 eligible of 612,687). The draw is a **hash of
+  the person id and the master seed** — deterministic, identical across day
+  types, and consuming no rng stream, so every pre-existing draw sequence is
+  byte-identical.
+- **The day locks to the mode** (`lockedMode=motorbike`, the same generic
+  availability-calculator path as through and freight): vehicle continuity
+  is chain-based by nature, and no preference observation exists to let
+  motorbike compete in mode choice — an invented constant is exactly what
+  §8.5 forbids. **Except on escort days**: a pillion passenger is not how an
+  escorted child travels in any held data, and the ride pairing pairs
+  passengers with CAR legs — so an escort day falls back to normal choice
+  (the `ESCORT_EXCLUDES_RIDE` day-plan pattern). This makes the realised
+  share undershoot the declared 0.36% by roughly the escort-day incidence
+  (~20% of weekday persons); stated, absorbed by the sweep, not compensated.
+- Physically: `motorbike` joins `qsim.mainMode` and the per-mode vehicles
+  file (PCE 0.4, no speed cap — it takes each link's own limit), and rides
+  on car links like the other companions. The carve is FROM car seeding, so
+  **no trip is invented** — car loses exactly what motorbike gains.
+- **The comparison folds it back**: the HTS `Vehicle driver` target contains
+  motorcyclists, so `fit.py` compares **car + motorbike** against it (the
+  row is labelled `car+motorbike`), and the occupancy constraint's driver
+  denominator does the same. Comparing car alone would under-read the model
+  by exactly the declared carve.
+
+### Verified, not asserted
+
+Smoke run `motorbike_smoke` (1% × 2, rc=0, accounting closes): **12 carved
+riders, 52 motorbike trips completed, 6,286 link traversals, zero stuck**.
+Registry 319 fields, ledger 0 `--strict`; `check_city_agnostic` 13/13.
+Landed in the SAME comparability family as §9.49 — the freight family has no
+completed run, so no additional boundary is created.
+
+### What this deliberately does not do
+
+No motorbike CHOICE model (no constant, no competition — the share is
+declared and swept); no non-commute observation is claimed; no separate
+motorbike network layer (filtering/lane-splitting is inside the PCE sweep);
+taxi/rideshare stays with task 4.4 and the tier plan in
+[`docs/design/mode-individualisation.md`](design/mode-individualisation.md).
+
+---
+
+## 9.53 A paired passenger physically boards the driver's car (20 August 2026, issues #48, #28, #31)
+
+**Decision:** the mechanism the #48 directive requires is **option C of the
+dossier** ([`design/physical-ride.md`](design/physical-ride.md)) — chosen by
+the measurement, not by taste: the §9.48 gap decomposition showed the three
+realisation layers lose ×2.24 (mode co-assignment), ×6.91 (the realised
+window) and ×2.73 (link resolution), and a passenger who is IN the vehicle
+makes all three structurally unable to fail. Taken 20 August 2026.
+
+### The mechanism
+
+`JointRideEngine` — a qsim `MobsimEngine` + `DepartureHandler`, consulted
+before the teleportation engine (teleportation claims everything, so the
+component order is rearranged: network → jointRide → teleportation):
+
+- **Pairing stays at BeforeMobsim** in `RidePairingEngine` (§9.44's
+  soundness argument is untouched). With `ridePairing.physicalBoarding`
+  (declared, `B.ride.physical_boarding`) each paired ride leg becomes a
+  **booking** naming the driver.
+- **Board**: the passenger departs on a ride leg holding a booking from that
+  link, and the driver's car is still parked there → a real
+  `PersonEntersVehicleEvent`, and the passenger rides every link the car
+  traverses. Car vehicle ids are the person's BARE id — measured from the
+  events (trucks are `<person>_truck`; car is unsuffixed), after the first
+  probe missed 100% on the guessed `_car` form.
+- **Alight**: when the car, having left the boarding link, reaches the
+  passenger's destination link (under `both_links` it is the driver's own
+  destination), the passenger leaves — `PersonLeavesVehicleEvent`, leg ended
+  at the real clock, plan continues.
+- **Miss = Tier 1 verbatim**: a booking whose car has already left falls
+  through to the teleport carrying the driver's time §9.44 already wrote
+  into the route — never a third behaviour, always counted. A passenger
+  still aboard at mobsim end aborts through the standard stuck path.
+- **The qsim's own boarding refusal now carries the declared cap**: the car
+  type states seats = `B.ride.max_passengers_per_vehicle` (the jar's
+  `QVehicleImpl` counts passenger capacity as seats + standing, driver
+  excluded, and DEFAULTS TO 4 when unset — equal to the declared value,
+  i.e. right by accident; now it is right by declaration).
+
+### Verified, not asserted (probe `jointride_probe`, 1% × 2, rc=0, accounting closes)
+
+- Engine counters: **boarded 67–71 per iteration, alighted 62–65, missed 2
+  (driver already gone — the window layer wearing its physical face),
+  absent 0, full 0**, aborted-at-sim-end 5–6 (drivers themselves stuck at
+  2 unconverged iterations; re-measure at convergence).
+- **Independently confirmed from the events**: 71 `PersonEntersVehicle`
+  events at the exact second of a ride departure into ANOTHER person's
+  unsuffixed car — household-adjacent ids visible — matching the engine's
+  own count exactly.
+
+### What this does and does not claim
+
+Every PAIRED ride trip is now a passenger physically in a car. The
+**unpaired majority is still teleported** on the router's estimate: making
+them physical is not an engine question but the owner's §4 re-moding policy
+in the dossier — household-only service caps pairable ride FAR below the
+observed 20.6%, and what unpairable demand becomes (re-moded, or a declared
+unvalidatable lift allowance) is the decision #48 still awaits. The #28
+residual ends for boarded pairs (their time IS the realised ride); the
+missed count is the window layer's physical remainder and is reported per
+iteration in `matsim.log`.
+
+---
+
+## 9.54 Walking and cycling become physical, and the qsim learns to tolerate the transit router's stubs (20 August 2026, issues #48, #49, #30)
+
+**Decision:** `walk` and `bike` join the qsim's main modes — a pedestrian at
+**PCE 0.0** (the sidewalk, expressed in queue arithmetic: physically on every
+link, speed-capped at the declared walking speed, neither impeding nor
+impeded by motor traffic) and a cyclist at **literature PCE 0.2 (swept
+0.1–0.4)** who genuinely takes carriageway space. Taken 20 August 2026 under
+the §9.51 all-modes-physical directive.
+
+### The mechanism
+
+- **Speeds are the declared quantities, consumed twice**: the vehicle type's
+  `maximumVelocity` (walk = `A.transit.walk_speed_ms` 1.25; bike =
+  `B.bike.speed_ms` 4.2, carried verbatim from the retired teleported field
+  with its unresolved MATSim-vs-ATAP sweep) and `CappedSpeedTravelTime`, the
+  router's estimate — read from the SAME loaded vehicle type, so estimate and
+  physics cannot drift.
+- **The road graph is the footpath proxy** (the observed footway network is
+  data, not part of the one mapped build — §3.5 forbids a remap), with the
+  road rules declared: walk excluded from motorway/trunk classes, bike from
+  motorways (`A.network.pedestrian/bicycle_excluded_classes`). Exclusion
+  severs pockets, and MATSim refuses a mode whose subnetwork has unreachable
+  links (measured — the first probe died on it), so the build now strips each
+  mode from links outside its largest strongly-connected component, MATSim's
+  own MultimodalNetworkCleaner rule: **walk stripped from 16,726 links, bike
+  from 5,177, counts reported never silent**.
+- **Four teleported fields retired** (`teleported_walk/bike_speed_ms`, the
+  two beeline factors): walk and bike no longer teleport, so their
+  parameters ceased to exist. The **measured** walk detour factor (1.6902)
+  survives in its one remaining teleported role — the access/egress stub —
+  as `RUN.routing.access_walk_beeline_factor`; realised MAIN walk now
+  detours at the road graph's own geometry (~1.34, the measured car factor),
+  which **flatters walk slightly less than truth** and is stated rather than
+  corrected (the direction is at least not against walk, which sits 12.7 pp
+  under target).
+- **MATSim's built-in teleported defaults cleared**
+  (`routing.clearDefaultTeleportedModeParams` — they conflict with network
+  walk outright, measured) and the helper mode `non_network_walk` declared
+  explicitly: the stub's speed by identity with walking, the measured
+  beeline factor, and — caught by the fixture-city test — its SCORING, which
+  MATSim had been silently defaulting: stubs now carry walk's marginal time
+  rate by identity and a zero constant, declared instead of inherited.
+
+### The sharp edge, measured three times before it yielded
+
+The transit router's access/egress and direct-walk legs keep **mode `walk`
+with a generic route** (measured: 9,466 in a 1% day, all `routingMode=pt`),
+and the stock agent source casts every main-mode leg's route to a
+NetworkRoute — the probe died at agent insertion. `accessEgressType=none` is
+declared (the vehicular stubs were beeline artefacts; measured to still
+leave the transit stubs), and two narrow qsim components carry the rest:
+`TolerantAgentSource` (parks mode vehicles only for network-routed legs;
+refuses any vehiclesSource other than the declared one) and
+`GenericRouteTeleporter` (claims main-mode departures whose route is not a
+network route and teleports them on their own travel time — 4,100–4,300 PT
+stubs per 1% iteration, refusing to invent a duration where none exists).
+Main walking is network-simulated; the sofa-to-stop stub stays a stub.
+
+### Verified, not asserted (probe `allmodes_probe`, 1% × 2, rc=0)
+
+Walk 9,050 trips / bike 2,311 / car 3,785 / truck 912 / motorbike 52 / pt
+1,166 in the final iteration, every network mode conserving in the events;
+`vehicleBehavior=teleport` (MATSim's default, verified in bytecode) carries
+vehicle relocation for the non-chained modes. One known reporting defect:
+the summariser's per-mode STUCK attribution over-assigns a handful of
+end-of-day aborts (events conserve exactly; the attribution does not) — fix
+with the first converged run's close-out.
+
+---
+
+## 9.55 The unpaired ride trip walks, and the ride share becomes emergent (20 August 2026, issues #48, #28, #31)
+
+**Decision:** with physical boarding on, an UNPAIRED ride leg is re-moded to
+**network-simulated walk** at the BeforeMobsim boundary
+(`B.ride.remode_unpaired`). This enacts the §9.51 directive's own ruling —
+*every ride trip physically in a car, no exceptions, no teleportation* —
+**without inventing a parameter**: a ride trip no household driver can
+physically serve is not a ride trip; it walks, physically, at walking speed;
+a long forced walk scores terribly; and co-evolution reassigns those tours
+to feasible modes across iterations. **The surviving ride share is emergent
+from the physical driver supply rather than declared.** Taken 20 August
+2026.
+
+- The re-moded leg's route is CLEARED, not kept: the car route may traverse
+  walk-excluded links and PersonPrepareForSim refuses a route inconsistent
+  with link modes (measured); a null route is re-routed as walk before the
+  mobsim, so the leg is properly walked from its first iteration.
+- Measured on the probe (1% × 2): iteration 0 re-moded **2,758** unpaired
+  ride legs; by the final iteration **ride = 67 trips and every one of them
+  is physically boarded** (64 boarded + missed fallbacks counted), walk
+  carries the displaced mass for the co-evolution to redistribute. The only
+  ride teleportation left is the counted boarding-miss fallback (5–6 per
+  iteration — the ×6.91 window layer's remainder; ending it is a
+  joint-departure-time replanning question, stated on #48).
+- **The consequence the owner accepted by issuing the ruling**: modelled
+  ride at equilibrium is bounded by household pairability (OD-coincidence
+  15.31%) and will sit FAR below the observed 20.60%; the gap is the
+  unobserved non-household-lift share, REPORTED as such (dossier §4 option
+  i). Where the displaced 30-odd percentage points of demand settle is the
+  first converged run's headline measurement.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -5855,6 +6205,11 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-20 | **Every person-transport mode is now IN ACTION physically (§9.54, §9.55; issues #48/#49/#30).** Walk joins the qsim at PCE 0.0 capped at the declared 1.25 m/s (the sidewalk in queue arithmetic — present on every link, exchanging no capacity with motor traffic); bike at literature PCE 0.2 (swept 0.1–0.4) at its declared 4.2 m/s. Road-rule exclusions declared (walk off motorways/trunks, bike off motorways) with per-mode largest-SCC cleaning (walk stripped from 16,726 unreachable links, bike 5,177 — MATSim refuses islands, measured). The four teleported walk/bike fields retire; the MEASURED 1.6902 walk detour survives as the declared access-stub factor; the transit router's 9,466 generic-route walk stubs are carried by two narrow qsim components (`TolerantAgentSource`, `GenericRouteTeleporter`) after three measured probe failures located the exact collision. The silently-defaulted non_network_walk SCORING is now declared (walk's rate by identity, zero constant). **§9.55: an unpaired ride leg re-modes to physical walk — no exceptions, no teleportation, no invented parameter — making the ride share EMERGENT from household driver supply** (probe: 2,758 re-moded at iteration 0; final iteration ride = 67 trips, every one physically boarded). Probe rc=0, all gates green. No target moved; the 67/143 split untouched; nothing is a result. |
+| 2026-08-20 | **A paired car passenger physically boards the driver's vehicle (§9.53, issues #48/#28/#31).** The mechanism the gap decomposition forced: `JointRideEngine`, a qsim departure handler + engine consulted before teleportation — board when the booked driver's car is still parked at the shared origin (real PersonEntersVehicleEvent, every link ridden, alight at the shared destination); a miss falls back to Tier 1 verbatim and is counted; the qsim's boarding cap now carries the declared `B.ride.max_passengers_per_vehicle` instead of MATSim's coincidentally-equal default. Probe (1% × 2, rc=0): 67–71 boarded/iteration, 2 missed, 0 absent/full — confirmed independently from the events (71 Enter events at the ride-departure second into another person's car). Car vehicle ids measured to be the person's bare id after the guessed `_car` form missed 100%. The unpaired majority stays teleported pending #48's re-moding policy. No target moved; nothing is a result. |
+| 2026-08-20 | **Motorbike becomes a physical mode (§9.52, issue #49): a person-level locked carve from car-driver demand, anchored on the measured census JTW share.** 653 of 179,761 core-SA1 one-method JTW journeys (0.363%) are by motorbike/scooter — the observed anchor the old "declined for want of a target" stance lacked. `B.motorbike.trip_share` 0.0036 (assumed commute→all-purpose transfer, swept 0.0–0.01), PCE 0.4 literature (swept 0.3–0.75). Hash-drawn per person (no rng perturbation — every existing draw sequence byte-identical), day locked to the mode except escort days, carved FROM car so no trip is invented; `fit.py` compares car+motorbike against the Vehicle-driver target that contains motorcyclists. Smoke-verified physical: 12 riders, 52 trips, 6,286 link traversals at 1%. Same comparability family as §9.49 (no completed run exists in it). **Seven of nine-plus modes are now physical.** No target moved; the 67/143 split untouched; nothing is a result. |
+| 2026-08-20 | **Four owner directives reset the value order, and the base arm is stopped (§9.51).** (1) Every ride trip physically in a car — no teleportation — and the share tuned to the observed 20.60%; re-opens the joint-plans question (socnetsim ~10× is the recorded cost to beat). (2) All 9+ modes distinguished — pt never an umbrella; motorbike and taxi/rideshare individualised, anchored on the VERIFIED per-mode G62 journey-to-work columns (Motorbike/scooter, Taxi/Rideshare, Tram/LR, Train, Bus, Ferry, Truck). (3) The sub-1 km walk deficit is the priority structural defect — #30 re-opens under its own REOPEN IF. (4) Mode × demographic distributions must match real life — new observables enter as constraints, never targets. `base1000_25pct` stopped at ~iteration 20 on the owner's instruction and quarantined; #14/#9 stay open until it relaunches. No target moved, the 67/143 split untouched, nothing is a finding. |
+| 2026-08-20 | **The calibrated base takes §8.5's second branch — constrain and report — and the decision is logged before its run exists (§9.50, issues #14, #9).** The first branch (ASCs on era 3) is recorded infeasible as stated: no 2018 demand exists and the historical reconstruction is dropped, so estimating 2018 constants under a 2026 population would manufacture the confound §8.5 prevents. ASCs stay at the §8.5 priors, held fixed; `asc_car_passenger` is NOT re-solved against the §9.48 occupancy excess (that would be ASC absorption — #9 resolved by decision, the excess reported). No parameter search: the corrected loop identifies exactly two searchable parameters at ~21 × 35 h runs, neither able to reach the structural misfits — declined with the cost stated. Also fixed: the loop's rebuild-stage table defaulted unclassified consumers to "movable at run time", putting the OSM harvest margins in the movable set — unclassified consumers are now excluded with the reason stated. The base is one reference run of the §9.49 family whose fit is reported as it comes out. |
 | 2026-08-20 | **Freight becomes physical (§9.49, issue #24): a `truck` mode in the mobsim at declared PCE, seeded from the counts the model already holds.** `qsim.mainMode` = `car,truck`; `vehiclesSource` → `modeVehicleTypesFromVehiclesData` with the car type restating MATSim's default exactly (`RUN.qsim.car_vehicle`) and the truck type at `B.freight.pce` (literature 2.0, swept 1.5–3.5) under the regulated 100 km/h cap. Through-gate volumes split into car and truck by each gate station's own observed heavy share (Hunter Expressway 0.1529 observed; median 0.0652 fallback) — through trucks had been riding as PCE-1 cars. An internal freight tier draws over the observed freight-industry attractor at the assumed, swept `B.freight.trip_ratio` (0.0697, sweep 0.0–0.14). NEW MEASUREMENTS from the classified RMS hourly counts (`extract_freight_profile.py`, 33,816 station-days): the heavy hourly profile per day type and the weekend factors (SAT 0.4627, SUN 0.4104). Six new registry fields + `RUN.qsim.car_vehicle`; subpopulation `freight` with `lockedMode=truck` (no Java change). **A planned comparability break: the demand family changes again — `bind1000_25pct` is the last run of the §9.46/§9.47 family.** No toolchain change; no target touched; nothing here is a result. |
 | 2026-08-20 | **Session close-out and onboarding become procedure, not recollection — no model or data value changed.** Two project skills land in `.claude/skills/`: **`/handoff`** (evidence-gated close-out: deletion-disciplined hygiene, issue grooming that closes only with evidence and a REOPEN IF condition, the DECISIONS entry + §14 row + index, the board repaired in the same commit, and the brief rewritten in place with completed sections flipped from instructions to record) and **`/onboard`** (session start: read in precedence order — constraints → record → board → brief, artefact over document — run the §0 checks, cross-check the documents against live GitHub state, answer the six state-of-the-project questions with sourced numbers, recite the invalidating constraints, then brief and stop). The handover is now REQUIRED to answer six questions exhaustively — goals vs achievement, phase states, tasks done-and-evaluated, simulator vs observation, the issue ledger, PR history + next PR — so a next agent reconstructs the whole picture from `main` alone. One home per document class is stated as a rule (new audit reports under `docs/audit/<YYYY-MM-DD>/`; a new document class is an owner decision). **PR titles now carry the phase and task number** (`P<phase> (<task>): …`; `P<n> board:` / `P<n> handover:` / `Tooling:`), and all twelve existing PRs were retitled to the scheme. No target value changed, the 67/143 split is untouched, nothing here is a result. |
 | 2026-08-20 | **The re-measure arm ran, and the escort binding is measured to move realised pairability by two orders of magnitude (§9.48, issues #31, #28, #9).** `bind1000_25pct` — 25% × 1000 WEEKDAY on the §9.46/§9.47 demand, the first run of the post-repair family — completed rc=0 in 34 h 44 m, median iteration 105.9 s, **`relaxed: true`** (max post-margin drift +0.09 pp), accounting closed, stuck 0.028%. **OD-coincidence 0.104% → 15.31%; declared-regime (`both_links` ±15 min) pairing 0.00004 → 0.0130**; the #28 residual is ~11.6 s at 25% (was ~5 s); the direction split stays non-zero (239 return pairings at iteration 1000). The defect **changed sign**: occupancy is now 0.4855 passengers per driver against the observed 0.3503, outside the declared range in the **flattering** direction — recorded, not tuned, and handed to the 4.2.4 calibration decision. Ride's LGA linked share moved 37.17 → 31.05 against observed 20.60; the restored 75+ cohort makes 0.7% of its trips to work. The realisation gap (15.31% coincident vs 1.30% paired) is named and deliberately not chased. Per the brief's §4D branch the ride lane rests; next in value order, pending owner confirmation: #24 freight, then 4.2.4/#14. **Pre-calibration, one scenario, one seed, no counterfactual: nothing here is a finding about the light rail, and no holdout row was opened.** |

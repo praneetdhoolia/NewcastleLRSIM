@@ -652,7 +652,9 @@
         "pt": 0.0,
         "walk": 0.0,
         "bike": 0.0,
-        "truck": 0.0
+        "truck": 0.0,
+        "motorbike": 0.0,
+        "non_network_walk": 0.0
       },
       "units": "AUD_per_metre",
       "source": "derived",

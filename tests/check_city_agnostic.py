@@ -354,10 +354,16 @@ def run_checks(reference):
           'the parking max stay is the fixture city\'s')
 
     # 4. the MODE VOCABULARY follows the city. Three modes, not five.
-    modes = sorted(set(fx['mode']))
+    # `mode` keys both the SCORED modeParams sets and the teleported
+    # routing-helper sets; the vocabulary assertion is about the former, so
+    # helper modes (non_network_walk, the access stub - DECISIONS.md 9.54)
+    # are excluded rather than counted as a fourth scored mode.
+    helper_modes = {'non_network_walk'}
+    modes = sorted(set(fx['mode']) - helper_modes)
     check(modes == sorted(IDENTITY['modes']),
           'the scored modes are the fixture city\'s %s, not the reference '
-          'city\'s %s' % (sorted(IDENTITY['modes']), sorted(set(rf['mode']))))
+          'city\'s %s' % (sorted(IDENTITY['modes']),
+                          sorted(set(rf['mode']) - helper_modes)))
     check(fx['modes'] == [','.join(IDENTITY['modes'])],
           'the mode-choice mode list is the fixture city\'s')
 

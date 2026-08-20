@@ -1092,6 +1092,117 @@
       "description": "How many passengers one driver's leg may carry. Without a cap a single driver would serve every passenger their household offered - the same unbounded-supply defect that rideAvail removed on the availability side, where an unconstrained model put 5.9 people in every car (9.10). Consumed by src/java/citysim/RidePairingEngine.",
       "matsim_param": "ridePairing.maxPassengersPerVehicle"
     },
+    "B.ride.remode_unpaired": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.55",
+      "description": "Whether an UNPAIRED ride leg is re-moded to network-simulated walk at the BeforeMobsim boundary - the 9.51 owner directive's own ruling (every ride physically in a car, no exceptions, no teleportation) enacted without inventing a parameter: a ride trip no household driver can physically serve is not a ride trip, it walks, scores accordingly, and co-evolution reassigns the tour - so the surviving ride share is EMERGENT from the physical driver supply rather than declared. False keeps Tier 1's teleport for the unpaired, for comparability within one build. Consumed by citysim.RidePairingEngine.",
+      "matsim_param": "ridePairing.remodeUnpaired"
+    },
+    "B.walk.pce": {
+      "value": 0.0,
+      "units": "passenger_car_equivalents",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.54",
+      "description": "Road capacity a network-simulated pedestrian consumes: zero, by definition - a walker moves along the network beside the carriageway (the sidewalk, expressed in queue arithmetic), physically present on every link (real LinkEnter/LinkLeave events, speed-capped at the declared walking speed) while neither impeding nor being impeded by motor traffic. Not a tunable: a pedestrian who consumed road capacity would be walking in the traffic lane.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "B.bike.pce": {
+      "value": 0.2,
+      "units": "passenger_car_equivalents",
+      "source": "literature",
+      "sweep": [
+        0.1,
+        0.4
+      ],
+      "sweep_basis": "Austroads and HCM passenger-car-equivalent ranges for on-road bicycles run from about 0.1 (wide kerbside lane, filtering) to about 0.4 (narrow lane, no filtering). No local lane-width-conditioned observation exists, so the class low-mid value is taken and the published range is swept.",
+      "status": "active",
+      "decisions_ref": "9.54",
+      "description": "Road capacity a network-simulated cyclist consumes. Unlike a pedestrian, a cyclist genuinely takes carriageway space - this is the field that makes bike PHYSICAL rather than decorative.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "B.bike.speed_ms": {
+      "value": 4.2,
+      "units": "m/s",
+      "source": "literature",
+      "sweep": [
+        3.1,
+        5.5
+      ],
+      "sweep_basis": "Carried over verbatim from the retired RUN.routing.teleported_bike_speed_ms (9.54): the disagreement between published MATSim practice and ATAP cycling speeds is unresolved and stays swept, not repinned. The quantity is unchanged - the speed a cyclist rides at - only its consumer moved from the teleportation formula to the vehicle type's maximumVelocity.",
+      "status": "active",
+      "decisions_ref": "9.54",
+      "description": "Cycling speed, carried by the bike vehicle type as its maximum velocity: a cyclist traverses each link at the lower of this and the link's free speed, in the router (CappedSpeedTravelTime) and the mobsim alike - one declared value, both consumers.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "B.ride.physical_boarding": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.53",
+      "description": "Whether a PAIRED ride passenger physically BOARDS the driver's vehicle in the mobsim (a real PersonEntersVehicleEvent, every link ridden, alighting at the shared destination link) instead of inheriting the driver's clock by teleport. Selects a mechanism under the 9.51 owner directive (every ride physically in a car); false restores the 9.44 Tier-1 behaviour exactly, so the two are comparable within one build. A booked passenger whose car has already left falls back to Tier 1 and is counted - a miss is the measured window layer of the realisation gap wearing its physical face, reported never hidden. Consumed by citysim.JointRideEngine via citysim.RidePairingEngine's bookings.",
+      "matsim_param": "ridePairing.physicalBoarding"
+    },
+    "B.motorbike.trip_share": {
+      "value": 0.0036,
+      "units": "share_of_trips",
+      "source": "assumed",
+      "sweep": [
+        0.0,
+        0.01
+      ],
+      "sweep_basis": "The default restates the MEASURED census G62 one-method journey-to-work share for the 1,500 core SA1s: 653 of 179,761 journeys = 0.363% by motorbike/scooter (docs/design/mode-individualisation.md). What is ASSUMED is the transfer from a commute share to an all-purpose trip share - the HTS cannot separate motorcycle trips (its data document places them inside Vehicle driver/passenger), so no all-purpose observation exists. The lower bound is zero, which turns the mode off so its whole effect is a sweep member; the upper bound is roughly 3x the commute anchor, spanning the plausible all-purpose range for a mode whose registration share exceeds its trip share.",
+      "status": "active",
+      "decisions_ref": "9.52",
+      "description": "Share of resident person trips made by motorbike, realised as a PERSON-LEVEL carve: a licensed, car-available adult becomes a motorbike user (their whole day locks to the mode - vehicle continuity is chain-based by nature) with the probability that makes carved persons' trips this share of all trips. Carved FROM car-driver demand, which is where the HTS and census place motorcyclists - so the car comparison folds motorbike back in at fit time (fit.py) and the carve never invents a trip.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "B.motorbike.pce": {
+      "value": 0.4,
+      "units": "passenger_car_equivalents",
+      "source": "literature",
+      "sweep": [
+        0.3,
+        0.75
+      ],
+      "sweep_basis": "Austroads and HCM passenger-car-equivalent ranges for motorcycles in urban traffic run from about 0.3 (filtering, uncongested) to 0.75 (no filtering, interrupted flow); no local fleet-mix or filtering observation exists, so the class low-mid value is taken and the published range is swept.",
+      "status": "active",
+      "decisions_ref": "9.52",
+      "description": "Passenger-car equivalents of one modelled motorbike - it consumes LESS road capacity than a car. This is the field that makes the mode PHYSICAL in the mobsim.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "B.motorbike.length_m": {
+      "value": 2.2,
+      "units": "metres",
+      "source": "literature",
+      "held_fixed": {
+        "rule": "Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.motorbike.pce), not through vehicle length, so no output varies across this value. Recorded because the vehicle type must state a length; a typical motorcycle figure is used.",
+        "decisions_ref": "9.52"
+      },
+      "status": "active",
+      "decisions_ref": "9.52",
+      "description": "Stated length of the motorbike vehicle type in the vehicles file. Does not reach the traffic model - space and flow run on PCE - and is held fixed for exactly that reason.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
     "B.freight.trip_ratio": {
       "value": 0.0697,
       "units": "heavy_vehicle_trips_per_light_vehicle_trip",

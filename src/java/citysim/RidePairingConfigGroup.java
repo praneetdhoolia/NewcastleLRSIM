@@ -42,6 +42,8 @@ public final class RidePairingConfigGroup extends ReflectiveConfigGroup {
     public static final String RULE_WINDOW_ONLY = "window_only";
 
     private boolean enabled = false;
+    private boolean physicalBoarding = false;
+    private boolean remodeUnpaired = false;
     private double windowMinutes = UNSET;
     private String rule = "";
     private double pickupDwellSeconds = UNSET;
@@ -70,6 +72,50 @@ public final class RidePairingConfigGroup extends ReflectiveConfigGroup {
     @StringSetter("enabled")
     public void setEnabled(final boolean value) {
         this.enabled = value;
+    }
+
+    /**
+     * Whether a PAIRED passenger physically boards the driver's vehicle
+     * (DECISIONS.md 9.53, issue #48) instead of inheriting its clock.
+     *
+     * <p>With this on, {@link JointRideEngine} claims the ride departure of
+     * every booked passenger whose driver's car is parked at their shared
+     * origin link, boards them (a real {@code PersonEntersVehicleEvent}), and
+     * alights them when the car reaches their shared destination link. A
+     * booked passenger whose car has ALREADY LEFT falls back to Tier 1's
+     * teleport-on-the-driver's-clock, counted and reported — never hidden.
+     * False restores Tier 1 exactly (DECISIONS.md 9.44).
+     */
+    @StringGetter("physicalBoarding")
+    public boolean isPhysicalBoarding() {
+        return this.physicalBoarding;
+    }
+
+    @StringSetter("physicalBoarding")
+    public void setPhysicalBoarding(final boolean value) {
+        this.physicalBoarding = value;
+    }
+
+    /**
+     * Whether an UNPAIRED ride leg is re-moded to network-simulated walk at
+     * the BeforeMobsim boundary (DECISIONS.md 9.55, the 9.51 directive's own
+     * ruling: no exceptions, no teleportation). A ride trip no household
+     * driver can physically serve is not a ride trip; it walks - physically,
+     * at walking speed, which scores terribly for a long trip, so
+     * co-evolution reassigns those tours to feasible modes across iterations
+     * and ride becomes EMERGENT: only what the driver supply can carry
+     * survives. No parameter is invented; the physical constraint is the
+     * price. False keeps Tier 1's teleport for the unpaired, for
+     * comparability within one build.
+     */
+    @StringGetter("remodeUnpaired")
+    public boolean isRemodeUnpaired() {
+        return this.remodeUnpaired;
+    }
+
+    @StringSetter("remodeUnpaired")
+    public void setRemodeUnpaired(final boolean value) {
+        this.remodeUnpaired = value;
     }
 
     /**

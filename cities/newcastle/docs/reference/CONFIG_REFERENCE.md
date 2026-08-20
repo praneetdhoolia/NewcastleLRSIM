@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 316 fields are made of
+## What the 326 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 4 | read directly from a raw download |
-| `measured` | 23 | computed from observed data in this package |
+| `measured` | 22 | computed from observed data in this package |
 | `derived` | 27 | follows from another registry field by identity |
-| `literature` | 37 | a published value, not specific to this city |
-| `assumed` | 135 | chosen without direct empirical support |
-| `definition` | 90 | fixed by the formulation, not an empirical quantity |
+| `literature` | 40 | a published value, not specific to this city |
+| `assumed` | 136 | chosen without direct empirical support |
+| `definition` | 97 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 296 | usable point value |
+| `active` | 306 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -57,7 +57,7 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `D.retail.vacancy_rate` | 0 - 0.25 | NOT OBTAINED and not currently consumed by any metric |
 | `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
-### The 11 fields held fixed
+### The 12 fields held fixed
 
 Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating them would fit away the effect under test - proposal 9 names ASC absorption as the primary threat to validity.
 
@@ -65,6 +65,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 - `A.transit.ferry_capacity_seated` - Published seated capacity, held on the same reasoning as the total: it is a fact about the vessel. This is the ONLY vehicle in the fleet whose seated/standing split is published - 
 - `A.transit.ferry_capacity_total` - A published vessel capacity is a fact about the boat, not a behavioural parameter, and sweeping it would assert an uncertainty that does not exist. Both Stockton ferries carry the 
 - `B.freight.length_m` - Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.freight.pce), not through vehicle length, so no output varies across this
+- `B.motorbike.length_m` - Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.motorbike.pce), not through vehicle length, so no output varies across th
 - `C.asc.bus` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.car_passenger` - Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the seco
 - `C.asc.cycle` - Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as t
@@ -75,7 +76,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 
 ## Network supply (A1-A6)
 
-*`cities/newcastle/registry/A_supply.json` - 92 fields*
+*`cities/newcastle/registry/A_supply.json` - 94 fields*
 
 Road graph, signal control, transit supply, light rail vehicle and dwell, parking and the active network. Two of the three inputs the proposal named as critical and unobtained live here - A.signals.scats_phasing and A.lightrail.dwell_charging_s - and both carry status 'unobtained' with a null value, so the resolver refuses to hand back a point value and the caller must select a sweep member. That is DECISIONS.md 0 and 13 enforced structurally rather than by discipline.
 
@@ -103,12 +104,14 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.lightrail.dwell_sweep_grid` | `[0.0, 10.0, 20.0, 35.0]` | seconds_per_intermediate_stop | `definition` | - |
 | `A.lightrail.line_speed_kmh` | `40.0` | km_per_hour | `assumed` | 30 - 50 |
 | `A.lightrail.tsp_enabled` | `false` | boolean | `assumed` | `False`, `True` |
+| `A.network.bicycle_excluded_classes` | `["motorway", "motorway_link"]` | osm_highway_classes | `definition` | - |
 | `A.network.freespeed_factor` | `1.0` | factor | `definition` | - |
 | `A.network.keep_paths` | `false` | boolean | `definition` | - |
 | `A.network.keep_tags_as_attributes` | `true` | boolean | `definition` | - |
 | `A.network.keep_ways_with_public_transit` | `true` | boolean | `definition` | - |
 | `A.network.max_link_length_m` | `500.0` | metres | `assumed` | 200 - 2000 |
 | `A.network.parse_turn_restrictions` | `true` | boolean | `definition` | - |
+| `A.network.pedestrian_excluded_classes` | `["motorway", "motorway_link", "trunk", "trunk_link"]` | osm_highway_classes | `definition` | - |
 | `A.network.railway_lane_capacity_veh_h` | `9999.0` | vehicles_per_hour | `definition` | - |
 | `A.network.railway_speed_default_kmh` | `{"rail": 160.0, "light_rail": 70.0, "tram": 70.0}` | km_per_hour | `assumed` | 40 - 180 |
 | `A.network.routable_subnetworks` | `{"car": ["car"], "bus": ["bus", "car"], "rail": ["rail", "light_rail"]}` | mode_names_by_subnetwork | `definition` | - |
@@ -322,6 +325,12 @@ Transit signal priority on the corridor. Downstream of A.signals.scats_phasing.
 
 ***assumed** · status **active** · DECISIONS.md §5 · proposal §3.4 S-b*
 
+#### `A.network.bicycle_excluded_classes`
+
+Road classes a network-simulated cyclist may not use: bicycles are prohibited on motorways by road rules (trunk roads are legal for cycling in NSW). A vocabulary of the road rules, not a tunable.
+
+***definition** · status **active** · DECISIONS.md §9.54*
+
 #### `A.network.freespeed_factor`
 
 Multiplier applied to a way default free speed. One, because the free speed is taken from the regulated speed instrument and a factor over it would be an undeclared second opinion about the same quantity.
@@ -359,6 +368,12 @@ Longest MATSim link before a way is split. Decided in the network builder as a l
 Whether OSM turn restrictions become MATSim disallowed next links. The base network carries 1,240 of them and the E1 variants add banned turn movements on the corridor, so the road-space externality of proposal 3.3 depends on this being true.
 
 ***definition** · status **active** · DECISIONS.md §9.34, 15*
+
+#### `A.network.pedestrian_excluded_classes`
+
+Road classes a network-simulated pedestrian may not use: pedestrians are prohibited on motorways and high-speed trunk carriageways by road rules, and the walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.
+
+***definition** · status **active** · DECISIONS.md §9.54*
 
 #### `A.network.railway_lane_capacity_veh_h`
 
@@ -794,13 +809,13 @@ Broadmeadow extension length as STATED in the Strategic Business Case. The align
 
 #### `A.transit.walk_speed_ms`
 
-Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05.
+Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05. Since 9.54 it is ALSO the walk vehicle type maximum velocity: the same physical walking speed, carried into the mobsim and the router (CappedSpeedTravelTime).
 
 ***literature** · status **active** · DECISIONS.md §11*
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 59 fields*
+*`cities/newcastle/registry/B_demand.json` - 67 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -826,6 +841,8 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.sat_to_sun_rate` | `1.1875` | ratio | `assumed` | 1 - 1.45 |
 | `B.activity.weekend_departure_shift_h` | `{"WEEKDAY": 0, "SAT": 1, "SUN": 1}` | hours | `assumed` | 0 - 2 |
 | `B.activity.weekend_to_weekday` | `0.7521` | ratio | `measured` | 0.709 - 0.816 |
+| `B.bike.pce` | `0.2` | passenger_car_equivalents | `literature` | 0.1 - 0.4 |
+| `B.bike.speed_ms` | `4.2` | m/s | `literature` | 3.1 - 5.5 |
 | `B.counts.heavy_vehicle_share` | `0.0652` | share_of_vehicles | `measured` | 0.0129 - 0.1529 |
 | `B.counts.station_match_radius_m` | `120.0` | metres | `assumed` | 60 - 120 |
 | `B.counts.vehicles_per_car_leg` | `1.0` | vehicles_per_leg | `derived` | derived: observed vehicle trips ARE driver trips at occupancy 1.3503, so a car  |
@@ -849,6 +866,9 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.freight.trip_ratio` | `0.0697` | heavy_vehicle_trips_per_light_vehicle_trip | `assumed` | 0 - 0.14 |
 | `B.mode.seed_split` | `{"car_available": {"bike": 0.2, "car": 0.2, "pt": 0.2, "ride": 0.2, "walk": 0.2}, "no_car": {"bike": 0.25, ...` | share_by_mode | `definition` | - |
 | `B.mode.seed_split_informed` | `{"car_available": {"bike": 0.01, "car": 0.78, "pt": 0.02, "ride": 0.1, "walk": 0.09}, "no_car": {"bike": 0....` | share_by_mode | `assumed` | `uninformed`, `informed` |
+| `B.motorbike.length_m` | `2.2` | metres | `literature` | **held fixed** |
+| `B.motorbike.pce` | `0.4` | passenger_car_equivalents | `literature` | 0.3 - 0.75 |
+| `B.motorbike.trip_share` | `0.0036` | share_of_trips | `assumed` | 0 - 0.01 |
 | `B.network_factors.distance_band` | `0.25` | share | `assumed` | 0.1 - 0.5 |
 | `B.network_factors.min_pair_m` | `500.0` | metres | `assumed` | 100 - 2000 |
 | `B.network_factors.n_pairs` | `600` | zone_pairs | `assumed` | 200 - 5000 |
@@ -863,8 +883,11 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.ride.pairing_enabled` | `true` | boolean | `definition` | - |
 | `B.ride.pairing_rule` | `both_links` | enum | `assumed` | `both_links`, `origin_link`, `dest_link`, `window_only` |
 | `B.ride.pairing_window_min` | `15.0` | minutes | `assumed` | 5 - 60 |
+| `B.ride.physical_boarding` | `true` | boolean | `definition` | - |
 | `B.ride.pickup_dwell_s` | `0.0` | seconds | `assumed` | 0 - 120 |
+| `B.ride.remode_unpaired` | `true` | boolean | `definition` | - |
 | `B.seed.master` | `20260810` | integer_seed | `definition` | - |
+| `B.walk.pce` | `0.0` | passenger_car_equivalents | `definition` | - |
 
 #### `B.activity.act_duration_min`
 
@@ -999,6 +1022,22 @@ Weekend vs weekday travel, measured from the RMS traffic counts own WEEKDAYS and
 ***measured** · status **active** · DECISIONS.md §9.2*
 
 > **Sweep basis.** observed across 551 RMS station-years
+
+#### `B.bike.pce`
+
+Road capacity a network-simulated cyclist consumes. Unlike a pedestrian, a cyclist genuinely takes carriageway space - this is the field that makes bike PHYSICAL rather than decorative.
+
+***literature** · status **active** · DECISIONS.md §9.54*
+
+> **Sweep basis.** Austroads and HCM passenger-car-equivalent ranges for on-road bicycles run from about 0.1 (wide kerbside lane, filtering) to about 0.4 (narrow lane, no filtering). No local lane-width-conditioned observation exists, so the class low-mid value is taken and the published range is swept.
+
+#### `B.bike.speed_ms`
+
+Cycling speed, carried by the bike vehicle type as its maximum velocity: a cyclist traverses each link at the lower of this and the link's free speed, in the router (CappedSpeedTravelTime) and the mobsim alike - one declared value, both consumers.
+
+***literature** · status **active** · DECISIONS.md §9.54*
+
+> **Sweep basis.** Carried over verbatim from the retired RUN.routing.teleported_bike_speed_ms (9.54): the disagreement between published MATSim practice and ATAP cycling speeds is unresolved and stays swept, not repinned. The quantity is unchanged - the speed a cyclist rides at - only its consumer moved from the teleportation formula to the vehicle type's maximumVelocity.
 
 #### `B.counts.heavy_vehicle_share`
 
@@ -1168,6 +1207,32 @@ The informed seed the uniform one replaced, retained so the seed-independence cl
 
 > **Sweep basis.** the sweep is over WHICH SEED IS USED, not over the shares. These are the only two seeds the plan builder can produce, and DECISIONS.md 9.7 reports the measured difference between the runs they produce. That is what makes "the result does not depend on the seed" a claim that can be tested rather than asserted (DECISIONS.md 9.6).
 
+#### `B.motorbike.length_m`
+
+Stated length of the motorbike vehicle type in the vehicles file. Does not reach the traffic model - space and flow run on PCE - and is held fixed for exactly that reason.
+
+***literature** · status **active** · DECISIONS.md §9.52*
+
+> **Held fixed.** Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.motorbike.pce), not through vehicle length, so no output varies across this value. Recorded because the vehicle type must state a length; a typical motorcycle figure is used.
+>
+> *Departure requires: a logged decision*
+
+#### `B.motorbike.pce`
+
+Passenger-car equivalents of one modelled motorbike - it consumes LESS road capacity than a car. This is the field that makes the mode PHYSICAL in the mobsim.
+
+***literature** · status **active** · DECISIONS.md §9.52*
+
+> **Sweep basis.** Austroads and HCM passenger-car-equivalent ranges for motorcycles in urban traffic run from about 0.3 (filtering, uncongested) to 0.75 (no filtering, interrupted flow); no local fleet-mix or filtering observation exists, so the class low-mid value is taken and the published range is swept.
+
+#### `B.motorbike.trip_share`
+
+Share of resident person trips made by motorbike, realised as a PERSON-LEVEL carve: a licensed, car-available adult becomes a motorbike user (their whole day locks to the mode - vehicle continuity is chain-based by nature) with the probability that makes carved persons' trips this share of all trips. Carved FROM car-driver demand, which is where the HTS and census place motorcyclists - so the car comparison folds motorbike back in at fit time (fit.py) and the carve never invents a trip.
+
+***assumed** · status **active** · DECISIONS.md §9.52*
+
+> **Sweep basis.** The default restates the MEASURED census G62 one-method journey-to-work share for the 1,500 core SA1s: 653 of 179,761 journeys = 0.363% by motorbike/scooter (docs/design/mode-individualisation.md). What is ASSUMED is the transfer from a commute share to an all-purpose trip share - the HTS cannot separate motorcycle trips (its data document places them inside Vehicle driver/passenger), so no all-purpose observation exists. The lower bound is zero, which turns the mode off so its whole effect is a sweep member; the upper bound is roughly 3x the commute anchor, spanning the plausible all-purpose range for a mode whose registration share exceeds its trip share.
+
 #### `B.network_factors.distance_band`
 
 Half-width of the distance band used when drawing a destination for the network-factor measurement.
@@ -1268,6 +1333,12 @@ How far apart a passenger's and a driver's PLANNED departures may be and still b
 
 > **Sweep basis.** No local observation of how far apart a household lift's two departures may be exists, and HTS carries no household-linked trip records at all, so the tolerance is assumed and swept rather than fitted. The lower bound is a tight coincidence; the upper is an hour, beyond which calling two departures one trip stops being credible. MEASURED SENSITIVITY on the relaxed 25% pilot arm (9.44): the share of ride legs with ANY household car leg in the window runs 1.1% at +-5 min, 3.1% at +-15, 5.6% at +-30 and 15.1% at +-120, so this field moves the pairing rate by an order of magnitude and may not be pinned.
 
+#### `B.ride.physical_boarding`
+
+Whether a PAIRED ride passenger physically BOARDS the driver's vehicle in the mobsim (a real PersonEntersVehicleEvent, every link ridden, alighting at the shared destination link) instead of inheriting the driver's clock by teleport. Selects a mechanism under the 9.51 owner directive (every ride physically in a car); false restores the 9.44 Tier-1 behaviour exactly, so the two are comparable within one build. A booked passenger whose car has already left falls back to Tier 1 and is counted - a miss is the measured window layer of the realisation gap wearing its physical face, reported never hidden. Consumed by citysim.JointRideEngine via citysim.RidePairingEngine's bookings.
+
+***definition** · status **active** · DECISIONS.md §9.53 · MATSim `ridePairing.physicalBoarding`*
+
 #### `B.ride.pickup_dwell_s`
 
 Seconds added to a PAIRED passenger's travel time for the act of being picked up. Zero by default: the mechanism Tier 1 asserts is that the passenger experiences the driver's realised trip, and nothing in the package observes a friction on top of that. This field exists so the question can be swept rather than assumed away. Consumed by src/java/citysim/RidePairingEngine.
@@ -1276,11 +1347,23 @@ Seconds added to a PAIRED passenger's travel time for the act of being picked up
 
 > **Sweep basis.** No measurement of pickup dwell exists for this city, or for any comparable one in the package, so the value is swept and NEVER fitted. The default is deliberately NEUTRAL. The car-minus-ride residual this lane exists to remove was MEASURED from the pilot arms' own output_legs at about 5 s at 25% and 13 s at 10%, flat across every distance bin below 50 km; a one-minute friction would therefore be five to twelve times the entire quantity it was meant to explain. Sizing this to close that gap is calibration wearing a mechanism's clothes and was REFUSED. The upper bound is two minutes, which is already far beyond what the residual can bear, and exists so the sweep can show that.
 
+#### `B.ride.remode_unpaired`
+
+Whether an UNPAIRED ride leg is re-moded to network-simulated walk at the BeforeMobsim boundary - the 9.51 owner directive's own ruling (every ride physically in a car, no exceptions, no teleportation) enacted without inventing a parameter: a ride trip no household driver can physically serve is not a ride trip, it walks, scores accordingly, and co-evolution reassigns the tour - so the surviving ride share is EMERGENT from the physical driver supply rather than declared. False keeps Tier 1's teleport for the unpaired, for comparability within one build. Consumed by citysim.RidePairingEngine.
+
+***definition** · status **active** · DECISIONS.md §9.55 · MATSim `ridePairing.remodeUnpaired`*
+
 #### `B.seed.master`
 
 The one seed everything synthetic derives from. CLAUDE.md forbids unseeded randomness, wall-clock dependence and dict/set-ordering dependence anywhere in a build script. Changing this changes every synthetic artefact.
 
 ***definition** · status **active** · DECISIONS.md §9.1*
+
+#### `B.walk.pce`
+
+Road capacity a network-simulated pedestrian consumes: zero, by definition - a walker moves along the network beside the carriageway (the sidewalk, expressed in queue arithmetic), physically present on every link (real LinkEnter/LinkLeave events, speed-capped at the declared walking speed) while neither impeding nor being impeded by motor traffic. Not a tunable: a pedestrian who consumed road capacity would be walking in the traffic lane.
+
+***definition** · status **active** · DECISIONS.md §9.54*
 
 ## Calibration (P4 deliverables 4-6)
 
@@ -1377,7 +1460,7 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.scoring.marginal_utility_of_money` | `1.0` | utils_per_AUD | `definition` | - |
 | `C.scoring.marginal_utility_of_traveling` | *(null - unobtained)* | utils_per_hour | `derived` | derived: marginalUtilityOfTraveling[m] = performing - trip_weighted_VOT * beta[ |
 | `C.scoring.mode_constant` | *(null - unobtained)* | utils | `derived` | derived: constant[m] = the C1 alternative-specific constant for the mode m maps |
-| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0, "truck": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
+| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0, "truck": 0.0, "motorbike": 0.0, "n...` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
 | `C.scoring.performing_utils_per_h` | `6.0` | utils_per_hour | `literature` | 4 - 8 |
 | `C.scoring.utility_of_line_switch` | *(null - unobtained)* | utils | `derived` | derived: utilityOfLineSwitch = -(C.transfer.penalty_min / 60) * trip_weighted_V |
 | `C.scoring.waiting_pt` | *(null - unobtained)* | utils_per_hour | `derived` | derived: waitingPt = performing - trip_weighted_VOT * beta_wait * marginalUtili |
@@ -2097,7 +2180,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
 | `RUN.qsim.car_vehicle` | `{"length_m": 7.5, "width_m": 1.0, "pce": 1.0}` | metres/metres/passenger_car_equivalents | `definition` | - |
 | `RUN.qsim.end_time_h` | `30` | hours | `definition` | - |
-| `RUN.qsim.main_mode` | `["car", "truck"]` | enum | `definition` | - |
+| `RUN.qsim.main_mode` | `["car", "truck", "motorbike", "walk", "bike"]` | enum | `definition` | - |
 | `RUN.qsim.snapshot_period` | `00:00:00` | hh:mm:ss | `definition` | - |
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
 | `RUN.qsim.vehicles_source` | `modeVehicleTypesFromVehiclesData` | policy | `definition` | - |
@@ -2107,11 +2190,11 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.replanning.max_agent_plan_memory` | `5` | plans | `literature` | 3 - 10 |
 | `RUN.replanning.subpopulations` | `["person", "external", "freight"]` | subpopulation_names | `definition` | - |
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
-| `RUN.routing.beeline_distance_factor_bike` | `1.5231` | ratio | `measured` | 1.207 - 1.456 |
-| `RUN.routing.beeline_distance_factor_walk` | `1.6902` | ratio | `measured` | 1.294 - 1.794 |
-| `RUN.routing.network_modes` | `["car", "ride", "truck"]` | enum | `definition` | - |
-| `RUN.routing.teleported_bike_speed_ms` | `4.2` | metres_per_second | `literature` | 3.1 - 5.5 |
-| `RUN.routing.teleported_walk_speed_ms` | `1.25` | metres_per_second | `derived` | derived: the same physical walking speed. MATSim computes a teleported leg as t |
+| `RUN.routing.access_egress_type` | `none` | policy | `definition` | - |
+| `RUN.routing.access_walk_beeline_factor` | `1.6902` | ratio | `measured` | 1.294 - 1.794 |
+| `RUN.routing.access_walk_speed_ms` | `1.25` | m/s | `derived` | derived: the same physical walking speed - the access/egress stub walk to and f |
+| `RUN.routing.clear_default_teleported_params` | `true` | boolean | `definition` | - |
+| `RUN.routing.network_modes` | `["car", "ride", "truck", "motorbike", "walk", "bike"]` | enum | `definition` | - |
 | `RUN.sample.flow_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: flowCapacityFactor = RUN.sample.fraction, the standard MATSim scaling  |
 | `RUN.sample.fraction` | `0.01` | share_of_population | `assumed` | 0.01 - 0.4 |
 | `RUN.sample.storage_capacity_exponent` | `1.0` | exponent | `derived` | derived: storageCapacityFactor = fraction ** 1.0 = flowCapacityFactor. MATSim e |
@@ -2269,9 +2352,9 @@ Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnig
 
 #### `RUN.qsim.main_mode`
 
-The private modes physically simulated in the mobsim: car, and truck (the freight background layer, 9.49) at B.freight.pce car-equivalents. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY.
+The modes physically simulated in the mobsim: car; truck (9.49) and motorbike (9.52) at their declared PCE; and walk and bike (9.54) - a pedestrian at PCE 0.0 capped at walking speed occupies the network without consuming road capacity (the sidewalk, expressed in queue arithmetic), a cyclist at the declared PCE genuinely takes road space. A car passenger is not a second vehicle: ride stays routed, with PAIRED passengers physically boarded (9.53).
 
-***definition** · status **active** · DECISIONS.md §9.49 · MATSim `qsim.mainMode`*
+***definition** · status **active** · DECISIONS.md §9.54 · MATSim `qsim.mainMode`*
 
 #### `RUN.qsim.snapshot_period`
 
@@ -2327,43 +2410,39 @@ Replanning strategy weights, applied to both the person and external subpopulati
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `replanning.strategysettings[*].weight`*
 
-#### `RUN.routing.beeline_distance_factor_bike`
+#### `RUN.routing.access_egress_type`
 
-Straight-line to path distance for teleported bike, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed bike trip length of 5200 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.2972, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.
+How a network-mode trip connects an activity to its first link. Set to none when walk became a NETWORK mode (9.54), because the default (accessEgressModeToLink) creates beeline stub legs of MODE walk - and the qsim casts every main-mode leg route to a NetworkRoute at agent insertion (PopulationAgentSource, measured: the 9.54 probe died on exactly that ClassCastException). The alternative (walkConstantTimeToLink) needs per-mode access/egress-time attributes on every link - a declared constant nobody has observed. Consequence stated: the stub access walk between an activity and its link is no longer a scored leg; it was a beeline artefact, and the 9.54 comparability break owns the scoring change.
 
-***measured** · status **active** · DECISIONS.md §9.33 · MATSim `routing.teleportedModeParameters[bike].beelineDistanceFactor`*
+***definition** · status **active** · DECISIONS.md §9.54 · MATSim `routing.accessEgressType`*
 
-> **Sweep basis.** the interquartile range of the per-pair ratios over 549 routed pairs; an observed spread, not a chosen interval
+#### `RUN.routing.access_walk_beeline_factor`
 
-#### `RUN.routing.beeline_distance_factor_walk`
+Straight-line to path-distance ratio for the teleported access/egress stub walk. The measured walk detour factor, retired from the MAIN walk mode when walk became network-simulated (whose realised detour is now the road graph own), surviving here in its remaining teleported role.
 
-Straight-line to path distance for teleported walk, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed walk trip length of 700 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.4562, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.
+***measured** · status **active** · DECISIONS.md §9.54 · MATSim `routing.teleportedModeParameters[non_network_walk].beelineDistanceFactor`*
 
-***measured** · status **active** · DECISIONS.md §9.33 · MATSim `routing.teleportedModeParameters[walk].beelineDistanceFactor`*
+> **Sweep basis.** Carried over verbatim from the retired RUN.routing.beeline_distance_factor_walk (9.54): measured over the observed A6 active network unioned with every road class a pedestrian may use. The quantity survives in the ACCESS-WALK role - the stub walk from an activity to its link is beeline-teleported, and this is the measured straight-line-to-path ratio for walking.
 
-> **Sweep basis.** the interquartile range of the per-pair ratios over 531 routed pairs; an observed spread, not a chosen interval
+#### `RUN.routing.access_walk_speed_ms`
+
+Speed of the teleported access/egress stub walk (non_network_walk) that connects an activity to its network link. The MAIN walk mode is network-simulated (9.54); this helper covers only the stub, and it carries the same declared walking speed.
+
+***derived** · status **active** · DECISIONS.md §9.54 · MATSim `routing.teleportedModeParameters[non_network_walk].teleportedModeSpeed`*
+
+> **Derived from** `A.transit.walk_speed_ms`: the same physical walking speed - the access/egress stub walk to and from a network link is walking, at the one declared walking speed
+
+#### `RUN.routing.clear_default_teleported_params`
+
+Clear MATSim built-in default teleportation parameters. Required once walk and bike are NETWORK modes (9.54): the built-in walk/bike defaults conflict with network routing outright (the config consistency check refuses the run - measured, the first 9.54 probe died on it), and a default that silently teleports a mode this model simulates is the right-by-accident defect class. Clearing also removes the non_network_walk helper defaults, so those are DECLARED below instead of inherited.
+
+***definition** · status **active** · DECISIONS.md §9.54 · MATSim `routing.clearDefaultTeleportedModeParams`*
 
 #### `RUN.routing.network_modes`
 
 Modes routed on the road graph. Ride must be here AND permitted on the links (143,891 of them): declaring it a network mode that no link permits gives 'checking 0 nodes and 0 links' and a throw in PrepareForSim.
 
 ***definition** · status **active** · DECISIONS.md §9.6 · MATSim `routing.networkModes`*
-
-#### `RUN.routing.teleported_bike_speed_ms`
-
-Teleported bike speed in MATSim. The point value is NOT repinned: the disagreement between published MATSim practice and ATAP is unresolved and is carried by the sweep. Note the MATSim User Guide advises mode SPEED as the better lever than the time coefficient when a modal split is right but its distance distribution is wrong.
-
-***literature** · status **active** · DECISIONS.md §15, 9.28 · MATSim `routing.teleportedModeParameters[bike].teleportedModeSpeed`*
-
-> **Sweep basis.** widened at 9.28 to span two sources that disagree rather than choosing between them: published MATSim practice is 3.1389 m/s (Kelheim, Duesseldorf, eqasim Corsica) while ATAP M4 gives average cycling at ~15 km/h, which is what 4.2 m/s encodes. The old lower bound of 3.5 excluded every published MATSim value.
-
-#### `RUN.routing.teleported_walk_speed_ms`
-
-Teleported walk speed in MATSim. IDENTICAL BY IDENTITY to A.transit.walk_speed_ms, which generates GTFS transfer times: both are the speed a person walks along a path. They were declared separately at 1.05 and 1.25, each labelled literature and each describing the other as a different quantity - and the bytecode says otherwise. The detour a walker makes is carried by RUN.routing.beeline_distance_factor_walk, which is now MEASURED at 1.6902 rather than sharing an assumed 1.30 with bike, so the speed no longer has to absorb it.
-
-***derived** · status **active** · DECISIONS.md §15, 9.33 · MATSim `routing.teleportedModeParameters[walk].teleportedModeSpeed`*
-
-> **Derived from** `A.transit.walk_speed_ms`: the same physical walking speed. MATSim computes a teleported leg as travelTime = (beeline x beelineDistanceFactor) / teleportedModeSpeed, verified in the pinned jar bytecode (TeleportationRoutingModule: dmul then ddiv), so teleportedModeSpeed is the speed ALONG the walked path - exactly what A.transit.walk_speed_ms is. They are one quantity.
 
 #### `RUN.sample.flow_capacity_factor`
 

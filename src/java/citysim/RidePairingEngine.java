@@ -153,6 +153,66 @@ public final class RidePairingEngine implements BeforeMobsimListener,
     private List<Person> ordered = null;
 
     /** Realised car-leg durations from the mobsim that is running now. */
+    /**
+     * This iteration's physical-boarding bookings (DECISIONS.md 9.53): for a
+     * paired ride, which driver's vehicle the passenger should be aboard.
+     * Written here at BeforeMobsim, consumed by {@link JointRideEngine} on the
+     * qsim thread after this listener has finished — never concurrently.
+     */
+    private final Map<Id<Person>, List<Booking>> bookings = new HashMap<>();
+
+    /** One paired ride leg's claim on a driver's vehicle. */
+    public static final class Booking {
+        final Id<Link> from;
+        final Id<Link> to;
+        final double plannedDeparture;
+        final Id<Person> driver;
+
+        Booking(final Id<Link> from, final Id<Link> to,
+                final double plannedDeparture, final Id<Person> driver) {
+            this.from = from;
+            this.to = to;
+            this.plannedDeparture = plannedDeparture;
+            this.driver = driver;
+        }
+
+        public Id<Link> destination() {
+            return this.to;
+        }
+
+        public Id<Person> driver() {
+            return this.driver;
+        }
+    }
+
+    /**
+     * The booking for this passenger departing this link now, or null. The
+     * booking is CONSUMED: a person with two paired ride legs from the same
+     * link holds two bookings, each redeemable once, nearest planned
+     * departure first.
+     */
+    public Booking claimBooking(final Id<Person> person, final Id<Link> link,
+                                final double now) {
+        final List<Booking> list = this.bookings.get(person);
+        if (list == null) {
+            return null;
+        }
+        Booking best = null;
+        for (final Booking b : list) {
+            if (!b.from.equals(link)) {
+                continue;
+            }
+            if (best == null || Math.abs(b.plannedDeparture - now)
+                    < Math.abs(best.plannedDeparture - now)) {
+                best = b;
+            }
+        }
+        if (best != null) {
+            list.remove(best);
+        }
+        return best;
+    }
+
     private Map<Id<Person>, List<Realised>> current = new HashMap<>();
     /** ... and from the one that has finished, which is what pairing reads. */
     private Map<Id<Person>, List<Realised>> previous = new HashMap<>();
@@ -274,6 +334,7 @@ public final class RidePairingEngine implements BeforeMobsimListener,
         previous = current;
         current = new HashMap<>();
         inFlight.clear();
+        bookings.clear();
 
         index();
 
@@ -368,6 +429,7 @@ public final class RidePairingEngine implements BeforeMobsimListener,
         final Map<String, int[]> paired = new HashMap<>();
         final Map<String, int[]> unpaired = new HashMap<>();
         int nPaired = 0;
+        int remoded = 0;
         int fromRealised = 0;
         int fromRouted = 0;
         int capacityRefusals = 0;
@@ -405,6 +467,28 @@ public final class RidePairingEngine implements BeforeMobsimListener,
                     capacityRefusals++;
                 }
                 unpaired.computeIfAbsent(ride.direction, k -> new int[1])[0]++;
+                if (cfg.isPhysicalBoarding() && cfg.isRemodeUnpaired()) {
+                    // DECISIONS.md 9.55: a ride trip no household driver can
+                    // physically serve is not a ride trip - it WALKS, on the
+                    // network, this iteration (the car route's links are
+                    // traversed at walking speed; ReRoute re-routes it as
+                    // walk next innovation). A long forced walk scores
+                    // terribly, so co-evolution reassigns the tour, and ride
+                    // becomes emergent: only what the driver supply carries
+                    // survives. No parameter invented; the constraint is the
+                    // price.
+                    ride.leg.setMode(TransportMode.walk);
+                    org.matsim.core.router.TripStructureUtils.setRoutingMode(
+                            ride.leg, TransportMode.walk);
+                    // the car route may traverse walk-excluded links, and
+                    // PersonPrepareForSim refuses a route inconsistent with
+                    // link modes (measured). A null route makes it re-route
+                    // the leg as WALK on the walk network before the mobsim -
+                    // properly walked from its first iteration.
+                    ride.leg.setRoute(null);
+                    remoded++;
+                    continue;
+                }
                 restore(ride.leg, ride.route);
                 continue;
             }
@@ -428,6 +512,16 @@ public final class RidePairingEngine implements BeforeMobsimListener,
             // router's own estimate, which is what makes an unpaired leg
             // restorable to exactly today's behaviour.
             ride.route.setTravelTime(driverTime + dwell);
+            if (cfg.isPhysicalBoarding()) {
+                // The booking JointRideEngine redeems at the qsim's own
+                // departure (DECISIONS.md 9.53). The route time written above
+                // stays: it is exactly what a MISSED boarding falls back to,
+                // so the fallback is Tier 1 verbatim rather than a third
+                // behaviour.
+                bookings.computeIfAbsent(ride.person, k -> new ArrayList<>(2))
+                        .add(new Booking(ride.from, ride.to, ride.departure,
+                                         best.person));
+            }
         }
 
         write(event.getIteration(), rides.size(), nPaired, paired, unpaired,
@@ -435,6 +529,11 @@ public final class RidePairingEngine implements BeforeMobsimListener,
               nPaired == 0 ? 0.0 : deltaSum / nPaired, capacityRefusals,
               driversByHousehold.size(), noHousehold,
               System.currentTimeMillis() - started);
+        if (cfg.isPhysicalBoarding() && cfg.isRemodeUnpaired()) {
+            org.apache.logging.log4j.LogManager.getLogger(RidePairingEngine.class)
+                    .info("ridePairing: {} unpaired ride legs re-moded to "
+                          + "network walk (DECISIONS.md 9.55)", remoded);
+        }
     }
 
     // ---- the rules --------------------------------------------------------

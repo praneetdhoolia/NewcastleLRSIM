@@ -111,6 +111,17 @@ def rebuild_stage(key, field):
             return 'forbidden', ('consumed by %s: realising it needs the '
                                  'schedule mapper re-run, which 3.5 forbids '
                                  'inside a comparison' % c)
+        if st is None:
+            # A consumer this table does not classify gets EXCLUDED, not
+            # defaulted to run-time-realisable. The permissive default put the
+            # OSM harvest margins and the speed-zone clip radius in the movable
+            # set: a --set on any of them would be validated, recorded in the
+            # run's provenance snapshot, and change nothing the run reads -
+            # this repository's signature defect, inside the one tool whose
+            # job is to move values that reach the model.
+            return 'excluded', ('consumed by %s, which the rebuild-stage table '
+                                'does not classify; a run-time override would '
+                                'be recorded and reach nothing' % c)
         if st == 'demand' and stage != 'demand':
             stage, why = 'demand', ('consumed by %s: needs B2, the plans and the '
                                     'run inputs rebuilt per candidate' % c)
@@ -247,6 +258,70 @@ def candidate_tag(base, key, value):
     return '%s__%s_%g' % (base, short, value)
 
 
+def write_constrained_base(scenario, day, run_config, tag):
+    """C5 under the 8.5 SECOND branch: constrain and report (DECISIONS.md 9.50).
+
+    No search ran and none is pretended: `free_parameters` is empty,
+    `calibrated` is empty, and the record points at ONE run of the current
+    demand family whose fit is reported exactly as fit.py wrote it. The mode
+    constants stay at their 8.5 priors (held_fixed, unreachable from the loop
+    by construction); `asc_car_passenger` is NOT re-solved against the 9.48
+    occupancy excess - that would absorb a modelled defect into a constant,
+    the ASC-absorption move proposal 9 names as the primary threat - and the
+    excess is carried here as a stated constraint violation instead.
+    """
+    cfg = _registry.load(scenario=scenario, day=day, run=run_config)
+    run_dir = os.path.join(_city.REPO, 'results', tag)
+    fit_path = os.path.join(run_dir, '_fit.json')
+    if not os.path.exists(fit_path):
+        raise SystemExit('no _fit.json in %s - the base run must exist and be '
+                         'fitted before C5 can report it' % run_dir)
+    if not os.path.exists(os.path.join(run_dir, '_run.json')):
+        raise SystemExit('%s has no _run.json: a run without one is not a '
+                         'result and cannot anchor the calibrated base' % run_dir)
+    f = json.load(open(fit_path, encoding='utf-8'))
+    audit_no_holdout(f)
+    ok, why = feasible(f)
+    comps = cfg.get('CAL.objective.components')
+    obj, parts = objective(f, comps)
+    excluded = []
+    free = free_parameters(cfg, excluded)
+    result = dict(
+        generated=datetime.datetime.now(datetime.timezone.utc)
+        .strftime('%Y-%m-%dT%H:%M:%SZ'),
+        scenario=scenario, day=day, run_config=run_config,
+        branch='constrain-and-report (DECISIONS.md 8.5 second branch, 9.50)',
+        decisions_ref='9.50',
+        objective_components=comps,
+        independent_targets=int(cfg.get('CAL.objective.independent_targets')),
+        free_parameters=[],
+        search_declined=dict(
+            movable={p['key']: dict(value=p['value'], lo=p['lo'], hi=p['hi'])
+                     for p in free},
+            reason='the loop can legitimately move only these parameters, at '
+                   '~21 full 25% x 1000 runs; neither reaches the structural '
+                   'misfits (9.25, 9.28), so the search was DECLINED with the '
+                   'cost stated rather than run for its appearance (9.50)'),
+        best_tag=tag, best_objective=obj, objective_parts=parts,
+        calibrated={},
+        constraints=dict(feasible=ok, violations=why),
+        history=[],
+        note='CONSTRAINED, not fitted (DECISIONS.md 9.50). Every parameter '
+             'kept its declared registry value; the mode constants stay at '
+             'their 8.5 priors, held fixed; asc_car_passenger is NOT re-solved '
+             'against the 9.48 occupancy excess, which is reported above as a '
+             'constraint violation instead of being absorbed. The fit is one '
+             'reference run of the 9.49 demand family, reported as it came '
+             'out. Counts were scored, not optimised against (9.14). No '
+             'holdout row was read.')
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    json.dump(result, open(OUT, 'w'), indent=2)
+    print('constrained base from %s (objective %.4f, feasible=%s) -> %s'
+          % (tag, obj, ok, OUT))
+    for v in why:
+        print('   stated violation: %s' % v)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -257,11 +332,21 @@ def main():
     ap.add_argument('--plan', action='store_true',
                     help='print the search and its cost, run nothing')
     ap.add_argument('--execute', action='store_true')
+    ap.add_argument('--constrained-base', metavar='TAG',
+                    help='write C5 from an existing run under the 8.5 '
+                         'constrain-and-report branch (DECISIONS.md 9.50): '
+                         'no search, every parameter keeps its declared value, '
+                         'the named run\'s fit is reported as it came out')
     ap.add_argument('--only', action='append', default=None,
                     help='restrict the free set to these registry keys')
     a = ap.parse_args()
-    if not (a.plan or a.execute):
-        raise SystemExit('choose --plan or --execute')
+    if not (a.plan or a.execute or a.constrained_base):
+        raise SystemExit('choose --plan, --execute or --constrained-base')
+
+    if a.constrained_base:
+        write_constrained_base(a.scenario, a.day, a.run_config,
+                               a.constrained_base)
+        return
 
     cfg = _registry.load(scenario=a.scenario, day=a.day, run=a.run_config)
     comps = cfg.get('CAL.objective.components')

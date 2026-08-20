@@ -7,6 +7,10 @@ import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
+import org.matsim.core.mobsim.qsim.AbstractQSimModule;
+import org.matsim.core.mobsim.qsim.PopulationModule;
+import org.matsim.core.mobsim.qsim.TeleportationModule;
+import org.matsim.core.mobsim.qsim.qnetsimengine.QNetsimEngineModule;
 import org.matsim.core.population.algorithms.PermissibleModesCalculator;
 import org.matsim.core.scenario.ScenarioUtils;
 
@@ -97,7 +101,9 @@ public final class CitysimControler {
                 parking.setPriceFile(new File(base, parking.getPriceFile()).getPath());
             }
         }
-        final Controler controler = new Controler(ScenarioUtils.loadScenario(config));
+        final org.matsim.api.core.v01.Scenario scenario =
+                ScenarioUtils.loadScenario(config);
+        final Controler controler = new Controler(scenario);
         controler.addOverridingModule(new AbstractModule() {
             @Override
             public void install() {
@@ -108,6 +114,34 @@ public final class CitysimControler {
                         .to(networkTravelTime());
                 addTravelDisutilityFactoryBinding(TransportMode.ride)
                         .to(carTravelDisutilityFactoryKey());
+                // Network-simulated unmotorised modes (DECISIONS.md 9.54):
+                // the router's speed cap comes from the SAME vehicle type the
+                // qsim loads, so estimate and physics cannot drift. Bound only
+                // for modes the config actually runs in the qsim, so a config
+                // without them behaves exactly as before.
+                for (final String mode : new String[] {TransportMode.walk,
+                                                       TransportMode.bike}) {
+                    if (!config.qsim().getMainModes().contains(mode)) {
+                        continue;
+                    }
+                    final org.matsim.vehicles.VehicleType type =
+                            scenario.getVehicles().getVehicleTypes().get(
+                                    org.matsim.api.core.v01.Id.create(
+                                            mode,
+                                            org.matsim.vehicles.VehicleType.class));
+                    if (type == null) {
+                        throw new IllegalStateException(
+                                "qsim.mainMode contains '" + mode + "' but the "
+                                + "vehicles file declares no such type; the "
+                                + "speed cap is declared in the registry and "
+                                + "emitted by build_matsim_run_inputs.py");
+                    }
+                    addTravelTimeBinding(mode).toInstance(
+                            new CappedSpeedTravelTime(type.getMaximumVelocity()));
+                    addTravelDisutilityFactoryBinding(mode).toInstance(
+                            new org.matsim.core.router.costcalculators
+                                    .OnlyTimeDependentTravelDisutilityFactory());
+                }
             }
         });
         if (!parking.getPriceFile().isEmpty()) {
@@ -132,6 +166,69 @@ public final class CitysimControler {
                     bind(RidePairingEngine.class).in(Singleton.class);
                     addEventHandlerBinding().to(RidePairingEngine.class);
                     addControllerListenerBinding().to(RidePairingEngine.class);
+                }
+            });
+        }
+        final boolean physicalBoarding =
+                ridePairing.isEnabled() && ridePairing.isPhysicalBoarding();
+        final boolean networkWalk =
+                config.qsim().getMainModes().contains(TransportMode.walk);
+        if (physicalBoarding || networkWalk) {
+            controler.addOverridingQSimModule(new AbstractQSimModule() {
+                @Override
+                protected void configureQSim() {
+                    if (physicalBoarding) {
+                        // Physical boarding (DECISIONS.md 9.53, issue #48).
+                        // The bookings it redeems live in the parent-scoped
+                        // RidePairingEngine singleton bound above.
+                        bind(JointRideEngine.class).asEagerSingleton();
+                        addQSimComponentBinding(JointRideEngine.COMPONENT)
+                                .to(JointRideEngine.class);
+                    }
+                    if (networkWalk) {
+                        // Network-simulated walk (DECISIONS.md 9.54): the
+                        // transit router's access/egress and direct-walk legs
+                        // keep mode `walk` with a GENERIC route, and the stock
+                        // agent source casts every main-mode leg's route to a
+                        // NetworkRoute - measured to crash at agent insertion.
+                        // The tolerant source parks vehicles only for
+                        // network-routed legs, and the teleporter claims the
+                        // generic ones at departure.
+                        bind(GenericRouteTeleporter.class).asEagerSingleton();
+                        addQSimComponentBinding(GenericRouteTeleporter.COMPONENT)
+                                .to(GenericRouteTeleporter.class);
+                        bind(TolerantAgentSource.class).asEagerSingleton();
+                        // its own component name: component bindings COLLECT
+                        // rather than override (measured - both sources ran
+                        // and the walk vehicles were parked twice), so the
+                        // stock source is removed from the components list
+                        // below and this one added
+                        addQSimComponentBinding("citysimTolerantAgentSource")
+                                .to(TolerantAgentSource.class);
+                    }
+                }
+            });
+            // Departure handlers are consulted in component order, and the
+            // teleportation engine claims EVERY departure that reaches it -
+            // so the order is rebuilt explicitly: the generic-route teleporter
+            // BEFORE the netsim engine (it claims only main-mode legs without
+            // a network route), jointRide after the netsim (ride is not a
+            // main mode) and before teleportation, teleportation last. A
+            // missed boarding still falls through to Tier 1.
+            controler.configureQSimComponents(components -> {
+                components.removeNamedComponent(QNetsimEngineModule.COMPONENT_NAME);
+                components.removeNamedComponent(TeleportationModule.COMPONENT_NAME);
+                if (networkWalk) {
+                    components.addNamedComponent(GenericRouteTeleporter.COMPONENT);
+                }
+                components.addNamedComponent(QNetsimEngineModule.COMPONENT_NAME);
+                if (physicalBoarding) {
+                    components.addNamedComponent(JointRideEngine.COMPONENT);
+                }
+                components.addNamedComponent(TeleportationModule.COMPONENT_NAME);
+                if (networkWalk) {
+                    components.removeNamedComponent(PopulationModule.COMPONENT_NAME);
+                    components.addNamedComponent("citysimTolerantAgentSource");
                 }
             });
         }

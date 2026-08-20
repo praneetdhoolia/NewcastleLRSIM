@@ -621,9 +621,10 @@
       ],
       "status": "active",
       "decisions_ref": "11",
-      "description": "Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05.",
+      "description": "Walk speed used to generate GTFS transfer times. Distinct from the MATSim teleported walk speed - see RUN.matsim.teleported_walk_speed_ms, which is 1.05. Since 9.54 it is ALSO the walk vehicle type maximum velocity: the same physical walking speed, carried into the mobsim and the router (CappedSpeedTravelTime).",
       "consumers": [
-        "src/build/build_gtfs_extras.py"
+        "src/build/build_gtfs_extras.py",
+        "src/build/build_matsim_run_inputs.py"
       ]
     },
     "A.transit.era1_line_speed_kmh": {
@@ -1400,6 +1401,38 @@
       "status": "active",
       "decisions_ref": "9.34, 15",
       "description": "Distance within which a stop counts as covered by its route shape, for the coverage figure the schedule builder reports. A REPORTING tolerance: it decides what the build prints about itself, not what any vehicle does."
+    },
+    "A.network.pedestrian_excluded_classes": {
+      "value": [
+        "motorway",
+        "motorway_link",
+        "trunk",
+        "trunk_link"
+      ],
+      "units": "osm_highway_classes",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.54",
+      "description": "Road classes a network-simulated pedestrian may not use: pedestrians are prohibited on motorways and high-speed trunk carriageways by road rules, and the walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "A.network.bicycle_excluded_classes": {
+      "value": [
+        "motorway",
+        "motorway_link"
+      ],
+      "units": "osm_highway_classes",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.54",
+      "description": "Road classes a network-simulated cyclist may not use: bicycles are prohibited on motorways by road rules (trunk roads are legal for cycling in NSW). A vocabulary of the road rules, not a tunable.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     }
   }
 }

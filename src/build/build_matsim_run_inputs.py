@@ -290,42 +290,50 @@ def set_link_attribute(tail, name, value):
 MODES_ATTR_RE = re.compile(r'modes="([^"]*)"')
 
 # The modes a car link also carries, and why each is there. `ride` is ROUTED
-# on the road network but not simulated (a passenger is not a second vehicle);
-# `truck` is ROUTED AND SIMULATED (DECISIONS.md 9.49) - a heavy vehicle at
-# B.freight.pce car-equivalents genuinely occupies the link. Both ride on the
-# car network because no truck-route or passenger-route layer exists to say
-# otherwise; unconstrained truck routing is a stated limitation of the
-# background load.
-CAR_COMPANION_MODES = ('ride', 'truck')
+# on the road network but not simulated (a passenger is not a second vehicle;
+# PAIRED passengers physically board, DECISIONS.md 9.53); `truck` (9.49),
+# `motorbike` (9.52), `walk` and `bike` (9.54) are ROUTED AND SIMULATED at
+# their declared PCE - a pedestrian at PCE 0.0 occupies the network without
+# consuming road capacity (the sidewalk, in queue arithmetic). All ride on
+# the car network because no mode-specific route layer is part of the one
+# mapped build (3.5 forbids a remap); the road rules still hold: walk and
+# bike are excluded from the declared prohibited classes.
+CAR_COMPANION_MODES = ('ride', 'truck', 'motorbike')
+LAWFUL_COMPANIONS = (('walk', 'A.network.pedestrian_excluded_classes'),
+                     ('bike', 'A.network.bicycle_excluded_classes'))
+HIGHWAY_ATTR_RE = re.compile(r'name="osm:way:highway"[^>]*>([^<]+)<')
 
 
-def allow_car_companions(xml):
-    """Let `ride` and `truck` use the roads `car` uses.
+def allow_car_companions(link_xml, excluded_of_mode):
+    """One link's modes attribute, extended with every mode the law allows.
 
     The mapped network permits `car` alone, so a config that declared `ride` a
     network mode produced `checking 0 nodes and 0 links for dead-ends` and
     then threw during `PrepareForSim` - the run inputs could not be used even
-    once the schedules were fixed (DECISIONS.md 9.4, defect 4). `truck` needs
-    the same permission and, unlike ride, is a qsim main mode: a link that did
-    not carry it would refuse the vehicle outright.
+    once the schedules were fixed (DECISIONS.md 9.4, defect 4). The simulated
+    modes need the same permission outright: a link that does not carry a
+    qsim main mode refuses its vehicles.
 
-    `travelTimeCalculator.separateModes=false` makes both read the car travel
-    times for routing.
+    Walk and bike are withheld from their declared prohibited road classes
+    (pedestrians on motorways are not a modelling choice to leave open); a
+    link with no highway class keeps them, which errs on connectivity.
     """
-    n = 0
-
-    def add_modes(m):
-        nonlocal n
-        modes = [x for x in m.group(1).split(',') if x]
-        if 'car' not in modes:
-            return m.group(0)
-        add = [x for x in CAR_COMPANION_MODES if x not in modes]
-        if not add:
-            return m.group(0)
-        n += 1
-        return 'modes="%s"' % ','.join(sorted(modes + add))
-
-    return MODES_ATTR_RE.sub(add_modes, xml), n
+    m = MODES_ATTR_RE.search(link_xml)
+    if m is None:
+        return link_xml, False
+    modes = [x for x in m.group(1).split(',') if x]
+    if 'car' not in modes:
+        return link_xml, False
+    hw = HIGHWAY_ATTR_RE.search(link_xml)
+    highway = hw.group(1).strip() if hw else ''
+    add = [x for x in CAR_COMPANION_MODES if x not in modes]
+    for mode, excluded in excluded_of_mode.items():
+        if mode not in modes and highway not in excluded:
+            add.append(mode)
+    if not add:
+        return link_xml, False
+    new = 'modes="%s"' % ','.join(sorted(modes + add))
+    return link_xml[:m.start()] + new + link_xml[m.end():], True
 
 
 def write_mode_vehicles(dst_path, cfg):
@@ -343,6 +351,14 @@ def write_mode_vehicles(dst_path, cfg):
     seat count here would be a literal doing nothing.
     """
     car = cfg.get('RUN.qsim.car_vehicle')
+    # A car's PASSENGER capacity is the declared ride cap (DECISIONS.md 9.53):
+    # the qsim's boarding refusal and the pairing's own capacity rule must be
+    # the same number or one of them is decoration. MATSim counts capacity as
+    # seats + standing EXCLUDING the driver (verified against the jar:
+    # QVehicleImpl's constructor), so seats = the cap itself. Left implicit,
+    # the qsim would default to 4 - equal to the declared value today, which
+    # is this repository's named right-by-accident defect.
+    car_seats = int(cfg.get('B.ride.max_passengers_per_vehicle'))
 
     def car_bodied(mode):
         # `ride` needs a type because PrepareForSim demands one for every
@@ -351,6 +367,8 @@ def write_mode_vehicles(dst_path, cfg):
         # rather than declaring a second value. It never enters the mobsim:
         # ride is not a main mode, so the type is inert beyond loading.
         return ['\t<vehicleType id="%s">' % mode,
+                '\t\t<capacity seats="%d" standingRoomInPersons="0">' % car_seats,
+                '\t\t</capacity>',
                 '\t\t<length meter="%s" />' % car['length_m'],
                 '\t\t<width meter="%s" />' % car['width_m'],
                 '\t\t<passengerCarEquivalents pce="%s" />' % car['pce'],
@@ -374,6 +392,33 @@ def write_mode_vehicles(dst_path, cfg):
         '\t\t<passengerCarEquivalents pce="%s" />' % cfg.get('B.freight.pce'),
         '\t\t<networkMode networkMode="truck" />',
         '\t</vehicleType>',
+        # a motorbike consumes LESS than a car (DECISIONS.md 9.52); no speed
+        # cap - it takes each link's own limit like a car does
+        '\t<vehicleType id="motorbike">',
+        '\t\t<length meter="%s" />' % cfg.get('B.motorbike.length_m'),
+        '\t\t<width meter="%s" />' % car['width_m'],
+        '\t\t<passengerCarEquivalents pce="%s" />' % cfg.get('B.motorbike.pce'),
+        '\t\t<networkMode networkMode="motorbike" />',
+        '\t</vehicleType>',
+        # walk and bike (DECISIONS.md 9.54): a pedestrian at PCE 0.0 occupies
+        # the network without consuming road capacity; a cyclist at the
+        # declared PCE takes real carriageway space. Both are speed-capped by
+        # the same declared value the router reads (CappedSpeedTravelTime),
+        # so estimate and physics cannot drift. Length and width are omitted:
+        # at these PCEs the queue runs entirely on the equivalents, and the
+        # constructor defaults are cosmetic.
+        '\t<vehicleType id="walk">',
+        '\t\t<maximumVelocity meterPerSecond="%.4f" />'
+        % float(cfg.get('A.transit.walk_speed_ms')),
+        '\t\t<passengerCarEquivalents pce="%s" />' % cfg.get('B.walk.pce'),
+        '\t\t<networkMode networkMode="walk" />',
+        '\t</vehicleType>',
+        '\t<vehicleType id="bike">',
+        '\t\t<maximumVelocity meterPerSecond="%.4f" />'
+        % float(cfg.get('B.bike.speed_ms')),
+        '\t\t<passengerCarEquivalents pce="%s" />' % cfg.get('B.bike.pce'),
+        '\t\t<networkMode networkMode="bike" />',
+        '\t</vehicleType>',
         '</vehicleDefinitions>',
         '']
     with open(dst_path, 'w', encoding='utf-8', newline='\n') as f:
@@ -381,7 +426,94 @@ def write_mode_vehicles(dst_path, cfg):
     return dst_path
 
 
-def patch_network(src_net, dst_net, patches, drop_turns):
+LINK_HEAD_RE = re.compile(
+    r'<link id="([^"]+)" from="([^"]+)" to="([^"]+)"[^>]*?modes="([^"]*)"')
+
+
+def strip_unreachable_mode_links(body, mode, applied):
+    """Keep `mode` only on its largest strongly-connected subnetwork.
+
+    Withholding walk from the trunk classes severs pockets whose only
+    connection to the rest of the network is an excluded link, and MATSim
+    REFUSES a mode whose subnetwork has unreachable links ("Network for mode
+    'walk' has unreachable links and nodes... Aborting" - the first 9.54
+    probe died on it). This is MATSim's own MultimodalNetworkCleaner rule,
+    applied at build time where the network is text: find the largest
+    strongly-connected component of the mode's subgraph (iterative Kosaraju)
+    and strip the mode from every link outside it. The stripped count is
+    reported - a silent strip would hide how much of the city the exclusion
+    disconnects.
+    """
+    links = []          # (link_id, from, to) carrying the mode
+    adj = {}
+    radj = {}
+    for m in LINK_HEAD_RE.finditer(body):
+        lid, frm, to, modes = m.group(1), m.group(2), m.group(3), m.group(4)
+        if mode in modes.split(','):
+            links.append((lid, frm, to))
+            adj.setdefault(frm, []).append(to)
+            radj.setdefault(to, []).append(frm)
+    if not links:
+        return body
+    # iterative Kosaraju: finishing order on the forward graph, then reverse
+    # sweeps in reverse finishing order; the largest component wins
+    seen = set()
+    order = []
+    for start in adj:
+        if start in seen:
+            continue
+        stack = [(start, iter(adj.get(start, ())))]
+        seen.add(start)
+        while stack:
+            node, it = stack[-1]
+            advanced = False
+            for nxt in it:
+                if nxt not in seen:
+                    seen.add(nxt)
+                    stack.append((nxt, iter(adj.get(nxt, ()))))
+                    advanced = True
+                    break
+            if not advanced:
+                order.append(node)
+                stack.pop()
+    comp = {}
+    seen2 = set()
+    best_id, best_size = None, 0
+    for start in reversed(order):
+        if start in seen2:
+            continue
+        size = 0
+        stack = [start]
+        seen2.add(start)
+        while stack:
+            node = stack.pop()
+            comp[node] = start
+            size += 1
+            for nxt in radj.get(node, ()):
+                if nxt not in seen2:
+                    seen2.add(nxt)
+                    stack.append(nxt)
+        if size > best_size:
+            best_id, best_size = start, size
+    drop = {lid for lid, frm, to in links
+            if comp.get(frm) != best_id or comp.get(to) != best_id}
+    if not drop:
+        return body
+
+    def strip(m):
+        s = m.group(0)
+        lid = re.search(r'id="([^"]+)"', s).group(1)
+        if lid not in drop:
+            return s
+        mm = MODES_ATTR_RE.search(s)
+        modes = [x for x in mm.group(1).split(',') if x != mode]
+        applied['%s_stripped_unreachable' % mode] += 1
+        return s[:mm.start()] + 'modes="%s"' % ','.join(modes) + s[mm.end():]
+
+    return LINK_BLOCK_RE.sub(strip, body)
+
+
+def patch_network(src_net, dst_net, patches, drop_turns, excluded_of_mode):
     """Re-apply an E1 road variant to a mapped schedule network by osm:way:id."""
     with gzip.open(src_net, 'rt', encoding='utf-8') as f:
         xml = f.read()
@@ -392,7 +524,14 @@ def patch_network(src_net, dst_net, patches, drop_turns):
         wid = WAY_ID_RE.search(s)
         p = patches.get(wid.group(1)) if wid else None
         if not p:
-            return s
+            # No E1 patch, but EVERY car link still carries the companion
+            # modes (the first form of this refactor put the extension after
+            # this early return, which silently produced a network with zero
+            # walkable links - caught by the probe, not by reading).
+            merged, extended = allow_car_companions(s, excluded_of_mode)
+            if extended:
+                applied['companion_mode_links'] += 1
+            return merged
         head_end = s.index('>')
         head, tail = s[:head_end], s[head_end:]
         a = dict(ATTR_RE.findall(head))
@@ -415,6 +554,11 @@ def patch_network(src_net, dst_net, patches, drop_turns):
             if new_tail != tail:
                 applied['kerbside_use'] += 1
                 tail = new_tail
+        merged, extended = allow_car_companions(head + tail, excluded_of_mode)
+        if extended:
+            applied['companion_mode_links'] += 1
+            head_end2 = merged.index('>')
+            head, tail = merged[:head_end2], merged[head_end2:]
         if drop_turns and 'disallowedNextLinks' in tail:
             # E1's "no banned turns" applies to the corridor without the tram,
             # not to the whole study area. Stripping the attribute network-wide
@@ -428,8 +572,8 @@ def patch_network(src_net, dst_net, patches, drop_turns):
         return head + tail
 
     body = LINK_BLOCK_RE.sub(patch_link, xml)
-    body, companion_links = allow_car_companions(body)
-    applied['ride_truck_links'] = companion_links
+    for mode in excluded_of_mode:
+        body = strip_unreachable_mode_links(body, mode, applied)
     os.makedirs(os.path.dirname(dst_net), exist_ok=True)
     with gzip_writer(dst_net) as f:
         f.write(body)
@@ -573,12 +717,24 @@ def scoring_from_c1(cfg, c1, purpose_share):
                      marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_walk_mode'))),
         'bike': dict(constant=asc['asc_cycle'][0],
                      marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_bike_mode'))),
-        # truck (DECISIONS.md 9.49): scoring params must exist for any leg mode
-        # MATSim scores, but a freight agent's mode is LOCKED - the choice this
-        # block prices never happens for it. The car time rate is carried so
-        # the values are unremarkable, and the constant is zero because there
-        # is no alternative for it to be relative to.
+        # truck (DECISIONS.md 9.49) and motorbike (9.52): scoring params must
+        # exist for any leg mode MATSim scores, but these agents' modes are
+        # LOCKED - the choice this block prices never happens for them. The
+        # car time rate is carried so the values are unremarkable, and the
+        # constants are zero because there is no alternative to be relative to.
         'truck': dict(constant=0.0, marginalUtilityOfTraveling=traveling(1.0)),
+        'motorbike': dict(constant=0.0,
+                          marginalUtilityOfTraveling=traveling(1.0)),
+        # the teleported access/egress stub (DECISIONS.md 9.54): its time IS
+        # walking time, so it carries walk's marginal rate BY IDENTITY, and a
+        # zero constant - the mode constant belongs to the MAIN mode of the
+        # trip, and a constant here would be paid once per stub. Without this
+        # declaration MATSim scores the stubs with its own built-in
+        # non_network_walk defaults - a value nobody declared, reaching every
+        # PT trip: the right-by-accident defect class.
+        'non_network_walk': dict(
+            constant=0.0,
+            marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_walk_mode'))),
     }
     tp = c1['transfer_penalty']['base']
     return dict(
@@ -792,9 +948,14 @@ def main(day_types=None, scenarios=None, set_overrides=None):
     # the resolver rather than substituted past it, so `_config.json` records
     # where the number came from and the value is checked against its own
     # declared range like any other.
-    shipped = {'RUN.controler.last_iteration':
-               shipped_iterations(_registry.load(strict=True))}
+    base_cfg = _registry.load(strict=True)
+    shipped = {'RUN.controler.last_iteration': shipped_iterations(base_cfg)}
     shipped.update(set_overrides or {})
+    # The road-rule exclusions are base declarations (which classes a
+    # pedestrian or cyclist may use is law, not a scenario property), and the
+    # network is patched once per scenario before any day resolution exists.
+    excluded_of_mode = {mode: frozenset(base_cfg.get(key))
+                        for mode, key in LAWFUL_COMPANIONS}
 
     # Recorded so the HARNESS can recompute the C1 translation against its own
     # resolution without re-reading the HTS. Without this the derived scoring
@@ -813,7 +974,7 @@ def main(day_types=None, scenarios=None, set_overrides=None):
         drop = road_variants.get(ref, {}).get('banned_turn_movements') == '0'
         net_dst = os.path.join(OUT, sid, 'network.xml.gz')
         touched = patch_network(os.path.join(sched_dir, 'network.xml.gz'),
-                                net_dst, pat, drop)
+                                net_dst, pat, drop, excluded_of_mode)
         price_dst = os.path.join(OUT, sid, PARK_PRICE_FILE)
         parking = write_parking_prices(net_dst, price_dst)
         entry = dict(road_variant=ref, patch_rows=len(pat),

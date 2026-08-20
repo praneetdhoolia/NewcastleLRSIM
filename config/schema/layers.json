@@ -1052,6 +1052,7 @@
     "demand/plans/B2_activity_trips_WEEKDAY.csv": {
       "kind": "file",
       "read_by": [
+        "src/analyse/measure_realisation_gap.py",
         "tests/check_package.py"
       ],
       "columns_in_reference_city": [
