@@ -51,7 +51,8 @@ otherwise cost you an hour:
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
 | **External / boundary demand** | §9.14, §9.15, §9.20; through traffic **§9.41** |
 | **Freight / heavy vehicles (`truck`)** | **§9.49** — a physical background load: measured profile and gate shares, assumed and swept volume ratio, PCE and decay; issue #24 |
-| **The calibrated base (deliverable 5)** | **§9.50** — constrain-and-report, logged before the base run's results; ASCs stay §8.5 priors, #9 resolved by decision, the §9.48 occupancy excess reported not absorbed |
+| **The calibrated base (deliverable 5)** | **§9.50** — constrain-and-report, logged before the base run's results; ASCs stay §8.5 priors, #9 resolved by decision, the §9.48 occupancy excess reported not absorbed. **The base arm was stopped (§9.51) — C5 and the report await its relaunch** |
+| **The four owner directives (20 Aug)** | **§9.51** — physical ride (no teleportation), 9+ modes individualised (G62 verified to carry them), the sub-1 km walk deficit (#30 re-opened), demographic-conditional mode fidelity. These set the value order |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
 | **Bike availability (issue #29)** | **§9.39** |
 | **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
@@ -5423,6 +5424,53 @@ already-stated costs.
 
 ---
 
+## 9.51 Four owner directives reset the value order, and the base arm is stopped (20 August 2026)
+
+**Decision: the owner issued four standing directives at session close, each
+overriding a recorded stance.** The 4.2.4 base arm (`base1000_25pct`,
+~iteration 20 of 1000) was **stopped on the owner's instruction** and
+quarantined to `results/_aborted_20260820/` — deliverable 5's C5/report
+therefore remain open (#14, #9 stay open; PR #47 lands the §9.50 decision and
+machinery only). Taken 20 August 2026, recorded before any research begins.
+
+The directives, and what each supersedes:
+
+1. **Every `ride` trip is a passenger PHYSICALLY in a car — no exceptions,
+   no teleportation — and the ride share tuned to real life** (modelled
+   31.05 vs observed 20.60; occupancy 0.4855 vs 0.3503). This **un-rests the
+   ride lane** (§9.48's §4D branch) and **re-opens the joint-plans question**
+   the owner had previously closed (socnetsim measured ~10× and reverted) —
+   the cost is on record and any mechanism must re-confront it. Tier 1
+   (§9.44) stays merged as the baseline mechanism until its successor lands.
+2. **All nine or more modes distinguished and unique** — bus, train, light
+   rail and ferry never reported under a `pt` umbrella; motorbike and
+   taxi/rideshare individualised out of `car`/`Other`. This supersedes the
+   *"motorcycle as its own mode: declined for want of a target"* stance to
+   the extent an observed target exists — and one does: **verified at
+   handoff, `census2021_G62_SA1.csv` carries per-SA1 journey-to-work counts
+   for Motorbike/scooter, Taxi/Rideshare, Tram/light rail, Train, Bus,
+   Ferry and Truck as distinct observed modes.** The no-invented-data rule
+   stands: non-commute shares without an observation are swept, never
+   pinned.
+3. **The walk deficit is the priority structural defect**: the model
+   generates too little sub-1 km trip mass (measured 2.5% of trips under
+   1 km against an observed >~10%; walk 0.71% modelled vs 13.40% observed;
+   modelled walk trips 2.43 km mean vs ~0.7 observed). **Issue #30 re-opens
+   under its own REOPEN IF clause** — the first-run evaluation showed
+   exactly the condition it named.
+4. **Mode distributions conditioned on demographics — age, employment and
+   the like — must match real life.** New observables enter as
+   **constraints, never targets** (§9.8/§9.13 pattern); the pre-registered
+   67/143 split is untouched.
+
+**What did not change:** no target value moved, no holdout row was read,
+nothing here is a finding. The §9.49 freight layer and the §9.50 branch
+decision stand; what stopped was the base *run*, which needs relaunching
+(~35 h at 25% × 1000, owner approval required per the standing directive)
+before C5 and the calibration report can exist.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -5921,6 +5969,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-20 | **Four owner directives reset the value order, and the base arm is stopped (§9.51).** (1) Every ride trip physically in a car — no teleportation — and the share tuned to the observed 20.60%; re-opens the joint-plans question (socnetsim ~10× is the recorded cost to beat). (2) All 9+ modes distinguished — pt never an umbrella; motorbike and taxi/rideshare individualised, anchored on the VERIFIED per-mode G62 journey-to-work columns (Motorbike/scooter, Taxi/Rideshare, Tram/LR, Train, Bus, Ferry, Truck). (3) The sub-1 km walk deficit is the priority structural defect — #30 re-opens under its own REOPEN IF. (4) Mode × demographic distributions must match real life — new observables enter as constraints, never targets. `base1000_25pct` stopped at ~iteration 20 on the owner's instruction and quarantined; #14/#9 stay open until it relaunches. No target moved, the 67/143 split untouched, nothing is a finding. |
 | 2026-08-20 | **The calibrated base takes §8.5's second branch — constrain and report — and the decision is logged before its run exists (§9.50, issues #14, #9).** The first branch (ASCs on era 3) is recorded infeasible as stated: no 2018 demand exists and the historical reconstruction is dropped, so estimating 2018 constants under a 2026 population would manufacture the confound §8.5 prevents. ASCs stay at the §8.5 priors, held fixed; `asc_car_passenger` is NOT re-solved against the §9.48 occupancy excess (that would be ASC absorption — #9 resolved by decision, the excess reported). No parameter search: the corrected loop identifies exactly two searchable parameters at ~21 × 35 h runs, neither able to reach the structural misfits — declined with the cost stated. Also fixed: the loop's rebuild-stage table defaulted unclassified consumers to "movable at run time", putting the OSM harvest margins in the movable set — unclassified consumers are now excluded with the reason stated. The base is one reference run of the §9.49 family whose fit is reported as it comes out. |
 | 2026-08-20 | **Freight becomes physical (§9.49, issue #24): a `truck` mode in the mobsim at declared PCE, seeded from the counts the model already holds.** `qsim.mainMode` = `car,truck`; `vehiclesSource` → `modeVehicleTypesFromVehiclesData` with the car type restating MATSim's default exactly (`RUN.qsim.car_vehicle`) and the truck type at `B.freight.pce` (literature 2.0, swept 1.5–3.5) under the regulated 100 km/h cap. Through-gate volumes split into car and truck by each gate station's own observed heavy share (Hunter Expressway 0.1529 observed; median 0.0652 fallback) — through trucks had been riding as PCE-1 cars. An internal freight tier draws over the observed freight-industry attractor at the assumed, swept `B.freight.trip_ratio` (0.0697, sweep 0.0–0.14). NEW MEASUREMENTS from the classified RMS hourly counts (`extract_freight_profile.py`, 33,816 station-days): the heavy hourly profile per day type and the weekend factors (SAT 0.4627, SUN 0.4104). Six new registry fields + `RUN.qsim.car_vehicle`; subpopulation `freight` with `lockedMode=truck` (no Java change). **A planned comparability break: the demand family changes again — `bind1000_25pct` is the last run of the §9.46/§9.47 family.** No toolchain change; no target touched; nothing here is a result. |
 | 2026-08-20 | **Session close-out and onboarding become procedure, not recollection — no model or data value changed.** Two project skills land in `.claude/skills/`: **`/handoff`** (evidence-gated close-out: deletion-disciplined hygiene, issue grooming that closes only with evidence and a REOPEN IF condition, the DECISIONS entry + §14 row + index, the board repaired in the same commit, and the brief rewritten in place with completed sections flipped from instructions to record) and **`/onboard`** (session start: read in precedence order — constraints → record → board → brief, artefact over document — run the §0 checks, cross-check the documents against live GitHub state, answer the six state-of-the-project questions with sourced numbers, recite the invalidating constraints, then brief and stop). The handover is now REQUIRED to answer six questions exhaustively — goals vs achievement, phase states, tasks done-and-evaluated, simulator vs observation, the issue ledger, PR history + next PR — so a next agent reconstructs the whole picture from `main` alone. One home per document class is stated as a rule (new audit reports under `docs/audit/<YYYY-MM-DD>/`; a new document class is an owner decision). **PR titles now carry the phase and task number** (`P<phase> (<task>): …`; `P<n> board:` / `P<n> handover:` / `Tooling:`), and all twelve existing PRs were retitled to the scheme. No target value changed, the 67/143 split is untouched, nothing here is a result. |
