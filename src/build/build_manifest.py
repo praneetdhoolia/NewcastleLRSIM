@@ -78,6 +78,17 @@ LINEAGE = {
     'networks/sumo': CITY_BUILD + 'build_sumo_corridor.py (SUMO netconvert 1.27.1)',
 }
 
+# Every adapter's own `produces` declaration overlays the map above, so an
+# adapter that produces a SPECIFIC FILE inside a directory another adapter
+# owns (extract_freight_profile.py writing two CSVs into the observed layer)
+# is attributed to the script that actually wrote it - longest prefix wins in
+# lineage_for(). For the adapters already listed above this writes back the
+# identical string, so no manifest row churns.
+for _spec in _city.descriptor().get('adapters', {}).values():
+    if _spec.get('script'):
+        for _prefix in _spec.get('produces', []):
+            LINEAGE[_prefix] = 'cities/%s/%s' % (_city.CITY, _spec['script'])
+
 # P2 build intermediates: large, regenerable, and not part of the package.
 SKIP_DIRS = ('networks/matsim/_work', 'networks/sumo/_work')
 

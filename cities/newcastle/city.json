@@ -97,6 +97,12 @@
       "script": "extract/slice_newcastle.py",
       "produces": ["data/processed/observed"],
       "description": "Slices the national and statewide open datasets down to the study area."
+    },
+    "freight_profile": {
+      "script": "extract/extract_freight_profile.py",
+      "produces": ["data/processed/observed/freight_hourly_profile.csv",
+                   "data/processed/observed/freight_day_factors.csv"],
+      "description": "Heavy-vehicle hourly departure profile and weekend day factors, MEASURED from the classified RMS permanent hourly counts at study-area stations (DECISIONS.md 9.49)."
     }
   },
 

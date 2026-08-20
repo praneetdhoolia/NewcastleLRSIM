@@ -175,12 +175,19 @@ def build_config(src_dir, run_dir, scenario, day, fraction, seed, overrides, cfg
     scoring = build_inputs.scoring_from_c1(
         cfg, json.load(open(build_inputs.PARAMS, encoding='utf-8')),
         purpose_share())
+    # The per-main-mode vehicle types are REGENERATED from this run's own
+    # resolution, not copied from the shipped set: B.freight.pce is a swept
+    # field, and a run overlay moving it must move the truck the mobsim
+    # actually loads (DECISIONS.md 9.49).
+    mode_veh = build_inputs.write_mode_vehicles(
+        os.path.join(run_dir, 'vehicles.xml'), cfg)
     paths = dict(
         output=fwd(os.path.join(run_dir, 'output')),
         network=fwd(os.path.join(base, 'network.xml.gz')),
         plans=fwd(plans_dst),
         schedule=fwd(os.path.join(src_dir, 'transitSchedule.xml.gz')),
         vehicles=fwd(veh_dst),
+        mode_vehicles=fwd(mode_veh),
         parking_prices=fwd(price_src),
         fraction=fraction)
     config_path = build_inputs.write_config(

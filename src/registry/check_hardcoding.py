@@ -294,10 +294,6 @@ PENDING_CONSUMER = {
         'measured from the RMS hourly counts, which carry dates. Deliverable '
         '0b folds it into the day-type shape; nothing reads it until the SAT '
         'and SUN demand is rebuilt on it',
-    'B.counts.heavy_vehicle_share':
-        'issue #24. The measured 6.52% heavy share is the basis of the freight '
-        'layer, and no freight is generated yet - the model has no trucks to '
-        'apply it to',
     'B.counts.vehicles_per_car_leg':
         'issue #20. Converts modelled legs to vehicles for comparison against '
         'observed counts, and count-based calibration is blocked until the '
@@ -737,7 +733,8 @@ def config_reach():
             builder.hts_purpose_share())
         runtime = builder.config_runtime(cfg, scoring, city_doc['day_types'][0], dict(
             output='output', network='n', plans='p', schedule='s', vehicles='v',
-            parking_prices='k', fraction=cfg.get('RUN.sample.fraction')))
+            mode_vehicles='m', parking_prices='k',
+            fraction=cfg.get('RUN.sample.fraction')))
     except Exception as exc:                              # noqa: BLE001
         return [], [], 'could not resolve a probe configuration: %s' % exc
     reaching, inert = param_config.reach('matsim', cfg, runtime)

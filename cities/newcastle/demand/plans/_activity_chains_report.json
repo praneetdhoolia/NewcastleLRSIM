@@ -114,6 +114,8 @@
       "station": "99990015",
       "name": "Hunter Expressway",
       "volume": 33882.0,
+      "heavy_share": 0.1529,
+      "heavy_share_source": "observed",
       "station_dist_m": 27189.0
     },
     {
@@ -121,6 +123,8 @@
       "station": "55712",
       "name": "Pacific Highway",
       "volume": 20701.0,
+      "heavy_share": 0.0652,
+      "heavy_share_source": "median_fallback",
       "station_dist_m": 8049.0
     },
     {
@@ -128,9 +132,39 @@
       "station": "55888",
       "name": "Pacific Motorway",
       "volume": 48016.0,
+      "heavy_share": 0.0652,
+      "heavy_share_source": "median_fallback",
       "station_dist_m": 273.0
     }
   ],
+  "freight_trip_ratio": 0.0697,
+  "freight_trip_ratio_sweep": [
+    0.0,
+    0.14
+  ],
+  "freight_gravity_beta_per_km": 0.08,
+  "freight_gravity_beta_sweep": [
+    0.03,
+    0.2
+  ],
+  "freight_attractor_divisions": [
+    "AgFF",
+    "Min",
+    "Mnf",
+    "EGWWS",
+    "Const",
+    "WST",
+    "RetT",
+    "TPW"
+  ],
+  "freight_car_driver_share": 0.5746,
+  "freight_car_driver_share_year": "2024/25",
+  "freight_day_factor": {
+    "SAT": 0.4627,
+    "SUN": 0.4104,
+    "WEEKDAY": 1.0
+  },
+  "heavy_share_fallback": 0.0652,
   "decay": {
     "HW": {
       "beta": 0.08811,
@@ -417,8 +451,11 @@
     "WEEKDAY": {
       "external_agents": 5632,
       "external_legs": 10880,
-      "through_agents": 17955,
+      "through_agents": 16264,
       "through_legs": 17955,
+      "through_freight_agents": 1691,
+      "freight_internal_agents": 88702,
+      "freight_agents_total": 90393,
       "legs": 2214838,
       "tours": 991804,
       "travelling_persons": 509625,
@@ -456,90 +493,96 @@
     },
     "SAT": {
       "external_agents": 2254,
-      "external_legs": 4234,
-      "through_agents": 7182,
-      "through_legs": 7182,
-      "legs": 1855017,
-      "tours": 829519,
-      "travelling_persons": 447573,
-      "legs_per_person": 3.028,
-      "tours_per_traveller": 1.853,
-      "tours_dropped_over_horizon": 5369,
-      "tours_dropped_midnight_collision": 577,
+      "external_legs": 4274,
+      "through_agents": 6506,
+      "through_legs": 7287,
+      "through_freight_agents": 781,
+      "freight_internal_agents": 42243,
+      "freight_agents_total": 43024,
+      "legs": 1861469,
+      "tours": 832103,
+      "travelling_persons": 447601,
+      "legs_per_person": 3.038,
+      "tours_per_traveller": 1.859,
+      "tours_dropped_over_horizon": 5333,
+      "tours_dropped_midnight_collision": 570,
       "by_purpose": {
-        "HO": 921218,
-        "HX": 183958,
-        "NHB": 195084,
-        "HS": 460866,
-        "HW": 83476,
-        "WB": 6010,
-        "HE": 4405
+        "HW": 83603,
+        "HO": 926016,
+        "HS": 460533,
+        "NHB": 196412,
+        "WB": 5772,
+        "HX": 184603,
+        "HE": 4530
       },
       "escort_binding": {
         "enabled": true,
         "scope": "any_member_trip",
-        "hx_tours_requested": 99613,
-        "hx_tours_bound": 68935,
-        "hx_tours_unbound_no_candidate": 30678,
+        "hx_tours_requested": 99980,
+        "hx_tours_bound": 69299,
+        "hx_tours_unbound_no_candidate": 30681,
         "bound_by_priority": {
-          "0": 531,
-          "1": 23261,
-          "2": 77,
-          "3": 45066
+          "0": 597,
+          "1": 23522,
+          "2": 68,
+          "3": 45112
         },
-        "anchors_placed_bound": 68770,
-        "anchors_placed_unbound": 30665,
-        "mean_network_km_bound": 9.97,
-        "mean_network_km_unbound": 7.78,
+        "anchors_placed_bound": 69127,
+        "anchors_placed_unbound": 30656,
+        "mean_network_km_bound": 9.9,
+        "mean_network_km_unbound": 7.73,
         "hts_network_km": 7.84
       }
     },
     "SUN": {
       "external_agents": 1697,
-      "external_legs": 3196,
-      "through_agents": 5387,
-      "through_legs": 5387,
-      "legs": 1574490,
-      "tours": 703016,
-      "travelling_persons": 412375,
-      "legs_per_person": 2.57,
+      "external_legs": 3242,
+      "through_agents": 4879,
+      "through_legs": 5573,
+      "through_freight_agents": 694,
+      "freight_internal_agents": 37574,
+      "freight_agents_total": 38268,
+      "legs": 1571977,
+      "tours": 701682,
+      "travelling_persons": 411602,
+      "legs_per_person": 2.566,
       "tours_per_traveller": 1.705,
-      "tours_dropped_over_horizon": 2710,
-      "tours_dropped_midnight_collision": 304,
+      "tours_dropped_over_horizon": 2737,
+      "tours_dropped_midnight_collision": 360,
       "by_purpose": {
-        "HX": 127922,
-        "HO": 932364,
-        "NHB": 167900,
-        "HS": 293634,
-        "HW": 47274,
-        "HE": 1518,
-        "WB": 3878
+        "HO": 931670,
+        "NHB": 168040,
+        "HS": 293885,
+        "HW": 46567,
+        "HX": 126620,
+        "WB": 3750,
+        "HE": 1445
       },
       "escort_binding": {
         "enabled": true,
         "scope": "any_member_trip",
-        "hx_tours_requested": 69294,
-        "hx_tours_bound": 47399,
-        "hx_tours_unbound_no_candidate": 21895,
+        "hx_tours_requested": 68463,
+        "hx_tours_bound": 46616,
+        "hx_tours_unbound_no_candidate": 21847,
         "bound_by_priority": {
-          "0": 171,
-          "1": 16467,
-          "2": 17,
-          "3": 30744
+          "0": 149,
+          "1": 16076,
+          "2": 22,
+          "3": 30369
         },
-        "anchors_placed_bound": 47324,
-        "anchors_placed_unbound": 21894,
-        "mean_network_km_bound": 10.0,
-        "mean_network_km_unbound": 7.78,
+        "anchors_placed_bound": 46554,
+        "anchors_placed_unbound": 21841,
+        "mean_network_km_bound": 10.04,
+        "mean_network_km_unbound": 7.69,
         "hts_network_km": 7.84
       }
     }
   },
   "placement": {
-    "poi": 2752314,
-    "home": 2524339,
-    "escorted": 237074,
-    "jitter": 130618
+    "poi": 2755304,
+    "home": 2525589,
+    "escorted": 236661,
+    "jitter": 130730
   },
   "tours_dropped_over_horizon": 0,
   "rate_solution": {
@@ -607,5 +650,5 @@
       }
     }
   },
-  "realised_week_trip_rate": 3.382
+  "realised_week_trip_rate": 3.383
 }

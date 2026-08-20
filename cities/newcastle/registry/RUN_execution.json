@@ -167,14 +167,17 @@
       "description": "Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnight returns."
     },
     "RUN.qsim.main_mode": {
-      "value": "car",
+      "value": [
+        "car",
+        "truck"
+      ],
       "units": "enum",
       "source": "definition",
       "sweep": null,
       "status": "active",
-      "decisions_ref": "9.6",
+      "decisions_ref": "9.49",
       "matsim_param": "qsim.mainMode",
-      "description": "The only mode physically simulated in the mobsim. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY. One of five modes is in the mobsim."
+      "description": "The private modes physically simulated in the mobsim: car, and truck (the freight background layer, 9.49) at B.freight.pce car-equivalents. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY."
     },
     "RUN.replanning.max_agent_plan_memory": {
       "value": 5,
@@ -357,7 +360,8 @@
     "RUN.routing.network_modes": {
       "value": [
         "car",
-        "ride"
+        "ride",
+        "truck"
       ],
       "units": "enum",
       "source": "definition",
@@ -598,14 +602,15 @@
     "RUN.replanning.subpopulations": {
       "value": [
         "person",
-        "external"
+        "external",
+        "freight"
       ],
       "units": "subpopulation_names",
       "source": "definition",
       "sweep": null,
       "status": "active",
       "decisions_ref": "15",
-      "description": "The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area and `external` is a boundary-tier agent. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries."
+      "description": "The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area, `external` is a boundary-tier agent, and `freight` is a heavy-vehicle background agent (9.49) whose mode is locked to truck. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries."
     },
     "RUN.transit.use_transit": {
       "value": true,
@@ -650,14 +655,30 @@
       "description": "Interval between mobsim vehicle-position snapshots. Zero disables them: this study reads movement through RunTelemetry from inside the mobsim and through the event stream, not through snapshot files, which are large and are not part of any result."
     },
     "RUN.qsim.vehicles_source": {
-      "value": "defaultVehicle",
+      "value": "modeVehicleTypesFromVehiclesData",
       "units": "policy",
       "source": "definition",
       "sweep": null,
       "status": "active",
-      "decisions_ref": "15",
+      "decisions_ref": "9.49",
       "matsim_param": "qsim.vehiclesSource",
-      "description": "Where the mobsim gets a private vehicle's characteristics. `defaultVehicle` gives every car the same physical vehicle, which is what a study with no vehicle-fleet observation can support. TRANSIT vehicles are unaffected - they come from the schedule's own vehicles file, whose seats RUN.sample.transit_capacity_scaling scales."
+      "description": "Where the mobsim gets a private vehicle's characteristics. Was `defaultVehicle` while car was the only main mode; the freight layer (9.49) needs a truck to weigh more than a car, so each main mode now takes the vehicle type of its own name from the vehicles file the run inputs emit - car restating MATSim's default exactly (RUN.qsim.car_vehicle), truck carrying B.freight.pce and B.freight.max_speed_kmh. TRANSIT vehicles are unaffected - they come from the schedule's own vehicles file, whose seats RUN.sample.transit_capacity_scaling scales."
+    },
+    "RUN.qsim.car_vehicle": {
+      "value": {
+        "length_m": 7.5,
+        "width_m": 1.0,
+        "pce": 1.0
+      },
+      "units": "metres/metres/passenger_car_equivalents",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.49",
+      "description": "The car vehicle type written into the run inputs' vehicles file: MATSim's own default vehicle, restated explicitly because qsim.vehiclesSource=modeVehicleTypesFromVehiclesData replaces the implicit default. Equality with MATSim's default (7.5 m, 1.0 m, PCE 1.0) is what keeps the car fleet's physics unchanged by the freight change - a value here that drifted from the default would silently change every car in the model.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
     },
     "RUN.travel_time.separate_modes": {
       "value": false,

@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 309 fields are made of
+## What the 316 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 4 | read directly from a raw download |
 | `measured` | 23 | computed from observed data in this package |
 | `derived` | 27 | follows from another registry field by identity |
-| `literature` | 35 | a published value, not specific to this city |
-| `assumed` | 133 | chosen without direct empirical support |
-| `definition` | 87 | fixed by the formulation, not an empirical quantity |
+| `literature` | 37 | a published value, not specific to this city |
+| `assumed` | 135 | chosen without direct empirical support |
+| `definition` | 90 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 289 | usable point value |
+| `active` | 296 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -57,13 +57,14 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `D.retail.vacancy_rate` | 0 - 0.25 | NOT OBTAINED and not currently consumed by any metric |
 | `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
-### The 10 fields held fixed
+### The 11 fields held fixed
 
 Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating them would fit away the effect under test - proposal 9 names ASC absorption as the primary threat to validity.
 
 - `A.signals.scats_match_radius_m` - A data-join tolerance, not a model parameter. It decides which observed TfNSW signal is the same physical intersection as a clustered OSM one, and no behaviour, run time or score r
 - `A.transit.ferry_capacity_seated` - Published seated capacity, held on the same reasoning as the total: it is a fact about the vessel. This is the ONLY vehicle in the fleet whose seated/standing split is published - 
 - `A.transit.ferry_capacity_total` - A published vessel capacity is a fact about the boat, not a behavioural parameter, and sweeping it would assert an uncertainty that does not exist. Both Stockton ferries carry the 
+- `B.freight.length_m` - Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.freight.pce), not through vehicle length, so no output varies across this
 - `C.asc.bus` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.car_passenger` - Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the seco
 - `C.asc.cycle` - Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as t
@@ -799,7 +800,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 53 fields*
+*`cities/newcastle/registry/B_demand.json` - 59 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -840,6 +841,12 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.external.through_min_separation_km` | `30.0` | km | `assumed` | 20 - 50 |
 | `B.external.through_outside_min_m` | `1000.0` | metres | `assumed` | 300 - 3000 |
 | `B.external.through_share` | `0.35` | share_of_aadt | `assumed` | 0.15 - 0.6 |
+| `B.freight.attractor_divisions` | `["AgFF", "Min", "Mnf", "EGWWS", "Const", "WST", "RetT", "TPW"]` | anzsic_division_column_stems | `definition` | - |
+| `B.freight.gravity_beta_per_km` | `0.08` | per_km | `assumed` | 0.03 - 0.2 |
+| `B.freight.length_m` | `12.5` | metres | `literature` | **held fixed** |
+| `B.freight.max_speed_kmh` | `100.0` | km/h | `definition` | - |
+| `B.freight.pce` | `2.0` | passenger_car_equivalents | `literature` | 1.5 - 3.5 |
+| `B.freight.trip_ratio` | `0.0697` | heavy_vehicle_trips_per_light_vehicle_trip | `assumed` | 0 - 0.14 |
 | `B.mode.seed_split` | `{"car_available": {"bike": 0.2, "car": 0.2, "pt": 0.2, "ride": 0.2, "walk": 0.2}, "no_car": {"bike": 0.25, ...` | share_by_mode | `definition` | - |
 | `B.mode.seed_split_informed` | `{"car_available": {"bike": 0.01, "car": 0.78, "pt": 0.02, "ride": 0.1, "walk": 0.09}, "no_car": {"bike": 0....` | share_by_mode | `assumed` | `uninformed`, `informed` |
 | `B.network_factors.distance_band` | `0.25` | share | `assumed` | 0.1 - 0.5 |
@@ -995,7 +1002,7 @@ Weekend vs weekday travel, measured from the RMS traffic counts own WEEKDAYS and
 
 #### `B.counts.heavy_vehicle_share`
 
-Heavy vehicle share, applied AT COMPARISON TIME to the comparison and not to the model, because the model represents no freight. At the 23 stations with a classified count the station own observed share is used; at the remaining 96 this median is assumed. Only 3 of the 34 calibration stations are classified, so the assumed case is the usual one.
+Heavy vehicle share, in two roles. (1) AT COMPARISON TIME: the count comparison uses the station's own observed share where classified and this median at the remaining 96 stations - only 3 of the 34 calibration stations are classified, so the assumed case is the usual one there. (2) AT GENERATION TIME (9.49): the through tier splits each cordon gate's volume into car and truck by the gate station's own observed heavy share, and a gate whose station is unclassified falls back to this median.
 
 ***measured** · status **active** · DECISIONS.md §12.2a*
 
@@ -1100,6 +1107,52 @@ Share of the AADT measured at a cordon-gate calibration count station that is th
 ***assumed** · status **active** · DECISIONS.md §9.41*
 
 > **Sweep basis.** No through-share survey exists for the study boundary and no journey-linked data can separate through from local traffic at a count station, so the share is assumed and swept wide. The motivating observation is V113 (the M1 at Wyee, 48,016 AADT, a calibration row): the Sydney-Newcastle motorway at the boundary is the road most dominated by through traffic, and the model routed zero vehicles onto it because the demand contained no through movement at all (issue #20).
+
+#### `B.freight.attractor_divisions`
+
+The ANZSIC divisions counted as freight-generating when weighting zones for the internal freight OD draw: agriculture, mining, manufacturing, utilities, construction, wholesale, retail and transport/warehousing - the goods-handling divisions of the standard classification. A vocabulary over the observed census place-of-work table (D1_employment_by_anzsic_POW_SA2.csv), not a tuned value: the WEIGHT each zone gets is its observed employment in these divisions.
+
+***definition** · status **active** · DECISIONS.md §9.49*
+
+#### `B.freight.gravity_beta_per_km`
+
+Distance decay (negative-exponential, per km) for the internal freight destination draw over the freight-employment attractor. Controls the modelled truck trip length, which no local observation constrains.
+
+***assumed** · status **active** · DECISIONS.md §9.49*
+
+> **Sweep basis.** No freight OD observation exists for the study area, so the destination-choice decay is assumed and swept wide. The bounds bracket the person-purpose decays this package SOLVES from observed trip lengths (roughly 0.05-0.25 per km across purposes and home LGAs, DECISIONS.md 9.40): the lower bound lets a truck trip run materially longer than a discretionary person trip, which is what line-haul freight does; the upper bound pins it to short urban delivery.
+
+#### `B.freight.length_m`
+
+Stated length of the truck vehicle type in the vehicles file. Does not reach the traffic model - space and flow consumption run on PCE - and is held fixed rather than swept for exactly that reason.
+
+***literature** · status **active** · DECISIONS.md §9.49*
+
+> **Held fixed.** Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.freight.pce), not through vehicle length, so no output varies across this value. Recorded because the vehicle type must state a length; a typical rigid-truck figure is used.
+>
+> *Departure requires: a logged decision*
+
+#### `B.freight.max_speed_kmh`
+
+Maximum speed of a modelled heavy vehicle: the NSW regulated limit for vehicles over 4.5 t GVM. A fact of law, not a tunable - it binds only on links whose free speed exceeds it (motorway classes at 110 km/h).
+
+***definition** · status **active** · DECISIONS.md §9.49*
+
+#### `B.freight.pce`
+
+Passenger-car equivalents of one modelled heavy vehicle - how much road capacity and storage a truck consumes in the mobsim relative to a car. This is the field that makes freight PHYSICAL: at PCE > 1 a truck changes the travel time of every vehicle sharing its links.
+
+***literature** · status **active** · DECISIONS.md §9.49*
+
+> **Sweep basis.** Austroads and HCM passenger-car-equivalent ranges for heavy commercial vehicles on level urban roads run from about 1.5 (rigid truck, flat) to 3.5 (articulated, interrupted flow); no Newcastle-specific fleet mix is observed, so the class mid-value is taken and the published range is swept. For scale: the bus fleet in this package carries the pt2matsim literature figure 2.8.
+
+#### `B.freight.trip_ratio`
+
+Internal heavy-vehicle trips generated per resident light-vehicle trip, applied to the observed car-driver share of the day's generated person trips. This is the background freight VOLUME knob: it is a declared, sweepable background load, not an estimate of freight demand (issue #24). Through freight is seeded separately at the cordon gates from each gate station's own observed heavy share and is not scaled by this field.
+
+***assumed** · status **active** · DECISIONS.md §9.49*
+
+> **Sweep basis.** The default restates the MEASURED median heavy share of classified station flow (B.counts.heavy_vehicle_share, 0.0652) as a ratio to light vehicles: 0.0652 / (1 - 0.0652). What is ASSUMED is the transfer from a flow share at count stations to a trip share of the resident vehicle-trip base - trucks travel further per trip than cars, so a flow share overstates a trip share by an unobserved factor, and no freight OD survey exists for this or any comparable city in the package. The lower bound is zero, which turns the internal freight layer off entirely so its whole effect is measurable as a sweep member; the upper bound is roughly the classified stations' upper-quartile share expressed the same way.
 
 #### `B.mode.seed_split`
 
@@ -1324,7 +1377,7 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.scoring.marginal_utility_of_money` | `1.0` | utils_per_AUD | `definition` | - |
 | `C.scoring.marginal_utility_of_traveling` | *(null - unobtained)* | utils_per_hour | `derived` | derived: marginalUtilityOfTraveling[m] = performing - trip_weighted_VOT * beta[ |
 | `C.scoring.mode_constant` | *(null - unobtained)* | utils | `derived` | derived: constant[m] = the C1 alternative-specific constant for the mode m maps |
-| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
+| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0, "truck": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
 | `C.scoring.performing_utils_per_h` | `6.0` | utils_per_hour | `literature` | 4 - 8 |
 | `C.scoring.utility_of_line_switch` | *(null - unobtained)* | utils | `derived` | derived: utilityOfLineSwitch = -(C.transfer.penalty_min / 60) * trip_weighted_V |
 | `C.scoring.waiting_pt` | *(null - unobtained)* | utils_per_hour | `derived` | derived: waitingPt = performing - trip_weighted_VOT * beta_wait * marginalUtili |
@@ -1578,7 +1631,7 @@ Vehicle operating cost per metre AS PERCEIVED BY THE TRAVELLER MAKING THE CHOICE
 
 ***derived** · status **active** · DECISIONS.md §9.8, 9.13, 9.17 · MATSim `scoring.modeParams[*].monetaryDistanceRate`*
 
-> **Sweep basis.** applies to the car entry only; ride follows it by the identity above, and pt, walk and bike remain zero because no vehicle operating cost is borne by their traveller
+> **Sweep basis.** applies to the car entry only; ride follows it by the identity above, and pt, walk and bike remain zero because no vehicle operating cost is borne by their traveller. Truck is zero because a freight agent's mode is LOCKED (9.49): scoring never compares a truck alternative against anything, so a cost model here would be decoration pretending to be behaviour
 
 > **Derived from** `C.scoring.monetary_distance_rate`: a kilometre in a car costs the same kilometre whether you are in the driver seat or beside it, so ride carries the car rate. This SUPERSEDES the 9.8 identity that set ride to zero: that identity - a vehicle operating cost is paid once, so charging both occupants makes AGGREGATE cost 1.35x the real one - is a statement about system cost accounting, and monetaryDistanceRate is the cost PERCEIVED BY ONE PERSON weighing one alternative. The 9.13 trip length constraint falsified the old treatment: modelled ride to car trip length was 1.372 against an observed 0.961, widening with sample fraction - the signature a zero marginal distance cost produces. See DECISIONS.md 9.17
 
@@ -2016,7 +2069,7 @@ Tram service deceleration.
 
 ## Execution control
 
-*`cities/newcastle/registry/RUN_execution.json` - 54 fields*
+*`cities/newcastle/registry/RUN_execution.json` - 55 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -2042,20 +2095,21 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.monitor.poll_s` | `3` | seconds | `definition` | - |
 | `RUN.monitor.port` | `8731` | tcp_port | `definition` | - |
 | `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
+| `RUN.qsim.car_vehicle` | `{"length_m": 7.5, "width_m": 1.0, "pce": 1.0}` | metres/metres/passenger_car_equivalents | `definition` | - |
 | `RUN.qsim.end_time_h` | `30` | hours | `definition` | - |
-| `RUN.qsim.main_mode` | `car` | enum | `definition` | - |
+| `RUN.qsim.main_mode` | `["car", "truck"]` | enum | `definition` | - |
 | `RUN.qsim.snapshot_period` | `00:00:00` | hh:mm:ss | `definition` | - |
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
-| `RUN.qsim.vehicles_source` | `defaultVehicle` | policy | `definition` | - |
+| `RUN.qsim.vehicles_source` | `modeVehicleTypesFromVehiclesData` | policy | `definition` | - |
 | `RUN.relaxation.drift_tolerance_pp` | `0.5` | percentage_points | `assumed` | 0.1 - 1 |
 | `RUN.relaxation.settle_margin_iterations` | `10` | iterations | `measured` | 1 - 100 |
 | `RUN.replanning.fraction_to_disable_innovation` | `0.8` | share_of_iterations | `literature` | 0.7 - 0.9 |
 | `RUN.replanning.max_agent_plan_memory` | `5` | plans | `literature` | 3 - 10 |
-| `RUN.replanning.subpopulations` | `["person", "external"]` | subpopulation_names | `definition` | - |
+| `RUN.replanning.subpopulations` | `["person", "external", "freight"]` | subpopulation_names | `definition` | - |
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
 | `RUN.routing.beeline_distance_factor_bike` | `1.5231` | ratio | `measured` | 1.207 - 1.456 |
 | `RUN.routing.beeline_distance_factor_walk` | `1.6902` | ratio | `measured` | 1.294 - 1.794 |
-| `RUN.routing.network_modes` | `["car", "ride"]` | enum | `definition` | - |
+| `RUN.routing.network_modes` | `["car", "ride", "truck"]` | enum | `definition` | - |
 | `RUN.routing.teleported_bike_speed_ms` | `4.2` | metres_per_second | `literature` | 3.1 - 5.5 |
 | `RUN.routing.teleported_walk_speed_ms` | `1.25` | metres_per_second | `derived` | derived: the same physical walking speed. MATSim computes a teleported leg as t |
 | `RUN.sample.flow_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: flowCapacityFactor = RUN.sample.fraction, the standard MATSim scaling  |
@@ -2201,6 +2255,12 @@ How long the log may go untouched before the live view calls a run stalled rathe
 
 ***definition** · status **active** · DECISIONS.md §9.19*
 
+#### `RUN.qsim.car_vehicle`
+
+The car vehicle type written into the run inputs' vehicles file: MATSim's own default vehicle, restated explicitly because qsim.vehiclesSource=modeVehicleTypesFromVehiclesData replaces the implicit default. Equality with MATSim's default (7.5 m, 1.0 m, PCE 1.0) is what keeps the car fleet's physics unchanged by the freight change - a value here that drifted from the default would silently change every car in the model.
+
+***definition** · status **active** · DECISIONS.md §9.49*
+
 #### `RUN.qsim.end_time_h`
 
 Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnight returns.
@@ -2209,9 +2269,9 @@ Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnig
 
 #### `RUN.qsim.main_mode`
 
-The only mode physically simulated in the mobsim. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY. One of five modes is in the mobsim.
+The private modes physically simulated in the mobsim: car, and truck (the freight background layer, 9.49) at B.freight.pce car-equivalents. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY.
 
-***definition** · status **active** · DECISIONS.md §9.6 · MATSim `qsim.mainMode`*
+***definition** · status **active** · DECISIONS.md §9.49 · MATSim `qsim.mainMode`*
 
 #### `RUN.qsim.snapshot_period`
 
@@ -2227,9 +2287,9 @@ Mobsim start.
 
 #### `RUN.qsim.vehicles_source`
 
-Where the mobsim gets a private vehicle's characteristics. `defaultVehicle` gives every car the same physical vehicle, which is what a study with no vehicle-fleet observation can support. TRANSIT vehicles are unaffected - they come from the schedule's own vehicles file, whose seats RUN.sample.transit_capacity_scaling scales.
+Where the mobsim gets a private vehicle's characteristics. Was `defaultVehicle` while car was the only main mode; the freight layer (9.49) needs a truck to weigh more than a car, so each main mode now takes the vehicle type of its own name from the vehicles file the run inputs emit - car restating MATSim's default exactly (RUN.qsim.car_vehicle), truck carrying B.freight.pce and B.freight.max_speed_kmh. TRANSIT vehicles are unaffected - they come from the schedule's own vehicles file, whose seats RUN.sample.transit_capacity_scaling scales.
 
-***definition** · status **active** · DECISIONS.md §15 · MATSim `qsim.vehiclesSource`*
+***definition** · status **active** · DECISIONS.md §9.49 · MATSim `qsim.vehiclesSource`*
 
 #### `RUN.relaxation.drift_tolerance_pp`
 
@@ -2257,7 +2317,7 @@ Plans retained per agent. A property of the MATSim formulation, not of Newcastle
 
 #### `RUN.replanning.subpopulations`
 
-The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area and `external` is a boundary-tier agent. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries.
+The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area, `external` is a boundary-tier agent, and `freight` is a heavy-vehicle background agent (9.49) whose mode is locked to truck. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries.
 
 ***definition** · status **active** · DECISIONS.md §15*
 

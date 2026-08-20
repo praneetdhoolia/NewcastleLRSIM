@@ -315,13 +315,15 @@ def write_day(day, attrs, rng, report, seed_table=None):
         for pid, rows in stream_persons(src):
             rows.sort(key=lambda r: int(r['trip_seq']))
             tier = rows[0]['agent_tier']
-            external = tier in ('external', 'through')
-            if tier == 'through':
+            external = tier in ('external', 'through', 'freight')
+            if tier in ('through', 'freight'):
                 # A through agent is a boundary-tier vehicle crossing the study
-                # area (issue #20, DECISIONS.md 9.41). Its volume is anchored on
-                # an observed road count, so its mode is locked to car: the
-                # availability calculator returns {car} for it and the seed
-                # never draws. Demographics are the external placeholders.
+                # area (issue #20, DECISIONS.md 9.41); a freight agent is a
+                # heavy-vehicle background trip (issue #24, DECISIONS.md 9.49).
+                # Both volumes are anchored on observed road counts, so the
+                # mode is locked - car and truck respectively: the availability
+                # calculator returns exactly that singleton and the seed never
+                # draws. Demographics are the external placeholders.
                 car_av, age, lic, emp, stu, mob = (
                     1, EXTERNAL_PROFILE['age'], 1,
                     EXTERNAL_PROFILE['employment_status'],
@@ -368,7 +370,8 @@ def write_day(day, attrs, rng, report, seed_table=None):
             for r in rows:
                 tid = int(r['tour_id'])
                 if tid not in tour_mode:
-                    tour_mode[tid] = ('car' if tier == 'through' else
+                    tour_mode[tid] = ('truck' if tier == 'freight' else
+                                      'car' if tier == 'through' else
                                       pick_mode(car_av, u, seed_table,
                                                 ride_available=bool(ride_av),
                                                 bike_available=bool(bike_av)))
@@ -377,7 +380,8 @@ def write_day(day, attrs, rng, report, seed_table=None):
             w.write('\t<person id="%d">\n' % pid)
             w.write('\t\t<attributes>\n')
             w.write('\t\t\t<attribute name="subpopulation" class="java.lang.String">'
-                    '%s</attribute>\n' % ('external' if external else 'person'))
+                    '%s</attribute>\n' % ('freight' if tier == 'freight' else
+                                          'external' if external else 'person'))
             w.write('\t\t\t<attribute name="carAvail" class="java.lang.String">'
                     '%s</attribute>\n' % ('always' if car_av else 'never'))
             w.write('\t\t\t<attribute name="hasLicense" class="java.lang.String">'
@@ -402,11 +406,12 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 # is exactly what those two consumers test for.
                 w.write('\t\t\t<attribute name="householdId" '
                         'class="java.lang.String">%d</attribute>\n' % hh_id)
-            if tier == 'through':
-                # locks SubtourModeChoice to {car} for this agent - a volume
-                # anchored on a road count must stay on the road
+            if tier in ('through', 'freight'):
+                # locks SubtourModeChoice to {car} / {truck} for this agent -
+                # a volume anchored on a road count must stay on the road
                 w.write('\t\t\t<attribute name="lockedMode" '
-                        'class="java.lang.String">car</attribute>\n')
+                        'class="java.lang.String">%s</attribute>\n'
+                        % ('truck' if tier == 'freight' else 'car'))
             w.write('\t\t</attributes>\n')
             w.write('\t\t<plan selected="yes">\n')
 

@@ -651,7 +651,8 @@
         "ride": -0.00018,
         "pt": 0.0,
         "walk": 0.0,
-        "bike": 0.0
+        "bike": 0.0,
+        "truck": 0.0
       },
       "units": "AUD_per_metre",
       "source": "derived",
@@ -659,7 +660,7 @@
         -0.00025,
         -0.00012
       ],
-      "sweep_basis": "applies to the car entry only; ride follows it by the identity above, and pt, walk and bike remain zero because no vehicle operating cost is borne by their traveller",
+      "sweep_basis": "applies to the car entry only; ride follows it by the identity above, and pt, walk and bike remain zero because no vehicle operating cost is borne by their traveller. Truck is zero because a freight agent's mode is LOCKED (9.49): scoring never compares a truck alternative against anything, so a cost model here would be decoration pretending to be behaviour",
       "status": "active",
       "decisions_ref": "9.8, 9.13, 9.17",
       "matsim_param": "scoring.modeParams[*].monetaryDistanceRate",

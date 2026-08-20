@@ -1,0 +1,4 @@
+day_type,factor,stations,station_days
+SAT,0.4627,12,4845
+SUN,0.4104,12,4762
+WEEKDAY,1.0,12,24209
