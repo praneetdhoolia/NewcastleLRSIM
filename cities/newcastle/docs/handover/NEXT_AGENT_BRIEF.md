@@ -37,8 +37,10 @@ python src/registry/check_hardcoding.py --strict   # must exit 0
    the sub-1 km walk deficit — decomposed, mechanism open on #30;
    demographic fidelity — inventoried, open on #50).
 
-**The PR stack must merge in order: #46 → #47 → #51 → #52 → #53 → the
-handover PR.** Then start from `main`. **No run is in progress.**
+**The stack landed on `main` via PR #56** (the six stacked PRs #46–#55 had
+been merged into their base branches, so #56 carried the union to `main`).
+Start from `main`; delete the merged work branches. **No run is in
+progress.**
 
 ---
 
