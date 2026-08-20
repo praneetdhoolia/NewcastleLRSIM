@@ -159,7 +159,10 @@ paths — renderers break them into dead URLs).
 **Landing:** branch `<git-handle>/<short-kebab>` (never `claude/*`), STATUS.md
 in the **same commit** as the work it describes, commit message states what
 changed in the model/data/record (not which script ran), no attribution
-trailers or session links, one PR whose body lists: what was recorded, what
+trailers or session links. **PR titles carry the phase and task number**:
+`P<phase> (<task>): <what changed>` — e.g. `P4 (4.2.3): …` — with `P<n>
+board:` / `P<n> handover:` for record-only PRs and `Tooling:` for
+phase-agnostic tooling. One PR whose body lists: what was recorded, what
 was deleted (with the supersession evidence), which issues were
 closed/updated/opened, and what the next agent should do first.
 
