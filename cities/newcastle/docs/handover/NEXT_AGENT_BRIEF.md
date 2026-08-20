@@ -92,9 +92,11 @@ Measured, not assumed. **Six of nine-plus are physically in the mobsim**:
 | Trains | ✅ physical | 332 vehicles, 6,766 dedicated rail links |
 | Light rail | ✅ physical | 252 vehicles, incl. 21 on-street shared links |
 | Ferries | ✅ physical | 107 vehicles (Stockton) |
-| Ride | ⚠ paired, TELEPORTED — **#48 ends this** | §9.44 Tier 1; §9.48: 1.30% of ride trips pair; the passenger inherits a clock, occupies no seat |
-| Walk / bike | teleported (MATSim design) | #30 owns walk's structural deficit |
-| Motorbike / taxi+rideshare | not modes — **#49 ends this** | G62 verified to carry both as observed JTW columns |
+| **Motorbike** | ✅ **physical (NEW, §9.52)** | locked carve from car on the G62 anchor (0.363% JTW), PCE 0.4 swept; smoke: 12 riders / 52 trips / 6,286 traversals at 1% |
+| **Ride (paired)** | ✅ **physically BOARDED (NEW, §9.53)** | `JointRideEngine`: probe 67–71 boardings/iteration at 1%, 2 missed → Tier-1 fallback counted; event-verified |
+| Ride (unpaired majority) | ⚠ teleported — **the #48 re-moding policy decides its fate** | household-only pairing ceilings at 15.31% OD-coincidence vs observed 20.60%; option (i) re-mode vs (ii) declared unvalidatable lift allowance — the owner's call |
+| Walk / bike | teleported (MATSim design) | #30 owns walk's structural deficit (decomposed: lost in GENERATION) |
+| Taxi + rideshare | not a mode | 4.4 plan stands, sequenced by owner decision strictly after 4.2.4; tier plan in the #49 dossier |
 
 ---
 
@@ -144,12 +146,17 @@ and sequencing decisions, plus the dossiers' named probes.
 The directive's two halves are one fix: a physical-service constraint caps
 ride at what the driver supply can carry, which is also the tuning mechanism
 (modelled 31.05% vs observed 20.60%; occupancy 0.4855 vs 0.3503).
-**Dossier: [`design/physical-ride.md`](../design/physical-ride.md).** Its §5
-sequence: decompose the ×12 realisation gap from `bind1000_25pct`'s events;
-measure the household-pairing ceiling from B2+B1; probe mechanism C (joint
-vehicle plans + a narrow boarding engine on the §9.46 binding) at 1% × 3;
-then bring the owner the mechanism AND the re-moding policy (report the
-non-household-lift gap, or declare a swept unvalidatable allowance).
+**Dossier: [`design/physical-ride.md`](../design/physical-ride.md), and the
+mechanism is now BUILT (§9.53, PR #53).** The decomposition
+(`realisation_gap_bind1000_25pct.json`) put the gap at ×2.24 modes × 6.91
+window × 2.73 links, which forced option C; `JointRideEngine` boards paired
+passengers physically (probe: 67–71/iteration, misses fall back to Tier 1,
+counted). **What remains is the owner's re-moding policy for the UNPAIRED
+majority** — option (i) re-mode (no-invented-data-consistent; modelled ride
+falls well below the observed 20.60% and the gap is reported as the
+unobserved non-household-lift share) or (ii) a declared, swept,
+unvalidatable lift allowance — plus the window layer (joint departure
+times, a replanning question) and the converged-run measurement.
 
 **On the record, do not rediscover:**
 - socnetsim joint plans: **measured ~10× runtime** and reverted by owner
