@@ -170,15 +170,17 @@
       "value": [
         "car",
         "truck",
-        "motorbike"
+        "motorbike",
+        "walk",
+        "bike"
       ],
       "units": "enum",
       "source": "definition",
       "sweep": null,
       "status": "active",
-      "decisions_ref": "9.52",
+      "decisions_ref": "9.54",
       "matsim_param": "qsim.mainMode",
-      "description": "The private modes physically simulated in the mobsim: car, and truck (the freight background layer, 9.49) at B.freight.pce car-equivalents. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY."
+      "description": "The modes physically simulated in the mobsim: car; truck (9.49) and motorbike (9.52) at their declared PCE; and walk and bike (9.54) - a pedestrian at PCE 0.0 capped at walking speed occupies the network without consuming road capacity (the sidewalk, expressed in queue arithmetic), a cyclist at the declared PCE genuinely takes road space. A car passenger is not a second vehicle: ride stays routed, with PAIRED passengers physically boarded (9.53)."
     },
     "RUN.replanning.max_agent_plan_memory": {
       "value": 5,
@@ -363,7 +365,9 @@
         "car",
         "ride",
         "truck",
-        "motorbike"
+        "motorbike",
+        "walk",
+        "bike"
       ],
       "units": "enum",
       "source": "definition",
@@ -372,70 +376,6 @@
       "decisions_ref": "9.6",
       "matsim_param": "routing.networkModes",
       "description": "Modes routed on the road graph. Ride must be here AND permitted on the links (143,891 of them): declaring it a network mode that no link permits gives 'checking 0 nodes and 0 links' and a throw in PrepareForSim."
-    },
-    "RUN.routing.teleported_walk_speed_ms": {
-      "value": 1.25,
-      "units": "metres_per_second",
-      "source": "derived",
-      "sweep": null,
-      "status": "active",
-      "decisions_ref": "15, 9.33",
-      "matsim_param": "routing.teleportedModeParameters[walk].teleportedModeSpeed",
-      "description": "Teleported walk speed in MATSim. IDENTICAL BY IDENTITY to A.transit.walk_speed_ms, which generates GTFS transfer times: both are the speed a person walks along a path. They were declared separately at 1.05 and 1.25, each labelled literature and each describing the other as a different quantity - and the bytecode says otherwise. The detour a walker makes is carried by RUN.routing.beeline_distance_factor_walk, which is now MEASURED at 1.6902 rather than sharing an assumed 1.30 with bike, so the speed no longer has to absorb it.",
-      "derived_from": {
-        "fields": [
-          "A.transit.walk_speed_ms"
-        ],
-        "identity": "the same physical walking speed. MATSim computes a teleported leg as travelTime = (beeline x beelineDistanceFactor) / teleportedModeSpeed, verified in the pinned jar bytecode (TeleportationRoutingModule: dmul then ddiv), so teleportedModeSpeed is the speed ALONG the walked path - exactly what A.transit.walk_speed_ms is. They are one quantity."
-      }
-    },
-    "RUN.routing.teleported_bike_speed_ms": {
-      "value": 4.2,
-      "units": "metres_per_second",
-      "source": "literature",
-      "sweep": [
-        3.1,
-        5.5
-      ],
-      "sweep_basis": "widened at 9.28 to span two sources that disagree rather than choosing between them: published MATSim practice is 3.1389 m/s (Kelheim, Duesseldorf, eqasim Corsica) while ATAP M4 gives average cycling at ~15 km/h, which is what 4.2 m/s encodes. The old lower bound of 3.5 excluded every published MATSim value.",
-      "status": "active",
-      "decisions_ref": "15, 9.28",
-      "matsim_param": "routing.teleportedModeParameters[bike].teleportedModeSpeed",
-      "description": "Teleported bike speed in MATSim. The point value is NOT repinned: the disagreement between published MATSim practice and ATAP is unresolved and is carried by the sweep. Note the MATSim User Guide advises mode SPEED as the better lever than the time coefficient when a modal split is right but its distance distribution is wrong."
-    },
-    "RUN.routing.beeline_distance_factor_walk": {
-      "value": 1.6902,
-      "units": "ratio",
-      "source": "measured",
-      "sweep": [
-        1.294,
-        1.794
-      ],
-      "sweep_basis": "the interquartile range of the per-pair ratios over 531 routed pairs; an observed spread, not a chosen interval",
-      "status": "active",
-      "decisions_ref": "9.33",
-      "matsim_param": "routing.teleportedModeParameters[walk].beelineDistanceFactor",
-      "description": "Straight-line to path distance for teleported walk, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed walk trip length of 700 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.4562, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.",
-      "consumers": [
-        "src/registry/param_config.py"
-      ]
-    },
-    "RUN.routing.beeline_distance_factor_bike": {
-      "value": 1.5231,
-      "units": "ratio",
-      "source": "measured",
-      "sweep": [
-        1.207,
-        1.456
-      ],
-      "sweep_basis": "the interquartile range of the per-pair ratios over 549 routed pairs; an observed spread, not a chosen interval",
-      "status": "active",
-      "decisions_ref": "9.33",
-      "matsim_param": "routing.teleportedModeParameters[bike].beelineDistanceFactor",
-      "description": "Straight-line to path distance for teleported bike, MEASURED over the observed A6 active network unioned with every road class a pedestrian may use, between population-weighted origins and observed POI destinations at the observed bike trip length of 5200 m. Replaces an assumed 1.30 shared with bike. NOT the same quantity as B.activity.detour_factor (1.3376): that is the ROAD graph at multi-kilometre zone spacing, and circuity falls with distance - the two were suspected duplicates and the measurement disproved it. Aggregate ratio; the median is 1.2972, the difference being genuine circuity on pairs severed by the harbour and the rail corridor.",
-      "consumers": [
-        "src/registry/param_config.py"
-      ]
     },
     "RUN.machine.threads": {
       "value": 10,
@@ -733,6 +673,55 @@
         "identity": "a sample drawn per PERSON keeps each household member independently, so a household of size n retains on average f*n of its members and the probability that a given person keeps any co-member at all is 1-(1-f)^(n-1) - 0.14 at f=0.10 and 0.32 at f=0.25 for the mean household size here. Every household-coupled mechanism is therefore destroyed by the sampler in a way that is a function of the fraction, which is the one thing a sample fraction must not be. Sampling by household makes the retained population a set of WHOLE households, so the coupling is fraction-independent by construction. The identity, not a preference: it follows from what a fraction is meant to mean."
       },
       "description": "Whether the population subsample keeps whole HOUSEHOLDS or independent PERSONS. It was person-wise and undeclared until 9.45, and the cost was measured on the completed pilot arms: the share of ride legs whose household drives at all was 32.6% at a 10% sample and 43.1% at 25%, rising with the fraction because the sampler - not the demand - was deciding it. The sample still NESTS (a household id hashes to one number, so the 1% sample stays a strict subset of the 10%) and is still seeded and deterministic. The external and through boundary tiers hold no household by construction and continue to hash on their own id. What this buys is bought at a price that is stated rather than hidden: a household-clustered sample has higher variance at a given size than a person-wise one. Consumed by src/run/sample_population.py."
+    },
+    "RUN.routing.clear_default_teleported_params": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.54",
+      "matsim_param": "routing.clearDefaultTeleportedModeParams",
+      "description": "Clear MATSim built-in default teleportation parameters. Required once walk and bike are NETWORK modes (9.54): the built-in walk/bike defaults conflict with network routing outright (the config consistency check refuses the run - measured, the first 9.54 probe died on it), and a default that silently teleports a mode this model simulates is the right-by-accident defect class. Clearing also removes the non_network_walk helper defaults, so those are DECLARED below instead of inherited."
+    },
+    "RUN.routing.access_walk_speed_ms": {
+      "value": 1.25,
+      "units": "m/s",
+      "source": "derived",
+      "status": "active",
+      "decisions_ref": "9.54",
+      "matsim_param": "routing.teleportedModeParameters[non_network_walk].teleportedModeSpeed",
+      "derived_from": {
+        "fields": [
+          "A.transit.walk_speed_ms"
+        ],
+        "identity": "the same physical walking speed - the access/egress stub walk to and from a network link is walking, at the one declared walking speed"
+      },
+      "description": "Speed of the teleported access/egress stub walk (non_network_walk) that connects an activity to its network link. The MAIN walk mode is network-simulated (9.54); this helper covers only the stub, and it carries the same declared walking speed."
+    },
+    "RUN.routing.access_walk_beeline_factor": {
+      "value": 1.6902,
+      "units": "ratio",
+      "source": "measured",
+      "sweep": [
+        1.294,
+        1.794
+      ],
+      "sweep_basis": "Carried over verbatim from the retired RUN.routing.beeline_distance_factor_walk (9.54): measured over the observed A6 active network unioned with every road class a pedestrian may use. The quantity survives in the ACCESS-WALK role - the stub walk from an activity to its link is beeline-teleported, and this is the measured straight-line-to-path ratio for walking.",
+      "status": "active",
+      "decisions_ref": "9.54",
+      "matsim_param": "routing.teleportedModeParameters[non_network_walk].beelineDistanceFactor",
+      "description": "Straight-line to path-distance ratio for the teleported access/egress stub walk. The measured walk detour factor, retired from the MAIN walk mode when walk became network-simulated (whose realised detour is now the road graph own), surviving here in its remaining teleported role."
+    },
+    "RUN.routing.access_egress_type": {
+      "value": "none",
+      "units": "policy",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.54",
+      "matsim_param": "routing.accessEgressType",
+      "description": "How a network-mode trip connects an activity to its first link. Set to none when walk became a NETWORK mode (9.54), because the default (accessEgressModeToLink) creates beeline stub legs of MODE walk - and the qsim casts every main-mode leg route to a NetworkRoute at agent insertion (PopulationAgentSource, measured: the 9.54 probe died on exactly that ClassCastException). The alternative (walkConstantTimeToLink) needs per-mode access/egress-time attributes on every link - a declared constant nobody has observed. Consequence stated: the stub access walk between an activity and its link is no longer a scored leg; it was a beeline artefact, and the 9.54 comparability break owns the scoring change."
     }
   }
 }

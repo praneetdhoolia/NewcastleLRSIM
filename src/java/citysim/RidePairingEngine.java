@@ -429,6 +429,7 @@ public final class RidePairingEngine implements BeforeMobsimListener,
         final Map<String, int[]> paired = new HashMap<>();
         final Map<String, int[]> unpaired = new HashMap<>();
         int nPaired = 0;
+        int remoded = 0;
         int fromRealised = 0;
         int fromRouted = 0;
         int capacityRefusals = 0;
@@ -466,6 +467,28 @@ public final class RidePairingEngine implements BeforeMobsimListener,
                     capacityRefusals++;
                 }
                 unpaired.computeIfAbsent(ride.direction, k -> new int[1])[0]++;
+                if (cfg.isPhysicalBoarding() && cfg.isRemodeUnpaired()) {
+                    // DECISIONS.md 9.55: a ride trip no household driver can
+                    // physically serve is not a ride trip - it WALKS, on the
+                    // network, this iteration (the car route's links are
+                    // traversed at walking speed; ReRoute re-routes it as
+                    // walk next innovation). A long forced walk scores
+                    // terribly, so co-evolution reassigns the tour, and ride
+                    // becomes emergent: only what the driver supply carries
+                    // survives. No parameter invented; the constraint is the
+                    // price.
+                    ride.leg.setMode(TransportMode.walk);
+                    org.matsim.core.router.TripStructureUtils.setRoutingMode(
+                            ride.leg, TransportMode.walk);
+                    // the car route may traverse walk-excluded links, and
+                    // PersonPrepareForSim refuses a route inconsistent with
+                    // link modes (measured). A null route makes it re-route
+                    // the leg as WALK on the walk network before the mobsim -
+                    // properly walked from its first iteration.
+                    ride.leg.setRoute(null);
+                    remoded++;
+                    continue;
+                }
                 restore(ride.leg, ride.route);
                 continue;
             }
@@ -506,6 +529,11 @@ public final class RidePairingEngine implements BeforeMobsimListener,
               nPaired == 0 ? 0.0 : deltaSum / nPaired, capacityRefusals,
               driversByHousehold.size(), noHousehold,
               System.currentTimeMillis() - started);
+        if (cfg.isPhysicalBoarding() && cfg.isRemodeUnpaired()) {
+            org.apache.logging.log4j.LogManager.getLogger(RidePairingEngine.class)
+                    .info("ridePairing: {} unpaired ride legs re-moded to "
+                          + "network walk (DECISIONS.md 9.55)", remoded);
+        }
     }
 
     // ---- the rules --------------------------------------------------------

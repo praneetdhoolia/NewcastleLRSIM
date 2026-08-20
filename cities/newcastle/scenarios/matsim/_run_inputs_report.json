@@ -4,10 +4,12 @@
       "road_variant": "net_base2026_hunter_st_full_capacity",
       "patch_rows": 40,
       "links_touched": {
+        "companion_mode_links": 168033,
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_truck_links": 168033
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -129,10 +131,12 @@
       "road_variant": "net_base2026_hunter_st_full_capacity",
       "patch_rows": 40,
       "links_touched": {
+        "companion_mode_links": 168033,
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_truck_links": 168033
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -254,7 +258,9 @@
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
-        "ride_truck_links": 168033
+        "companion_mode_links": 168033,
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -397,7 +403,9 @@
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
-        "ride_truck_links": 168033
+        "companion_mode_links": 168033,
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -540,7 +548,9 @@
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
-        "ride_truck_links": 168033
+        "companion_mode_links": 168033,
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -683,10 +693,12 @@
       "road_variant": "net_base2026_hunter_st_full_capacity",
       "patch_rows": 40,
       "links_touched": {
+        "companion_mode_links": 168033,
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_truck_links": 168033
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -829,7 +841,9 @@
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
-        "ride_truck_links": 168033
+        "companion_mode_links": 168033,
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -951,9 +965,11 @@
       "road_variant": "net_base2026_broadmeadow_extension",
       "patch_rows": 134,
       "links_touched": {
+        "companion_mode_links": 168033,
         "num_lanes_per_dir": 180,
         "kerbside_use": 302,
-        "ride_truck_links": 168033
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -1096,9 +1112,11 @@
       "road_variant": "net_base2026_jhh_extension",
       "patch_rows": 240,
       "links_touched": {
+        "companion_mode_links": 168033,
         "num_lanes_per_dir": 280,
         "kerbside_use": 498,
-        "ride_truck_links": 168033
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -1241,10 +1259,12 @@
       "road_variant": "net_base2026_hunter_st_full_capacity",
       "patch_rows": 40,
       "links_touched": {
+        "companion_mode_links": 168033,
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "ride_truck_links": 168033
+        "walk_stripped_unreachable": 16726,
+        "bike_stripped_unreachable": 5177
       },
       "parking": {
         "car_links": 168033,
@@ -1384,7 +1404,8 @@
       "walk": 0.0,
       "bike": 0.0,
       "truck": 0.0,
-      "motorbike": 0.0
+      "motorbike": 0.0,
+      "non_network_walk": 0.0
     },
     "monetary_distance_rate_sweep": [
       -0.00025,
@@ -1453,6 +1474,10 @@
       "motorbike": {
         "constant": 0.0,
         "marginalUtilityOfTraveling": -10.9608
+      },
+      "non_network_walk": {
+        "constant": 0.0,
+        "marginalUtilityOfTraveling": -11.6392
       }
     },
     "not_representable": [

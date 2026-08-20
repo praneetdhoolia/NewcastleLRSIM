@@ -4,10 +4,10 @@
   "contract": "Every key below must be declared by any city, with the stated units and value type. A field whose source is measured, derived, literature or assumed MUST additionally carry a sweep, a held_fixed rule or a derived_from identity - field.schema.json enforces that, and check_city.py tests it.",
   "no_prose": "Field DESCRIPTIONS are deliberately absent. They are the reference city's own wording and would put one city's prose - its suburbs, its agencies, its datasets - inside the portable half of the contract. What a city must supply is a key, its units and its value type; WHY a particular city chose a particular value belongs in that city's docs/reference/CONFIG_REFERENCE.md.",
   "caveat": "`required` means the reference city declares it and the framework will not run without it. A field carrying `required_if_mode` is required ONLY of a city that runs that mode - the one narrowing that can be DERIVED, because the mode name is in the tool binding. The rest is not narrowed: an intervention-specific field is still listed for a city that has no such intervention, and omitting one must be justified rather than assumed.",
-  "n_fields": 320,
+  "n_fields": 326,
   "n_by_layer": {
-    "A": 92,
-    "B": 63,
+    "A": 94,
+    "B": 67,
     "C": 55,
     "CAL": 6,
     "D": 5,
@@ -213,6 +213,15 @@
       "unobtained_in_reference_city": false,
       "declared_in": "A_supply.json"
     },
+    "A.network.bicycle_excluded_classes": {
+      "layer": "A",
+      "units": "osm_highway_classes",
+      "type": "array",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
     "A.network.freespeed_factor": {
       "layer": "A",
       "units": "factor",
@@ -262,6 +271,15 @@
       "layer": "A",
       "units": "boolean",
       "type": "boolean",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "A_supply.json"
+    },
+    "A.network.pedestrian_excluded_classes": {
+      "layer": "A",
+      "units": "osm_highway_classes",
+      "type": "array",
       "source_in_reference_city": "definition",
       "sweep_required": false,
       "unobtained_in_reference_city": false,
@@ -1023,6 +1041,24 @@
       "unobtained_in_reference_city": false,
       "declared_in": "B_demand.json"
     },
+    "B.bike.pce": {
+      "layer": "B",
+      "units": "passenger_car_equivalents",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.bike.speed_ms": {
+      "layer": "B",
+      "units": "m/s",
+      "type": "number",
+      "source_in_reference_city": "literature",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
     "B.counts.heavy_vehicle_share": {
       "layer": "B",
       "units": "share_of_vehicles",
@@ -1401,9 +1437,27 @@
       "unobtained_in_reference_city": false,
       "declared_in": "B_demand.json"
     },
+    "B.ride.remode_unpaired": {
+      "layer": "B",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
     "B.seed.master": {
       "layer": "B",
       "units": "integer_seed",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "B_demand.json"
+    },
+    "B.walk.pce": {
+      "layer": "B",
+      "units": "passenger_car_equivalents",
       "type": "number",
       "source_in_reference_city": "definition",
       "sweep_required": false,
@@ -2535,25 +2589,41 @@
       "unobtained_in_reference_city": false,
       "declared_in": "RUN_execution.json"
     },
-    "RUN.routing.beeline_distance_factor_bike": {
+    "RUN.routing.access_egress_type": {
       "layer": "RUN",
-      "units": "ratio",
-      "type": "number",
-      "source_in_reference_city": "measured",
-      "sweep_required": true,
+      "units": "policy",
+      "type": "string",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
       "unobtained_in_reference_city": false,
-      "declared_in": "RUN_execution.json",
-      "required_if_mode": "bike"
+      "declared_in": "RUN_execution.json"
     },
-    "RUN.routing.beeline_distance_factor_walk": {
+    "RUN.routing.access_walk_beeline_factor": {
       "layer": "RUN",
       "units": "ratio",
       "type": "number",
       "source_in_reference_city": "measured",
       "sweep_required": true,
       "unobtained_in_reference_city": false,
-      "declared_in": "RUN_execution.json",
-      "required_if_mode": "walk"
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.routing.access_walk_speed_ms": {
+      "layer": "RUN",
+      "units": "m/s",
+      "type": "number",
+      "source_in_reference_city": "derived",
+      "sweep_required": true,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.routing.clear_default_teleported_params": {
+      "layer": "RUN",
+      "units": "boolean",
+      "type": "boolean",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
     },
     "RUN.routing.network_modes": {
       "layer": "RUN",
@@ -2563,26 +2633,6 @@
       "sweep_required": false,
       "unobtained_in_reference_city": false,
       "declared_in": "RUN_execution.json"
-    },
-    "RUN.routing.teleported_bike_speed_ms": {
-      "layer": "RUN",
-      "units": "metres_per_second",
-      "type": "number",
-      "source_in_reference_city": "literature",
-      "sweep_required": true,
-      "unobtained_in_reference_city": false,
-      "declared_in": "RUN_execution.json",
-      "required_if_mode": "bike"
-    },
-    "RUN.routing.teleported_walk_speed_ms": {
-      "layer": "RUN",
-      "units": "metres_per_second",
-      "type": "number",
-      "source_in_reference_city": "derived",
-      "sweep_required": true,
-      "unobtained_in_reference_city": false,
-      "declared_in": "RUN_execution.json",
-      "required_if_mode": "walk"
     },
     "RUN.sample.flow_capacity_factor": {
       "layer": "RUN",
