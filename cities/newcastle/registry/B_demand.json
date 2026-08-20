@@ -1092,6 +1092,53 @@
       "description": "How many passengers one driver's leg may carry. Without a cap a single driver would serve every passenger their household offered - the same unbounded-supply defect that rideAvail removed on the availability side, where an unconstrained model put 5.9 people in every car (9.10). Consumed by src/java/citysim/RidePairingEngine.",
       "matsim_param": "ridePairing.maxPassengersPerVehicle"
     },
+    "B.motorbike.trip_share": {
+      "value": 0.0036,
+      "units": "share_of_trips",
+      "source": "assumed",
+      "sweep": [
+        0.0,
+        0.01
+      ],
+      "sweep_basis": "The default restates the MEASURED census G62 one-method journey-to-work share for the 1,500 core SA1s: 653 of 179,761 journeys = 0.363% by motorbike/scooter (docs/design/mode-individualisation.md). What is ASSUMED is the transfer from a commute share to an all-purpose trip share - the HTS cannot separate motorcycle trips (its data document places them inside Vehicle driver/passenger), so no all-purpose observation exists. The lower bound is zero, which turns the mode off so its whole effect is a sweep member; the upper bound is roughly 3x the commute anchor, spanning the plausible all-purpose range for a mode whose registration share exceeds its trip share.",
+      "status": "active",
+      "decisions_ref": "9.52",
+      "description": "Share of resident person trips made by motorbike, realised as a PERSON-LEVEL carve: a licensed, car-available adult becomes a motorbike user (their whole day locks to the mode - vehicle continuity is chain-based by nature) with the probability that makes carved persons' trips this share of all trips. Carved FROM car-driver demand, which is where the HTS and census place motorcyclists - so the car comparison folds motorbike back in at fit time (fit.py) and the carve never invents a trip.",
+      "consumers": [
+        "src/build/build_matsim_plans.py"
+      ]
+    },
+    "B.motorbike.pce": {
+      "value": 0.4,
+      "units": "passenger_car_equivalents",
+      "source": "literature",
+      "sweep": [
+        0.3,
+        0.75
+      ],
+      "sweep_basis": "Austroads and HCM passenger-car-equivalent ranges for motorcycles in urban traffic run from about 0.3 (filtering, uncongested) to 0.75 (no filtering, interrupted flow); no local fleet-mix or filtering observation exists, so the class low-mid value is taken and the published range is swept.",
+      "status": "active",
+      "decisions_ref": "9.52",
+      "description": "Passenger-car equivalents of one modelled motorbike - it consumes LESS road capacity than a car. This is the field that makes the mode PHYSICAL in the mobsim.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
+    "B.motorbike.length_m": {
+      "value": 2.2,
+      "units": "metres",
+      "source": "literature",
+      "held_fixed": {
+        "rule": "Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.motorbike.pce), not through vehicle length, so no output varies across this value. Recorded because the vehicle type must state a length; a typical motorcycle figure is used.",
+        "decisions_ref": "9.52"
+      },
+      "status": "active",
+      "decisions_ref": "9.52",
+      "description": "Stated length of the motorbike vehicle type in the vehicles file. Does not reach the traffic model - space and flow run on PCE - and is held fixed for exactly that reason.",
+      "consumers": [
+        "src/build/build_matsim_run_inputs.py"
+      ]
+    },
     "B.freight.trip_ratio": {
       "value": 0.0697,
       "units": "heavy_vehicle_trips_per_light_vehicle_trip",

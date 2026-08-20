@@ -65,6 +65,30 @@ BIKE_AVAILABLE_RATE = CFG.get('B.population.bike_available_rate')
 # follows from having no household at all rather than from an unknown one.
 EXTERNAL_PROFILE = CFG.get('B.external.agent_profile')
 EXTERNAL_RIDE_AVAILABLE = CFG.get('B.external.agent_ride_available')
+
+# Motorbike (issue #49, DECISIONS.md 9.52): a PERSON-LEVEL carve from
+# car-driver demand. A licensed, car-available person becomes a motorbike
+# user with the probability that makes carved persons' trips
+# B.motorbike.trip_share of all trips (anchored on the MEASURED census G62
+# journey-to-work share; the commute->all-purpose transfer is the assumption,
+# declared and swept - zero turns the mode off). Their day LOCKS to the mode:
+# vehicle continuity is chain-based by nature, and no preference observation
+# exists to let motorbike compete in mode choice, so a locked carve is the
+# honest form (the same reasoning that locks through and freight agents).
+# The draw is a HASH of the person id and the master seed - deterministic,
+# identical across day types, and consuming no rng stream, so every existing
+# draw sequence is byte-identical to the pre-motorbike build.
+MOTORBIKE_SHARE = CFG.get('B.motorbike.trip_share')
+_MOTORBIKE_Q = {'q': 0.0}   # solved in main() from the eligible share
+
+import hashlib as _hashlib  # noqa: E402
+
+
+def motorbike_user(pid):
+    if _MOTORBIKE_Q['q'] <= 0.0:
+        return False
+    h = _hashlib.sha256(('motorbike|%s|%d' % (pid, SEED)).encode()).hexdigest()
+    return int(h[:12], 16) / float(1 << 48) < _MOTORBIKE_Q['q']
 # An escort trip's traveller is the driver - the identity that already limits
 # HX generation to licence holders, carried through to mode choice: a person
 # whose day includes an escort activity is denied `ride` FOR THAT DAY TYPE.
@@ -330,6 +354,7 @@ def write_day(day, attrs, rng, report, seed_table=None):
                     EXTERNAL_PROFILE['student_status'],
                     EXTERNAL_PROFILE['mobility_impairment_flag'])
                 ride_av, bike_av, hh_id = 0, 0, None
+                moto = False
             elif external:
                 # An external boundary agent has no B1 household, so its
                 # attributes are definitional placeholders (B.external
@@ -355,6 +380,7 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 # carries no householdId and can never pair with a driver. That
                 # is the same identity that already denies it `ride`.
                 hh_id = None
+                moto = False
             else:
                 a = attrs.get(pid)
                 if a is None:
@@ -364,6 +390,14 @@ def write_day(day, attrs, rng, report, seed_table=None):
                         r['dest_activity_type'] == 'escort' for r in rows):
                     ride_av = 0
                     escort_ride_denied[0] += 1
+                # The motorbike carve (DECISIONS.md 9.52) - but never on an
+                # escort day: a pillion passenger is not how the escorted
+                # child travels in any data this project holds, and the ride
+                # pairing pairs passengers with CAR legs. Same day-plan-level
+                # denial pattern as ESCORT_EXCLUDES_RIDE above.
+                moto = (bool(car_av) and bool(lic) and motorbike_user(pid)
+                        and not any(r['dest_activity_type'] == 'escort'
+                                    for r in rows))
 
             # one mode per tour keeps chain-based modes conserved from the start
             tour_mode = {}
@@ -372,6 +406,7 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 if tid not in tour_mode:
                     tour_mode[tid] = ('truck' if tier == 'freight' else
                                       'car' if tier == 'through' else
+                                      'motorbike' if moto else
                                       pick_mode(car_av, u, seed_table,
                                                 ride_available=bool(ride_av),
                                                 bike_available=bool(bike_av)))
@@ -406,12 +441,15 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 # is exactly what those two consumers test for.
                 w.write('\t\t\t<attribute name="householdId" '
                         'class="java.lang.String">%d</attribute>\n' % hh_id)
-            if tier in ('through', 'freight'):
-                # locks SubtourModeChoice to {car} / {truck} for this agent -
-                # a volume anchored on a road count must stay on the road
+            if tier in ('through', 'freight') or moto:
+                # locks SubtourModeChoice to {car} / {truck} / {motorbike} for
+                # this agent - a volume anchored on an observation must stay
+                # on it, and a mode with no preference data cannot compete in
+                # choice without inventing a constant (DECISIONS.md 9.52)
                 w.write('\t\t\t<attribute name="lockedMode" '
                         'class="java.lang.String">%s</attribute>\n'
-                        % ('truck' if tier == 'freight' else 'car'))
+                        % ('truck' if tier == 'freight' else
+                           'motorbike' if moto else 'car'))
             w.write('\t\t</attributes>\n')
             w.write('\t\t<plan selected="yes">\n')
 
@@ -467,6 +505,18 @@ def main(seed=SEED, day_types=None, seed_mode='uninformed'):
     # bike availability draws from its own child stream so the mode-seed
     # stream is not perturbed by the number of persons (issue #29)
     attrs = load_person_attributes(np.random.default_rng([seed, 1]))
+    # The motorbike carve probability (DECISIONS.md 9.52): carved persons'
+    # trips should be B.motorbike.trip_share of all trips. Eligible persons
+    # (licensed AND car-available - a motorcyclist is a licensed vehicle
+    # owner in every data source this project holds) are assumed to trip at
+    # the population's average rate; the approximation is absorbed by the
+    # field's own sweep and stated in its basis.
+    eligible = sum(1 for a in attrs.values() if a[0] and a[2])
+    q = (MOTORBIKE_SHARE * len(attrs) / eligible) if eligible else 0.0
+    _MOTORBIKE_Q['q'] = min(1.0, q)
+    print('motorbike carve: trip share %.4f -> q=%.5f over %d eligible '
+          'persons (of %d)' % (MOTORBIKE_SHARE, _MOTORBIKE_Q['q'],
+                               eligible, len(attrs)), flush=True)
     report = {}
     for d in day_types:
         write_day(d, attrs, rng, report, seed_table)

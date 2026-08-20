@@ -1383,7 +1383,8 @@
       "pt": 0.0,
       "walk": 0.0,
       "bike": 0.0,
-      "truck": 0.0
+      "truck": 0.0,
+      "motorbike": 0.0
     },
     "monetary_distance_rate_sweep": [
       -0.00025,
@@ -1446,6 +1447,10 @@
         "marginalUtilityOfTraveling": -14.5226
       },
       "truck": {
+        "constant": 0.0,
+        "marginalUtilityOfTraveling": -10.9608
+      },
+      "motorbike": {
         "constant": 0.0,
         "marginalUtilityOfTraveling": -10.9608
       }

@@ -291,12 +291,12 @@ MODES_ATTR_RE = re.compile(r'modes="([^"]*)"')
 
 # The modes a car link also carries, and why each is there. `ride` is ROUTED
 # on the road network but not simulated (a passenger is not a second vehicle);
-# `truck` is ROUTED AND SIMULATED (DECISIONS.md 9.49) - a heavy vehicle at
-# B.freight.pce car-equivalents genuinely occupies the link. Both ride on the
-# car network because no truck-route or passenger-route layer exists to say
-# otherwise; unconstrained truck routing is a stated limitation of the
-# background load.
-CAR_COMPANION_MODES = ('ride', 'truck')
+# `truck` (DECISIONS.md 9.49) and `motorbike` (9.52) are ROUTED AND SIMULATED -
+# a heavy vehicle at B.freight.pce car-equivalents and a motorbike at
+# B.motorbike.pce genuinely occupy the link. All ride on the car network
+# because no mode-specific route layer exists to say otherwise; unconstrained
+# routing is a stated limitation of both.
+CAR_COMPANION_MODES = ('ride', 'truck', 'motorbike')
 
 
 def allow_car_companions(xml):
@@ -373,6 +373,14 @@ def write_mode_vehicles(dst_path, cfg):
         % (float(cfg.get('B.freight.max_speed_kmh')) / 3.6),
         '\t\t<passengerCarEquivalents pce="%s" />' % cfg.get('B.freight.pce'),
         '\t\t<networkMode networkMode="truck" />',
+        '\t</vehicleType>',
+        # a motorbike consumes LESS than a car (DECISIONS.md 9.52); no speed
+        # cap - it takes each link's own limit like a car does
+        '\t<vehicleType id="motorbike">',
+        '\t\t<length meter="%s" />' % cfg.get('B.motorbike.length_m'),
+        '\t\t<width meter="%s" />' % car['width_m'],
+        '\t\t<passengerCarEquivalents pce="%s" />' % cfg.get('B.motorbike.pce'),
+        '\t\t<networkMode networkMode="motorbike" />',
         '\t</vehicleType>',
         '</vehicleDefinitions>',
         '']
@@ -573,12 +581,14 @@ def scoring_from_c1(cfg, c1, purpose_share):
                      marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_walk_mode'))),
         'bike': dict(constant=asc['asc_cycle'][0],
                      marginalUtilityOfTraveling=traveling(cfg.get('C.time_weights.beta_bike_mode'))),
-        # truck (DECISIONS.md 9.49): scoring params must exist for any leg mode
-        # MATSim scores, but a freight agent's mode is LOCKED - the choice this
-        # block prices never happens for it. The car time rate is carried so
-        # the values are unremarkable, and the constant is zero because there
-        # is no alternative for it to be relative to.
+        # truck (DECISIONS.md 9.49) and motorbike (9.52): scoring params must
+        # exist for any leg mode MATSim scores, but these agents' modes are
+        # LOCKED - the choice this block prices never happens for them. The
+        # car time rate is carried so the values are unremarkable, and the
+        # constants are zero because there is no alternative to be relative to.
         'truck': dict(constant=0.0, marginalUtilityOfTraveling=traveling(1.0)),
+        'motorbike': dict(constant=0.0,
+                          marginalUtilityOfTraveling=traveling(1.0)),
     }
     tp = c1['transfer_penalty']['base']
     return dict(

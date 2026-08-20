@@ -89,9 +89,18 @@ def score_mode_share(targets, metrics, out):
                        '("Walk linked" is 0.0 by construction: the walk stage of '
                        'a PT trip is counted as PT in a linked mode share)'))
             continue
-        e = scale_error(share.get(mode, 0.0), float(t['value']))
+        modelled = share.get(mode, 0.0)
+        if mode == 'car':
+            # The HTS 'Vehicle driver' category CONTAINS motorcyclists (its
+            # data document places them there, not in Other), and the model
+            # now carves motorbike out of car-driver demand (DECISIONS.md
+            # 9.52) - so the comparable modelled quantity is car + motorbike.
+            # Comparing car alone would under-read the model by exactly the
+            # declared carve.
+            modelled += share.get('motorbike', 0.0)
+        e = scale_error(modelled, float(t['value']))
         e.update(target_id=t['target_id'], hts_category=t['note'],
-                 matsim_mode=mode)
+                 matsim_mode=(mode if mode != 'car' else 'car+motorbike'))
         errs.append(e)
         used.append(t['target_id'])
     for t in targets:
@@ -239,7 +248,11 @@ def account_for_the_rest(targets, out):
 def score_occupancy(metrics, c4):
     """Not a validation target: the physical constraint of DECISIONS.md 9.8."""
     share = metrics['mode_share']['target_lga_pct']
-    car, ride = share.get('car', 0.0), share.get('ride', 0.0)
+    # motorbike folds into the driver denominator for the same reason it
+    # folds into the car mode-share row: the observed passenger:driver ratio
+    # counts motorcyclists as drivers (DECISIONS.md 9.52)
+    car = share.get('car', 0.0) + share.get('motorbike', 0.0)
+    ride = share.get('ride', 0.0)
     if not car:
         return None
     modelled = ride / car

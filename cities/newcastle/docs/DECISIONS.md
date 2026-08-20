@@ -53,6 +53,7 @@ otherwise cost you an hour:
 | **Freight / heavy vehicles (`truck`)** | **§9.49** — a physical background load: measured profile and gate shares, assumed and swept volume ratio, PCE and decay; issue #24 |
 | **The calibrated base (deliverable 5)** | **§9.50** — constrain-and-report, logged before the base run's results; ASCs stay §8.5 priors, #9 resolved by decision, the §9.48 occupancy excess reported not absorbed. **The base arm was stopped (§9.51) — C5 and the report await its relaunch** |
 | **The four owner directives (20 Aug)** | **§9.51** — physical ride (no teleportation), 9+ modes individualised (G62 verified to carry them), the sub-1 km walk deficit (#30 re-opened), demographic-conditional mode fidelity. These set the value order |
+| **Motorbike as a mode** | **§9.52** — a physical person-level locked carve from car-driver demand, anchored on the measured G62 JTW share (0.363%), swept 0–1%; fit compares car+motorbike against the Vehicle-driver target |
 | **The 30-hour-day cap (issue #37)** | **§9.38** |
 | **Bike availability (issue #29)** | **§9.39** |
 | **Calibration loop, fit statistic, outer-loop tolerance** | §9.16, §12 |
@@ -5471,6 +5472,72 @@ before C5 and the calibration report can exist.
 
 ---
 
+## 9.52 Motorbike becomes a physical mode, carved from the demand that always contained it (20 August 2026, issue #49)
+
+**Decision:** motorbike enters the mobsim as a **person-level locked carve
+from car-driver demand**, anchored on the measured census journey-to-work
+share. Taken 20 August 2026 under the §9.51 mode-individualisation
+directive. This partially supersedes the old *"motorcycle as its own mode:
+declined for want of a target"* stance — a target was found (below); the
+no-invented-data rule still bounds what the mode can claim.
+
+### The observed anchor, and what stays assumed
+
+`census2021_G62_SA1.csv`, one-method journeys to work, 1,500 core SA1s:
+**653 of 179,761 journeys (0.363%) by motorbike/scooter** — a genuinely
+observed commute share for a mode the HTS cannot see (its data document
+places motorcyclists inside `Vehicle driver`/`Vehicle passenger`, NOT in
+`Other`). What remains assumed is the commute→all-purpose transfer:
+`B.motorbike.trip_share` = 0.0036, **swept 0.0–0.01** (zero turns the mode
+off). PCE is literature (0.4, swept 0.3–0.75 — a motorbike consumes LESS
+road space than a car).
+
+### The mechanism
+
+- A licensed, car-available person becomes a motorbike user with the
+  probability that makes carved persons' trips the declared share
+  (q = 0.00518 over 426,129 eligible of 612,687). The draw is a **hash of
+  the person id and the master seed** — deterministic, identical across day
+  types, and consuming no rng stream, so every pre-existing draw sequence is
+  byte-identical.
+- **The day locks to the mode** (`lockedMode=motorbike`, the same generic
+  availability-calculator path as through and freight): vehicle continuity
+  is chain-based by nature, and no preference observation exists to let
+  motorbike compete in mode choice — an invented constant is exactly what
+  §8.5 forbids. **Except on escort days**: a pillion passenger is not how an
+  escorted child travels in any held data, and the ride pairing pairs
+  passengers with CAR legs — so an escort day falls back to normal choice
+  (the `ESCORT_EXCLUDES_RIDE` day-plan pattern). This makes the realised
+  share undershoot the declared 0.36% by roughly the escort-day incidence
+  (~20% of weekday persons); stated, absorbed by the sweep, not compensated.
+- Physically: `motorbike` joins `qsim.mainMode` and the per-mode vehicles
+  file (PCE 0.4, no speed cap — it takes each link's own limit), and rides
+  on car links like the other companions. The carve is FROM car seeding, so
+  **no trip is invented** — car loses exactly what motorbike gains.
+- **The comparison folds it back**: the HTS `Vehicle driver` target contains
+  motorcyclists, so `fit.py` compares **car + motorbike** against it (the
+  row is labelled `car+motorbike`), and the occupancy constraint's driver
+  denominator does the same. Comparing car alone would under-read the model
+  by exactly the declared carve.
+
+### Verified, not asserted
+
+Smoke run `motorbike_smoke` (1% × 2, rc=0, accounting closes): **12 carved
+riders, 52 motorbike trips completed, 6,286 link traversals, zero stuck**.
+Registry 319 fields, ledger 0 `--strict`; `check_city_agnostic` 13/13.
+Landed in the SAME comparability family as §9.49 — the freight family has no
+completed run, so no additional boundary is created.
+
+### What this deliberately does not do
+
+No motorbike CHOICE model (no constant, no competition — the share is
+declared and swept); no non-commute observation is claimed; no separate
+motorbike network layer (filtering/lane-splitting is inside the PCE sweep);
+taxi/rideshare stays with task 4.4 and the tier plan in
+[`docs/design/mode-individualisation.md`](design/mode-individualisation.md).
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,
@@ -5969,6 +6036,7 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-20 | **Motorbike becomes a physical mode (§9.52, issue #49): a person-level locked carve from car-driver demand, anchored on the measured census JTW share.** 653 of 179,761 core-SA1 one-method JTW journeys (0.363%) are by motorbike/scooter — the observed anchor the old "declined for want of a target" stance lacked. `B.motorbike.trip_share` 0.0036 (assumed commute→all-purpose transfer, swept 0.0–0.01), PCE 0.4 literature (swept 0.3–0.75). Hash-drawn per person (no rng perturbation — every existing draw sequence byte-identical), day locked to the mode except escort days, carved FROM car so no trip is invented; `fit.py` compares car+motorbike against the Vehicle-driver target that contains motorcyclists. Smoke-verified physical: 12 riders, 52 trips, 6,286 link traversals at 1%. Same comparability family as §9.49 (no completed run exists in it). **Seven of nine-plus modes are now physical.** No target moved; the 67/143 split untouched; nothing is a result. |
 | 2026-08-20 | **Four owner directives reset the value order, and the base arm is stopped (§9.51).** (1) Every ride trip physically in a car — no teleportation — and the share tuned to the observed 20.60%; re-opens the joint-plans question (socnetsim ~10× is the recorded cost to beat). (2) All 9+ modes distinguished — pt never an umbrella; motorbike and taxi/rideshare individualised, anchored on the VERIFIED per-mode G62 journey-to-work columns (Motorbike/scooter, Taxi/Rideshare, Tram/LR, Train, Bus, Ferry, Truck). (3) The sub-1 km walk deficit is the priority structural defect — #30 re-opens under its own REOPEN IF. (4) Mode × demographic distributions must match real life — new observables enter as constraints, never targets. `base1000_25pct` stopped at ~iteration 20 on the owner's instruction and quarantined; #14/#9 stay open until it relaunches. No target moved, the 67/143 split untouched, nothing is a finding. |
 | 2026-08-20 | **The calibrated base takes §8.5's second branch — constrain and report — and the decision is logged before its run exists (§9.50, issues #14, #9).** The first branch (ASCs on era 3) is recorded infeasible as stated: no 2018 demand exists and the historical reconstruction is dropped, so estimating 2018 constants under a 2026 population would manufacture the confound §8.5 prevents. ASCs stay at the §8.5 priors, held fixed; `asc_car_passenger` is NOT re-solved against the §9.48 occupancy excess (that would be ASC absorption — #9 resolved by decision, the excess reported). No parameter search: the corrected loop identifies exactly two searchable parameters at ~21 × 35 h runs, neither able to reach the structural misfits — declined with the cost stated. Also fixed: the loop's rebuild-stage table defaulted unclassified consumers to "movable at run time", putting the OSM harvest margins in the movable set — unclassified consumers are now excluded with the reason stated. The base is one reference run of the §9.49 family whose fit is reported as it comes out. |
 | 2026-08-20 | **Freight becomes physical (§9.49, issue #24): a `truck` mode in the mobsim at declared PCE, seeded from the counts the model already holds.** `qsim.mainMode` = `car,truck`; `vehiclesSource` → `modeVehicleTypesFromVehiclesData` with the car type restating MATSim's default exactly (`RUN.qsim.car_vehicle`) and the truck type at `B.freight.pce` (literature 2.0, swept 1.5–3.5) under the regulated 100 km/h cap. Through-gate volumes split into car and truck by each gate station's own observed heavy share (Hunter Expressway 0.1529 observed; median 0.0652 fallback) — through trucks had been riding as PCE-1 cars. An internal freight tier draws over the observed freight-industry attractor at the assumed, swept `B.freight.trip_ratio` (0.0697, sweep 0.0–0.14). NEW MEASUREMENTS from the classified RMS hourly counts (`extract_freight_profile.py`, 33,816 station-days): the heavy hourly profile per day type and the weekend factors (SAT 0.4627, SUN 0.4104). Six new registry fields + `RUN.qsim.car_vehicle`; subpopulation `freight` with `lockedMode=truck` (no Java change). **A planned comparability break: the demand family changes again — `bind1000_25pct` is the last run of the §9.46/§9.47 family.** No toolchain change; no target touched; nothing here is a result. |

@@ -27,20 +27,20 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 316 fields are made of
+## What the 319 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
 | `observed` | 4 | read directly from a raw download |
 | `measured` | 23 | computed from observed data in this package |
 | `derived` | 27 | follows from another registry field by identity |
-| `literature` | 37 | a published value, not specific to this city |
-| `assumed` | 135 | chosen without direct empirical support |
+| `literature` | 39 | a published value, not specific to this city |
+| `assumed` | 136 | chosen without direct empirical support |
 | `definition` | 90 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 296 | usable point value |
+| `active` | 299 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -57,7 +57,7 @@ These carry `value: null` and the resolver refuses to return a point value for t
 | `D.retail.vacancy_rate` | 0 - 0.25 | NOT OBTAINED and not currently consumed by any metric |
 | `RUN.sumo.replications` | 5 - 30 | NO VALUE: proposal 5.2 asks for at least 30, DECISIONS.md 9.5 shows the specified load does not fit on this machine, and nobody has decided what to cu |
 
-### The 11 fields held fixed
+### The 12 fields held fixed
 
 Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating them would fit away the effect under test - proposal 9 names ASC absorption as the primary threat to validity.
 
@@ -65,6 +65,7 @@ Not tunable. DECISIONS.md 8.5 holds the mode constants fixed because calibrating
 - `A.transit.ferry_capacity_seated` - Published seated capacity, held on the same reasoning as the total: it is a fact about the vessel. This is the ONLY vehicle in the fleet whose seated/standing split is published - 
 - `A.transit.ferry_capacity_total` - A published vessel capacity is a fact about the boat, not a behavioural parameter, and sweeping it would assert an uncertainty that does not exist. Both Stockton ferries carry the 
 - `B.freight.length_m` - Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.freight.pce), not through vehicle length, so no output varies across this
+- `B.motorbike.length_m` - Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.motorbike.pce), not through vehicle length, so no output varies across th
 - `C.asc.bus` - DECISIONS.md 8.5: these are priors for the first calibration pass only and must not be freely calibrated. Either estimate them on the pre-intervention period (era 3, 2018) and hold
 - `C.asc.car_passenger` - Constrained, not calibrated. DECISIONS.md 9.8 solves this constant so the modelled ride:car leg ratio reproduces the OBSERVED passenger:driver ratio (0.3503, HTS). That is the seco
 - `C.asc.cycle` - Constrained, not calibrated - the second branch DECISIONS.md 8.5 permits. THE DEPARTURE IS LOGGED AT 9.28, before any run on the changed specification. The shipped -1.35 stays as t
@@ -800,7 +801,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 59 fields*
+*`cities/newcastle/registry/B_demand.json` - 62 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -849,6 +850,9 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.freight.trip_ratio` | `0.0697` | heavy_vehicle_trips_per_light_vehicle_trip | `assumed` | 0 - 0.14 |
 | `B.mode.seed_split` | `{"car_available": {"bike": 0.2, "car": 0.2, "pt": 0.2, "ride": 0.2, "walk": 0.2}, "no_car": {"bike": 0.25, ...` | share_by_mode | `definition` | - |
 | `B.mode.seed_split_informed` | `{"car_available": {"bike": 0.01, "car": 0.78, "pt": 0.02, "ride": 0.1, "walk": 0.09}, "no_car": {"bike": 0....` | share_by_mode | `assumed` | `uninformed`, `informed` |
+| `B.motorbike.length_m` | `2.2` | metres | `literature` | **held fixed** |
+| `B.motorbike.pce` | `0.4` | passenger_car_equivalents | `literature` | 0.3 - 0.75 |
+| `B.motorbike.trip_share` | `0.0036` | share_of_trips | `assumed` | 0 - 0.01 |
 | `B.network_factors.distance_band` | `0.25` | share | `assumed` | 0.1 - 0.5 |
 | `B.network_factors.min_pair_m` | `500.0` | metres | `assumed` | 100 - 2000 |
 | `B.network_factors.n_pairs` | `600` | zone_pairs | `assumed` | 200 - 5000 |
@@ -1168,6 +1172,32 @@ The informed seed the uniform one replaced, retained so the seed-independence cl
 
 > **Sweep basis.** the sweep is over WHICH SEED IS USED, not over the shares. These are the only two seeds the plan builder can produce, and DECISIONS.md 9.7 reports the measured difference between the runs they produce. That is what makes "the result does not depend on the seed" a claim that can be tested rather than asserted (DECISIONS.md 9.6).
 
+#### `B.motorbike.length_m`
+
+Stated length of the motorbike vehicle type in the vehicles file. Does not reach the traffic model - space and flow run on PCE - and is held fixed for exactly that reason.
+
+***literature** · status **active** · DECISIONS.md §9.52*
+
+> **Held fixed.** Cosmetic in the queue model: MATSim's qsim consumes road space and flow through passengerCarEquivalents (B.motorbike.pce), not through vehicle length, so no output varies across this value. Recorded because the vehicle type must state a length; a typical motorcycle figure is used.
+>
+> *Departure requires: a logged decision*
+
+#### `B.motorbike.pce`
+
+Passenger-car equivalents of one modelled motorbike - it consumes LESS road capacity than a car. This is the field that makes the mode PHYSICAL in the mobsim.
+
+***literature** · status **active** · DECISIONS.md §9.52*
+
+> **Sweep basis.** Austroads and HCM passenger-car-equivalent ranges for motorcycles in urban traffic run from about 0.3 (filtering, uncongested) to 0.75 (no filtering, interrupted flow); no local fleet-mix or filtering observation exists, so the class low-mid value is taken and the published range is swept.
+
+#### `B.motorbike.trip_share`
+
+Share of resident person trips made by motorbike, realised as a PERSON-LEVEL carve: a licensed, car-available adult becomes a motorbike user (their whole day locks to the mode - vehicle continuity is chain-based by nature) with the probability that makes carved persons' trips this share of all trips. Carved FROM car-driver demand, which is where the HTS and census place motorcyclists - so the car comparison folds motorbike back in at fit time (fit.py) and the carve never invents a trip.
+
+***assumed** · status **active** · DECISIONS.md §9.52*
+
+> **Sweep basis.** The default restates the MEASURED census G62 one-method journey-to-work share for the 1,500 core SA1s: 653 of 179,761 journeys = 0.363% by motorbike/scooter (docs/design/mode-individualisation.md). What is ASSUMED is the transfer from a commute share to an all-purpose trip share - the HTS cannot separate motorcycle trips (its data document places them inside Vehicle driver/passenger), so no all-purpose observation exists. The lower bound is zero, which turns the mode off so its whole effect is a sweep member; the upper bound is roughly 3x the commute anchor, spanning the plausible all-purpose range for a mode whose registration share exceeds its trip share.
+
 #### `B.network_factors.distance_band`
 
 Half-width of the distance band used when drawing a destination for the network-factor measurement.
@@ -1377,7 +1407,7 @@ Proposal 6.2 calls this the layer that decides the answer. It is also the layer 
 | `C.scoring.marginal_utility_of_money` | `1.0` | utils_per_AUD | `definition` | - |
 | `C.scoring.marginal_utility_of_traveling` | *(null - unobtained)* | utils_per_hour | `derived` | derived: marginalUtilityOfTraveling[m] = performing - trip_weighted_VOT * beta[ |
 | `C.scoring.mode_constant` | *(null - unobtained)* | utils | `derived` | derived: constant[m] = the C1 alternative-specific constant for the mode m maps |
-| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0, "truck": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
+| `C.scoring.monetary_distance_rate` | `{"car": -0.00018, "ride": -0.00018, "pt": 0.0, "walk": 0.0, "bike": 0.0, "truck": 0.0, "motorbike": 0.0}` | AUD_per_metre | `derived` | derived: a kilometre in a car costs the same kilometre whether you are in the d |
 | `C.scoring.performing_utils_per_h` | `6.0` | utils_per_hour | `literature` | 4 - 8 |
 | `C.scoring.utility_of_line_switch` | *(null - unobtained)* | utils | `derived` | derived: utilityOfLineSwitch = -(C.transfer.penalty_min / 60) * trip_weighted_V |
 | `C.scoring.waiting_pt` | *(null - unobtained)* | utils_per_hour | `derived` | derived: waitingPt = performing - trip_weighted_VOT * beta_wait * marginalUtili |
@@ -2097,7 +2127,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
 | `RUN.qsim.car_vehicle` | `{"length_m": 7.5, "width_m": 1.0, "pce": 1.0}` | metres/metres/passenger_car_equivalents | `definition` | - |
 | `RUN.qsim.end_time_h` | `30` | hours | `definition` | - |
-| `RUN.qsim.main_mode` | `["car", "truck"]` | enum | `definition` | - |
+| `RUN.qsim.main_mode` | `["car", "truck", "motorbike"]` | enum | `definition` | - |
 | `RUN.qsim.snapshot_period` | `00:00:00` | hh:mm:ss | `definition` | - |
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
 | `RUN.qsim.vehicles_source` | `modeVehicleTypesFromVehiclesData` | policy | `definition` | - |
@@ -2109,7 +2139,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
 | `RUN.routing.beeline_distance_factor_bike` | `1.5231` | ratio | `measured` | 1.207 - 1.456 |
 | `RUN.routing.beeline_distance_factor_walk` | `1.6902` | ratio | `measured` | 1.294 - 1.794 |
-| `RUN.routing.network_modes` | `["car", "ride", "truck"]` | enum | `definition` | - |
+| `RUN.routing.network_modes` | `["car", "ride", "truck", "motorbike"]` | enum | `definition` | - |
 | `RUN.routing.teleported_bike_speed_ms` | `4.2` | metres_per_second | `literature` | 3.1 - 5.5 |
 | `RUN.routing.teleported_walk_speed_ms` | `1.25` | metres_per_second | `derived` | derived: the same physical walking speed. MATSim computes a teleported leg as t |
 | `RUN.sample.flow_capacity_factor` | *(null - unobtained)* | share_of_capacity | `derived` | derived: flowCapacityFactor = RUN.sample.fraction, the standard MATSim scaling  |
@@ -2271,7 +2301,7 @@ Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnig
 
 The private modes physically simulated in the mobsim: car, and truck (the freight background layer, 9.49) at B.freight.pce car-equivalents. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY.
 
-***definition** · status **active** · DECISIONS.md §9.49 · MATSim `qsim.mainMode`*
+***definition** · status **active** · DECISIONS.md §9.52 · MATSim `qsim.mainMode`*
 
 #### `RUN.qsim.snapshot_period`
 

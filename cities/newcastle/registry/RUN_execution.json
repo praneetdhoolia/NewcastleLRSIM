@@ -169,13 +169,14 @@
     "RUN.qsim.main_mode": {
       "value": [
         "car",
-        "truck"
+        "truck",
+        "motorbike"
       ],
       "units": "enum",
       "source": "definition",
       "sweep": null,
       "status": "active",
-      "decisions_ref": "9.49",
+      "decisions_ref": "9.52",
       "matsim_param": "qsim.mainMode",
       "description": "The private modes physically simulated in the mobsim: car, and truck (the freight background layer, 9.49) at B.freight.pce car-equivalents. A car passenger is not a second vehicle, so ride is routed on the road network and reads car travel times but consumes NO ROAD CAPACITY."
     },
@@ -361,7 +362,8 @@
       "value": [
         "car",
         "ride",
-        "truck"
+        "truck",
+        "motorbike"
       ],
       "units": "enum",
       "source": "definition",
