@@ -128,11 +128,28 @@ Measured, not assumed. **Six of nine-plus are physically in the mobsim**:
 §4  THE FOUR DIRECTIVE LANES — what each must confront (research first!)
 ═══════════════════════════════════════════════════════════════════════════════
 
+**The exhaustive research the directives asked for is WRITTEN** — read the
+dossiers before re-deriving anything:
+[`design/physical-ride.md`](../design/physical-ride.md) (#48: four
+mechanisms with recorded costs, the re-moding policy question, the
+measurement sequence) and
+[`design/mode-individualisation.md`](../design/mode-individualisation.md)
+(#49/#50: every mode's observed G62 anchor measured, three costed tiers,
+the demographic-observable inventory). The #30 decomposition is measured and
+posted on the issue. What remains before building is the OWNER's mechanism
+and sequencing decisions, plus the dossiers' named probes.
+
 ### 4A — #48: physical ride (FIRST)
 
 The directive's two halves are one fix: a physical-service constraint caps
 ride at what the driver supply can carry, which is also the tuning mechanism
 (modelled 31.05% vs observed 20.60%; occupancy 0.4855 vs 0.3503).
+**Dossier: [`design/physical-ride.md`](../design/physical-ride.md).** Its §5
+sequence: decompose the ×12 realisation gap from `bind1000_25pct`'s events;
+measure the household-pairing ceiling from B2+B1; probe mechanism C (joint
+vehicle plans + a narrow boarding engine on the §9.46 binding) at 1% × 3;
+then bring the owner the mechanism AND the re-moding policy (report the
+non-household-lift gap, or declare a swept unvalidatable allowance).
 
 **On the record, do not rediscover:**
 - socnetsim joint plans: **measured ~10× runtime** and reverted by owner
@@ -168,13 +185,19 @@ are current; task 4.4's plan stands, now elevated).
 
 ### 4C — #30 (re-opened): the sub-1 km walk mass
 
-Measured: 2.5% of trips under 1 km vs >~10% observed; walk 0.71% vs 13.40%;
-modelled walk trips 2.43 km mean vs ~0.7 observed. Scoring (§9.28) and
-placement decay (§9.40) are ALREADY repaired — do not re-fix them. **First
-step is a decomposition, not a fix**: per purpose × LGA, against the held
-HTS distance distributions (C4), find where the sub-1 km mass is lost —
-generation (tours anchor on zone attractors; no corner-shop micro-trips),
-placement, or mode choice.
+**The decomposition is DONE (posted on #30, 20 Aug) and it settles the
+question: the mass is lost in GENERATION.** The §9.49 demand generates 4.45%
+of core weekday legs under 1 km network distance (7.85% under 1.5 km; p5 of
+trip length = 1.08 km) — while observed walk-only alone is 13.40% at a
+~0.7 km mean, so even if every generated short trip walked, walk cannot
+reach its target. Scoring (§9.28), placement decay (§9.40) and mode choice
+are exonerated; of the short trips that DO exist, 52% sit on an observed POI.
+The fix lives in tour/trip generation (a gravity decay matched to a 7–11 km
+mean cannot carry the sub-1 km tail): candidate mechanisms on the issue —
+two-component distance distributions, an intra-zonal trip layer, or
+intermediate-stop generation. Also owed: a citable observed distance-band
+source for the ">~10%" figure (the walk-share argument is the held-data
+lower bound).
 
 ### 4D — #50: demographic-conditional fidelity
 

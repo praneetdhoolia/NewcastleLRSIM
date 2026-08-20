@@ -506,13 +506,13 @@ research-and-discussion BEFORE any build** — the owner asked for exhaustive
 research, and each collides with a recorded cost or data limit that the
 research must confront rather than rediscover.
 
-| # | Task | Issue | What the research must confront |
+| # | Task | Issue | State |
 |---|---|---|---|
-| **4.5.1** | **Physical ride** — every ride trip a passenger physically in a car, no teleportation, share tuned to the observed 20.60% | **#48 — FIRST** | socnetsim measured ~10× and was reverted (the cost to beat); vanilla qsim boards no passengers into private cars; 26.2% lone-person households; non-household lifts have no target; the §9.48 ×12 realisation gap |
-| 4.5.2 | **Modes individualised** — pt split into bus/train/LR/ferry; motorbike + taxi/rideshare distinct | #49 | G62 VERIFIED to carry all of them as observed JTW columns; C1's per-submode ASCs collapse in the MATSim translation (§9.3); HTS `Other` excludes motorcycle; carving modes shrinks car/ride targets |
-| 4.5.3 | **Sub-1 km walk mass** — decompose where it is lost (generation vs placement vs mode choice), then fix | #30 (re-opened) | scoring (§9.28) and placement decay (§9.40) already repaired; measured 2.5% vs >~10% sub-1 km; walk 0.71 vs 13.40 |
-| 4.5.4 | **Demographic-conditional mode fidelity** — inventory observed mode × age/employment cells, measure the model against them | #50 | new observables are constraints, never targets; cell thinness must be stated; the 67/143 split untouched |
-| 4.5.0 | **Sequencing decision (owner)**: relaunch the 4.2.4 base arm before or after 4.5.1–4.5.3 — each directive changes the demand family, so a base run made first is broken by them immediately | #14 | ~35 h per arm; no standing run approval exists |
+| **4.5.1** | **Physical ride** — every ride trip a passenger physically in a car, share tuned to the observed 20.60% | **#48 — FIRST** | 🟡 **research WRITTEN** ([`design/physical-ride.md`](design/physical-ride.md)): four mechanisms with recorded costs (socnetsim ~10×; DVRP probe; joint-vehicle-plans engine on the §9.46 binding; demand-side re-moding). **Open: the owner's mechanism + re-moding policy choice**, then the dossier §5 probes |
+| 4.5.2 | **Modes individualised** — pt split into bus/train/LR/ferry; motorbike + taxi/rideshare distinct | #49 | 🟡 **research WRITTEN** ([`design/mode-individualisation.md`](design/mode-individualisation.md)) with every mode's observed G62 anchor MEASURED (motorbike 0.363% JTW, taxi 0.031%, tram/LR 0.029%, ferry 0.022%, train 0.129%, bus 0.655%; 2021-COVID caveat). Tier R (reporting split, no break) buildable now; Tiers C+P batch with #48's break |
+| 4.5.3 | **Sub-1 km walk mass** | #30 (re-opened) | 🟡 **decomposition MEASURED** (on #30): generation is the loss site — 4.45% of legs under 1 km / 7.85% under 1.5 km against walk-only alone observed at 13.40%; p5 trip length 1.08 km; scoring/placement/mode choice exonerated. Open: the generation mechanism choice + a citable observed distance-band source |
+| 4.5.4 | **Demographic-conditional mode fidelity** | #50 | 🟡 **inventory MEASURED** (dossier §3): held = mode × sex (G62), G46/G54/G60 demographics; **mode × age is NOT held — an acquisition item**. Open: the modelled table from the next valid run + the acquisition |
+| 4.5.0 | **Sequencing decision (owner)**: relaunch the 4.2.4 base arm before or after 4.5.1–4.5.3 — each changes the demand family | #14 | ⬜ ~35 h per arm; no standing run approval exists |
 
 ### P5 — scenario runs (blocked on 4.2)
 
