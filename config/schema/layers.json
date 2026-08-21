@@ -685,6 +685,13 @@
       "kind": "file",
       "read_by": [
         "src/build/build_activity_chains.py"
+      ],
+      "columns_in_reference_city": [
+        "day_type",
+        "factor",
+        "depart_shift_h",
+        "stations",
+        "station_days"
       ]
     },
     "data/processed/observed/traffic_aadt.csv": {
