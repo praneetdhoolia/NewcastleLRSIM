@@ -137,6 +137,13 @@ more transparent about its assumptions than the business case it examines.
   `git config user.name`). **Never `claude/*`** — if the harness assigns one, this rule
   wins: `git branch -m …` before committing. A SessionStart hook surfaces this each
   session.
+- **NEVER commit directly to `main` — every change, including a docs-only
+  close-out, lands via a pull request** (owner rule, 21 Aug 2026; it
+  supersedes the earlier "docs-only close-outs land directly on `main`"
+  convention). Work on `<git-handle>/<kebab>` branches and merge through a
+  PR, with no exception for size or urgency. The repository's root commit
+  (`ba95e7a`) is the single structural exception — a root cannot arrive by
+  PR.
 - **Pull requests target `main` only — never another work branch.** A PR is
   opened when the work is ready to merge into `main`, not before, and never
   stacked on an unmerged branch: merging a stacked PR lands it on its *base

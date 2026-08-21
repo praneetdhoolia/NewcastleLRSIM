@@ -165,11 +165,9 @@ trailers or session links. **One title scheme for every GitHub artefact — issu
 issue cross-refs in parens at the END (e.g. `P4: Add freight as a physical
 truck mode (#24)`), never as prefixes. Banned from titles: "Owner
 directive:", "Audit …:", "P4 handover:", "P4 board:", "Tooling:", DECISIONS
-§-refs. **A PR is not required for every handoff.** Open one
-only when the session changed the model, the data, or the record
-substantively; a documentation-only close-out (board/brief refresh, branch
-cleanup, convention notes) lands as a commit directly on `main`. When a PR
-IS warranted: **one PR, based on `main` — never stacked on an unmerged work
+§-refs. **Every handoff lands via a PR — never a direct commit to `main`** (owner
+rule, 21 Aug 2026; it superseded the earlier docs-only-close-outs-on-main
+convention). **One PR, based on `main` — never stacked on an unmerged work
 branch** (a stacked PR merges into its base branch, not `main`; this
 stranded five PRs on 20 Aug 2026 until a landing PR carried the union), and
 if session work is still unmerged, fold the handover into that same
