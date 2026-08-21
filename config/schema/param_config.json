@@ -42,9 +42,13 @@
           "key_param": "strategyName",
           "repeat_over": {
             "field": "RUN.replanning.subpopulations",
-            "param": "subpopulation"
+            "param": "subpopulation",
+            "restrict": {
+              "field": "RUN.replanning.strategy_subpopulations",
+              "comment": "A dict from set key (strategy name) to the repeat values (subpopulations) that strategy is emitted for. A key absent from the dict is emitted for every repeat value. This is how a strategy can be declared for SOME subpopulations without a second weight table: the membership restriction is a declared value, not an emitter special case."
+            }
           },
-          "comment": "One block per strategy PER SUBPOPULATION. The repeat is declared rather than written out, so adding a subpopulation cannot silently leave one of them with no strategies - which would freeze those agents' plans without any error."
+          "comment": "One block per strategy PER SUBPOPULATION. The repeat is declared rather than written out, so adding a subpopulation cannot silently leave one of them with no strategies - which would freeze those agents' plans without any error. The optional `restrict` clause narrows WHICH subpopulations receive a given strategy."
         },
         "teleportedModeParameters": {
           "key_param": "mode",

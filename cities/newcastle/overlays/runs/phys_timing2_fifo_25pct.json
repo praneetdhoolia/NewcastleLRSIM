@@ -1,0 +1,17 @@
+{
+  "overlay": "phys_timing2_fifo_25pct",
+  "description": "A TIMING probe, not a modelling run: the FIFO control for phys_timing2_base_25pct - identical in every declared value except qsim.linkDynamics, which reverts to MATSim's FIFO default that the all-physical model silently ran under before 9.59. The pair measures what PassingQ (a 1.25 m/s pedestrian no longer holds the head of a shared link's queue against the cars behind it) is worth in wall time; its correctness case stands independently of this number (RUN.qsim.link_dynamics). NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 5,
+    "RUN.machine.threads": 10,
+    "RUN.machine.xmx": "40g",
+    "RUN.qsim.link_dynamics": "FIFO"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the range describes candidate MODELLING runs. This is a wall-clock control measurement. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}

@@ -114,6 +114,16 @@
       "matsim_param": "controler.firstIteration",
       "description": "Start iteration."
     },
+    "RUN.controler.create_graphs": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.59",
+      "matsim_param": "controler.createGraphs",
+      "description": "Whether MATSim renders its per-iteration diagnostic PNGs (mode stats, leg histograms - eight images every iteration). Wall time and disk only, never the model; declared so a long arm's overlay can turn the rendering off instead of paying it a thousand times (9.59)."
+    },
     "RUN.controler.write_events_interval": {
       "value": 10,
       "units": "iterations",
@@ -261,7 +271,20 @@
       "status": "active",
       "decisions_ref": "9.3",
       "matsim_param": "replanning.strategysettings[*].weight",
-      "description": "Replanning strategy weights, applied to both the person and external subpopulations. Properties of the scoring formulation, not observable quantities of Newcastle."
+      "description": "Replanning strategy weights, applied to every subpopulation EXCEPT where RUN.replanning.strategy_subpopulations withholds a strategy (9.58: SubtourModeChoice is person-only - a boundary-tier agent's vehicle class is measured cordon data, not a choice). Properties of the scoring formulation, not observable quantities of Newcastle."
+    },
+    "RUN.replanning.strategy_subpopulations": {
+      "value": {
+        "SubtourModeChoice": [
+          "person"
+        ]
+      },
+      "units": "subpopulation_names_per_strategy",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.58",
+      "description": "Which subpopulations each replanning strategy is emitted for; a strategy absent from this dict goes to all of them. SubtourModeChoice is restricted to `person` because an external or freight agent's mode IS its data: the through tier is seeded from classified cordon vehicle counts (9.41, 9.49), so a through car that innovates into another mode falsifies the count it was built from. MEASURED before this was declared: by iteration 100 of the first all-physical arm, 405 external agents had abandoned car - 451 walk legs, 164 bike, 62 pt, 256 ride - i.e. 40 km boundary crossings on foot, each also wedging at walk-less gate links (9.58). Read by the emitter through the schema's repeat_over.restrict clause, like RUN.replanning.subpopulations."
     },
     "RUN.mode_choice.modes": {
       "value": [
@@ -386,9 +409,42 @@
         24
       ],
       "status": "active",
-      "decisions_ref": "9.5",
-      "matsim_param": "global.numberOfThreads, qsim.numberOfThreads",
-      "description": "Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. It writes to BOTH thread parameters, which is why it is one field and not two: a config whose global and qsim counts disagree partitions differently in replanning and in the mobsim."
+      "decisions_ref": "9.5, 9.59",
+      "matsim_param": "qsim.numberOfThreads",
+      "description": "Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. Until 9.59 this one field wrote global.numberOfThreads too; the pair is now two declared fields because they govern different partitionings (mobsim vs replanning/routing) with different saturation points - the 9.57 arm ran replanning at a median 59 s with 14 of 24 CPUs idle. Each field is run identity in its own right."
+    },
+    "RUN.machine.replanning_threads": {
+      "value": 20,
+      "units": "threads",
+      "source": "definition",
+      "sweep": [
+        1,
+        24
+      ],
+      "status": "active",
+      "decisions_ref": "9.59",
+      "matsim_param": "global.numberOfThreads",
+      "description": "Thread count for replanning, routing and everything else global.numberOfThreads governs. RUN IDENTITY like RUN.machine.threads (per-thread work partitioning changes results); split from it in 9.59 so the replanning pool can be sized to the machine independently of the mobsim's declared partitioning. MEASURED (9.59, 25% x 5 probes on the 9.58 network): 20 threads took replanning from a median 76 s to 33 s and PersonPrepareForSim from ~15 s to ~6 s per iteration against the 10-thread base; the mobsim keeps its own declared 10."
+    },
+    "RUN.machine.events_one_thread_per_handler": {
+      "value": false,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.59",
+      "matsim_param": "eventsManager.oneThreadPerHandler",
+      "description": "Give each registered event handler its own thread instead of sharing RUN.machine.event_handler_threads workers. Declared for the 9.59 timing probes and MEASURED FATAL on the pinned build: the probe crashed mid-run with IllegalStateException '.initProcessing() has to be called before processing events!' - the experimental path 9.56 declined to touch, now known broken rather than merely untried. STAYS FALSE; the value exists so the refusal is recorded where the knob lives, not as an absence."
+    },
+    "RUN.machine.events_synchronize_on_simsteps": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.59",
+      "matsim_param": "eventsManager.synchronizeOnSimSteps",
+      "description": "Whether the qsim waits for the events pipeline at every sim-step. Declared for the 9.59 timing probes and MEASURED A REGRESSION on this model: false swaps the manager implementation and took the it2-4 median mobsim from ~190 s to 255 s at 25%. STAYS TRUE; the value exists so the measured rejection is recorded where the knob lives."
     },
     "RUN.machine.event_handler_threads": {
       "value": 4,
@@ -398,7 +454,7 @@
       "status": "active",
       "decisions_ref": "9.56",
       "matsim_param": "eventsManager.numberOfThreads",
-      "description": "Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync."
+      "description": "Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync. 12 threads were probed on the 9.58 network and bought NOTHING over 4 (it2-4 median mobsim ~190 s either way, 9.59) - 4 stands."
     },
     "RUN.machine.xmx": {
       "value": "14g",
@@ -605,6 +661,16 @@
       "decisions_ref": "15",
       "matsim_param": "qsim.snapshotperiod",
       "description": "Interval between mobsim vehicle-position snapshots. Zero disables them: this study reads movement through RunTelemetry from inside the mobsim and through the event stream, not through snapshot files, which are large and are not part of any result."
+    },
+    "RUN.qsim.link_dynamics": {
+      "value": "PassingQ",
+      "units": "enum",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.59",
+      "matsim_param": "qsim.linkDynamics",
+      "description": "The queue discipline vehicles obey within a link: FIFO (MATSim's default - vehicles exit in entry order), PassingQ (a faster vehicle may overtake within the link), or SeepageQ. The emitted config carried NO value, so the all-physical model ran FIFO by silent default - under which a 1.25 m/s pedestrian at the head of a shared link's queue blocks every car behind it regardless of its PCE 0.0, directly contradicting 9.54's declared semantics ('neither impeding nor impeded by motor traffic': PCE governs capacity arithmetic, not exit order). PassingQ restores the declared semantics - a car overtakes a walker on the carriageway, which is also what a street does - and is the standard setting for multimodal single-network MATSim models. A MODEL CHANGE: part of the 9.58/9.59 family boundary."
     },
     "RUN.qsim.vehicles_source": {
       "value": "modeVehicleTypesFromVehiclesData",

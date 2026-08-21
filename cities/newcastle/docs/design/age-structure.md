@@ -138,7 +138,10 @@ tour-selection priority in
 3. **Students** (D3): per person, from the person's own SA1 row of G01 by age
    group (0–4, 5–14, 15–19, 20–24, 25+; regional fallback as above). Attendees
    under 18 are `full_time` (school is full-time by definition). Attendees 18+
-   split full/part-time by `B.population.tertiary_ft_share` — **assumed and
+   split full/part-time per SA1 from **G15 (observed — the claim that G15 was
+   not in the package was false; it was always inside the GCP zip, and the
+   assumed field it justified is retired, DECISIONS.md 9.61)** — formerly
+   `B.population.tertiary_ft_share`, **assumed and
    swept**, because the table that measures it (G15, full/part-time student
    status by age) is not in the package. Declared in the registry with the
    non-acquisition reason; a G15 harvest is a deliverable-0b candidate, not a

@@ -107,7 +107,10 @@ ATTR_RE = re.compile(r'(\w[\w:]*)="([^"]*)"')
 # Matching only the dotted form silently dropped both from every day type -
 # which would have run S1 with no shuttle and S3 with no BRT, i.e. each
 # scenario without the intervention it exists to test.
-DAY_TOKEN_RE = re.compile(r'(?:^|[.:_])(WEEKDAY|SAT|SUN)(?:[._]|$)')
+# built from the CITY's own day-type vocabulary: a fixed WEEKDAY|SAT|SUN
+# alternation could never recognise another city's trip-id tokens
+DAY_TOKEN_RE = re.compile(r'(?:^|[.:_])(%s)(?:[._]|$)'
+                          % '|'.join(re.escape(d) for d in DAY_TYPES))
 
 # MATSim picks its reader from the doctype, so a schedule written without one
 # cannot be loaded at all - the parser fails at line 2 with a null delegate.
@@ -226,6 +229,13 @@ def split_schedule(src_dir, dst_dir, day, cfg):
     # is published the seated share is assumed and swept and the standing room
     # is derived by identity (tram, rail). Nothing here is observed for
     # Newcastle operations - these are manufacturer and operator figures.
+    # The type ids are pt2matsim's OWN route-type vocabulary (it names the
+    # generic vehicle type for each GTFS route type Bus/Tram/Rail/Ferry), not
+    # this feed's - so the keys are tool structure, not a city value. What
+    # MUST NOT be silent is a type outside the map (a metro, a cable car):
+    # its pt2matsim default capacity would sail through unpatched and leave
+    # crowding inert for that mode - the 9.12 defect class - so unpatched
+    # types are reported by name below.
     FLEET_CAPACITY = {
         'Tram':  ('A.lightrail.capacity_seated', 'A.lightrail.capacity_standing'),
         'Bus':   ('A.transit.bus_capacity_seated', 'A.transit.bus_capacity_standing'),
@@ -233,11 +243,13 @@ def split_schedule(src_dir, dst_dir, day, cfg):
         'Rail':  ('A.transit.rail_capacity_seated', 'A.transit.rail_capacity_standing'),
     }
     patched_types = []
+    unpatched_types = []
     for vt in vroot:
         if tag(vt) != 'vehicleType':
             continue
         keys = FLEET_CAPACITY.get(vt.get('id'))
         if keys is None:
+            unpatched_types.append(vt.get('id'))
             continue
         seated, standing = cfg.get(keys[0]), cfg.get(keys[1])
         for cap in vt:
@@ -257,6 +269,7 @@ def split_schedule(src_dir, dst_dir, day, cfg):
                 routes_kept_under_a_foreign_day_id=mixed_routes,
                 vehicles=kept_veh,
                 vehicle_capacity_patched=patched_types,
+                vehicle_types_unpatched=unpatched_types,
                 vehicle_refs=len(vehicles_used),
                 stop_facilities_kept=kept_fac, stop_facilities_dropped=dropped_fac,
                 transfer_relations_kept=kept_rel,
@@ -513,7 +526,77 @@ def strip_unreachable_mode_links(body, mode, applied):
     return LINK_BLOCK_RE.sub(strip, body)
 
 
-def patch_network(src_net, dst_net, patches, drop_turns, excluded_of_mode):
+NONMOTOR_MODES = ('walk', 'bike')
+LINK_TAG_RE = re.compile(r'<link\b[^>]*>')
+
+
+def add_nonmotor_reverse_links(body, reverse_speed_ms, applied):
+    """A walk/bike reverse complement for every one-way street (9.58).
+
+    MATSim's network is directed, so a one-way carriageway is walkable in one
+    direction only - which is false: a pedestrian walks both sides of every
+    street, and a cyclist dismounts and wheels. Without the complements, the
+    per-mode SCC strip severed 16,726 walk links and 5,177 bike links into
+    unreachable pockets, 6.8% of activities landed on walk-less links, and
+    every walk/bike leg touching one was silently routed from the NEAREST
+    in-network link instead - the qsim then refused the disconnected first
+    hop and ABORTED the agent mid-day (measured: 491,349 refusals over 135
+    iterations, ~11.6k broken legs per iteration at 25%).
+
+    For each node pair (a, b) where some link carries walk or bike and no
+    link (b, a) carries it, ONE reverse link is added carrying exactly the
+    missing non-motor modes: length, capacity and lane count inherited from
+    the forward link (nothing new is decided), free speed = the declared
+    walking speed (`A.transit.walk_speed_ms` - a dismounted cyclist is a
+    pedestrian). Complements carry no osm attributes, so an E1 patch can
+    never touch one, and no car mode, so the motor network is unchanged.
+    Parallel forward links share one complement. Runs BEFORE the SCC strip,
+    which afterwards removes only true islands.
+    """
+    covered = {}           # (from, to) -> set of nonmotor modes carried
+    heads = []             # attr dicts of links carrying a nonmotor mode
+    for m in LINK_TAG_RE.finditer(body):
+        a = dict(ATTR_RE.findall(m.group(0)))
+        if 'id' not in a or 'from' not in a:
+            continue
+        nm = set((a.get('modes') or '').split(',')) & set(NONMOTOR_MODES)
+        if nm:
+            covered.setdefault((a['from'], a['to']), set()).update(nm)
+            heads.append(a)
+    new_links = []
+    index_of = {}          # (to, from) -> index into new_links
+    for a in heads:
+        rev = (a['to'], a['from'])
+        need = sorted((set((a.get('modes') or '').split(','))
+                       & set(NONMOTOR_MODES)) - covered.get(rev, set()))
+        if not need:
+            continue
+        if rev in index_of:
+            merged = index_of[rev]
+            new_links[merged]['modes'] = sorted(set(new_links[merged]['modes'])
+                                                | set(need))
+        else:
+            index_of[rev] = len(new_links)
+            new_links.append(dict(id='nmr_%s' % a['id'], frm=a['to'],
+                                  to=a['from'], length=a['length'],
+                                  capacity=a['capacity'],
+                                  permlanes=a['permlanes'], modes=need))
+        covered.setdefault(rev, set()).update(need)
+    if not new_links:
+        return body
+    parts = ['<link id="%s" from="%s" to="%s" length="%s" freespeed="%.4f" '
+             'capacity="%s" permlanes="%s" oneway="1" modes="%s" />'
+             % (L['id'], L['frm'], L['to'], L['length'],
+                float(reverse_speed_ms), L['capacity'], L['permlanes'],
+                ','.join(L['modes']))
+             for L in new_links]
+    applied['nonmotor_reverse_links'] = len(new_links)
+    return body.replace('</links>',
+                        '\t\t' + '\n\t\t'.join(parts) + '\n\t</links>', 1)
+
+
+def patch_network(src_net, dst_net, patches, drop_turns, excluded_of_mode,
+                  reverse_speed_ms):
     """Re-apply an E1 road variant to a mapped schedule network by osm:way:id."""
     with gzip.open(src_net, 'rt', encoding='utf-8') as f:
         xml = f.read()
@@ -572,6 +655,7 @@ def patch_network(src_net, dst_net, patches, drop_turns, excluded_of_mode):
         return head + tail
 
     body = LINK_BLOCK_RE.sub(patch_link, xml)
+    body = add_nonmotor_reverse_links(body, reverse_speed_ms, applied)
     for mode in excluded_of_mode:
         body = strip_unreachable_mode_links(body, mode, applied)
     os.makedirs(os.path.dirname(dst_net), exist_ok=True)
@@ -974,7 +1058,8 @@ def main(day_types=None, scenarios=None, set_overrides=None):
         drop = road_variants.get(ref, {}).get('banned_turn_movements') == '0'
         net_dst = os.path.join(OUT, sid, 'network.xml.gz')
         touched = patch_network(os.path.join(sched_dir, 'network.xml.gz'),
-                                net_dst, pat, drop, excluded_of_mode)
+                                net_dst, pat, drop, excluded_of_mode,
+                                base_cfg.get('A.transit.walk_speed_ms'))
         price_dst = os.path.join(OUT, sid, PARK_PRICE_FILE)
         parking = write_parking_prices(net_dst, price_dst)
         entry = dict(road_variant=ref, patch_rows=len(pat),

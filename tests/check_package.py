@@ -593,12 +593,17 @@ else:
         # an 'escorted' destination is a COPY of another household member's
         # drawn destination (DECISIONS.md 9.46) - it inherits that trip's
         # placement rather than drawing one, so the observed-attractor share
-        # is asserted over the placements actually drawn. Freight placements
-        # are a zone-level background draw BY DESIGN (DECISIONS.md 9.49) -
-        # no observed layer locates a freight destination - so they are
-        # outside this assertion the same way escorted copies are.
+        # is asserted over the placements actually drawn. The 9.60 lift
+        # placements ('lift_pickup', 'lift_serve') are copies of the served
+        # passenger's own origin and destination in exactly the same sense.
+        # Freight placements are a zone-level background draw BY DESIGN
+        # (DECISIONS.md 9.49) - no observed layer locates a freight
+        # destination - so they are outside this assertion the same way
+        # escorted copies are.
         drawn = (sum(placement.values()) - placement.get('home', 0)
-                 - placement.get('escorted', 0) - placement.get('freight', 0))
+                 - placement.get('escorted', 0) - placement.get('freight', 0)
+                 - placement.get('lift_pickup', 0)
+                 - placement.get('lift_serve', 0))
         share_poi = placement.get('poi', 0) / max(drawn, 1)
         check(share_poi > 0.85,
               '%s: %.1f%% of drawn activity ends sit on an observed attractor'
@@ -1028,13 +1033,18 @@ if os.path.exists(CHAIN_REPORT):
         return (isinstance(v, (list, tuple)) and len(v) == 2
                 and all(x is not None for x in v) and v[0] != v[1])
 
-    for key in ('sat_to_sun_sweep', 'p_mandatory_work_sweep',
+    # sat_to_sun left this list when 9.61 measured it from the classified
+    # hourly counts - a measured value carries a source, not a sweep
+    for key in ('p_mandatory_work_sweep',
                 'p_mandatory_education_sweep', 'p_intermediate_sweep',
                 'p_second_stop_sweep', 'child_tour_retention_sweep',
                 'external_interaction_sweep', 'detour_sweep'):
         check(has_range(crep2.get(key)),
               'B2 assumed value carries a sweep range: %s = %s'
               % (key, crep2.get(key)))
+    check('measured' in str(crep2.get('sat_to_sun_source', '')),
+          'B2 SAT:SUN split records its measured source (9.61): %s'
+          % crep2.get('sat_to_sun_source'))
     for key in ('day_purpose_mix_sweep', 'act_duration_sweep'):
         v = crep2.get(key)
         check(isinstance(v, (int, float)) and v > 0,

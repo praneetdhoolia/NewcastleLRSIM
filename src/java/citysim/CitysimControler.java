@@ -103,6 +103,13 @@ public final class CitysimControler {
         }
         final org.matsim.api.core.v01.Scenario scenario =
                 ScenarioUtils.loadScenario(config);
+        // Every activity is pinned to a link its person can actually use
+        // BEFORE the Controler exists (DECISIONS.md 9.58): the router starts a
+        // leg at the nearest link of the leg's mode while the qsim inserts the
+        // vehicle at the activity's link, and with accessEgressType=none that
+        // disagreement wedged ~11.6k walk/bike legs per iteration at a
+        // disconnected first hop, aborting the agents mid-day.
+        ActivityLinkAssigner.run(scenario);
         final Controler controler = new Controler(scenario);
         controler.addOverridingModule(new AbstractModule() {
             @Override

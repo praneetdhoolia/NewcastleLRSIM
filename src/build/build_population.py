@@ -54,9 +54,29 @@ BAND_LABEL = ['0-4', '5-11', '12-17', '18-24', '25-34', '35-44',
 # NSW driver-licence holding rate by age band (assumed; ABS/TfNSW-typical)
 LICENCE_RATE = CFG.get('B.population.licence_rate_by_age_band')
 # Of 18+ education attendees (G01, observed), the share studying full time -
-# the ones who draw a mandatory HE tour. Assumed and swept: the table that
-# would measure it (G15) is not in the package (age-structure dossier 5).
-TERTIARY_FT = CFG.get('B.population.tertiary_ft_share')
+# the ones who draw a mandatory HE tour. MEASURED per SA1 from G15 (the claim
+# that G15 "is not in the package" was FALSE - it always was, inside the GCP
+# zip; DECISIONS.md 9.61): full-time / (full-time + part-time) tertiary
+# attendees (Voc + Uni combined), G15's own 15_24 / 25_ov bands standing for
+# 18_24 / 25_ov (under-18 attendees are decided by the age<18 school rule
+# before this split reaches them). `F_Pt_ns` (not stated) is excluded from
+# both sides; an SA1 with an empty cell falls back to the core-wide share.
+# This replaced the assumed B.population.tertiary_ft_share.
+def _tertiary_ft_by_sa1():
+    g15 = rd('census2021_G15_SA1.csv')
+    key = [c for c in g15.columns if c.upper().startswith('SA1_CODE')][0]
+    out, agg = {}, {}
+    for band, tag in (('18_24', '15_24'), ('25_ov', '25_ov')):
+        ft = (g15['Tert_Voc_edu_Ft_%s_P' % tag]
+              + g15['Tert_Uni_oth_h_edu_Ft_%s_P' % tag]).to_numpy(dtype=float)
+        pt = (g15['Tert_Voc_edu_Pt_%s_P' % tag]
+              + g15['Tert_Uni_oth_h_edu_Pt_%s_P' % tag]).to_numpy(dtype=float)
+        tot = ft + pt
+        agg[band] = float(ft.sum() / tot.sum())
+        for code, f, t in zip(g15[key].astype(str), ft, tot):
+            if t > 0:
+                out.setdefault(code, {})[band] = float(f / t)
+    return out, agg
 OCCUPATIONS = ['Managers', 'Professionals', 'TechnicTrades_Wrs', 'CommunPersnlSvc_W',
                'ClericalAdminis_W', 'Sales_W', 'Mach_oper_drivers', 'Labourers']
 INCOME_BANDS = ['Neg_Nil', '1_149', '150_299', '300_399', '400_499', '500_649',
@@ -73,6 +93,9 @@ def norm(a):
     a = np.where(np.isfinite(a) & (a > 0), a, 0.0)
     s = a.sum()
     return a / s if s > 0 else np.full(len(a), 1.0 / len(a))
+
+
+TERTIARY_FT_SA1, TERTIARY_FT_CORE = _tertiary_ft_by_sa1()
 
 
 def load_marginals():
@@ -429,9 +452,10 @@ def main(seed=None, sample=None, max_sa1=None):
                     if age < 18:
                         student = 'full_time'
                     else:
-                        student = ('full_time'
-                                   if rng.random() < TERTIARY_FT[
-                                       '18_24' if age <= 24 else '25_ov']
+                        band_key = '18_24' if age <= 24 else '25_ov'
+                        share = TERTIARY_FT_SA1.get(str(sa1), {}).get(
+                            band_key, TERTIARY_FT_CORE[band_key])
+                        student = ('full_time' if rng.random() < share
                                    else 'part_time')
                 else:
                     student = 'none'

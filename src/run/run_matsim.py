@@ -354,7 +354,12 @@ def run(scenario, day, cfg, overrides, tag=None, force=False):
     snapshot = cfg.write_snapshot(os.path.join(run_dir, '_config.json'))
     log = os.path.join(run_dir, 'matsim.log')
     classpath = os.pathsep.join([JAR, CLASSES])
-    cmd = [JAVA, '-Xmx%s' % xmx, '-XX:+UseParallelGC', '-cp', classpath, MAIN, config_path]
+    # -Xms equal to -Xmx: the 9.57 arm grew the heap 7 -> 27 GB across the run
+    # with full-GC stalls visible during the it-110 routing pathology; a
+    # pre-sized heap removes the growth path. Wall-time only - the JVM heap
+    # schedule cannot change a model output.
+    cmd = [JAVA, '-Xms%s' % xmx, '-Xmx%s' % xmx, '-XX:+UseParallelGC',
+           '-cp', classpath, MAIN, config_path]
     # The live view, announced before MATSim starts so the url is on screen for
     # the whole run rather than after it. It reads the run directory and never
     # writes to it.
@@ -409,8 +414,14 @@ def parse_override(s):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--scenario', default='S2')
-    ap.add_argument('--day', default='WEEKDAY', choices=['WEEKDAY', 'SAT', 'SUN'])
+    # the scenario default and day vocabulary come from city.json - a CLI
+    # that hardwired one city's S2/WEEKDAY rejected another city's declared
+    # day types outright
+    _desc = city.descriptor()
+    ap.add_argument('--scenario',
+                    default=_desc['intervention']['base_scenario'])
+    ap.add_argument('--day', default=list(_desc['day_types'])[0],
+                    choices=list(_desc['day_types']))
     ap.add_argument('--run-config', metavar='TAG',
                     help='a committed overlay under config/runs/<TAG>.json - the '
                          'reproducible way to vary a run')

@@ -107,12 +107,32 @@ ACT_TYPE = {'HW': 'work', 'HE': 'education', 'HS': 'shopping',
 # them (0.752 over 551 station-years) and it is loaded here, so the weekday
 # against weekend split is **observed Newcastle data**, not an assumption.
 #
-# What the counts cannot settle is how the weekend divides between Saturday and
-# Sunday: they report one WEEKENDS figure. That ratio alone stays assumed, and
-# is swept. The absolute level is not free either - the shape is rescaled so
-# 5xWEEKDAY + SAT + SUN reproduces the HTS week average exactly.
-SAT_TO_SUN_RATE = CFG.get('B.activity.sat_to_sun_rate')
-SAT_TO_SUN_SWEEP = (1.00, 1.45)
+# What the AADT station-year aggregates cannot settle - how the weekend
+# divides between Saturday and Sunday (one WEEKENDS figure) - the HOURLY
+# permanent-station file can: it carries day-of-week per dated row. The split,
+# the external tier's weekend scaling and the weekend departure shift are all
+# MEASURED from it by extract_daytype_factors.py (DECISIONS.md 9.61, the
+# method extract_freight_profile.py proved), which retired the three assumed
+# fields that stood in for them. The absolute level is not free either - the
+# shape is rescaled so 5xWEEKDAY + SAT + SUN reproduces the HTS week average
+# exactly.
+LIGHT_DAY_FACTORS = _city.path('data/processed/observed/light_day_factors.csv')
+
+
+def _light_day_factors():
+    if not os.path.exists(LIGHT_DAY_FACTORS):
+        raise SystemExit(
+            '%s missing - run cities/<city>/extract/extract_daytype_factors.py:'
+            ' the SAT:SUN split, the external weekend scaling and the weekend '
+            'departure shift are MEASURED quantities (DECISIONS.md 9.61), and '
+            'this build refuses to assume them' % LIGHT_DAY_FACTORS)
+    with open(LIGHT_DAY_FACTORS, encoding='utf-8') as fh:
+        return {r['day_type']: r for r in csv.DictReader(fh)}
+
+
+_LIGHT_DAY = _light_day_factors()
+SAT_TO_SUN_RATE = (float(_LIGHT_DAY['SAT']['factor'])
+                   / float(_LIGHT_DAY['SUN']['factor']))
 
 # How the purpose mix shifts by day type, as a multiplier on the weekday rate
 # for that purpose. Commute and education collapse at the weekend; shopping and
@@ -157,6 +177,13 @@ ESCORT_SCOPE = CFG.get('B.activity.escort_binding_scope')
 # Two bindings for the same escorter must sit at least this far apart, so the
 # driver can physically make both runs. Assumed and swept.
 ESCORT_MIN_GAP_S = CFG.get('B.activity.escort_binding_min_gap_s')
+# DECISIONS.md 9.60: whether an HX tour that found NO household trip to bind
+# to may be re-targeted to serve a NON-household passenger - a person whose
+# household holds no other licence, whom household pairing can never serve.
+# 'household_only' switches the second pass off (restores 9.46 exactly);
+# 'same_zone' binds within the shared home zone. Assumed and swept: nothing
+# observes who-drives-whom, so the matching scope is declared, never implied.
+ESCORT_NONHH_SCOPE = CFG.get('B.activity.escort_binding_nonhh_scope')
 # Share of an under-12's drawn secondary tours that are actually made alone.
 # Applied as per-tour thinning, not as a scaling of the count.
 CHILD_TOUR_RETENTION = CFG.get('B.activity.child_tour_retention')
@@ -191,12 +218,25 @@ DURATION_CV = CFG.get('B.activity.duration_cv')
 # The day closes. Chains are compressed rather than allowed to run past this.
 DAY_HORIZON_S = CFG.get('B.activity.day_horizon_s')
 
+# Door-to-door PLANNING speeds and per-leg access overhead for the chain
+# scaffold (9.61): they decide whether tours fit a day and how planned
+# departures space out - the mobsim re-times every leg physically. They sat
+# as bare literals inside time_tour's expressions, where the ledger's
+# scanner structurally cannot see a value; declared now like everything else
+# that decides anything.
+PLAN_SPEED_CAR_KMH = CFG.get('B.activity.plan_speed_car_kmh')
+PLAN_SPEED_NOCAR_KMH = CFG.get('B.activity.plan_speed_nocar_kmh')
+PLAN_ACCESS_S = CFG.get('B.activity.plan_access_s')
+
 # Departure-time profiles by purpose, probability by hour 0..23 (carried from
-# P1, DECISIONS 9; assumed, NSW-typical shapes). Weekend tours start later; the
-# shift is applied as a whole-profile roll, and is assumed.
+# P1, DECISIONS 9; assumed, NSW-typical shapes). Weekend tours start later;
+# the shift is applied as a whole-profile roll, and is MEASURED (9.61): the
+# integer-hour circular shift of each weekend day's observed light-vehicle
+# hourly profile that best matches the weekday profile.
 DEPART = dict(CFG.get('B.activity.departure_profile'))
 DEPART['HX'] = DEPART['HE']
-WEEKEND_DEPARTURE_SHIFT_H = CFG.get('B.activity.weekend_departure_shift_h')
+WEEKEND_DEPARTURE_SHIFT_H = {d: int(r['depart_shift_h'])
+                             for d, r in _LIGHT_DAY.items()}
 
 # POI categories that are street furniture rather than somewhere anyone travels
 # to. Without this, 5,628 parking spaces and 652 benches would out-vote every
@@ -456,15 +496,18 @@ def load_network_factors():
         DETOUR_FACTOR = float(d['value'])
         DETOUR_SWEEP = tuple(d['sweep'])
         DETOUR_SOURCE = d['source']
-        # weekend/weekday is observed; the split inside the weekend is not
+        # weekend/weekday level from the C2 station-year aggregates; the
+        # split inside the weekend from the hourly file (9.61) - both
+        # measured now
         ratio = float(c2['day_type']['weekend_to_weekday'])
         sun = 2.0 * ratio / (SAT_TO_SUN_RATE + 1.0)
         shape = {'WEEKDAY': 1.0, 'SAT': sun * SAT_TO_SUN_RATE, 'SUN': sun}
-        shape_source = ('measured weekend/weekday from RMS traffic counts '
-                        '(%.4f over %d station-years); the Saturday:Sunday '
-                        'split within the weekend is assumed %.4f, swept %s'
+        shape_source = ('measured: weekend/weekday %.4f from RMS traffic '
+                        'counts (%d station-years, C2), Saturday:Sunday '
+                        'split %.4f from the classified hourly file '
+                        '(light_day_factors.csv, 9.61)'
                         % (ratio, c2['day_type']['station_years'],
-                           SAT_TO_SUN_RATE, list(SAT_TO_SUN_SWEEP)))
+                           SAT_TO_SUN_RATE))
         att = float(c2['work_attendance']['census_day_attendance'])
         P_MANDATORY_WORK_SWEEP = (att, P_MANDATORY_WORK_SWEEP[1])
     return shape, shape_source
@@ -649,14 +692,14 @@ def time_tour(spec, t_start, person, hx, hy, hz, SA1):
     No draw happens here, so the same spec can be re-timed when the timeline
     pushes it, without perturbing the random stream.
     """
-    spd = 26.0 if person['cav'] else 16.0
+    spd = PLAN_SPEED_CAR_KMH if person['cav'] else PLAN_SPEED_NOCAR_KMH
     cur_x, cur_y, cur_z, cur_act = hx, hy, hz, 'home'
     t = t_start
     pending = []
     for idx, (hint, k, dx, dy, how) in enumerate(spec['chain']):
         act = ACT_OF_PURPOSE[hint]
         dist_km = math.hypot(dx - cur_x, dy - cur_y) / 1000.0
-        tt = int(dist_km / spd * 3600) + 240
+        tt = int(dist_km / spd * 3600) + PLAN_ACCESS_S
         arr = t + tt
         dur = spec['durs'][idx]
         pending.append(dict(
@@ -669,7 +712,7 @@ def time_tour(spec, t_start, person, hx, hy, hz, SA1):
         cur_x, cur_y, cur_z, cur_act = dx, dy, k, act
         t = arr + dur
     dist_km = math.hypot(hx - cur_x, hy - cur_y) / 1000.0
-    tt = int(dist_km / spd * 3600) + 240
+    tt = int(dist_km / spd * 3600) + PLAN_ACCESS_S
     arr_home = t + tt
     pending.append(dict(
         purpose=leg_purpose(cur_act, 'home'), dest_activity_type='home',
@@ -858,6 +901,190 @@ def bind_escort_tours(n_hx, candidates, claimed):
 
 
 
+def bind_nonhousehold_lifts(path, day, pctx, zi, SA1):
+    """Re-target unbound HX tours to passengers no household driver can serve.
+
+    DECISIONS.md 9.60, the second pass of the 9.46 binder. An unbound escort
+    tour is a driver serving NOBODY - the observed Serve-passenger rate
+    generated it, the household binder found no member trip for it, and it
+    drives to a drawn attractor alone. This pass re-targets it, within the
+    declared scope, to an anchor trip of a person in a DRIVERLESS household
+    (no other licensed member - the class household pairing can never reach):
+    the tour becomes home_d -> passenger origin (pickup) -> passenger
+    destination (drop) -> home_d, with the serving leg's departure taken from
+    the passenger's own EXACTLY, so the runtime pairing's declared rule and
+    window match it like any household pair. ADDS NO TOUR and no trip: the
+    driver supply is the observed rate, re-aimed.
+
+    Deterministic - no draw. Passengers rank as the household binder ranks
+    (unlicensed education first); both sides traverse in sorted (zone,
+    person, tour) order. A re-timed tour that would collide with the driver's
+    other tours, start before the day, or cross the issue-#37 cap is SKIPPED
+    and the original unbound tour kept - a binding must never break a day
+    that already works. Timing goes through time_tour twice (offset probe,
+    then pinned), so no speed or overhead constant is restated here.
+
+    Writes `B2_lift_bindings_<day>.csv` beside the trips file: the driver a
+    bound passenger may pair with, consumed by build_matsim_plans.py as the
+    `liftHousehold` person attribute (and by nothing else - the binding is an
+    eligibility for the declared pairing, not a guarantee of a ride).
+    """
+    out = dict(enabled=ESCORT_NONHH_SCOPE != 'household_only',
+               scope=ESCORT_NONHH_SCOPE, drivers_unbound=0,
+               passenger_candidates=0, bound=0, skipped_infeasible=0)
+    if not out['enabled'] or not ESCORT_BINDING:
+        return out
+    with open(path, encoding='utf-8') as fh:
+        rows = list(csv.DictReader(fh))
+
+    rows_of = collections.defaultdict(list)   # person_id -> row indexes
+    for ix, r in enumerate(rows):
+        if r['agent_tier'] == 'core':
+            rows_of[r['person_id']].append(ix)
+
+    drivers = []      # (home_sa1, person_id, tour_id)
+    passengers = []   # (pri, home_sa1, person_id, tour_id, anchor row index)
+    for person_id, ixs in rows_of.items():
+        ctx = pctx.get(person_id)
+        if ctx is None:
+            continue
+        for ix in ixs:
+            r = rows[ix]
+            if r['is_tour_anchor'] != '1':
+                continue
+            if (r['tour_purpose'] == 'HX'
+                    and r['dest_placement'] in ('poi', 'jitter')
+                    and ctx['licence']):
+                drivers.append((ctx['sa1'], person_id, r['tour_id']))
+            elif (r['tour_purpose'] != 'HX' and not ctx['has_other_driver']):
+                pri = (0 if not ctx['licence'] and r['tour_purpose'] == 'HE'
+                       else 1 if not ctx['licence']
+                       else 2 if r['tour_purpose'] == 'HE' else 3)
+                passengers.append((pri, ctx['sa1'], person_id,
+                                   int(r['tour_id']), ix))
+    out['drivers_unbound'] = len(drivers)
+    out['passenger_candidates'] = len(passengers)
+
+    by_zone = collections.defaultdict(list)
+    for d_sa1, d_pid, d_tid in sorted(drivers,
+                                      key=lambda t: (t[0], int(t[1]), int(t[2]))):
+        by_zone[d_sa1].append((d_pid, d_tid))
+    used = set()
+    bindings = []
+    replaced = {}                 # (driver_pid, tour_id) -> new leg rows
+    for pri, sa1, p_pid, p_tid, ix in sorted(
+            passengers, key=lambda t: (t[0], t[1], int(t[2]), t[3])):
+        anchor = rows[ix]
+        dep_p = int(anchor['dep_time_s'])
+        for d_pid, d_tid in by_zone.get(sa1, ()):
+            if (d_pid, d_tid) in used:
+                continue
+            ctx_d = pctx[d_pid]
+            k_o = zi.get(anchor['origin_sa1'])
+            k_d = zi.get(anchor['dest_sa1'])
+            if k_o is None or k_d is None:
+                continue
+            spec = dict(purpose='HX', chain=[
+                ('HX', k_o, float(anchor['origin_x']),
+                 float(anchor['origin_y']), 'lift_pickup'),
+                ('HX', k_d, float(anchor['dest_x']),
+                 float(anchor['dest_y']), 'lift_serve')],
+                durs=[300, 300])
+            person_d = dict(cav=ctx_d['cav'])
+            probe, _ = time_tour(spec, 0, person_d, ctx_d['hx'], ctx_d['hy'],
+                                 ctx_d['hz'], SA1)
+            t_start = dep_p - int(probe[1]['dep_time_s'])
+            if t_start < 0:
+                continue
+            legs, arr_home = time_tour(spec, t_start, person_d, ctx_d['hx'],
+                                       ctx_d['hy'], ctx_d['hz'], SA1)
+            if arr_home > DAY_HORIZON_S:
+                continue
+            # the driver's other tours are already placed and immovable here
+            other = [rows[j] for j in rows_of[d_pid]
+                     if rows[j]['tour_id'] != d_tid]
+            busy = collections.defaultdict(lambda: [float('inf'), 0])
+            for r in other:
+                iv = busy[r['tour_id']]
+                iv[0] = min(iv[0], int(r['dep_time_s']))
+                iv[1] = max(iv[1], int(r['arr_time_s']))
+            if any(t_start < e + 600 and arr_home > s - 600
+                   for s, e in busy.values()):
+                out['skipped_infeasible'] += 1
+                continue
+            tail_s = DAY_HORIZON_S - 24 * 3600
+            early = any(int(r['dep_time_s']) < tail_s for r in other)
+            if early and t_start >= 24 * 3600:
+                out['skipped_infeasible'] += 1
+                continue
+            used.add((d_pid, d_tid))
+            new_rows = []
+            for leg in legs:
+                leg = dict(leg)
+                leg['person_id'] = d_pid
+                leg['day_type'] = day
+                leg['tour_id'] = d_tid
+                leg['tour_purpose'] = 'HX'
+                leg['party_size'] = 1
+                leg['agent_tier'] = 'core'
+                leg['time_flexibility_band'] = 'fixed'
+                for c in ('origin_x', 'origin_y', 'dest_x', 'dest_y'):
+                    leg[c] = round(float(leg[c]), 1)
+                leg['straight_dist_km'] = round(leg['straight_dist_km'], 3)
+                new_rows.append(leg)
+            replaced[(d_pid, d_tid)] = new_rows
+            bindings.append(dict(
+                passenger_person_id=p_pid, passenger_tour_id=p_tid,
+                passenger_dep_s=dep_p, priority=pri,
+                origin_x=anchor['origin_x'], origin_y=anchor['origin_y'],
+                dest_x=anchor['dest_x'], dest_y=anchor['dest_y'],
+                driver_person_id=d_pid,
+                driver_household_id=pctx[d_pid]['hid'],
+                driver_tour_id=d_tid))
+            out['bound'] += 1
+            break
+
+    if replaced:
+        # splice: each affected driver's day is re-sequenced chronologically
+        by_person = collections.defaultdict(list)
+        for ix, r in enumerate(rows):
+            by_person[r['person_id']].append(r)
+        for (d_pid, d_tid), new_rows in replaced.items():
+            day_rows = [r for r in by_person[d_pid] if r['tour_id'] != d_tid]
+            day_rows += new_rows
+            day_rows.sort(key=lambda r: (int(r['dep_time_s']),
+                                         int(r['tour_id'])))
+            for seq, r in enumerate(day_rows, start=1):
+                r['trip_seq'] = seq
+            by_person[d_pid] = day_rows
+        seen = set()
+        with open(path, 'w', newline='', encoding='utf-8') as fh:
+            w = csv.DictWriter(fh, fieldnames=COLUMNS, extrasaction='ignore',
+                               lineterminator='\n')
+            w.writeheader()
+            for r in rows:
+                p = r['person_id']
+                if p in seen:
+                    continue
+                seen.add(p)
+                for row in by_person[p]:
+                    w.writerow(row)
+
+    bpath = os.path.join(OUT, 'B2_lift_bindings_%s.csv' % day)
+    with open(bpath, 'w', newline='', encoding='utf-8') as fh:
+        w = csv.DictWriter(fh, fieldnames=[
+            'passenger_person_id', 'passenger_tour_id', 'passenger_dep_s',
+            'priority', 'origin_x', 'origin_y', 'dest_x', 'dest_y',
+            'driver_person_id', 'driver_household_id', 'driver_tour_id'],
+            lineterminator='\n')
+        w.writeheader()
+        for b in sorted(bindings,
+                        key=lambda b: (int(b['passenger_person_id']),
+                                       b['passenger_tour_id'])):
+            w.writerow(b)
+    return out
+
+
 # ---------------------------------------------------------------------------
 # External boundary demand
 #
@@ -878,7 +1105,11 @@ def bind_escort_tours(n_hx, candidates, claimed):
 # estimate it from.
 EXTERNAL_INTERACTION_RATE = CFG.get('B.external.interaction_rate')
 EXTERNAL_INTERACTION_SWEEP = (0.04, 0.15)
-EXTERNAL_DAY_FACTOR = CFG.get('B.external.day_factor')
+# MEASURED (9.61): the external tier scales with the observed light-vehicle
+# day factor - the same quantity, from the same counts, that the freight
+# tier's own day factor comes from (9.49). Replaced the assumed
+# B.external.day_factor.
+EXTERNAL_DAY_FACTOR = {d: float(r['factor']) for d, r in _LIGHT_DAY.items()}
 EXTERNAL_PURPOSE_SPLIT = CFG.get('B.external.purpose_split')
 EXTERNAL_PERSON_ID_BASE = CFG.get('B.external.person_id_base')
 CORDON_ROAD_CLASSES = frozenset(CFG.get('B.external.cordon_road_classes'))
@@ -940,7 +1171,7 @@ def cordon_nodes(ext):
     distance to the study-area boundary instead would pick up the coastline,
     which is a boundary but not a crossing.
 
-    Returns (node_x, node_y) for the cordon set, in EPSG:28356.
+    Returns (node_x, node_y) for the cordon set, in the city CRS.
     """
     xs, ys = [], []
     seen = set()
@@ -956,7 +1187,7 @@ def cordon_nodes(ext):
                 xs.append(float(lo))
                 ys.append(float(la))
     import pyproj
-    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    tf = pyproj.Transformer.from_crs('EPSG:4326', _city.crs(), always_xy=True)
     nx, ny = tf.transform(np.asarray(xs), np.asarray(ys))
     nx = np.asarray(nx, dtype=float)
     ny = np.asarray(ny, dtype=float)
@@ -1031,7 +1262,7 @@ def external_agents(zones, core, decay, u, day, seq_base, store, cordon):
             t0 = draw_hour(DEPART[purpose], WEEKEND_DEPARTURE_SHIFT_H[day],
                            u) * 3600 + int(3600 * u())
             # in-network now, so the same seed-plan speed the core tours use
-            tt = int(dist_km / 26.0 * 3600) + 240
+            tt = int(dist_km / PLAN_SPEED_CAR_KMH * 3600) + PLAN_ACCESS_S
             arr = t0 + tt
             dur = int(max(1800, ACT_DURATION[purpose] * 60
                           * (1.0 + DURATION_CV * (2.0 * u() - 1.0))))
@@ -1085,7 +1316,7 @@ def through_gates():
     road within THROUGH_CORRIDOR_KM of each other collapse to the
     highest-volume one (two carriageways are one corridor).
 
-    Returns a list of dicts: x, y (EPSG:28356, the inside endpoint), volume
+    Returns a list of dicts: x, y (city CRS, the inside endpoint), volume
     (veh/weekday, both directions), road, station_key, station_name.
     """
     import geopandas as gpd
@@ -1101,7 +1332,7 @@ def through_gates():
     if 'zone_tier' in lga.columns:
         lga = lga[lga.zone_tier == 'core']
     diss = lga.to_crs(_city.crs()).geometry.union_all()
-    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    tf = pyproj.Transformer.from_crs('EPSG:4326', _city.crs(), always_xy=True)
     sxe, sye = tf.transform(edges.start_lon.to_numpy(dtype=float),
                             edges.start_lat.to_numpy(dtype=float))
     exe, eye = tf.transform(edges.end_lon.to_numpy(dtype=float),
@@ -1276,7 +1507,7 @@ def through_agents(gates, u, day, seq_base, freight_profile, freight_factor):
                     # through CAR traffic has no observed profile of its own
                     # (DECISIONS.md 9.41)
                     t0 = draw_hour(DEPART['HO'], shift, u) * 3600 + int(3600 * u())
-                tt = int(dist_km / 26.0 * 3600) + 240
+                tt = int(dist_km / PLAN_SPEED_CAR_KMH * 3600) + PLAN_ACCESS_S
                 legs.append(dict(person_id=pid, day_type=day, tour_id=1,
                                  trip_seq=1, party_size=1, tour_purpose=kind,
                                  agent_tier=('freight' if is_truck else 'through'),
@@ -1372,7 +1603,7 @@ def freight_agents(core, u, day, seq_base, n_light_trips, car_share,
         dx, dy = jitter(k1)
         dist_km = math.hypot(dx - ox, dy - oy) / 1000.0
         t0 = draw_freight_hour(freight_profile, day, u) * 3600 + int(3600 * u())
-        tt = int(dist_km / 26.0 * 3600) + 240
+        tt = int(dist_km / PLAN_SPEED_CAR_KMH * 3600) + PLAN_ACCESS_S
         legs.append(dict(person_id=pid, day_type=day, tour_id=1, trip_seq=1,
                          party_size=1, tour_purpose='freight',
                          agent_tier='freight',
@@ -1559,6 +1790,26 @@ def main(seed=SEED, max_persons=None, day_types=None):
             hh_order.append(h)
         hh_members[h].append(i)
 
+    # person context for the 9.60 non-household lift binder, keyed by the
+    # STRING person id the trips CSV carries. `has_other_driver` marks the
+    # class household pairing can reach; its complement is the lift pass's
+    # passenger pool.
+    hh_licences = collections.Counter()
+    for i in range(n_persons):
+        if lic[i]:
+            hh_licences[int(hid[i])] += 1
+    pctx = {}
+    for i in range(n_persons):
+        hxy = home.get(hid[i])
+        hz_i = zi.get(hsa[i])
+        if hxy is None or hz_i is None:
+            continue
+        others = hh_licences[int(hid[i])] - (1 if lic[i] else 0)
+        pctx[str(pid[i])] = dict(
+            licence=bool(lic[i]), cav=bool(cav[i]), hx=float(hxy[0]),
+            hy=float(hxy[1]), hz=hz_i, sa1=str(hsa[i]), hid=int(hid[i]),
+            has_other_driver=others > 0)
+
     employed_frac = float(work_first.mean())
     # a person only makes an education tour if they are not already making a
     # work tour, so the student fraction used for the rate solve is the
@@ -1572,8 +1823,10 @@ def main(seed=SEED, max_persons=None, day_types=None):
                  day_rate={k: round(v, 4) for k, v in day_rate.items()},
                  day_rate_shape={k: round(v, 4) for k, v in day_shape.items()},
                  day_rate_shape_source=day_shape_source,
-                 sat_to_sun_rate=SAT_TO_SUN_RATE,
-                 sat_to_sun_sweep=list(SAT_TO_SUN_SWEEP),
+                 sat_to_sun_rate=round(SAT_TO_SUN_RATE, 4),
+                 sat_to_sun_source='measured - light_day_factors.csv (9.61); '
+                                   'the retired assumed field carried 1.1875 '
+                                   'swept [1.00, 1.45]',
                  day_purpose_mix=DAY_PURPOSE_MIX,
                  day_purpose_mix_sweep=DAY_PURPOSE_MIX_SWEEP,
                  p_mandatory=P_MANDATORY,
@@ -1734,6 +1987,10 @@ def main(seed=SEED, max_persons=None, day_types=None):
         for leg in frt_legs:
             w.writerow(leg)
         fh.close()
+        # DECISIONS.md 9.60: the second-pass binder re-targets unbound HX
+        # tours to passengers no household driver can serve. Runs on the
+        # closed file, draws nothing, and preserves every non-core row.
+        lift = bind_nonhousehold_lifts(path, d, pctx, zi, zone_arr[5])
         stats['by_day'][d] = dict(
             external_agents=n_ext, external_legs=len(ext_legs),
             through_agents=n_thr, through_legs=len(thr_legs),
@@ -1765,13 +2022,17 @@ def main(seed=SEED, max_persons=None, day_types=None):
                     round(esc['unbound_km'] / esc['unbound_n'] * DETOUR_FACTOR, 2)
                     if esc['unbound_n'] else None),
                 hts_network_km=(round(meandist['HX'], 2)
-                                if 'HX' in meandist else None)))
+                                if 'HX' in meandist else None),
+                # DECISIONS.md 9.60: unbound HX tours re-targeted to serve
+                # non-household passengers. Reported, never tuned.
+                nonhousehold=lift))
         print('%-8s %9d legs %8d tours %6.3f legs/person  dropped=%d '
               'midnight-capped=%d  through=%d  freight=%d (%d through + %d '
-              'internal)  HX bound=%d/%d'
+              'internal)  HX bound=%d/%d  lift-bound=%d/%d'
               % (d, n_legs, n_tours, n_legs / max(n_persons, 1), dropped[0],
                  dropped[1], n_thr, n_thr_truck + n_frt, n_thr_truck, n_frt,
-                 esc['bound'], esc['bound'] + esc['unbound']),
+                 esc['bound'], esc['bound'] + esc['unbound'],
+                 lift['bound'], lift['drivers_unbound']),
               flush=True)
 
     stats['placement'] = dict(stats['placement'])

@@ -44,6 +44,7 @@ public final class RidePairingConfigGroup extends ReflectiveConfigGroup {
     private boolean enabled = false;
     private boolean physicalBoarding = false;
     private boolean remodeUnpaired = false;
+    private boolean waitForDriver = false;
     private double windowMinutes = UNSET;
     private String rule = "";
     private double pickupDwellSeconds = UNSET;
@@ -116,6 +117,27 @@ public final class RidePairingConfigGroup extends ReflectiveConfigGroup {
     @StringSetter("remodeUnpaired")
     public void setRemodeUnpaired(final boolean value) {
         this.remodeUnpaired = value;
+    }
+
+    /**
+     * Whether a booked passenger whose car is NOT at the link yet physically
+     * WAITS for it (DECISIONS.md 9.60): the person stands at the meeting
+     * point until the booked driver's car is parked there, boards it then,
+     * and gives up after the declared pairing window - the same tolerance the
+     * booking itself was made under, so no second number is invented. The
+     * wait is real elapsed time: a timed-out passenger completes the leg on
+     * the Tier-1 fallback clock FROM THE MOMENT OF TIMEOUT, so waiting
+     * costs what waiting costs. False restores the 9.53 behaviour (any miss
+     * falls back immediately).
+     */
+    @StringGetter("waitForDriver")
+    public boolean isWaitForDriver() {
+        return this.waitForDriver;
+    }
+
+    @StringSetter("waitForDriver")
+    public void setWaitForDriver(final boolean value) {
+        this.waitForDriver = value;
     }
 
     /**

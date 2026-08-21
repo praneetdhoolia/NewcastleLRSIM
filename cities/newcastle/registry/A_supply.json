@@ -1405,16 +1405,14 @@
     "A.network.pedestrian_excluded_classes": {
       "value": [
         "motorway",
-        "motorway_link",
-        "trunk",
-        "trunk_link"
+        "motorway_link"
       ],
       "units": "osm_highway_classes",
       "source": "definition",
       "sweep": null,
       "status": "active",
-      "decisions_ref": "9.54",
-      "description": "Road classes a network-simulated pedestrian may not use: pedestrians are prohibited on motorways and high-speed trunk carriageways by road rules, and the walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.",
+      "decisions_ref": "9.54, 9.58",
+      "description": "Road classes a network-simulated pedestrian may not use. NSW Road Rules prohibit pedestrians on motorways (rule 288, signposted roads) and NOWHERE ELSE: an urban trunk road (Stewart Avenue, Maitland Road) is a legal pedestrian route with footpaths, and the 9.54 list wrongly extended the motorway prohibition to trunk/trunk_link - which severed the walkable city (9.58: 16.7k walk links stripped as unreachable because whole neighbourhoods connect only through a trunk segment; 30,330 activities stranded on walk-less links at 25%). The walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.",
       "consumers": [
         "src/build/build_matsim_run_inputs.py"
       ]

@@ -65,6 +65,16 @@ PERSON_RE = re.compile(r'<person id="([^"]+)"')
 # on their own id.
 HOUSEHOLD_RE = re.compile(
     r'<attribute name="householdId"[^>]*>([^<]+)</attribute>')
+# DECISIONS.md 9.60: a lift binding couples TWO households. Sampled
+# independently, the pair survives intact with probability fraction^2 - the
+# 9.45 defect class again, with the coupling one level up - so households
+# joined by a binding are unioned into one sampling cluster hashed on a
+# canonical representative: the pair is kept or dropped TOGETHER, each
+# household's inclusion probability stays exactly the fraction, and the
+# stated price is the same as 9.45's (a clustered sample carries more
+# variance at fixed size).
+LIFT_RE = re.compile(
+    r'<attribute name="liftHousehold"[^>]*>([^<]+)</attribute>')
 # <ns0:capacity seats="70" standingRoomInPersons="0"> - both numbers are scaled,
 # so a fleet that had standing room would scale too, though this one has none.
 CAPACITY_RE = re.compile(r'(<[\w:]*capacity\b[^>]*?)'
@@ -90,8 +100,45 @@ def keep(person_id, fraction, seed=SEED, household_id=None, unit=None):
     return int.from_bytes(h.digest(), 'big') / 2 ** 64 < fraction
 
 
+def lift_cluster_map(src):
+    """Household -> canonical representative, over the lift couplings (9.60).
+
+    Union-find over (householdId, liftHousehold) pairs read from the plans
+    themselves, so the sampler can never disagree with what the population
+    actually carries. Empty when no binding exists, which restores the 9.45
+    behaviour byte for byte.
+    """
+    parent = {}
+
+    def find(x):
+        while parent.get(x, x) != x:
+            parent[x] = parent.get(parent[x], parent[x])
+            x = parent[x]
+        return x
+
+    with gzip.open(src, 'rt', encoding='utf-8') as f:
+        hid = None
+        for line in f:
+            h = HOUSEHOLD_RE.search(line)
+            if h:
+                hid = h.group(1)
+                continue
+            l = LIFT_RE.search(line)
+            if l and hid is not None:
+                a, b = find(hid), find(l.group(1))
+                if a != b:
+                    # canonical: the numerically smaller root wins
+                    lo, hi = sorted((a, b), key=lambda v: (len(v), v))
+                    parent[hi] = lo
+            if line.startswith('\t</person>'):
+                hid = None
+    return {h: find(h) for h in list(parent)}
+
+
 def subsample_plans(src, dst, fraction, seed=SEED, unit=None):
     n_in = n_out = n_no_household = 0
+    cluster = lift_cluster_map(src) \
+        if (unit or SAMPLE_UNIT) == 'household' else {}
     with gzip.open(src, 'rt', encoding='utf-8') as f, gzip_writer(dst) as w:
         buf, pid, hid = None, None, None
         for line in f:
@@ -110,7 +157,7 @@ def subsample_plans(src, dst, fraction, seed=SEED, unit=None):
             if line.startswith('\t</person>'):
                 if hid is None:
                     n_no_household += 1
-                if keep(pid, fraction, seed, hid, unit):
+                if keep(pid, fraction, seed, cluster.get(hid, hid), unit):
                     w.write(''.join(buf))
                     n_out += 1
                 buf = None

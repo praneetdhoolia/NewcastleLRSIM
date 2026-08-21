@@ -372,6 +372,17 @@ def main():
                      e['abs_error']))
         print('  mean absolute error %.2f pp over %d targets'
               % (ms['mean_abs_pp'], ms['n']))
+        # Every mode individually (owner directive, 20 Aug 2026): the HTS
+        # holds only the pt AGGREGATE, so the submode rows compare against no
+        # target and each row says so rather than hiding under an umbrella.
+        split = metrics.get('pt_split') or {}
+        for k, v in sorted((split.get(
+                'linked_pt_share_of_target_lga_trips_pct') or {}).items()):
+            print('  %-18s modelled %6.2f  observed      - (only the pt '
+                  'aggregate is held)' % (k, v))
+        if split:
+            print('  %-18s not modelled (issue #49, task 4.4)'
+                  % 'taxi/rideshare')
     c = out['counts']
     if c['n']:
         print('\ntraffic counts (%d stations, light-vehicle basis):' % c['n'])

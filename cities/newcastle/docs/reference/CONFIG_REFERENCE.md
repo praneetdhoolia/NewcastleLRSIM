@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 327 fields are made of
+## What the 334 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 27 | follows from another registry field by identity |
 | `literature` | 40 | a published value, not specific to this city |
 | `assumed` | 136 | chosen without direct empirical support |
-| `definition` | 98 | fixed by the formulation, not an empirical quantity |
+| `definition` | 105 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 307 | usable point value |
+| `active` | 314 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -111,7 +111,7 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.network.keep_ways_with_public_transit` | `true` | boolean | `definition` | - |
 | `A.network.max_link_length_m` | `500.0` | metres | `assumed` | 200 - 2000 |
 | `A.network.parse_turn_restrictions` | `true` | boolean | `definition` | - |
-| `A.network.pedestrian_excluded_classes` | `["motorway", "motorway_link", "trunk", "trunk_link"]` | osm_highway_classes | `definition` | - |
+| `A.network.pedestrian_excluded_classes` | `["motorway", "motorway_link"]` | osm_highway_classes | `definition` | - |
 | `A.network.railway_lane_capacity_veh_h` | `9999.0` | vehicles_per_hour | `definition` | - |
 | `A.network.railway_speed_default_kmh` | `{"rail": 160.0, "light_rail": 70.0, "tram": 70.0}` | km_per_hour | `assumed` | 40 - 180 |
 | `A.network.routable_subnetworks` | `{"car": ["car"], "bus": ["bus", "car"], "rail": ["rail", "light_rail"]}` | mode_names_by_subnetwork | `definition` | - |
@@ -371,9 +371,9 @@ Whether OSM turn restrictions become MATSim disallowed next links. The base netw
 
 #### `A.network.pedestrian_excluded_classes`
 
-Road classes a network-simulated pedestrian may not use: pedestrians are prohibited on motorways and high-speed trunk carriageways by road rules, and the walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.
+Road classes a network-simulated pedestrian may not use. NSW Road Rules prohibit pedestrians on motorways (rule 288, signposted roads) and NOWHERE ELSE: an urban trunk road (Stewart Avenue, Maitland Road) is a legal pedestrian route with footpaths, and the 9.54 list wrongly extended the motorway prohibition to trunk/trunk_link - which severed the walkable city (9.58: 16.7k walk links stripped as unreachable because whole neighbourhoods connect only through a trunk segment; 30,330 activities stranded on walk-less links at 25%). The walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.
 
-***definition** · status **active** · DECISIONS.md §9.54*
+***definition** · status **active** · DECISIONS.md §9.54, 9.58*
 
 #### `A.network.railway_lane_capacity_veh_h`
 
@@ -815,7 +815,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 67 fields*
+*`cities/newcastle/registry/B_demand.json` - 68 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -831,6 +831,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.duration_cv` | `0.3` | coefficient_of_variation | `assumed` | 0.2 - 0.45 |
 | `B.activity.escort_binding_enabled` | `true` | boolean | `definition` | - |
 | `B.activity.escort_binding_min_gap_s` | `2700` | seconds | `assumed` | 900 - 5400 |
+| `B.activity.escort_binding_nonhh_scope` | `same_zone` | enum | `assumed` | `household_only`, `same_zone` |
 | `B.activity.escort_binding_scope` | `any_member_trip` | enum | `assumed` | `any_member_trip`, `unlicensed_or_education` |
 | `B.activity.escort_excludes_ride` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
 | `B.activity.escort_requires_licence` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
@@ -838,8 +839,9 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.p_intermediate_stop` | `{"HW": 0.22, "HE": 0.12, "HS": 0.18, "HO": 0.2, "WB": 0.3, "HX": 0.15}` | probability | `assumed` | 0.1 - 0.35 |
 | `B.activity.p_mandatory` | `{"WEEKDAY": {"work": 0.78, "education": 0.85}, "SAT": {"work": 0.16, "education": 0.03}, "SUN": {"work": 0....` | probability | `assumed` | 0.6 - 0.95 |
 | `B.activity.p_second_stop` | `0.25` | probability | `assumed` | 0.12 - 0.4 |
-| `B.activity.sat_to_sun_rate` | `1.1875` | ratio | `assumed` | 1 - 1.45 |
-| `B.activity.weekend_departure_shift_h` | `{"WEEKDAY": 0, "SAT": 1, "SUN": 1}` | hours | `assumed` | 0 - 2 |
+| `B.activity.plan_access_s` | `240` | seconds | `assumed` | 120 - 480 |
+| `B.activity.plan_speed_car_kmh` | `26.0` | km/h | `assumed` | 20 - 32 |
+| `B.activity.plan_speed_nocar_kmh` | `16.0` | km/h | `assumed` | 10 - 22 |
 | `B.activity.weekend_to_weekday` | `0.7521` | ratio | `measured` | 0.709 - 0.816 |
 | `B.bike.pce` | `0.2` | passenger_car_equivalents | `literature` | 0.1 - 0.4 |
 | `B.bike.speed_ms` | `4.2` | m/s | `literature` | 3.1 - 5.5 |
@@ -850,7 +852,6 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.external.agent_profile` | `{"car_available": 1, "age": 40, "licence_holder": 1, "employment_status": "employed_full_time", "student_st...` | person_attributes | `definition` | - |
 | `B.external.agent_ride_available` | `false` | boolean | `derived` | derived: a person may be a car passenger only if their household holds a vehicl |
 | `B.external.cordon_road_classes` | `["motorway", "trunk", "primary", "secondary", "motorway_link", "trunk_link", "primary_link"]` | osm_highway_class | `definition` | - |
-| `B.external.day_factor` | `{"WEEKDAY": 1.0, "SAT": 0.4, "SUN": 0.3}` | multiplier | `assumed` | plus/minus 30% |
 | `B.external.interaction_rate` | `0.08` | probability | `assumed` | 0.04 - 0.15 |
 | `B.external.person_id_base` | `900000000` | integer_offset | `definition` | - |
 | `B.external.purpose_split` | `{"HW": 0.7, "HO": 0.3}` | probability | `assumed` | plus/minus 20% |
@@ -878,7 +879,6 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.population.build_sample_share` | `1.0` | share_of_population | `definition` | - |
 | `B.population.licence_rate_by_age_band` | `[0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]` | probability | `literature` | plus/minus 10% |
 | `B.population.ride_requires_household_driver` | `true` | boolean | `derived` | derived: a person may be a car passenger only if their B1 household holds at le |
-| `B.population.tertiary_ft_share` | `{"18_24": 0.7, "25_ov": 0.35}` | share_of_attendees | `assumed` | plus/minus 30% |
 | `B.ride.max_passengers_per_vehicle` | `4` | persons | `assumed` | 1 - 4 |
 | `B.ride.pairing_enabled` | `true` | boolean | `definition` | - |
 | `B.ride.pairing_rule` | `both_links` | enum | `assumed` | `both_links`, `origin_link`, `dest_link`, `window_only` |
@@ -886,6 +886,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.ride.physical_boarding` | `true` | boolean | `definition` | - |
 | `B.ride.pickup_dwell_s` | `0.0` | seconds | `assumed` | 0 - 120 |
 | `B.ride.remode_unpaired` | `true` | boolean | `definition` | - |
+| `B.ride.wait_for_driver` | `true` | boolean | `definition` | - |
 | `B.seed.master` | `20260810` | integer_seed | `definition` | - |
 | `B.walk.pce` | `0.0` | passenger_car_equivalents | `definition` | - |
 
@@ -955,6 +956,12 @@ Minimum separation between the departures of two escort tours BOUND for the same
 
 > **Sweep basis.** no observation bears on how closely one driver can stack two escort runs; 45 minutes covers a school-run drop-off (dwell ~5 min) plus the return at the model's own seed speeds over the observed 6.4 km escort distance. The bounds are a 15-minute back-to-back stack and a 90-minute spacing. Finer overlap - a drawn intermediate stop stretching one bound tour into the next - resolves at placement, where the later binding drops rather than shifts.
 
+#### `B.activity.escort_binding_nonhh_scope`
+
+Which non-household passengers an HX escort tour that found no household trip may be re-targeted to serve (9.60). The driver supply is the observed Serve-passenger rate, already generated; this decides only how far an unbound tour may look for the passenger it exists to carry. Passengers are the driverless-household class - the people household pairing structurally cannot reach.
+
+***assumed** · status **active** · DECISIONS.md §9.60*
+
 #### `B.activity.escort_binding_scope`
 
 Which classes of already-drawn household trips an HX escort tour may take its destination and departure from.
@@ -1003,17 +1010,29 @@ Probability of a second intermediate stop, given a first.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
-#### `B.activity.sat_to_sun_rate`
+#### `B.activity.plan_access_s`
 
-Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12).
+Fixed per-leg overhead added to every B2 planned leg time on top of distance/speed. Not a routing or scoring quantity.
 
-***assumed** · status **active** · DECISIONS.md §9.2*
+***assumed** · status **active** · DECISIONS.md §9.61*
 
-#### `B.activity.weekend_departure_shift_h`
+> **Sweep basis.** fixed access-and-egress overhead per planned leg (getting to the vehicle, parking, walking in). Scaffold-only, declared per 9.61.
 
-Shift applied to the weekday departure profile on weekend day types.
+#### `B.activity.plan_speed_car_kmh`
 
-***assumed** · status **active** · DECISIONS.md §9.2*
+Door-to-door planning speed for a car-available person, used by the B2 chain builder to time tours (straight-line distance at this speed plus B.activity.plan_access_s). Not a routing or scoring quantity.
+
+***assumed** · status **active** · DECISIONS.md §9.61*
+
+> **Sweep basis.** urban door-to-door average including parking and access; brackets typical metropolitan network speeds. It decides only the B2 chain-timing scaffold (whether tours fit a day, and their planned departure spacing) - the mobsim re-times every leg physically - but a value that decides anything is declared (9.61: it sat as a bare 26.0 inside time_tour's expression, invisible to the ledger's scanner).
+
+#### `B.activity.plan_speed_nocar_kmh`
+
+Door-to-door planning speed for a person without car availability, used by the B2 chain builder to time tours. Not a routing or scoring quantity.
+
+***assumed** · status **active** · DECISIONS.md §9.61*
+
+> **Sweep basis.** a blend of walk, cycle and bus door-to-door speeds for a person without a car. Same scaffold-only role, same 9.61 declaration rationale, as plan_speed_car_kmh.
 
 #### `B.activity.weekend_to_weekday`
 
@@ -1090,12 +1109,6 @@ Whether an external boundary agent may travel as a car passenger.
 Road classes whose network nodes may serve as an external station, that is a cordon entry point. Defines what counts as a road capable of carrying boundary demand into the study area; a residential cul-de-sac is not one.
 
 ***definition** · status **active** · DECISIONS.md §9.15*
-
-#### `B.external.day_factor`
-
-External boundary demand by day type, relative to the weekday.
-
-***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.external.interaction_rate`
 
@@ -1297,14 +1310,6 @@ Whether `ride` is withheld from a person with nobody to drive them. MATSim's sta
 
 > **Derived from** `B.seed.master`: a person may be a car passenger only if their B1 household holds at least one vehicle AND contains at least one OTHER licence holder who could drive them; computed from B1_synthetic_population.csv household_id, household_vehicles and licence_holder, so it is derived from the synthetic population rather than chosen
 
-#### `B.population.tertiary_ft_share`
-
-Of persons 18+ attending an educational institution (G01, observed per SA1), the share that are full-time students - the ones who draw a mandatory HE tour. Under-18 attendees are full-time by definition (school). Replaces a flat assumed 0.35 full-time-student rate for all 18-24s and a hardcoded 0.04 part-time rate that no audit could see.
-
-***assumed** · status **active** · DECISIONS.md §9.46*
-
-> **Sweep basis.** the census table that would measure it (G15, full-time/part-time student status by age) is not in the package - a deliberate non-acquisition (age-structure dossier 5): it decides HE tour-making only within the full-time fraction of the 38% of 20-24s and 5.5% of 25+ who attend at all. National context brackets it: university study is majority full-time and VET majority part-time, and 18-24 attendance is university-dominant while 25+ is not. A G15 harvest is a deliverable-0b candidate that would move this to measured.
-
 #### `B.ride.max_passengers_per_vehicle`
 
 How many passengers one driver's leg may carry. Without a cap a single driver would serve every passenger their household offered - the same unbounded-supply defect that rideAvail removed on the availability side, where an unconstrained model put 5.9 people in every car (9.10). Consumed by src/java/citysim/RidePairingEngine.
@@ -1352,6 +1357,12 @@ Seconds added to a PAIRED passenger's travel time for the act of being picked up
 Whether an UNPAIRED ride leg is re-moded to network-simulated walk at the BeforeMobsim boundary - the 9.51 owner directive's own ruling (every ride physically in a car, no exceptions, no teleportation) enacted without inventing a parameter: a ride trip no household driver can physically serve is not a ride trip, it walks, scores accordingly, and co-evolution reassigns the tour - so the surviving ride share is EMERGENT from the physical driver supply rather than declared. False keeps Tier 1's teleport for the unpaired, for comparability within one build. Consumed by citysim.RidePairingEngine.
 
 ***definition** · status **active** · DECISIONS.md §9.55 · MATSim `ridePairing.remodeUnpaired`*
+
+#### `B.ride.wait_for_driver`
+
+Whether a booked passenger whose car is not at the meeting point yet physically WAITS for it, bounded by the declared pairing window (B.ride.pairing_window_min - the same tolerance the booking was made under, so no second number is invented). The 9.53 boarding engine could board only a car ALREADY parked at the link; a passenger departing first was a counted miss falling back to teleport - the measured x6.91 window layer of the realisation gap wearing its physical face. Waiting is real elapsed time: a timed-out passenger completes on the Tier-1 clock FROM THE TIMEOUT, so waiting costs what waiting costs and scores accordingly. False restores the 9.53 behaviour. Consumed by citysim.JointRideEngine.
+
+***definition** · status **active** · DECISIONS.md §9.60 · MATSim `ridePairing.waitForDriver`*
 
 #### `B.seed.master`
 
@@ -2152,19 +2163,23 @@ Tram service deceleration.
 
 ## Execution control
 
-*`cities/newcastle/registry/RUN_execution.json` - 56 fields*
+*`cities/newcastle/registry/RUN_execution.json` - 62 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
 | Field | Value | Units | Provenance | Sweep |
 |---|---|---|---|---|
 | `RUN.controler.compression_type` | `gzip` | enum | `definition` | - |
+| `RUN.controler.create_graphs` | `true` | boolean | `definition` | - |
 | `RUN.controler.first_iteration` | `0` | iterations | `definition` | - |
 | `RUN.controler.last_iteration` | `1000` | iterations | `measured` | 250 - 2000 |
 | `RUN.controler.overwrite_files` | `failIfDirectoryExists` | policy | `definition` | - |
 | `RUN.controler.write_events_interval` | `10` | iterations | `definition` | - |
 | `RUN.controler.write_plans_interval` | `10` | iterations | `definition` | - |
 | `RUN.machine.event_handler_threads` | `4` | threads | `definition` | - |
+| `RUN.machine.events_one_thread_per_handler` | `false` | boolean | `definition` | - |
+| `RUN.machine.events_synchronize_on_simsteps` | `true` | boolean | `definition` | - |
+| `RUN.machine.replanning_threads` | `20` | threads | `definition` | 1 - 24 |
 | `RUN.machine.seed` | `20260810` | integer_seed | `definition` | - |
 | `RUN.machine.threads` | `10` | threads | `definition` | 1 - 24 |
 | `RUN.machine.xmx` | `14g` | jvm_heap | `definition` | - |
@@ -2181,6 +2196,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
 | `RUN.qsim.car_vehicle` | `{"length_m": 7.5, "width_m": 1.0, "pce": 1.0}` | metres/metres/passenger_car_equivalents | `definition` | - |
 | `RUN.qsim.end_time_h` | `30` | hours | `definition` | - |
+| `RUN.qsim.link_dynamics` | `PassingQ` | enum | `definition` | - |
 | `RUN.qsim.main_mode` | `["car", "truck", "motorbike", "walk", "bike"]` | enum | `definition` | - |
 | `RUN.qsim.snapshot_period` | `00:00:00` | hh:mm:ss | `definition` | - |
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
@@ -2189,6 +2205,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.relaxation.settle_margin_iterations` | `10` | iterations | `measured` | 1 - 100 |
 | `RUN.replanning.fraction_to_disable_innovation` | `0.8` | share_of_iterations | `literature` | 0.7 - 0.9 |
 | `RUN.replanning.max_agent_plan_memory` | `5` | plans | `literature` | 3 - 10 |
+| `RUN.replanning.strategy_subpopulations` | `{"SubtourModeChoice": ["person"]}` | subpopulation_names_per_strategy | `definition` | - |
 | `RUN.replanning.subpopulations` | `["person", "external", "freight"]` | subpopulation_names | `definition` | - |
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
 | `RUN.routing.access_egress_type` | `none` | policy | `definition` | - |
@@ -2220,6 +2237,12 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 Output compression. MUST be gzip: runs made before this was set write .zst, which extract_metrics.py can only read if zstandard happens to be installed, and the repo does not require it.
 
 ***definition** · status **active** · DECISIONS.md §15 · MATSim `controler.compressionType`*
+
+#### `RUN.controler.create_graphs`
+
+Whether MATSim renders its per-iteration diagnostic PNGs (mode stats, leg histograms - eight images every iteration). Wall time and disk only, never the model; declared so a long arm's overlay can turn the rendering off instead of paying it a thousand times (9.59).
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `controler.createGraphs`*
 
 #### `RUN.controler.first_iteration`
 
@@ -2253,9 +2276,27 @@ How often plans are written. Affects disk and wall time, not the model.
 
 #### `RUN.machine.event_handler_threads`
 
-Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync.
+Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync. 12 threads were probed on the 9.58 network and bought NOTHING over 4 (it2-4 median mobsim ~190 s either way, 9.59) - 4 stands.
 
 ***definition** · status **active** · DECISIONS.md §9.56 · MATSim `eventsManager.numberOfThreads`*
+
+#### `RUN.machine.events_one_thread_per_handler`
+
+Give each registered event handler its own thread instead of sharing RUN.machine.event_handler_threads workers. Declared for the 9.59 timing probes and MEASURED FATAL on the pinned build: the probe crashed mid-run with IllegalStateException '.initProcessing() has to be called before processing events!' - the experimental path 9.56 declined to touch, now known broken rather than merely untried. STAYS FALSE; the value exists so the refusal is recorded where the knob lives, not as an absence.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `eventsManager.oneThreadPerHandler`*
+
+#### `RUN.machine.events_synchronize_on_simsteps`
+
+Whether the qsim waits for the events pipeline at every sim-step. Declared for the 9.59 timing probes and MEASURED A REGRESSION on this model: false swaps the manager implementation and took the it2-4 median mobsim from ~190 s to 255 s at 25%. STAYS TRUE; the value exists so the measured rejection is recorded where the knob lives.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `eventsManager.synchronizeOnSimSteps`*
+
+#### `RUN.machine.replanning_threads`
+
+Thread count for replanning, routing and everything else global.numberOfThreads governs. RUN IDENTITY like RUN.machine.threads (per-thread work partitioning changes results); split from it in 9.59 so the replanning pool can be sized to the machine independently of the mobsim's declared partitioning. MEASURED (9.59, 25% x 5 probes on the 9.58 network): 20 threads took replanning from a median 76 s to 33 s and PersonPrepareForSim from ~15 s to ~6 s per iteration against the 10-thread base; the mobsim keeps its own declared 10.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `global.numberOfThreads`*
 
 #### `RUN.machine.seed`
 
@@ -2265,9 +2306,9 @@ MATSim random seed. Held at the master seed unless replications are being drawn.
 
 #### `RUN.machine.threads`
 
-Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. It writes to BOTH thread parameters, which is why it is one field and not two: a config whose global and qsim counts disagree partitions differently in replanning and in the mobsim.
+Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. Until 9.59 this one field wrote global.numberOfThreads too; the pair is now two declared fields because they govern different partitionings (mobsim vs replanning/routing) with different saturation points - the 9.57 arm ran replanning at a median 59 s with 14 of 24 CPUs idle. Each field is run identity in its own right.
 
-***definition** · status **active** · DECISIONS.md §9.5 · MATSim `global.numberOfThreads, qsim.numberOfThreads`*
+***definition** · status **active** · DECISIONS.md §9.5, 9.59 · MATSim `qsim.numberOfThreads`*
 
 #### `RUN.machine.xmx`
 
@@ -2357,6 +2398,12 @@ Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnig
 
 ***definition** · status **active** · DECISIONS.md §15 · MATSim `qsim.endTime`*
 
+#### `RUN.qsim.link_dynamics`
+
+The queue discipline vehicles obey within a link: FIFO (MATSim's default - vehicles exit in entry order), PassingQ (a faster vehicle may overtake within the link), or SeepageQ. The emitted config carried NO value, so the all-physical model ran FIFO by silent default - under which a 1.25 m/s pedestrian at the head of a shared link's queue blocks every car behind it regardless of its PCE 0.0, directly contradicting 9.54's declared semantics ('neither impeding nor impeded by motor traffic': PCE governs capacity arithmetic, not exit order). PassingQ restores the declared semantics - a car overtakes a walker on the carriageway, which is also what a street does - and is the standard setting for multimodal single-network MATSim models. A MODEL CHANGE: part of the 9.58/9.59 family boundary.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `qsim.linkDynamics`*
+
 #### `RUN.qsim.main_mode`
 
 The modes physically simulated in the mobsim: car; truck (9.49) and motorbike (9.52) at their declared PCE; and walk and bike (9.54) - a pedestrian at PCE 0.0 capped at walking speed occupies the network without consuming road capacity (the sidewalk, expressed in queue arithmetic), a cyclist at the declared PCE genuinely takes road space. A car passenger is not a second vehicle: ride stays routed, with PAIRED passengers physically boarded (9.53).
@@ -2405,6 +2452,12 @@ Plans retained per agent. A property of the MATSim formulation, not of Newcastle
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `replanning.maxAgentPlanMemorySize`*
 
+#### `RUN.replanning.strategy_subpopulations`
+
+Which subpopulations each replanning strategy is emitted for; a strategy absent from this dict goes to all of them. SubtourModeChoice is restricted to `person` because an external or freight agent's mode IS its data: the through tier is seeded from classified cordon vehicle counts (9.41, 9.49), so a through car that innovates into another mode falsifies the count it was built from. MEASURED before this was declared: by iteration 100 of the first all-physical arm, 405 external agents had abandoned car - 451 walk legs, 164 bike, 62 pt, 256 ride - i.e. 40 km boundary crossings on foot, each also wedging at walk-less gate links (9.58). Read by the emitter through the schema's repeat_over.restrict clause, like RUN.replanning.subpopulations.
+
+***definition** · status **active** · DECISIONS.md §9.58*
+
 #### `RUN.replanning.subpopulations`
 
 The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area, `external` is a boundary-tier agent, and `freight` is a heavy-vehicle background agent (9.49) whose mode is locked to truck. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries.
@@ -2413,7 +2466,7 @@ The subpopulations the replanning strategies are applied to. A vocabulary the mo
 
 #### `RUN.replanning.weights`
 
-Replanning strategy weights, applied to both the person and external subpopulations. Properties of the scoring formulation, not observable quantities of Newcastle.
+Replanning strategy weights, applied to every subpopulation EXCEPT where RUN.replanning.strategy_subpopulations withholds a strategy (9.58: SubtourModeChoice is person-only - a boundary-tier agent's vehicle class is measured cordon data, not a choice). Properties of the scoring formulation, not observable quantities of Newcastle.
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `replanning.strategysettings[*].weight`*
 

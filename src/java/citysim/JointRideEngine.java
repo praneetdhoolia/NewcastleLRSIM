@@ -82,11 +82,18 @@ public final class JointRideEngine implements MobsimEngine, DepartureHandler {
     /** Passengers currently aboard, in boarding order (determinism). */
     private final Map<MobsimAgent, Riding> riding = new LinkedHashMap<>();
 
+    /** Passengers standing at the meeting point (DECISIONS.md 9.60). */
+    private final Map<MobsimAgent, Waiting> waiting = new LinkedHashMap<>();
+
+    private RidePairingConfigGroup cfg;
+
     private int boarded;
     private int alighted;
     private int missedVehicleGone;
     private int missedVehicleAbsent;
     private int missedFull;
+    private int waitBoarded;
+    private int waitTimeouts;
     private int abortedAtSimEnd;
 
     private static final class Riding {
@@ -100,6 +107,24 @@ public final class JointRideEngine implements MobsimEngine, DepartureHandler {
             this.vehicle = vehicle;
             this.boardedAt = boardedAt;
             this.destination = destination;
+        }
+    }
+
+    private static final class Waiting {
+        final Id<Link> linkId;
+        final Id<org.matsim.api.core.v01.population.Person> driver;
+        final double deadline;
+        final double fallbackTravelTime;
+        /** Set on timeout: the Tier-1 clock, counted from the timeout. */
+        double arriveAt = Double.NaN;
+
+        Waiting(final Id<Link> linkId,
+                final Id<org.matsim.api.core.v01.population.Person> driver,
+                final double deadline, final double fallbackTravelTime) {
+            this.linkId = linkId;
+            this.driver = driver;
+            this.deadline = deadline;
+            this.fallbackTravelTime = fallbackTravelTime;
         }
     }
 
@@ -127,41 +152,86 @@ public final class JointRideEngine implements MobsimEngine, DepartureHandler {
         // vehicles are `<person>` (MATSim suffixes only the non-car modes).
         // The suffixed form is kept as a fallback so an upstream change in
         // that convention degrades to a counted miss, not a wrong boarding.
-        MobsimVehicle vehicle = this.qsim.getVehicles().get(
-                Id.create(booking.driver().toString(), Vehicle.class));
-        if (vehicle == null) {
-            vehicle = this.qsim.getVehicles().get(
-                    Id.create(booking.driver().toString() + "_"
-                              + TransportMode.car, Vehicle.class));
-        }
-        if (vehicle == null) {
-            this.missedVehicleAbsent++;
-            return false;
-        }
-        if (!linkId.equals(vehicle.getCurrentLinkId())) {
-            // the driver has already left (or parks elsewhere): the measured
-            // window layer of the realisation gap, physically manifest
-            this.missedVehicleGone++;
+        final MobsimVehicle vehicle = vehicleOf(booking.driver());
+        if (vehicle == null || !linkId.equals(vehicle.getCurrentLinkId())) {
+            if (this.cfg != null && this.cfg.isWaitForDriver()) {
+                // DECISIONS.md 9.60: the passenger physically WAITS at the
+                // meeting point for the booked car, bounded by the same
+                // declared window the booking was made under. The fallback
+                // travel time is captured now, so a timeout completes the leg
+                // on the Tier-1 clock counted from the moment of giving up -
+                // waiting costs what waiting costs.
+                this.waiting.put(agent, new Waiting(linkId, booking.driver(),
+                        now + this.cfg.getWindowMinutes() * 60.0,
+                        fallbackTravelTime(agent)));
+                return true;
+            }
+            if (vehicle == null) {
+                this.missedVehicleAbsent++;
+            } else {
+                // the driver has already left (or parks elsewhere): the
+                // measured window layer of the realisation gap, physically
+                // manifest
+                this.missedVehicleGone++;
+            }
             return false;
         }
         if (!vehicle.addPassenger((PassengerAgent) agent)) {
             this.missedFull++;
             return false;
         }
+        board(now, agent, vehicle, linkId);
+        this.boarded++;
+        return true;
+    }
+
+    private void board(final double now, final MobsimAgent agent,
+                       final MobsimVehicle vehicle, final Id<Link> linkId) {
         ((PassengerAgent) agent).setVehicle(vehicle);
         this.events.processEvent(
                 new PersonEntersVehicleEvent(now, agent.getId(),
                                              vehicle.getId()));
         this.riding.put(agent, new Riding(vehicle, linkId,
                                           agent.getDestinationLinkId()));
-        this.boarded++;
-        return true;
+    }
+
+    /** The current ride leg's routed travel time - the Tier-1 clock. */
+    private static double fallbackTravelTime(final MobsimAgent agent) {
+        if (agent instanceof org.matsim.core.mobsim.framework.PlanAgent) {
+            final org.matsim.api.core.v01.population.PlanElement e =
+                    ((org.matsim.core.mobsim.framework.PlanAgent) agent)
+                            .getCurrentPlanElement();
+            if (e instanceof org.matsim.api.core.v01.population.Leg) {
+                final org.matsim.api.core.v01.population.Route route =
+                        ((org.matsim.api.core.v01.population.Leg) e).getRoute();
+                if (route != null
+                        && route.getTravelTime().isDefined()) {
+                    return route.getTravelTime().seconds();
+                }
+            }
+        }
+        return 0.0;
+    }
+
+    private MobsimVehicle vehicleOf(
+            final Id<org.matsim.api.core.v01.population.Person> driver) {
+        MobsimVehicle vehicle = this.qsim.getVehicles().get(
+                Id.create(driver.toString(), Vehicle.class));
+        if (vehicle == null) {
+            vehicle = this.qsim.getVehicles().get(
+                    Id.create(driver.toString() + "_" + TransportMode.car,
+                              Vehicle.class));
+        }
+        return vehicle;
     }
 
     // ---- MobsimEngine ------------------------------------------------------
 
     @Override
     public void doSimStep(final double now) {
+        if (!this.waiting.isEmpty()) {
+            serveWaiting(now);
+        }
         if (this.riding.isEmpty()) {
             return;
         }
@@ -189,14 +259,53 @@ public final class JointRideEngine implements MobsimEngine, DepartureHandler {
         }
     }
 
+    /** Board waiting passengers whose car has arrived; time the rest out. */
+    private void serveWaiting(final double now) {
+        final List<MobsimAgent> done = new ArrayList<>(0);
+        for (final Map.Entry<MobsimAgent, Waiting> e : this.waiting.entrySet()) {
+            final Waiting w = e.getValue();
+            if (!Double.isNaN(w.arriveAt)) {
+                if (now >= w.arriveAt) {
+                    done.add(e.getKey());       // timed out earlier; arrive now
+                }
+                continue;
+            }
+            final MobsimVehicle vehicle = vehicleOf(w.driver);
+            if (vehicle != null && w.linkId.equals(vehicle.getCurrentLinkId())
+                    && vehicle.addPassenger((PassengerAgent) e.getKey())) {
+                board(now, e.getKey(), vehicle, w.linkId);
+                this.waitBoarded++;
+                done.add(e.getKey());
+                continue;
+            }
+            if (now >= w.deadline) {
+                // give up: Tier-1 completion, clocked from the timeout
+                w.arriveAt = now + w.fallbackTravelTime;
+                this.waitTimeouts++;
+            }
+        }
+        for (final MobsimAgent agent : done) {
+            final Waiting w = this.waiting.remove(agent);
+            if (w != null && !Double.isNaN(w.arriveAt)) {
+                agent.notifyArrivalOnLinkByNonNetworkMode(
+                        agent.getDestinationLinkId());
+                agent.endLegAndComputeNextState(now);
+                this.internalInterface.arrangeNextAgentState(agent);
+            }
+        }
+    }
+
     @Override
     public void beforeMobsim() {
         this.riding.clear();
+        this.waiting.clear();
         this.boarded = 0;
         this.alighted = 0;
         this.missedVehicleGone = 0;
         this.missedVehicleAbsent = 0;
         this.missedFull = 0;
+        this.waitBoarded = 0;
+        this.waitTimeouts = 0;
         this.abortedAtSimEnd = 0;
     }
 
@@ -218,16 +327,28 @@ public final class JointRideEngine implements MobsimEngine, DepartureHandler {
             this.abortedAtSimEnd++;
             it.remove();
         }
+        // A passenger still waiting at a meeting point at sim end is stuck
+        // honestly too, through the same standard path.
+        for (final Iterator<Map.Entry<MobsimAgent, Waiting>> it =
+             this.waiting.entrySet().iterator(); it.hasNext();) {
+            final Map.Entry<MobsimAgent, Waiting> e = it.next();
+            e.getKey().setStateToAbort(now);
+            this.internalInterface.arrangeNextAgentState(e.getKey());
+            this.abortedAtSimEnd++;
+            it.remove();
+        }
         LOG.info("jointRide: boarded={} alighted={} missed(gone={} absent={} "
-                 + "full={}) abortedAtSimEnd={}",
+                 + "full={}) waited(boarded={} timedOut={}) abortedAtSimEnd={}",
                  this.boarded, this.alighted, this.missedVehicleGone,
                  this.missedVehicleAbsent, this.missedFull,
-                 this.abortedAtSimEnd);
+                 this.waitBoarded, this.waitTimeouts, this.abortedAtSimEnd);
     }
 
     @Override
     public void setInternalInterface(final InternalInterface internalInterface) {
         this.internalInterface = internalInterface;
         this.qsim = (QSim) internalInterface.getMobsim();
+        this.cfg = (RidePairingConfigGroup) this.qsim.getScenario().getConfig()
+                .getModules().get(RidePairingConfigGroup.NAME);
     }
 }

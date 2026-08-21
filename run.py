@@ -33,6 +33,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 for sub in ('run', 'analyse', 'registry', ''):
     sys.path.insert(0, os.path.join(HERE, 'src', sub) if sub else os.path.join(HERE, 'src'))
 
+import city                          # noqa: E402
 import registry                      # noqa: E402
 import run_matsim                    # noqa: E402
 
@@ -96,8 +97,15 @@ def main():
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--scenario', default='S2', help='default: S2')
-    ap.add_argument('--day', default='WEEKDAY', choices=['WEEKDAY', 'SAT', 'SUN'])
+    # The scenario default and day-type vocabulary are the CITY's, not the
+    # framework's: another city declares its own in city.json, and a CLI that
+    # hardwired S2/WEEKDAY rejected that city's own declared inputs.
+    base_scenario = city.descriptor()['intervention']['base_scenario']
+    day_types = list(city.descriptor()['day_types'])
+    ap.add_argument('--scenario', default=base_scenario,
+                    help='default: %s (city.json intervention.base_scenario)'
+                         % base_scenario)
+    ap.add_argument('--day', default=day_types[0], choices=day_types)
     ap.add_argument('--run-config', metavar='TAG',
                     help='a committed overlay under the city overlays/runs directory - '
                          'the reproducible way to vary a run. Defaults to `%s` ONLY '

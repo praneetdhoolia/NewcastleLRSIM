@@ -336,10 +336,22 @@ def emit(name, cfg, runtime=None, fields=None):
                                   % (set_type, SCHEMA))
             repeat = st.get('repeat_over')
             repeats = [None]
+            allowed_of_key = {}
             if repeat:
                 repeats = _resolve(cfg, repeat['field'])
+                restrict = repeat.get('restrict')
+                if restrict:
+                    # {set key -> [repeat values]}: a key absent from the dict
+                    # is emitted for every repeat value. This is how a strategy
+                    # is declared for SOME subpopulations (a boundary-tier
+                    # agent's mode is measured data, not a choice) without a
+                    # second weight table.
+                    allowed_of_key = _resolve(cfg, restrict['field']) or {}
             for repeat_value in repeats:
                 for key in sorted(sets[module][set_type]):
+                    if (repeat_value is not None and key in allowed_of_key
+                            and repeat_value not in allowed_of_key[key]):
+                        continue
                     body = sets[module][set_type][key]
                     lines.append('%s<parameterset type="%s"%s>'
                                  % (TAB * 2, set_type, attrs))

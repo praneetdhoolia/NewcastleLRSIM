@@ -8,8 +8,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -47,6 +48,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1908,
           "stop_facilities_kept": 4114,
           "stop_facilities_dropped": 74,
@@ -83,6 +85,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 995,
           "stop_facilities_kept": 2142,
           "stop_facilities_dropped": 2046,
@@ -119,6 +122,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 867,
           "stop_facilities_kept": 2164,
           "stop_facilities_dropped": 2024,
@@ -135,8 +139,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -174,6 +179,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2115,
           "stop_facilities_kept": 4127,
           "stop_facilities_dropped": 72,
@@ -210,6 +216,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1132,
           "stop_facilities_kept": 2150,
           "stop_facilities_dropped": 2049,
@@ -246,6 +253,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1004,
           "stop_facilities_kept": 2172,
           "stop_facilities_dropped": 2027,
@@ -259,8 +267,9 @@
       "patch_rows": 0,
       "links_touched": {
         "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -305,6 +314,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4123,
           "stop_facilities_dropped": 74,
@@ -348,6 +358,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2148,
           "stop_facilities_dropped": 2049,
@@ -391,6 +402,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2170,
           "stop_facilities_dropped": 2027,
@@ -404,8 +416,9 @@
       "patch_rows": 0,
       "links_touched": {
         "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -450,6 +463,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4123,
           "stop_facilities_dropped": 74,
@@ -493,6 +507,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2148,
           "stop_facilities_dropped": 2049,
@@ -536,6 +551,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2170,
           "stop_facilities_dropped": 2027,
@@ -549,8 +565,9 @@
       "patch_rows": 0,
       "links_touched": {
         "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -595,6 +612,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4124,
           "stop_facilities_dropped": 74,
@@ -638,6 +656,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2148,
           "stop_facilities_dropped": 2050,
@@ -681,6 +700,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2170,
           "stop_facilities_dropped": 2028,
@@ -697,8 +717,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -743,6 +764,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4125,
           "stop_facilities_dropped": 72,
@@ -786,6 +808,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2146,
           "stop_facilities_dropped": 2051,
@@ -829,6 +852,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2168,
           "stop_facilities_dropped": 2029,
@@ -842,8 +866,9 @@
       "patch_rows": 0,
       "links_touched": {
         "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -881,6 +906,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2191,
           "stop_facilities_kept": 4123,
           "stop_facilities_dropped": 74,
@@ -917,6 +943,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1184,
           "stop_facilities_kept": 2149,
           "stop_facilities_dropped": 2048,
@@ -953,6 +980,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1056,
           "stop_facilities_kept": 2171,
           "stop_facilities_dropped": 2026,
@@ -968,8 +996,9 @@
         "companion_mode_links": 168033,
         "num_lanes_per_dir": 180,
         "kerbside_use": 302,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -1014,6 +1043,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4126,
           "stop_facilities_dropped": 74,
@@ -1057,6 +1087,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2151,
           "stop_facilities_dropped": 2049,
@@ -1100,6 +1131,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2173,
           "stop_facilities_dropped": 2027,
@@ -1115,8 +1147,9 @@
         "companion_mode_links": 168033,
         "num_lanes_per_dir": 280,
         "kerbside_use": 498,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -1161,6 +1194,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 2139,
           "stop_facilities_kept": 4131,
           "stop_facilities_dropped": 74,
@@ -1204,6 +1238,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1128,
           "stop_facilities_kept": 2156,
           "stop_facilities_dropped": 2049,
@@ -1247,6 +1282,7 @@
               "210"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1002,
           "stop_facilities_kept": 2178,
           "stop_facilities_dropped": 2027,
@@ -1263,8 +1299,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -1302,6 +1339,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 1887,
           "stop_facilities_kept": 4113,
           "stop_facilities_dropped": 74,
@@ -1338,6 +1376,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 980,
           "stop_facilities_kept": 2137,
           "stop_facilities_dropped": 2050,
@@ -1374,6 +1413,7 @@
               "48"
             ]
           ],
+          "vehicle_types_unpatched": [],
           "vehicle_refs": 852,
           "stop_facilities_kept": 2159,
           "stop_facilities_dropped": 2028,
