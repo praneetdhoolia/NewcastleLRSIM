@@ -5905,6 +5905,199 @@ prediction the next run must test, not a result.
 
 ---
 
+## 9.59 Iteration wall time: every knob declared, probed at 25%, and the honest answer to the 10x ask (21 August 2026)
+
+**The forensics first** (the §9.57 arm's own `stopwatch.csv` and 113 MB log):
+median 226 s = mobsim 145 (64%) + replanning 59 (26%) + PersonPrepareForSim
+19 (8%). The mobsim generates ~134.5M events/iteration, 96.4% of them
+link enter/leave (car 53.5%, walk 30.2%, bike 9.7%, truck 5.5%); after the
+§9.56 knob the busiest events runnable still burned ~119 s CPU against the
+145 s wall. **The it-110 outlier is explained**: all strategies finished
+normally except one `PlanRouter` pass over 2,245 mode-changed plans that
+ran 7,594 s — ReRoute against a travel-time field poisoned by the
+walk-gridlock knot (SpeedyALT's landmarks are built once at startup, so
+extreme congestion degenerates the A* heuristic), with heap pressure on
+top. The §9.58 repairs attack the knot's cause; `-Xms` now pre-sizes the
+heap (it grew 7 → 27 GB across the arm with full-GC stalls in that pass).
+
+**One correctness finding doubled as a lever.** The emitted config carried
+no `qsim.linkDynamics`, so the all-physical model ran MATSim's FIFO
+default — under which vehicles EXIT A LINK IN ENTRY ORDER, and a 1.25 m/s
+pedestrian at the head of a shared link's queue holds every car behind it
+regardless of its PCE 0.0. That directly contradicts §9.54's declared
+semantics ("neither impeding nor impeded by motor traffic": PCE governs
+capacity arithmetic, not exit order). `RUN.qsim.link_dynamics = PassingQ`
+is declared — a car overtakes a walker on the carriageway, which is what
+a street does.
+
+**The probes** (`phys_timing2_*`, 25% × 5 on the §9.58 network, one at a
+time, it2–4 medians):
+
+| probe | knobs | total | mobsim | replanning |
+|---|---|---:|---:|---:|
+| base | PassingQ · events 4 · replanning 10 | 279 s | 185 s | 76 s |
+| evt | + events 12 · replanning 20 | **233 s** | 190 s | **33 s** |
+| async | + synchronizeOnSimSteps=false | 295 s | 255 s | 32 s |
+| fifo | FIFO control of base | 222 s | 143 s | 64 s |
+
+**Decisions, each carried on its own field**: `replanning_threads` = 20
+(replanning 76 → 33 s, prepare ~15 → ~6 s — the one clean win; RUN
+IDENTITY, free at the §9.58 boundary); `event_handler_threads` stays 4
+(12 bought nothing on this network); `synchronizeOnSimSteps` stays true
+(false is a measured 65 s/iteration regression);
+`oneThreadPerHandler` stays false (MEASURED FATAL — the probe crashed
+with `.initProcessing() has to be called before processing events!`, the
+experimental path §9.56 declined now known broken); PassingQ stays ON
+ITS CORRECTNESS CASE and its measured price is stated: ~42 s/iteration
+over FIFO at this event volume. `RUN.controler.create_graphs` is
+declared so a long arm's overlay can stop paying eight PNGs per
+iteration.
+
+**The honest statement against the 10x ask.** The repaired model is
+SLOWER per iteration than the wedged one (~233 s vs ~234 s median, on a
+network where 11.6k walk/bike legs per iteration used to die at the first
+junction instead of being simulated to the end of their day, walk covers
+16.6k more directed links, and every activity is reachable) — the wedge
+fix bought back work the broken model was silently skipping. The measured
+CPU floor (events handlers ~400 CPU-s + replanning + qsim) over 24 cores
+puts ~10x per-iteration out of reach WITHOUT shrinking the physical work,
+and every shrink path is either banned (teleportation), abandons physical
+boarding (the Hermes mobsim), or trades precision (the sample fraction).
+What IS available: the ~233 s stack now, and FAMILY THROUGHPUT — two
+concurrent arms at qsim 8 + events 4 fit this machine's 24 CPUs and
+63.5 GiB (each run peaks ~27 GB) and double arms-per-week; iteration
+COUNT survives contention even though iteration duration does not (§9.5's
+measured rule). The 10x directive is answered by measurement, not by a
+claim.
+
+---
+
+## 9.60 Non-household lifts: the reported gap gets a physical mechanism (21 August 2026, issues #48, #31, #28)
+
+**The owner's new instruction supersedes §9.55's report-only stance**: fix
+the non-household-lift gap. The option analysis is the dossier
+[`design/non-household-lifts.md`](design/non-household-lifts.md); the
+decisive fact is that the two halves of the gap are the same phenomenon
+seen from two sides — B2 generates serve-passenger (HX) driver tours at the
+OBSERVED 10–19.5% rate, §9.46 binds 68.6% of them to household member
+trips, and the unbound remainder drive to a drawn attractor serving
+nobody, while the driverless-household class generates ride demand that
+household pairing structurally cannot serve.
+
+**M0 — a booked passenger physically waits for the car**
+(`B.ride.wait_for_driver`, enacted in `JointRideEngine`). The §9.53 engine
+could board only a car ALREADY parked at the link; a passenger who
+departed first was a counted miss falling back to teleport — the measured
+×6.91 window layer wearing its physical face. Now the passenger stands at
+the meeting point, boards when the booked car is parked there, and gives
+up after the declared pairing window — the same tolerance the booking was
+made under, so NO NEW NUMBER. A timeout completes the leg on the Tier-1
+clock counted FROM the timeout: waiting costs what waiting costs, and
+scores accordingly. Counted per iteration: `waited(boarded, timedOut)`.
+
+**M1 — unbound escort tours are re-targeted to the passengers they exist
+to carry** (`bind_nonhousehold_lifts`, a second deterministic pass after
+each B2 day file closes; scope declared and swept as
+`B.activity.escort_binding_nonhh_scope` — `household_only` restores §9.46
+exactly, `same_zone` matches within the shared home SA1). An unbound HX
+tour becomes home_d → passenger origin (pickup) → passenger destination
+(drop) → home_d, with the serving leg's departure taken from the
+passenger's own EXACTLY, so the runtime pairing matches it under the
+UNCHANGED declared rule and window. Passengers rank as the §9.46 binder
+ranks (unlicensed education first); the pool is the driverless-household
+class only; the re-timed tour goes through `time_tour` twice (offset
+probe, then pinned) so no speed or overhead constant is restated; an
+infeasible re-timing is SKIPPED and the original tour kept. ADDS NO TOUR
+AND NO TRIP — the observed driver supply is re-aimed, exactly the §9.46
+argument one household boundary out.
+
+**The coupling, and its integrity rules.** `build_matsim_plans` grants a
+bound passenger `rideAvail` (the availability identity — a household
+vehicle and someone to drive you — is satisfied by construction across
+the household boundary) and stamps `liftHousehold`;
+`RidePairingEngine` widens that passenger's candidate search to the
+driver's household, own household first, so a binding can never displace
+an intra-household pairing at equal gap. The binding is an ELIGIBILITY,
+never a guarantee: the driver's leg must still match under the declared
+rule, the boarding is still physical, and an unserved leg still re-modes
+to walk (§9.55) — the emergent-share discipline is unchanged, with a
+larger physically-realisable supply. `sample_population` unions
+households joined by a binding into ONE sampling cluster hashed on a
+canonical representative: sampled independently the pair would survive
+intact with probability fraction² — the §9.45 defect class one level up —
+and co-sampling keeps every household's inclusion probability exactly the
+fraction at the stated §9.45 price (more variance at fixed size).
+
+**Measured on the regenerated demand (full population, seed 20260810):**
+WEEKDAY binds **55,280 of 55,614 unbound HX tours (99.4%)** to a
+driverless-household passenger in the same SA1 (SAT 30,443/30,490, SUN
+21,804/21,833) — the driver supply and the unservable demand really were
+the same phenomenon. The 1% × 2 verification probe ran rc=0 with
+**zero turn refusals** (the §9.58 repairs hold on the new demand),
+accounting closed, and the M0 counters live: the old
+`missed(gone/absent)` classes are **0** — every such case now goes
+through the waiting path (`waited(boarded, timedOut)` per iteration).
+What the mechanism is WORTH — where emergent ride settles against the
+observed 20.60% — is the converged arm's measurement, not this entry's.
+
+**M2 (driver-detour lifts) is designed and DEFERRED** until a converged
+arm measures what M0+M1 leave unserved; M3 (a declared allowance, teleport
+or phantom driver) is REJECTED — it violates no-teleportation and
+no-invented-data directly. The household/non-household split of boarded
+lifts is REPORTED (ride_pairing.csv), never fitted — no observation of
+who-drives-whom exists to fit it to; commute carpooling stays checked
+against G62 (car-as-passenger 3.35% of JTW), and occupancy is reported
+against its declared range [0.2493, 0.394]. No target moves; the 67/143
+split is untouched.
+
+---
+
+## 9.61 Deliverable 0b: three assumptions became measurements, and the scaffold constants surfaced (21 August 2026)
+
+The 0b sweep enumerated all 136 `assumed` fields (the board's "78" was
+stale) and classified every one; the backlog is issue #63. Landed now,
+each from data ALREADY IN THE PACKAGE:
+
+- **G15 was in the package all along.** `build_population.py` and the
+  age-structure dossier claimed the census table that would measure the
+  tertiary full-time/part-time split "is not in the package"; it is —
+  `2021Census_G15_NSW_SA1.csv` inside the GCP zip, harvested by the same
+  extract as every other table. The 18+ education split is now OBSERVED
+  per SA1 (full-time / (full-time + part-time), Voc + Uni combined, G15's
+  15_24/25_ov bands standing for 18_24/25_ov, `F_Pt_ns` excluded from both
+  sides, core-aggregate fallback for empty cells), and
+  `B.population.tertiary_ft_share` (assumed 0.70/0.35, ±30%) is RETIRED.
+- **The weekend's inside split is measurable after all.** §9.2 rightly
+  said the AADT station-year aggregates report one WEEKENDS figure; the
+  HOURLY permanent-station file carries day-of-week per dated row, and
+  `extract_daytype_factors.py` (the §9.49 freight-profile method verbatim,
+  LIGHT VEHICLES classification) measures the SAT:SUN split, the light
+  day-type factors the external tier scales by, and the weekend
+  departure-time shift (argmax circular correlation of the weekend hourly
+  profile against the weekday's). MEASURED over 12 stations and 33,753
+  clean station-days: **SAT:SUN = 1.1473** (the assumption said 1.1875 —
+  close), **SAT 0.8429 / SUN 0.7347 of the weekday level** (the external
+  tier had been scaled at an assumed 0.4/0.3 — weekend boundary demand
+  roughly DOUBLES), and the **departure shift is 1 h on both weekend
+  days — exactly what was assumed**, which is the pleasant case of an
+  assumption surviving its own measurement. Three assumed fields RETIRED
+  (`B.activity.sat_to_sun_rate`, `B.activity.weekend_departure_shift_h`,
+  `B.external.day_factor`); the build now refuses to run without the
+  measured artefact rather than falling back to an assumption.
+- **The chain-timing scaffold constants are declared.** `time_tour` timed
+  every B2 leg at `26.0` km/h (car-available) / `16.0` km/h (not) plus a
+  bare `+ 240` s — inside expressions, where the ledger's scanner
+  structurally cannot see a value. They decide only the planning scaffold
+  (whether tours fit a day and how departures space) — the mobsim re-times
+  every leg physically — but a value that decides anything is declared:
+  `B.activity.plan_speed_car_kmh` / `plan_speed_nocar_kmh` /
+  `plan_access_s`, assumed and swept.
+
+Every change regenerates B1/B2/plans and lands inside the §9.58/§9.59
+family boundary — nothing after it compares to anything before it.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

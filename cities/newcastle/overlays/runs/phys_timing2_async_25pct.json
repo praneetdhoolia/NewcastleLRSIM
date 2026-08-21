@@ -7,7 +7,6 @@
     "RUN.machine.threads": 10,
     "RUN.machine.replanning_threads": 20,
     "RUN.machine.event_handler_threads": 12,
-    "RUN.machine.events_one_thread_per_handler": true,
     "RUN.machine.events_synchronize_on_simsteps": false,
     "RUN.machine.xmx": "40g"
   },

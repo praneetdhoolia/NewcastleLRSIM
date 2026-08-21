@@ -1,0 +1,4 @@
+day_type,factor,depart_shift_h,stations,station_days
+SAT,0.8429,1,12,4800
+SUN,0.7347,1,12,4753
+WEEKDAY,1.0,0,12,24200

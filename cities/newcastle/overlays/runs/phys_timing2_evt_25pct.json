@@ -1,13 +1,12 @@
 {
   "overlay": "phys_timing2_evt_25pct",
-  "description": "A TIMING probe, not a modelling run: phys_timing2_base_25pct plus the events-pipeline and replanning-pool knobs the 9.57 arm's forensics point at - eventsManager threads 4 -> 12 with oneThreadPerHandler (the busiest events runnable burned ~119 s CPU against a 145 s mobsim wall; handlers are observers, so both knobs are wall-time-only, the 9.56 verified class) and the replanning pool raised to 20 threads (the arm ran replanning at a median 59 s with 14 of 24 CPUs idle; RUN IDENTITY - the 9.58/9.59 family boundary is where such a change is free). NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT.",
+  "description": "A TIMING probe, not a modelling run: phys_timing2_base_25pct plus the events-pipeline and replanning-pool knobs the 9.57 arm's forensics point at - eventsManager threads 4 -> 12 (the busiest events runnable burned ~119 s CPU against a 145 s mobsim wall; handlers are observers, so the knob is wall-time-only, the 9.56 verified class) and the replanning pool raised to 20 threads (the arm ran replanning at a median 59 s with 14 of 24 CPUs idle; RUN IDENTITY - the 9.58/9.59 family boundary is where such a change is free). oneThreadPerHandler was in this probe's first form and CRASHED MATSim (IllegalStateException: .initProcessing() has to be called before processing events - the experimental path 9.56 declined, now measured fatal; 9.59). NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT.",
   "set": {
     "RUN.sample.fraction": 0.25,
     "RUN.controler.last_iteration": 5,
     "RUN.machine.threads": 10,
     "RUN.machine.replanning_threads": 20,
     "RUN.machine.event_handler_threads": 12,
-    "RUN.machine.events_one_thread_per_handler": true,
     "RUN.machine.xmx": "40g"
   },
   "allow_outside_sweep": [

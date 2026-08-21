@@ -2179,7 +2179,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.machine.event_handler_threads` | `4` | threads | `definition` | - |
 | `RUN.machine.events_one_thread_per_handler` | `false` | boolean | `definition` | - |
 | `RUN.machine.events_synchronize_on_simsteps` | `true` | boolean | `definition` | - |
-| `RUN.machine.replanning_threads` | `10` | threads | `definition` | 1 - 24 |
+| `RUN.machine.replanning_threads` | `20` | threads | `definition` | 1 - 24 |
 | `RUN.machine.seed` | `20260810` | integer_seed | `definition` | - |
 | `RUN.machine.threads` | `10` | threads | `definition` | 1 - 24 |
 | `RUN.machine.xmx` | `14g` | jvm_heap | `definition` | - |
@@ -2276,25 +2276,25 @@ How often plans are written. Affects disk and wall time, not the model.
 
 #### `RUN.machine.event_handler_threads`
 
-Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync.
+Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync. 12 threads were probed on the 9.58 network and bought NOTHING over 4 (it2-4 median mobsim ~190 s either way, 9.59) - 4 stands.
 
 ***definition** · status **active** · DECISIONS.md §9.56 · MATSim `eventsManager.numberOfThreads`*
 
 #### `RUN.machine.events_one_thread_per_handler`
 
-Give each registered event handler its own thread instead of sharing RUN.machine.event_handler_threads workers. A wall-time knob of the same class as event_handler_threads (handlers are observers; each still sees the complete stream in order - NOT run identity). 9.56 deliberately left this alone; 9.59 declares it so a timing probe can measure it: the 9.57 arm's busiest events runnable burned ~119 s CPU against a 145 s mobsim wall, so the heaviest single handler is the next binding constraint. Default false = the 9.56 behaviour, until a probe justifies otherwise.
+Give each registered event handler its own thread instead of sharing RUN.machine.event_handler_threads workers. Declared for the 9.59 timing probes and MEASURED FATAL on the pinned build: the probe crashed mid-run with IllegalStateException '.initProcessing() has to be called before processing events!' - the experimental path 9.56 declined to touch, now known broken rather than merely untried. STAYS FALSE; the value exists so the refusal is recorded where the knob lives, not as an absence.
 
 ***definition** · status **active** · DECISIONS.md §9.59 · MATSim `eventsManager.oneThreadPerHandler`*
 
 #### `RUN.machine.events_synchronize_on_simsteps`
 
-Whether the qsim waits for the events pipeline at every sim-step. True (the MATSim default) makes the wall time max(qsim, events) at each step; false decouples them so the wall approaches the slower of the two over the whole iteration, at the price of buffered events memory and of live per-step telemetry snapshots becoming eventually-consistent (RunTelemetry is a diagnostic instrument, not a result - 9.36). Model outputs are unchanged either way: handlers see the complete stream. Default true = current behaviour, until a probe justifies otherwise.
+Whether the qsim waits for the events pipeline at every sim-step. Declared for the 9.59 timing probes and MEASURED A REGRESSION on this model: false swaps the manager implementation and took the it2-4 median mobsim from ~190 s to 255 s at 25%. STAYS TRUE; the value exists so the measured rejection is recorded where the knob lives.
 
 ***definition** · status **active** · DECISIONS.md §9.59 · MATSim `eventsManager.synchronizeOnSimSteps`*
 
 #### `RUN.machine.replanning_threads`
 
-Thread count for replanning, routing and everything else global.numberOfThreads governs. RUN IDENTITY like RUN.machine.threads (per-thread work partitioning changes results); split from it in 9.59 so the replanning pool can be sized to the machine independently of the mobsim's declared partitioning. Held at the mobsim value until a timing probe justifies otherwise.
+Thread count for replanning, routing and everything else global.numberOfThreads governs. RUN IDENTITY like RUN.machine.threads (per-thread work partitioning changes results); split from it in 9.59 so the replanning pool can be sized to the machine independently of the mobsim's declared partitioning. MEASURED (9.59, 25% x 5 probes on the 9.58 network): 20 threads took replanning from a median 76 s to 33 s and PersonPrepareForSim from ~15 s to ~6 s per iteration against the 10-thread base; the mobsim keeps its own declared 10.
 
 ***definition** · status **active** · DECISIONS.md §9.59 · MATSim `global.numberOfThreads`*
 
