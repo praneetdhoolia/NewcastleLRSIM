@@ -43,6 +43,11 @@ python src/registry/check_hardcoding.py --strict   # must exit 0
 5. **Any table comparing numbers lists EVERY mode individually** — never a
    "public transport" umbrella row; when only the pt aggregate is held, say
    so per row (owner, 20 Aug /goal directive).
+6. **Never commit directly to `main`; the session's ONE PR is opened at
+   `/handoff`, then watched to merge, and the branch deleted on both sides
+   before the handoff counts as complete** (owner, 21 Aug — in
+   `.claude/CLAUDE.md` and the /handoff skill). Pre-rule direct commits
+   stay in history as they are — do not rewrite `main`.
 
 **Start from `main`. No run is in progress; the machine is free.**
 

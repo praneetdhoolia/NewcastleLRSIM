@@ -143,7 +143,17 @@ more transparent about its assumptions than the business case it examines.
   convention). Work on `<git-handle>/<kebab>` branches and merge through a
   PR, with no exception for size or urgency. The repository's root commit
   (`ba95e7a`) is the single structural exception — a root cannot arrive by
-  PR.
+  PR. Direct commits made before this rule stay in history as they are
+  (owner, 21 Aug 2026 — do not rewrite `main`).
+- **The session's PR is opened at `/handoff`, not when a piece of work
+  finishes** (owner rule, 21 Aug 2026). During a session, work accumulates
+  as commits on the session branch; `/handoff` closes the session out and
+  opens ONE pull request carrying it. After opening the PR, the agent
+  **arms a watch for the merge**: when the PR merges and the remote branch
+  is deleted, the agent deletes the local branch — **only then is the
+  handoff complete**. If the session ends before the merge, the open PR is
+  the next session's first item of unfinished business (`/onboard` surfaces
+  it).
 - **Pull requests target `main` only — never another work branch.** A PR is
   opened when the work is ready to merge into `main`, not before, and never
   stacked on an unmerged branch: merging a stacked PR lands it on its *base

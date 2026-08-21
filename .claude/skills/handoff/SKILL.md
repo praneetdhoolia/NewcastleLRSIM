@@ -167,8 +167,14 @@ truck mode (#24)`), never as prefixes. Banned from titles: "Owner
 directive:", "Audit …:", "P4 handover:", "P4 board:", "Tooling:", DECISIONS
 §-refs. **Every handoff lands via a PR — never a direct commit to `main`** (owner
 rule, 21 Aug 2026; it superseded the earlier docs-only-close-outs-on-main
-convention). **One PR, based on `main` — never stacked on an unmerged work
-branch** (a stacked PR merges into its base branch, not `main`; this
+convention). **The PR is opened HERE, at /handoff — not earlier, when a
+piece of work finished**: session work accumulates as commits on the
+session branch, and this phase opens the ONE pull request that carries it.
+After opening it, **arm a watch for the merge** (poll the PR state); when
+it merges and the remote branch is gone, delete the local branch — **the
+handoff is complete only then**. If the session ends before the merge, the
+open PR is the next session's first item of unfinished business. **One PR,
+based on `main` — never stacked on an unmerged work branch** (a stacked PR merges into its base branch, not `main`; this
 stranded five PRs on 20 Aug 2026 until a landing PR carried the union), and
 if session work is still unmerged, fold the handover into that same
 branch/PR rather than stacking a second one. The PR body lists: what was
@@ -191,3 +197,6 @@ after verifying their tips carry no content absent from `main`.
 - [ ] Does the brief answer all six state-of-the-project questions
       (Phase 5), so that `/onboard` can reconstruct the whole picture from
       `main` alone?
+- [ ] Is the PR opened, the merge watch armed, and branch deletion queued
+      for after the merge? The handoff is complete only when the PR is
+      merged and the branch is gone on both sides.
