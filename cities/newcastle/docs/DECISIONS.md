@@ -44,8 +44,9 @@ otherwise cost you an hour:
 | **Taxi / rideshare as modes** | §9.21 declined for want of a target; **§9.42 re-opened on new evidence** — inferred from open sources, no data request lodged, nothing built before deliverable 5 |
 | **Synthetic population (B1), activity chains (B2)** | §9, §9.1, §9.2, §9.15; **§9.46 binds the escort tour to the person escorted** (it was not, §9.44); **§9.47 repairs the age structure** — phantom elderly commuters, missing 75+, universal child students |
 | **MATSim plans, C1 translation, what does not survive it** | §9.3 |
-| **Run cost, memory, threads** | §9.5 |
-| **Convergence and the iteration count** | **§9.43 DECLARES 1000** (issue #5, two measured arms); §9.7, §9.27 are the history. **The drift window changed with it** — it starts after the cutoff, not at it |
+| **Run cost, memory, threads** | §9.5; **§9.56 the events-pipeline threads** — the all-physical model's wall-time knob, verified result-identical |
+| **Convergence and the iteration count** | **§9.43 DECLARES 1000** (issue #5, two measured arms); **§9.57 re-affirms it against ~500 on both arms' trajectories**; §9.7, §9.27 are the history. **The drift window changed with it** — it starts after the cutoff, not at it |
+| **The first all-physical arm (attempted, stopped) and its measurements** | **§9.57** — the 1000-vs-500 decision, the ~234 s pace, the walk-leg decomposition, the it-110 knot, the #60 turn-refusal defect |
 | **Sample fraction — why 1% is unusable** | **§9.10, §9.12** — never compare across fractions. **§9.45: the sampling UNIT is the household**, not the person, or every household mechanism varies with the fraction |
 | **`ride`: the constant, the constraint, the free-flow defect** | §9.8, §9.11, §9.12, §9.17, §9.26; **§9.44 pairs a passenger to a household driver** — and measures that fewer than 1 ride trip in 1,000 can physically be carried; **§9.46 is the demand-side repair**; **§9.48 measures the repair on the re-measure arm — pairing 0.00004 → 0.0130, and the defect changes sign** |
 | **Trip length by mode** | §9.13; destination placement per home LGA **§9.40** |
@@ -5752,6 +5753,58 @@ model to buy speed. At 1% the knob is SLOWER (27.6–29.4 vs 19.9
 s/iteration — sync overhead with no saturation to relieve), so 1% probes
 remain comparable only to 1% probes, as §9.12 already requires.
 
+## 9.57 The first all-physical arm: decided at 1000, launched, measured to iteration 136, stopped (21 August 2026, issues #30, #48, #60)
+
+**The horizon decision — full 1000; ~500 considered and REJECTED.** Decided
+before launch on `bind1000_25pct`'s own trajectory and re-affirmed after the
+attempt on the new arm's: in the reference arm, car still moved **+2.14 pp**
+and ride **−1.28 pp** between iterations 500 and 790 — pre-cutoff SEARCH,
+which a 500-iteration horizon (cutoff 400) would truncate mid-slope — while
+the post-cutoff window was genuinely flat (car +0.09 pp over 190
+iterations). The attempted arm agreed: at iteration 133 car was still
+climbing ~+3.3 pp per 25 iterations. §9.43's declared 1000 stands.
+
+**The attempt.** `phys1000_25pct` (S2 × WEEKDAY, 25% × 1000, the §9.56
+events threads, write intervals 100) launched 21 Aug 00:40 with stated-cost
+approval (~48–58 h). Healthy through 135 complete iterations at median
+**~234 s/iteration**: car 19.53 → 46.32%, walk 52.37 → 32.77, bike 11.71 →
+9.92, pt (aggregate) 11.97 → 6.62, ride 0.31 → 0.26 (the §9.55 emergent
+floor), truck 3.89 and motorbike 0.22 constant by construction; per-iteration
+stuck falling 41.8k → ~21k. **Stopped at owner instruction ~11:52 during
+iteration 136** and quarantined to `results/_aborted_20260821/phys1000_25pct`
+— no `_run.json`, NOT a result; the 135 iterations of trajectory diagnostics
+are preserved. Relaunch requires fresh stated-cost approval.
+
+**Two measurements the attempt produced, both diagnostics of an aborted run:**
+
+- **The iteration-110 outlier**: 7,867 s against the ~234 s median — a
+  mid-day walk gridlock knot (13,006 walk stuck that iteration vs ~2,600
+  typical) that cleared itself through stuck timeouts and did not recur in
+  the remaining 25 iterations. Same unattributed family as §9.36's 2,415 s
+  event on `conv1000_10pct`; still unattributed, now twice-seen.
+- **The walk-leg decomposition** (iteration-100 events, 25%): 242,073
+  completed walk legs = **160,812 whole-trip network walks (66%, mean 8,800
+  s ≈ 11 km at the capped 1.25 m/s)** + **81,261 teleported PT access/egress
+  stubs (34%, mean 1,159 s)**; car access/egress contributes ZERO
+  (`accessEgressType = none`). The 11 km mean is #30's generation defect
+  surfacing physically — mid-search, the model carries walks no person would
+  make, and they are most of the event volume §9.56 paid for. The §9.55
+  re-mode contributes 5,533–5,792 unpaired ride legs per iteration to the
+  whole-trip class (engine counts, logged each iteration).
+
+**A defect found and not fixed, filed as #60**: 424,056 `Cannot move vehicle
+<person>_walk` refusals from `DefaultTurnAcceptanceLogic` over ~110
+iterations (~3.8k/iteration) — walk vehicles arriving at a junction whose
+next route link the qsim refuses. SUSPICION, not verified: the walk router
+ignores `disallowedNextLinks` (turn restrictions harvested for motor
+vehicles) while the qsim enforces them, wedging pedestrians until the stuck
+timeout; plausibly the mechanism inside the iteration-110 knot. Numbers
+measured; mechanism unproven; nothing here changes a declared value.
+
+**What this deliberately does not do**: no finding about the light rail, no
+comparison against any other run (aborted, and its own family), no change to
+any target; the 67/143 split untouched.
+
 ---
 
 ## 10. Scenario construction (E1)
@@ -6252,6 +6305,8 @@ argument parser into the registry where it binds everything.
 
 | Date | Change |
 |---|---|
+| 2026-08-21 | **The first all-physical arm: decided at the full 1000, launched, measured, stopped (§9.57; issues #30/#48/#60).** ~500 iterations considered and REJECTED on both arms' trajectories (reference: car +2.14 pp between 500 and 790; attempt: car still +3.3 pp/25 it at 133). `phys1000_25pct` ran 135 healthy iterations at median ~234 s (one 7,867 s walk-knot outlier, self-recovered, §9.36's family) and was stopped at owner instruction during iteration 136 — quarantined, no `_run.json`, diagnostics preserved. Measured en route: 66% of walk legs are whole-trip network walks at mean ~11 km (#30 surfacing physically), 34% PT access/egress stubs, zero car access/egress; 424,056 walk turn-refusals filed as #60. No target moved; the 67/143 split untouched; nothing is a result. |
+| 2026-08-21 | **Run accounting reads the events stream, and the events pipeline gets its own threads (§9.56; issue #54, PRs #58/#59).** The summariser's stuck attribution came from telemetry's in-flight tracking, which double-counted the engines' end-of-day aborts and false-negatived the accounting gate on runs whose events balance (measured: ride 3 stuck events vs 2 unfinished legs; 12 vs 7) — it now attributes each stuck event to the person's open leg from `output_events.xml.gz`, counts duplicate aborts separately, and reports telemetry-vs-events disagreement. `RUN.machine.event_handler_threads` = 4 declared (`eventsManager.numberOfThreads`) after the framework-default SINGLE events thread was measured saturated under the all-physical event volume (172–177 s CPU per ~261 s iteration; the knob buys ~21% of the wall; model outputs verified bit-identical; the events file's within-timestep byte order becomes schedule-dependent — recorded cost). Registry count verified **327** against the generated contract (the 20 Aug close-out's 327 was an off-by-one over an on-disk 326). Measurement and execution layer only: no target moved; nothing is a result. |
 | 2026-08-20 | **Every person-transport mode is now IN ACTION physically (§9.54, §9.55; issues #48/#49/#30).** Walk joins the qsim at PCE 0.0 capped at the declared 1.25 m/s (the sidewalk in queue arithmetic — present on every link, exchanging no capacity with motor traffic); bike at literature PCE 0.2 (swept 0.1–0.4) at its declared 4.2 m/s. Road-rule exclusions declared (walk off motorways/trunks, bike off motorways) with per-mode largest-SCC cleaning (walk stripped from 16,726 unreachable links, bike 5,177 — MATSim refuses islands, measured). The four teleported walk/bike fields retire; the MEASURED 1.6902 walk detour survives as the declared access-stub factor; the transit router's 9,466 generic-route walk stubs are carried by two narrow qsim components (`TolerantAgentSource`, `GenericRouteTeleporter`) after three measured probe failures located the exact collision. The silently-defaulted non_network_walk SCORING is now declared (walk's rate by identity, zero constant). **§9.55: an unpaired ride leg re-modes to physical walk — no exceptions, no teleportation, no invented parameter — making the ride share EMERGENT from household driver supply** (probe: 2,758 re-moded at iteration 0; final iteration ride = 67 trips, every one physically boarded). Probe rc=0, all gates green. No target moved; the 67/143 split untouched; nothing is a result. |
 | 2026-08-20 | **A paired car passenger physically boards the driver's vehicle (§9.53, issues #48/#28/#31).** The mechanism the gap decomposition forced: `JointRideEngine`, a qsim departure handler + engine consulted before teleportation — board when the booked driver's car is still parked at the shared origin (real PersonEntersVehicleEvent, every link ridden, alight at the shared destination); a miss falls back to Tier 1 verbatim and is counted; the qsim's boarding cap now carries the declared `B.ride.max_passengers_per_vehicle` instead of MATSim's coincidentally-equal default. Probe (1% × 2, rc=0): 67–71 boarded/iteration, 2 missed, 0 absent/full — confirmed independently from the events (71 Enter events at the ride-departure second into another person's car). Car vehicle ids measured to be the person's bare id after the guessed `_car` form missed 100%. The unpaired majority stays teleported pending #48's re-moding policy. No target moved; nothing is a result. |
 | 2026-08-20 | **Motorbike becomes a physical mode (§9.52, issue #49): a person-level locked carve from car-driver demand, anchored on the measured census JTW share.** 653 of 179,761 core-SA1 one-method JTW journeys (0.363%) are by motorbike/scooter — the observed anchor the old "declined for want of a target" stance lacked. `B.motorbike.trip_share` 0.0036 (assumed commute→all-purpose transfer, swept 0.0–0.01), PCE 0.4 literature (swept 0.3–0.75). Hash-drawn per person (no rng perturbation — every existing draw sequence byte-identical), day locked to the mode except escort days, carved FROM car so no trip is invented; `fit.py` compares car+motorbike against the Vehicle-driver target that contains motorcyclists. Smoke-verified physical: 12 riders, 52 trips, 6,286 link traversals at 1%. Same comparability family as §9.49 (no completed run exists in it). **Seven of nine-plus modes are now physical.** No target moved; the 67/143 split untouched; nothing is a result. |

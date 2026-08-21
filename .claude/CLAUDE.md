@@ -143,10 +143,14 @@ more transparent about its assumptions than the business case it examines.
   branch*, not `main` (measured 20 Aug 2026 — five of six stacked PRs never
   reached `main` until PR #56 carried the union across). Sequentially
   dependent work stays as commits on one branch until the prior PR merges,
-  or ships in the same PR. PR titles and bodies follow conventional
-  large-project GitHub style (Summary / Changes / Testing / Breaking
-  changes; neutral voice — the internal idiom of `DECISIONS.md` stays out of
-  GitHub artefacts).
+  or ships in the same PR. **Issue and PR titles follow one scheme**:
+  `P<phase>: <concise plain-English summary>` (≤~72 chars), task numbers or
+  issue cross-refs in parens at the end — never internal idiom ("Owner
+  directive:", "Audit …:", "handover:", "board:", "Tooling:") and never
+  DECISIONS §-refs in a title. PR bodies follow conventional large-project
+  GitHub style (Summary / Changes / Testing / Breaking changes; neutral
+  voice — the internal idiom of `DECISIONS.md` stays out of GitHub
+  artefacts).
 - **Attribution.** No Claude co-author trailer or PR attribution
   (`attribution.commit`/`pr` empty, `includeCoAuthoredBy: false` in
   [`.claude/settings.json`](settings.json)); a SessionStart hook pins the git

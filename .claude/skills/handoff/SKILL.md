@@ -159,10 +159,13 @@ paths — renderers break them into dead URLs).
 **Landing:** branch `<git-handle>/<short-kebab>` (never `claude/*`), STATUS.md
 in the **same commit** as the work it describes, commit message states what
 changed in the model/data/record (not which script ran), no attribution
-trailers or session links. **PR titles carry the phase and task number**:
-`P<phase> (<task>): <what changed>` — e.g. `P4 (4.2.3): …` — with `P<n>
-board:` / `P<n> handover:` for record-only PRs and `Tooling:` for
-phase-agnostic tooling. **A PR is not required for every handoff.** Open one
+trailers or session links. **One title scheme for every GitHub artefact — issues and PRs alike**
+(owner-set 21 Aug 2026, applied retroactively to all of them):
+`P<phase>: <concise plain-English summary>` (≤~72 chars), task numbers or
+issue cross-refs in parens at the END (e.g. `P4: Add freight as a physical
+truck mode (#24)`), never as prefixes. Banned from titles: "Owner
+directive:", "Audit …:", "P4 handover:", "P4 board:", "Tooling:", DECISIONS
+§-refs. **A PR is not required for every handoff.** Open one
 only when the session changed the model, the data, or the record
 substantively; a documentation-only close-out (board/brief refresh, branch
 cleanup, convention notes) lands as a commit directly on `main`. When a PR
