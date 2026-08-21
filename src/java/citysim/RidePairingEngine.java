@@ -123,6 +123,13 @@ public final class RidePairingEngine implements BeforeMobsimListener,
     /** Person attribute written by build_matsim_plans.py; absent on the
      *  household-less external and through boundary tiers. */
     public static final String HOUSEHOLD_ATTRIBUTE = "householdId";
+    /** Person attribute written by build_matsim_plans.py from the B2
+     *  non-household lift bindings (DECISIONS.md 9.60): the household id of
+     *  the DRIVER whose re-targeted escort tour serves this person, so the
+     *  pairing may search that household's car legs in addition to the
+     *  person's own. The binding is an eligibility, not a guarantee - the
+     *  driver's leg must still match under the declared rule and window. */
+    public static final String LIFT_HOUSEHOLD_ATTRIBUTE = "liftHousehold";
     /** Written by build_matsim_plans.py, and already consumed by
      *  {@link AvailabilityModesCalculator}'s sibling attributes. */
     public static final String LICENCE_ATTRIBUTE = "hasLicense";
@@ -145,6 +152,8 @@ public final class RidePairingEngine implements BeforeMobsimListener,
 
     /** Household id per person, resolved once: membership never changes. */
     private final Map<Id<Person>, String> household = new HashMap<>();
+    /** Lift-driver household per bound passenger (9.60), resolved once. */
+    private final Map<Id<Person>, String> liftHousehold = new HashMap<>();
     /** Licence holding per person, resolved once, for the same reason. */
     private final Map<Id<Person>, Boolean> licensed = new HashMap<>();
     private boolean indexed = false;
@@ -436,9 +445,24 @@ public final class RidePairingEngine implements BeforeMobsimListener,
         double deltaSum = 0.0;
 
         for (final RideLeg ride : rides) {
-            final List<DriverLeg> candidates =
+            List<DriverLeg> candidates =
                     driversByHousehold.getOrDefault(household.get(ride.person),
                                                     Collections.emptyList());
+            // DECISIONS.md 9.60: a bound lift widens the search to the
+            // driver's household - own household first, so the binding can
+            // never displace an intra-household pairing at equal gap.
+            final String lift = liftHousehold.get(ride.person);
+            if (lift != null) {
+                final List<DriverLeg> liftCandidates = driversByHousehold
+                        .getOrDefault(lift, Collections.emptyList());
+                if (!liftCandidates.isEmpty()) {
+                    final List<DriverLeg> merged = new ArrayList<>(
+                            candidates.size() + liftCandidates.size());
+                    merged.addAll(candidates);
+                    merged.addAll(liftCandidates);
+                    candidates = merged;
+                }
+            }
             DriverLeg best = null;
             double bestGap = Double.MAX_VALUE;
             boolean refusedForCapacity = false;
@@ -652,6 +676,11 @@ public final class RidePairingEngine implements BeforeMobsimListener,
             final Object hh = person.getAttributes().getAttribute(HOUSEHOLD_ATTRIBUTE);
             if (hh != null) {
                 household.put(person.getId(), hh.toString());
+            }
+            final Object lift = person.getAttributes()
+                    .getAttribute(LIFT_HOUSEHOLD_ATTRIBUTE);
+            if (lift != null) {
+                liftHousehold.put(person.getId(), lift.toString());
             }
             final Object lic = person.getAttributes().getAttribute(LICENCE_ATTRIBUTE);
             licensed.put(person.getId(), lic != null && LICENCE_YES.equals(lic.toString()));

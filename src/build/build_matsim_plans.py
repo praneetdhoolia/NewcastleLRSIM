@@ -103,7 +103,8 @@ PLANS = _city.path('demand/plans')
 POP = _city.path('demand/population')
 OUT = os.path.join(PLANS, 'matsim')
 SEED = CFG.get('B.seed.master')
-DAY_TYPES = ['WEEKDAY', 'SAT', 'SUN']
+# the CITY's day-type vocabulary, not the framework's (city.json day_types)
+DAY_TYPES = list(_city.descriptor()['day_types'])
 
 # Seed mode split: UNINFORMED, uniform over the modes a person can use.
 #
@@ -315,6 +316,19 @@ def stream_persons(path):
 def write_day(day, attrs, rng, report, seed_table=None):
     src = os.path.join(PLANS, 'B2_activity_trips_%s.csv' % day)
     dst = os.path.join(OUT, 'population_%s.xml.gz' % day)
+    # DECISIONS.md 9.60: the non-household lift bindings. A bound passenger
+    # gains `ride` availability (a specific driver's re-targeted escort tour
+    # now exists to carry them - the availability identity is satisfied by
+    # construction) and carries the driver's household id as `liftHousehold`,
+    # which widens citysim.RidePairingEngine's candidate search to that
+    # household. The binding is an eligibility, not a guarantee.
+    lift_hh = {}
+    lifts = os.path.join(PLANS, 'B2_lift_bindings_%s.csv' % day)
+    if os.path.exists(lifts):
+        with open(lifts, encoding='utf-8') as fh:
+            for r in csv.DictReader(fh):
+                lift_hh[int(r['passenger_person_id'])] = \
+                    int(r['driver_household_id'])
     u_buf = {'buf': rng.random(1 << 20), 'i': 0}
 
     def u():
@@ -386,6 +400,11 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 if a is None:
                     continue
                 car_av, age, lic, emp, stu, mob, ride_av, bike_av, hh_id = a
+                if pid in lift_hh:
+                    # 9.60: a bound lift passenger has, by construction, a
+                    # driver who can carry them - the identity ride_avail
+                    # derives from is satisfied across the household boundary.
+                    ride_av = 1
                 if ESCORT_EXCLUDES_RIDE and ride_av and any(
                         r['dest_activity_type'] == 'escort' for r in rows):
                     ride_av = 0
@@ -441,6 +460,12 @@ def write_day(day, attrs, rng, report, seed_table=None):
                 # is exactly what those two consumers test for.
                 w.write('\t\t\t<attribute name="householdId" '
                         'class="java.lang.String">%d</attribute>\n' % hh_id)
+            if not external and pid in lift_hh:
+                # 9.60: consumed by citysim.RidePairingEngine - the DRIVER's
+                # household this passenger's pairing may also search.
+                w.write('\t\t\t<attribute name="liftHousehold" '
+                        'class="java.lang.String">%d</attribute>\n'
+                        % lift_hh[pid])
             if tier in ('through', 'freight') or moto:
                 # locks SubtourModeChoice to {car} / {truck} / {motorbike} for
                 # this agent - a volume anchored on an observation must stay

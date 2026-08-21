@@ -414,8 +414,14 @@ def parse_override(s):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--scenario', default='S2')
-    ap.add_argument('--day', default='WEEKDAY', choices=['WEEKDAY', 'SAT', 'SUN'])
+    # the scenario default and day vocabulary come from city.json - a CLI
+    # that hardwired one city's S2/WEEKDAY rejected another city's declared
+    # day types outright
+    _desc = city.descriptor()
+    ap.add_argument('--scenario',
+                    default=_desc['intervention']['base_scenario'])
+    ap.add_argument('--day', default=list(_desc['day_types'])[0],
+                    choices=list(_desc['day_types']))
     ap.add_argument('--run-config', metavar='TAG',
                     help='a committed overlay under config/runs/<TAG>.json - the '
                          'reproducible way to vary a run')

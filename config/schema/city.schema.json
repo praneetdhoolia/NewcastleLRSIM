@@ -236,6 +236,10 @@
         "base_scenario": {
           "type": "string"
         },
+        "mode": {
+          "type": "string",
+          "description": "The transit schedule transportMode the intervention runs as (e.g. tram, rail, bus). The measurement layer attributes intervention patronage by THIS, matched against each boarded route's own scheduled transportMode - never by a name heuristic over line ids."
+        },
         "scenarios": {
           "type": "array",
           "items": {

@@ -153,7 +153,7 @@ def pack(lines, origin):
 def read_roads(simplify):
     from shapely.geometry import LineString
     import pyproj
-    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    tf = pyproj.Transformer.from_crs('EPSG:4326', _city.crs(), always_xy=True)
     attr = {}
     with open(ROADS_ATTR, encoding='utf-8') as fh:
         for r in csv.DictReader(fh):
@@ -187,7 +187,7 @@ def read_roads(simplify):
 def read_railways(simplify):
     from shapely.geometry import LineString
     import pyproj
-    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    tf = pyproj.Transformer.from_crs('EPSG:4326', _city.crs(), always_xy=True)
     nodes, ways, cur, tags, refs = {}, {'rail': [], 'tram': []}, None, {}, []
     for ev, el in ET.iterparse(RAILWAYS, events=('start', 'end')):
         if ev == 'end' and el.tag == 'node':
@@ -266,7 +266,7 @@ def read_sumo_lanes():
 
 
 def read_areas(path, select, tol):
-    """Closed ways carrying any of the selected tags, as polygons in 28356.
+    """Closed ways carrying any of the selected tags, as polygons in the city CRS.
 
     Ways only. An OSM multipolygon relation would carry the islands in a lake as
     inner rings, and dropping them fills a lake solid - visible, and wrong, but
@@ -275,7 +275,7 @@ def read_areas(path, select, tol):
     """
     from shapely.geometry import LineString
     import pyproj
-    tf = pyproj.Transformer.from_crs(4326, 28356, always_xy=True)
+    tf = pyproj.Transformer.from_crs('EPSG:4326', _city.crs(), always_xy=True)
     nodes, out, tags, refs = {}, [], {}, []
     for ev, el in ET.iterparse(path, events=('start', 'end')):
         if ev == 'end' and el.tag == 'node':
@@ -306,7 +306,7 @@ def read_areas(path, select, tol):
 def read_coast(simplify):
     import geopandas as gpd
     from shapely.ops import unary_union
-    g = gpd.read_file(LGA).to_crs(28356)
+    g = gpd.read_file(LGA).to_crs(_city.crs())
     area = unary_union(g.geometry.values)
     if simplify:
         area = area.simplify(simplify_tolerance_m('coast'))

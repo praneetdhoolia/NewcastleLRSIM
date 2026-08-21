@@ -52,6 +52,7 @@
     "name": "Newcastle Light Rail",
     "opened": "2019-02",
     "base_scenario": "S2",
+    "mode": "tram",
     "scenarios": ["S0", "S1", "S2", "S2a", "S2b", "S2c", "S3", "S4", "S5", "S6"]
   },
 

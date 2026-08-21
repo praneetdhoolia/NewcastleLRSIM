@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 332 fields are made of
+## What the 334 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 27 | follows from another registry field by identity |
 | `literature` | 40 | a published value, not specific to this city |
 | `assumed` | 136 | chosen without direct empirical support |
-| `definition` | 103 | fixed by the formulation, not an empirical quantity |
+| `definition` | 105 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 312 | usable point value |
+| `active` | 314 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -815,7 +815,7 @@ Walk speed used to generate GTFS transfer times. Distinct from the MATSim telepo
 
 ## Demand (B1-B5)
 
-*`cities/newcastle/registry/B_demand.json` - 67 fields*
+*`cities/newcastle/registry/B_demand.json` - 68 fields*
 
 Synthetic population, activity and tour generation, external boundary demand, and the count-comparison corrections. The third unobtained input, B.opal.journey_linked, lives here. B.activity.p_intermediate_stop is the demand-side parameter with the most leverage over mode share and is assumed.
 
@@ -831,6 +831,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.duration_cv` | `0.3` | coefficient_of_variation | `assumed` | 0.2 - 0.45 |
 | `B.activity.escort_binding_enabled` | `true` | boolean | `definition` | - |
 | `B.activity.escort_binding_min_gap_s` | `2700` | seconds | `assumed` | 900 - 5400 |
+| `B.activity.escort_binding_nonhh_scope` | `same_zone` | enum | `assumed` | `household_only`, `same_zone` |
 | `B.activity.escort_binding_scope` | `any_member_trip` | enum | `assumed` | `any_member_trip`, `unlicensed_or_education` |
 | `B.activity.escort_excludes_ride` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
 | `B.activity.escort_requires_licence` | `true` | boolean | `derived` | derived: an escort trip is a trip made in order to convey another person, so th |
@@ -838,8 +839,9 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.activity.p_intermediate_stop` | `{"HW": 0.22, "HE": 0.12, "HS": 0.18, "HO": 0.2, "WB": 0.3, "HX": 0.15}` | probability | `assumed` | 0.1 - 0.35 |
 | `B.activity.p_mandatory` | `{"WEEKDAY": {"work": 0.78, "education": 0.85}, "SAT": {"work": 0.16, "education": 0.03}, "SUN": {"work": 0....` | probability | `assumed` | 0.6 - 0.95 |
 | `B.activity.p_second_stop` | `0.25` | probability | `assumed` | 0.12 - 0.4 |
-| `B.activity.sat_to_sun_rate` | `1.1875` | ratio | `assumed` | 1 - 1.45 |
-| `B.activity.weekend_departure_shift_h` | `{"WEEKDAY": 0, "SAT": 1, "SUN": 1}` | hours | `assumed` | 0 - 2 |
+| `B.activity.plan_access_s` | `240` | seconds | `assumed` | 120 - 480 |
+| `B.activity.plan_speed_car_kmh` | `26.0` | km/h | `assumed` | 20 - 32 |
+| `B.activity.plan_speed_nocar_kmh` | `16.0` | km/h | `assumed` | 10 - 22 |
 | `B.activity.weekend_to_weekday` | `0.7521` | ratio | `measured` | 0.709 - 0.816 |
 | `B.bike.pce` | `0.2` | passenger_car_equivalents | `literature` | 0.1 - 0.4 |
 | `B.bike.speed_ms` | `4.2` | m/s | `literature` | 3.1 - 5.5 |
@@ -850,7 +852,6 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.external.agent_profile` | `{"car_available": 1, "age": 40, "licence_holder": 1, "employment_status": "employed_full_time", "student_st...` | person_attributes | `definition` | - |
 | `B.external.agent_ride_available` | `false` | boolean | `derived` | derived: a person may be a car passenger only if their household holds a vehicl |
 | `B.external.cordon_road_classes` | `["motorway", "trunk", "primary", "secondary", "motorway_link", "trunk_link", "primary_link"]` | osm_highway_class | `definition` | - |
-| `B.external.day_factor` | `{"WEEKDAY": 1.0, "SAT": 0.4, "SUN": 0.3}` | multiplier | `assumed` | plus/minus 30% |
 | `B.external.interaction_rate` | `0.08` | probability | `assumed` | 0.04 - 0.15 |
 | `B.external.person_id_base` | `900000000` | integer_offset | `definition` | - |
 | `B.external.purpose_split` | `{"HW": 0.7, "HO": 0.3}` | probability | `assumed` | plus/minus 20% |
@@ -878,7 +879,6 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.population.build_sample_share` | `1.0` | share_of_population | `definition` | - |
 | `B.population.licence_rate_by_age_band` | `[0, 0, 0, 0.62, 0.88, 0.93, 0.94, 0.93, 0.88, 0.72, 0.45]` | probability | `literature` | plus/minus 10% |
 | `B.population.ride_requires_household_driver` | `true` | boolean | `derived` | derived: a person may be a car passenger only if their B1 household holds at le |
-| `B.population.tertiary_ft_share` | `{"18_24": 0.7, "25_ov": 0.35}` | share_of_attendees | `assumed` | plus/minus 30% |
 | `B.ride.max_passengers_per_vehicle` | `4` | persons | `assumed` | 1 - 4 |
 | `B.ride.pairing_enabled` | `true` | boolean | `definition` | - |
 | `B.ride.pairing_rule` | `both_links` | enum | `assumed` | `both_links`, `origin_link`, `dest_link`, `window_only` |
@@ -886,6 +886,7 @@ Synthetic population, activity and tour generation, external boundary demand, an
 | `B.ride.physical_boarding` | `true` | boolean | `definition` | - |
 | `B.ride.pickup_dwell_s` | `0.0` | seconds | `assumed` | 0 - 120 |
 | `B.ride.remode_unpaired` | `true` | boolean | `definition` | - |
+| `B.ride.wait_for_driver` | `true` | boolean | `definition` | - |
 | `B.seed.master` | `20260810` | integer_seed | `definition` | - |
 | `B.walk.pce` | `0.0` | passenger_car_equivalents | `definition` | - |
 
@@ -955,6 +956,12 @@ Minimum separation between the departures of two escort tours BOUND for the same
 
 > **Sweep basis.** no observation bears on how closely one driver can stack two escort runs; 45 minutes covers a school-run drop-off (dwell ~5 min) plus the return at the model's own seed speeds over the observed 6.4 km escort distance. The bounds are a 15-minute back-to-back stack and a 90-minute spacing. Finer overlap - a drawn intermediate stop stretching one bound tour into the next - resolves at placement, where the later binding drops rather than shifts.
 
+#### `B.activity.escort_binding_nonhh_scope`
+
+Which non-household passengers an HX escort tour that found no household trip may be re-targeted to serve (9.60). The driver supply is the observed Serve-passenger rate, already generated; this decides only how far an unbound tour may look for the passenger it exists to carry. Passengers are the driverless-household class - the people household pairing structurally cannot reach.
+
+***assumed** · status **active** · DECISIONS.md §9.60*
+
 #### `B.activity.escort_binding_scope`
 
 Which classes of already-drawn household trips an HX escort tour may take its destination and departure from.
@@ -1003,17 +1010,29 @@ Probability of a second intermediate stop, given a first.
 
 ***assumed** · status **active** · DECISIONS.md §9.2*
 
-#### `B.activity.sat_to_sun_rate`
+#### `B.activity.plan_access_s`
 
-Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12).
+Fixed per-leg overhead added to every B2 planned leg time on top of distance/speed. Not a routing or scoring quantity.
 
-***assumed** · status **active** · DECISIONS.md §9.2*
+***assumed** · status **active** · DECISIONS.md §9.61*
 
-#### `B.activity.weekend_departure_shift_h`
+> **Sweep basis.** fixed access-and-egress overhead per planned leg (getting to the vehicle, parking, walking in). Scaffold-only, declared per 9.61.
 
-Shift applied to the weekday departure profile on weekend day types.
+#### `B.activity.plan_speed_car_kmh`
 
-***assumed** · status **active** · DECISIONS.md §9.2*
+Door-to-door planning speed for a car-available person, used by the B2 chain builder to time tours (straight-line distance at this speed plus B.activity.plan_access_s). Not a routing or scoring quantity.
+
+***assumed** · status **active** · DECISIONS.md §9.61*
+
+> **Sweep basis.** urban door-to-door average including parking and access; brackets typical metropolitan network speeds. It decides only the B2 chain-timing scaffold (whether tours fit a day, and their planned departure spacing) - the mobsim re-times every leg physically - but a value that decides anything is declared (9.61: it sat as a bare 26.0 inside time_tour's expression, invisible to the ledger's scanner).
+
+#### `B.activity.plan_speed_nocar_kmh`
+
+Door-to-door planning speed for a person without car availability, used by the B2 chain builder to time tours. Not a routing or scoring quantity.
+
+***assumed** · status **active** · DECISIONS.md §9.61*
+
+> **Sweep basis.** a blend of walk, cycle and bus door-to-door speeds for a person without a car. Same scaffold-only role, same 9.61 declaration rationale, as plan_speed_car_kmh.
 
 #### `B.activity.weekend_to_weekday`
 
@@ -1090,12 +1109,6 @@ Whether an external boundary agent may travel as a car passenger.
 Road classes whose network nodes may serve as an external station, that is a cordon entry point. Defines what counts as a road capable of carrying boundary demand into the study area; a residential cul-de-sac is not one.
 
 ***definition** · status **active** · DECISIONS.md §9.15*
-
-#### `B.external.day_factor`
-
-External boundary demand by day type, relative to the weekday.
-
-***assumed** · status **active** · DECISIONS.md §9.2*
 
 #### `B.external.interaction_rate`
 
@@ -1297,14 +1310,6 @@ Whether `ride` is withheld from a person with nobody to drive them. MATSim's sta
 
 > **Derived from** `B.seed.master`: a person may be a car passenger only if their B1 household holds at least one vehicle AND contains at least one OTHER licence holder who could drive them; computed from B1_synthetic_population.csv household_id, household_vehicles and licence_holder, so it is derived from the synthetic population rather than chosen
 
-#### `B.population.tertiary_ft_share`
-
-Of persons 18+ attending an educational institution (G01, observed per SA1), the share that are full-time students - the ones who draw a mandatory HE tour. Under-18 attendees are full-time by definition (school). Replaces a flat assumed 0.35 full-time-student rate for all 18-24s and a hardcoded 0.04 part-time rate that no audit could see.
-
-***assumed** · status **active** · DECISIONS.md §9.46*
-
-> **Sweep basis.** the census table that would measure it (G15, full-time/part-time student status by age) is not in the package - a deliberate non-acquisition (age-structure dossier 5): it decides HE tour-making only within the full-time fraction of the 38% of 20-24s and 5.5% of 25+ who attend at all. National context brackets it: university study is majority full-time and VET majority part-time, and 18-24 attendance is university-dominant while 25+ is not. A G15 harvest is a deliverable-0b candidate that would move this to measured.
-
 #### `B.ride.max_passengers_per_vehicle`
 
 How many passengers one driver's leg may carry. Without a cap a single driver would serve every passenger their household offered - the same unbounded-supply defect that rideAvail removed on the availability side, where an unconstrained model put 5.9 people in every car (9.10). Consumed by src/java/citysim/RidePairingEngine.
@@ -1352,6 +1357,12 @@ Seconds added to a PAIRED passenger's travel time for the act of being picked up
 Whether an UNPAIRED ride leg is re-moded to network-simulated walk at the BeforeMobsim boundary - the 9.51 owner directive's own ruling (every ride physically in a car, no exceptions, no teleportation) enacted without inventing a parameter: a ride trip no household driver can physically serve is not a ride trip, it walks, scores accordingly, and co-evolution reassigns the tour - so the surviving ride share is EMERGENT from the physical driver supply rather than declared. False keeps Tier 1's teleport for the unpaired, for comparability within one build. Consumed by citysim.RidePairingEngine.
 
 ***definition** · status **active** · DECISIONS.md §9.55 · MATSim `ridePairing.remodeUnpaired`*
+
+#### `B.ride.wait_for_driver`
+
+Whether a booked passenger whose car is not at the meeting point yet physically WAITS for it, bounded by the declared pairing window (B.ride.pairing_window_min - the same tolerance the booking was made under, so no second number is invented). The 9.53 boarding engine could board only a car ALREADY parked at the link; a passenger departing first was a counted miss falling back to teleport - the measured x6.91 window layer of the realisation gap wearing its physical face. Waiting is real elapsed time: a timed-out passenger completes on the Tier-1 clock FROM THE TIMEOUT, so waiting costs what waiting costs and scores accordingly. False restores the 9.53 behaviour. Consumed by citysim.JointRideEngine.
+
+***definition** · status **active** · DECISIONS.md §9.60 · MATSim `ridePairing.waitForDriver`*
 
 #### `B.seed.master`
 
@@ -2152,13 +2163,14 @@ Tram service deceleration.
 
 ## Execution control
 
-*`cities/newcastle/registry/RUN_execution.json` - 61 fields*
+*`cities/newcastle/registry/RUN_execution.json` - 62 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
 | Field | Value | Units | Provenance | Sweep |
 |---|---|---|---|---|
 | `RUN.controler.compression_type` | `gzip` | enum | `definition` | - |
+| `RUN.controler.create_graphs` | `true` | boolean | `definition` | - |
 | `RUN.controler.first_iteration` | `0` | iterations | `definition` | - |
 | `RUN.controler.last_iteration` | `1000` | iterations | `measured` | 250 - 2000 |
 | `RUN.controler.overwrite_files` | `failIfDirectoryExists` | policy | `definition` | - |
@@ -2225,6 +2237,12 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 Output compression. MUST be gzip: runs made before this was set write .zst, which extract_metrics.py can only read if zstandard happens to be installed, and the repo does not require it.
 
 ***definition** · status **active** · DECISIONS.md §15 · MATSim `controler.compressionType`*
+
+#### `RUN.controler.create_graphs`
+
+Whether MATSim renders its per-iteration diagnostic PNGs (mode stats, leg histograms - eight images every iteration). Wall time and disk only, never the model; declared so a long arm's overlay can turn the rendering off instead of paying it a thousand times (9.59).
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `controler.createGraphs`*
 
 #### `RUN.controler.first_iteration`
 

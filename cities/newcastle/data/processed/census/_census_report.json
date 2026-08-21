@@ -51,6 +51,11 @@
         "rows": 1701,
         "cols": 40
       },
+      "G15": {
+        "desc": "type of educational institution attending, full/part time by age",
+        "rows": 1701,
+        "cols": 86
+      },
       "G43": {
         "desc": "labour force education and migration characteristics by sex",
         "rows": 1701,

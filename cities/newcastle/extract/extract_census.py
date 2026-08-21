@@ -35,6 +35,7 @@ GCP_TABLES = {
     'G34': 'number of motor vehicles by dwelling',
     'G35': 'household composition by persons usually resident',
     'G36': 'dwelling structure',
+    'G15': 'type of educational institution attending, full/part time by age',
     'G43': 'labour force education and migration characteristics by sex',
     'G46A': 'labour force status by age by sex (part A)',
     'G46B': 'labour force status by age by sex (part B)',

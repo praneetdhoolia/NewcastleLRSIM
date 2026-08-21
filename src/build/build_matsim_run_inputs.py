@@ -107,7 +107,10 @@ ATTR_RE = re.compile(r'(\w[\w:]*)="([^"]*)"')
 # Matching only the dotted form silently dropped both from every day type -
 # which would have run S1 with no shuttle and S3 with no BRT, i.e. each
 # scenario without the intervention it exists to test.
-DAY_TOKEN_RE = re.compile(r'(?:^|[.:_])(WEEKDAY|SAT|SUN)(?:[._]|$)')
+# built from the CITY's own day-type vocabulary: a fixed WEEKDAY|SAT|SUN
+# alternation could never recognise another city's trip-id tokens
+DAY_TOKEN_RE = re.compile(r'(?:^|[.:_])(%s)(?:[._]|$)'
+                          % '|'.join(re.escape(d) for d in DAY_TYPES))
 
 # MATSim picks its reader from the doctype, so a schedule written without one
 # cannot be loaded at all - the parser fails at line 2 with a null delegate.
@@ -226,6 +229,13 @@ def split_schedule(src_dir, dst_dir, day, cfg):
     # is published the seated share is assumed and swept and the standing room
     # is derived by identity (tram, rail). Nothing here is observed for
     # Newcastle operations - these are manufacturer and operator figures.
+    # The type ids are pt2matsim's OWN route-type vocabulary (it names the
+    # generic vehicle type for each GTFS route type Bus/Tram/Rail/Ferry), not
+    # this feed's - so the keys are tool structure, not a city value. What
+    # MUST NOT be silent is a type outside the map (a metro, a cable car):
+    # its pt2matsim default capacity would sail through unpatched and leave
+    # crowding inert for that mode - the 9.12 defect class - so unpatched
+    # types are reported by name below.
     FLEET_CAPACITY = {
         'Tram':  ('A.lightrail.capacity_seated', 'A.lightrail.capacity_standing'),
         'Bus':   ('A.transit.bus_capacity_seated', 'A.transit.bus_capacity_standing'),
@@ -233,11 +243,13 @@ def split_schedule(src_dir, dst_dir, day, cfg):
         'Rail':  ('A.transit.rail_capacity_seated', 'A.transit.rail_capacity_standing'),
     }
     patched_types = []
+    unpatched_types = []
     for vt in vroot:
         if tag(vt) != 'vehicleType':
             continue
         keys = FLEET_CAPACITY.get(vt.get('id'))
         if keys is None:
+            unpatched_types.append(vt.get('id'))
             continue
         seated, standing = cfg.get(keys[0]), cfg.get(keys[1])
         for cap in vt:
@@ -257,6 +269,7 @@ def split_schedule(src_dir, dst_dir, day, cfg):
                 routes_kept_under_a_foreign_day_id=mixed_routes,
                 vehicles=kept_veh,
                 vehicle_capacity_patched=patched_types,
+                vehicle_types_unpatched=unpatched_types,
                 vehicle_refs=len(vehicles_used),
                 stop_facilities_kept=kept_fac, stop_facilities_dropped=dropped_fac,
                 transfer_relations_kept=kept_rel,

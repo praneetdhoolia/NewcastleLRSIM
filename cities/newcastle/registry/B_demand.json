@@ -99,22 +99,52 @@
         "src/build/build_population.py"
       ]
     },
-    "B.population.tertiary_ft_share": {
-      "value": {
-        "18_24": 0.7,
-        "25_ov": 0.35
-      },
-      "units": "share_of_attendees",
+    "B.activity.plan_speed_car_kmh": {
+      "value": 26.0,
+      "units": "km/h",
       "source": "assumed",
-      "sweep": {
-        "proportional": 0.3
-      },
-      "sweep_basis": "the census table that would measure it (G15, full-time/part-time student status by age) is not in the package - a deliberate non-acquisition (age-structure dossier 5): it decides HE tour-making only within the full-time fraction of the 38% of 20-24s and 5.5% of 25+ who attend at all. National context brackets it: university study is majority full-time and VET majority part-time, and 18-24 attendance is university-dominant while 25+ is not. A G15 harvest is a deliverable-0b candidate that would move this to measured.",
+      "sweep": [
+        20.0,
+        32.0
+      ],
+      "sweep_basis": "urban door-to-door average including parking and access; brackets typical metropolitan network speeds. It decides only the B2 chain-timing scaffold (whether tours fit a day, and their planned departure spacing) - the mobsim re-times every leg physically - but a value that decides anything is declared (9.61: it sat as a bare 26.0 inside time_tour's expression, invisible to the ledger's scanner).",
       "status": "active",
-      "decisions_ref": "9.46",
-      "description": "Of persons 18+ attending an educational institution (G01, observed per SA1), the share that are full-time students - the ones who draw a mandatory HE tour. Under-18 attendees are full-time by definition (school). Replaces a flat assumed 0.35 full-time-student rate for all 18-24s and a hardcoded 0.04 part-time rate that no audit could see.",
+      "decisions_ref": "9.61",
+      "description": "Door-to-door planning speed for a car-available person, used by the B2 chain builder to time tours (straight-line distance at this speed plus B.activity.plan_access_s). Not a routing or scoring quantity.",
       "consumers": [
-        "src/build/build_population.py"
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.plan_speed_nocar_kmh": {
+      "value": 16.0,
+      "units": "km/h",
+      "source": "assumed",
+      "sweep": [
+        10.0,
+        22.0
+      ],
+      "sweep_basis": "a blend of walk, cycle and bus door-to-door speeds for a person without a car. Same scaffold-only role, same 9.61 declaration rationale, as plan_speed_car_kmh.",
+      "status": "active",
+      "decisions_ref": "9.61",
+      "description": "Door-to-door planning speed for a person without car availability, used by the B2 chain builder to time tours. Not a routing or scoring quantity.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.plan_access_s": {
+      "value": 240,
+      "units": "seconds",
+      "source": "assumed",
+      "sweep": [
+        120,
+        480
+      ],
+      "sweep_basis": "fixed access-and-egress overhead per planned leg (getting to the vehicle, parking, walking in). Scaffold-only, declared per 9.61.",
+      "status": "active",
+      "decisions_ref": "9.61",
+      "description": "Fixed per-leg overhead added to every B2 planned leg time on top of distance/speed. Not a routing or scoring quantity.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
       ]
     },
     "B.activity.escort_binding_enabled": {
@@ -143,6 +173,24 @@
       "status": "active",
       "decisions_ref": "9.46",
       "description": "Which classes of already-drawn household trips an HX escort tour may take its destination and departure from.",
+      "consumers": [
+        "src/build/build_activity_chains.py"
+      ]
+    },
+    "B.activity.escort_binding_nonhh_scope": {
+      "value": "same_zone",
+      "units": "enum",
+      "source": "assumed",
+      "sweep": {
+        "categorical": [
+          "household_only",
+          "same_zone"
+        ],
+        "basis": "No observation of who-drives-whom exists anywhere in the held data (the STATUS data-grade row's 'NO TARGET AT ALL: non-household lifts'), so the matching scope of the 9.60 second-pass binder is declared and swept rather than implied. `household_only` switches the pass off and restores 9.46 exactly; `same_zone` lets an unbound escort tour serve a driverless-household passenger sharing the driver's home SA1 - the neighbourhood, expressed on zone identity so no coordinate or radius enters the framework."
+      },
+      "status": "active",
+      "decisions_ref": "9.60",
+      "description": "Which non-household passengers an HX escort tour that found no household trip may be re-targeted to serve (9.60). The driver supply is the observed Serve-passenger rate, already generated; this decides only how far an unbound tour may look for the passenger it exists to carry. Passengers are the driverless-household class - the people household pairing structurally cannot reach.",
       "consumers": [
         "src/build/build_activity_chains.py"
       ]
@@ -353,21 +401,6 @@
         "src/build/build_activity_chains.py"
       ]
     },
-    "B.activity.sat_to_sun_rate": {
-      "value": 1.1875,
-      "units": "ratio",
-      "source": "assumed",
-      "sweep": [
-        1.0,
-        1.45
-      ],
-      "status": "active",
-      "decisions_ref": "9.2",
-      "description": "Saturday-to-Sunday trip rate ratio. THE LAST ASSUMED PART OF THE DAY-TYPE SHAPE: the weekday/weekend ratio itself is measured (B.activity.weekend_to_weekday), but the HTS LGA tables carry no day-of-week split, so how the weekend divides stays assumed (DECISIONS.md 13 priority 12).",
-      "consumers": [
-        "src/build/build_activity_chains.py"
-      ]
-    },
     "B.activity.weekend_to_weekday": {
       "value": 0.7521,
       "units": "ratio",
@@ -406,25 +439,6 @@
       "status": "active",
       "decisions_ref": "9.2",
       "description": "Days each day type represents when composing a week.",
-      "consumers": [
-        "src/build/build_activity_chains.py"
-      ]
-    },
-    "B.activity.weekend_departure_shift_h": {
-      "value": {
-        "WEEKDAY": 0,
-        "SAT": 1,
-        "SUN": 1
-      },
-      "units": "hours",
-      "source": "assumed",
-      "sweep": [
-        0,
-        2
-      ],
-      "status": "active",
-      "decisions_ref": "9.2",
-      "description": "Shift applied to the weekday departure profile on weekend day types.",
       "consumers": [
         "src/build/build_activity_chains.py"
       ]
@@ -504,24 +518,6 @@
       "status": "active",
       "decisions_ref": "9.41",
       "description": "Minimum straight-line separation between the entry gate and the exit gate for a generated trip to count as through traffic. Exit gates closer than this to the entry are excluded from its destination set.",
-      "consumers": [
-        "src/build/build_activity_chains.py"
-      ]
-    },
-    "B.external.day_factor": {
-      "value": {
-        "WEEKDAY": 1.0,
-        "SAT": 0.4,
-        "SUN": 0.3
-      },
-      "units": "multiplier",
-      "source": "assumed",
-      "sweep": {
-        "proportional": 0.3
-      },
-      "status": "active",
-      "decisions_ref": "9.2",
-      "description": "External boundary demand by day type, relative to the weekday.",
       "consumers": [
         "src/build/build_activity_chains.py"
       ]
@@ -1101,6 +1097,16 @@
       "decisions_ref": "9.55",
       "description": "Whether an UNPAIRED ride leg is re-moded to network-simulated walk at the BeforeMobsim boundary - the 9.51 owner directive's own ruling (every ride physically in a car, no exceptions, no teleportation) enacted without inventing a parameter: a ride trip no household driver can physically serve is not a ride trip, it walks, scores accordingly, and co-evolution reassigns the tour - so the surviving ride share is EMERGENT from the physical driver supply rather than declared. False keeps Tier 1's teleport for the unpaired, for comparability within one build. Consumed by citysim.RidePairingEngine.",
       "matsim_param": "ridePairing.remodeUnpaired"
+    },
+    "B.ride.wait_for_driver": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.60",
+      "description": "Whether a booked passenger whose car is not at the meeting point yet physically WAITS for it, bounded by the declared pairing window (B.ride.pairing_window_min - the same tolerance the booking was made under, so no second number is invented). The 9.53 boarding engine could board only a car ALREADY parked at the link; a passenger departing first was a counted miss falling back to teleport - the measured x6.91 window layer of the realisation gap wearing its physical face. Waiting is real elapsed time: a timed-out passenger completes on the Tier-1 clock FROM THE TIMEOUT, so waiting costs what waiting costs and scores accordingly. False restores the 9.53 behaviour. Consumed by citysim.JointRideEngine.",
+      "matsim_param": "ridePairing.waitForDriver"
     },
     "B.walk.pce": {
       "value": 0.0,

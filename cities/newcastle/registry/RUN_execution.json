@@ -114,6 +114,16 @@
       "matsim_param": "controler.firstIteration",
       "description": "Start iteration."
     },
+    "RUN.controler.create_graphs": {
+      "value": true,
+      "units": "boolean",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.59",
+      "matsim_param": "controler.createGraphs",
+      "description": "Whether MATSim renders its per-iteration diagnostic PNGs (mode stats, leg histograms - eight images every iteration). Wall time and disk only, never the model; declared so a long arm's overlay can turn the rendering off instead of paying it a thousand times (9.59)."
+    },
     "RUN.controler.write_events_interval": {
       "value": 10,
       "units": "iterations",

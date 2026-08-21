@@ -101,7 +101,8 @@ def home_lga():
     in B1 and map to '' rather than being counted as residents of anywhere.
     """
     if not os.path.exists(SA1_LGA):
-        raise SystemExit('%s missing - run src/analyse/map_sa1_to_lga.py' % SA1_LGA)
+        raise SystemExit('%s missing - run cities/<city>/build/map_sa1_to_lga.py'
+                         % SA1_LGA)
     lga = {}
     with open(SA1_LGA, encoding='utf-8') as f:
         for z in csv.DictReader(f):
@@ -178,8 +179,20 @@ def trip_geometry(run_dir, person_lga):
 
 
 def pt_boardings(run_dir, fraction):
-    """One boarding per pt leg that boards a transit line; scaled to full pop."""
+    """One boarding per pt leg that boards a transit line; scaled to full pop.
+
+    Intervention patronage is attributed by each boarded route's own scheduled
+    `transportMode` matched against the city's declared `intervention.mode`
+    (city.json) - never by a name heuristic over line ids, which counted a
+    line as light rail if its id happened to contain "lr" and missed any
+    tram line named otherwise. The JSON keys keep their historical names
+    because the output schema requires them; the attribution is the part that
+    was wrong.
+    """
+    route_mode = transit_route_modes(run_dir)
+    intervention_mode = (_city.descriptor().get('intervention') or {}).get('mode')
     by_line = collections.Counter()
+    lr = collections.Counter()
     total = 0
     for l in rows(run_dir, 'output_legs'):
         line = (l.get('transit_line') or '').strip()
@@ -187,14 +200,116 @@ def pt_boardings(run_dir, fraction):
             continue
         by_line[line] += 1
         total += 1
+        if intervention_mode and route_mode.get(
+                (line, (l.get('transit_route') or '').strip())) == intervention_mode:
+            lr[line] += 1
     scale = 1.0 / fraction
-    lr = {k: v for k, v in by_line.items() if 'lightrail' in k.lower()
-          or 'light_rail' in k.lower() or k.lower().startswith('lr')}
     return dict(scale=scale,
+                intervention_mode=intervention_mode,
                 total_pt_boardings=round(total * scale),
                 light_rail_boardings=round(sum(lr.values()) * scale),
                 light_rail_lines=sorted(lr),
                 by_line={k: round(v * scale) for k, v in by_line.most_common(40)})
+
+
+def transit_route_modes(run_dir):
+    """(transit_line, transit_route) -> the schedule's transportMode.
+
+    Read from the run's OWN schedule (the path its config names), so the split
+    can never disagree with what the mobsim actually drove. Route ids are only
+    unique within a line, which is why the key is the pair.
+    """
+    import re
+    import xml.etree.ElementTree as ET
+    cfg_text = open(os.path.join(run_dir, 'config.xml'), encoding='utf-8').read()
+    m = re.search(r'name="transitScheduleFile" value="([^"]+)"', cfg_text)
+    if not m:
+        return {}
+    path = m.group(1)
+    if not os.path.isabs(path):
+        path = os.path.normpath(os.path.join(run_dir, path))
+    opener = gzip.open if path.endswith('.gz') else open
+    modes = {}
+    with opener(path, 'rt', encoding='utf-8') as f:
+        line_id = None
+        route_id = None
+        for ev, el in ET.iterparse(f, events=('start', 'end')):
+            if ev == 'start':
+                if el.tag == 'transitLine':
+                    line_id = el.get('id')
+                elif el.tag == 'transitRoute':
+                    route_id = el.get('id')
+            else:
+                if el.tag == 'transportMode' and line_id and route_id:
+                    modes[(line_id, route_id)] = (el.text or '').strip()
+                elif el.tag == 'transitLine':
+                    el.clear()
+    return modes
+
+
+def pt_submode_split(run_dir, person_lga, mode_share_doc):
+    """The pt umbrella, split by the boarding vehicle's scheduled mode (#49 Tier R).
+
+    Owner directive (20 Aug 2026): any table comparing numbers lists EVERY mode
+    individually - never a "public transport" umbrella row. The fleet is already
+    physically distinct, so the split is read from the run's own outputs: each
+    pt leg's (transit_line, transit_route) resolves to the schedule's
+    transportMode, boardings are counted per submode, and a LINKED pt trip is
+    keyed by the set of submodes it boarded. A multi-submode trip is its own
+    row (e.g. `pt:bus+rail`) rather than absorbed into a hierarchy nobody
+    declared; a pt trip that boarded nothing (the raptor's direct-walk
+    fallback) is `pt:no_boarding`. Taxi/rideshare are reported as not modelled
+    rather than silently absent (issue #49, task 4.4).
+    """
+    route_mode = transit_route_modes(run_dir)
+    submodes_of_trip = collections.defaultdict(set)
+    boardings = collections.Counter()
+    boardings_target = collections.Counter()
+    unknown_routes = collections.Counter()
+    for l in rows(run_dir, 'output_legs'):
+        line = (l.get('transit_line') or '').strip()
+        route = (l.get('transit_route') or '').strip()
+        if not line:
+            continue
+        sm = route_mode.get((line, route))
+        if sm is None:
+            unknown_routes[(line, route)] += 1
+            sm = 'unknown'
+        submodes_of_trip[(l['person'], l['trip_id'])].add(sm)
+        boardings[sm] += 1
+        if person_lga.get(l['person']) == TARGET_LGA:
+            boardings_target[sm] += 1
+
+    trips_all = collections.Counter()
+    trips_target = collections.Counter()
+    for t in rows(run_dir, 'output_trips'):
+        if t['main_mode'] != 'pt':
+            continue
+        sms = sorted(submodes_of_trip.get((t['person'], t['trip_id']), ()))
+        key = 'pt:' + ('+'.join(sms) if sms else 'no_boarding')
+        trips_all[key] += 1
+        if person_lga.get(t['person']) == TARGET_LGA:
+            trips_target[key] += 1
+
+    total_target = mode_share_doc['target_lga_trips']
+
+    def pct_of_all_target(c):
+        return ({k: round(100.0 * v / total_target, 4) for k, v in sorted(c.items())}
+                if total_target else {})
+    return dict(
+        boardings_by_submode=dict(sorted(boardings.items())),
+        boardings_by_submode_target_lga=dict(sorted(boardings_target.items())),
+        linked_pt_trips=dict(sorted(trips_all.items())),
+        linked_pt_trips_target_lga=dict(sorted(trips_target.items())),
+        linked_pt_share_of_target_lga_trips_pct=pct_of_all_target(trips_target),
+        unknown_route_boardings=sum(unknown_routes.values()),
+        not_modelled=['taxi', 'rideshare'],
+        note='Every mode reported individually (owner directive, 20 Aug 2026). '
+             'The observed HTS target holds only the pt AGGREGATE (plus the '
+             'light-rail boardings target), so per-submode rows are reported '
+             'against no target and say so; a multi-submode linked trip is '
+             'its own row rather than a hierarchy nobody declared. '
+             'taxi/rideshare are NOT modelled (issue #49, task 4.4).')
 
 
 def link_volumes(run_dir, fraction):
@@ -241,10 +356,12 @@ def main():
 
     c3 = json.load(open(C3, encoding='utf-8'))
     person_lga = home_lga()
+    ms = mode_share(run_dir, person_lga)
     doc = dict(run=rec['name'], scenario=rec['scenario'], day=rec['day'],
                fraction=fraction, iterations=rec['iterations'],
                overrides=rec.get('overrides', {}),
-               mode_share=mode_share(run_dir, person_lga),
+               mode_share=ms,
+               pt_split=pt_submode_split(run_dir, person_lga, ms),
                trip_geometry=trip_geometry(run_dir, person_lga),
                pt=pt_boardings(run_dir, fraction),
                counts=link_volumes(run_dir, fraction),
@@ -262,6 +379,10 @@ def main():
     print('  %s LGA mode share: %s' % (TARGET_LGA, ms['target_lga_pct']))
     print('  PT boardings %s of which light rail %s'
           % (doc['pt']['total_pt_boardings'], doc['pt']['light_rail_boardings']))
+    print('  pt split (linked trips, %s residents): %s | boardings by submode: '
+          '%s | taxi/rideshare: not modelled'
+          % (TARGET_LGA, doc['pt_split']['linked_pt_trips_target_lga'],
+             doc['pt_split']['boardings_by_submode']))
     for m, g in sorted(doc['trip_geometry']['by_mode'].items()):
         print('  trip geometry %-5s mean %6.2f km / %6.2f min  (median %5.2f km)'
               % (m, g['mean_distance_km'], g['mean_time_min'],
