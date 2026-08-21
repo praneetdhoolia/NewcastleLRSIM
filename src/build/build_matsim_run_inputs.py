@@ -513,7 +513,77 @@ def strip_unreachable_mode_links(body, mode, applied):
     return LINK_BLOCK_RE.sub(strip, body)
 
 
-def patch_network(src_net, dst_net, patches, drop_turns, excluded_of_mode):
+NONMOTOR_MODES = ('walk', 'bike')
+LINK_TAG_RE = re.compile(r'<link\b[^>]*>')
+
+
+def add_nonmotor_reverse_links(body, reverse_speed_ms, applied):
+    """A walk/bike reverse complement for every one-way street (9.58).
+
+    MATSim's network is directed, so a one-way carriageway is walkable in one
+    direction only - which is false: a pedestrian walks both sides of every
+    street, and a cyclist dismounts and wheels. Without the complements, the
+    per-mode SCC strip severed 16,726 walk links and 5,177 bike links into
+    unreachable pockets, 6.8% of activities landed on walk-less links, and
+    every walk/bike leg touching one was silently routed from the NEAREST
+    in-network link instead - the qsim then refused the disconnected first
+    hop and ABORTED the agent mid-day (measured: 491,349 refusals over 135
+    iterations, ~11.6k broken legs per iteration at 25%).
+
+    For each node pair (a, b) where some link carries walk or bike and no
+    link (b, a) carries it, ONE reverse link is added carrying exactly the
+    missing non-motor modes: length, capacity and lane count inherited from
+    the forward link (nothing new is decided), free speed = the declared
+    walking speed (`A.transit.walk_speed_ms` - a dismounted cyclist is a
+    pedestrian). Complements carry no osm attributes, so an E1 patch can
+    never touch one, and no car mode, so the motor network is unchanged.
+    Parallel forward links share one complement. Runs BEFORE the SCC strip,
+    which afterwards removes only true islands.
+    """
+    covered = {}           # (from, to) -> set of nonmotor modes carried
+    heads = []             # attr dicts of links carrying a nonmotor mode
+    for m in LINK_TAG_RE.finditer(body):
+        a = dict(ATTR_RE.findall(m.group(0)))
+        if 'id' not in a or 'from' not in a:
+            continue
+        nm = set((a.get('modes') or '').split(',')) & set(NONMOTOR_MODES)
+        if nm:
+            covered.setdefault((a['from'], a['to']), set()).update(nm)
+            heads.append(a)
+    new_links = []
+    index_of = {}          # (to, from) -> index into new_links
+    for a in heads:
+        rev = (a['to'], a['from'])
+        need = sorted((set((a.get('modes') or '').split(','))
+                       & set(NONMOTOR_MODES)) - covered.get(rev, set()))
+        if not need:
+            continue
+        if rev in index_of:
+            merged = index_of[rev]
+            new_links[merged]['modes'] = sorted(set(new_links[merged]['modes'])
+                                                | set(need))
+        else:
+            index_of[rev] = len(new_links)
+            new_links.append(dict(id='nmr_%s' % a['id'], frm=a['to'],
+                                  to=a['from'], length=a['length'],
+                                  capacity=a['capacity'],
+                                  permlanes=a['permlanes'], modes=need))
+        covered.setdefault(rev, set()).update(need)
+    if not new_links:
+        return body
+    parts = ['<link id="%s" from="%s" to="%s" length="%s" freespeed="%.4f" '
+             'capacity="%s" permlanes="%s" oneway="1" modes="%s" />'
+             % (L['id'], L['frm'], L['to'], L['length'],
+                float(reverse_speed_ms), L['capacity'], L['permlanes'],
+                ','.join(L['modes']))
+             for L in new_links]
+    applied['nonmotor_reverse_links'] = len(new_links)
+    return body.replace('</links>',
+                        '\t\t' + '\n\t\t'.join(parts) + '\n\t</links>', 1)
+
+
+def patch_network(src_net, dst_net, patches, drop_turns, excluded_of_mode,
+                  reverse_speed_ms):
     """Re-apply an E1 road variant to a mapped schedule network by osm:way:id."""
     with gzip.open(src_net, 'rt', encoding='utf-8') as f:
         xml = f.read()
@@ -572,6 +642,7 @@ def patch_network(src_net, dst_net, patches, drop_turns, excluded_of_mode):
         return head + tail
 
     body = LINK_BLOCK_RE.sub(patch_link, xml)
+    body = add_nonmotor_reverse_links(body, reverse_speed_ms, applied)
     for mode in excluded_of_mode:
         body = strip_unreachable_mode_links(body, mode, applied)
     os.makedirs(os.path.dirname(dst_net), exist_ok=True)
@@ -974,7 +1045,8 @@ def main(day_types=None, scenarios=None, set_overrides=None):
         drop = road_variants.get(ref, {}).get('banned_turn_movements') == '0'
         net_dst = os.path.join(OUT, sid, 'network.xml.gz')
         touched = patch_network(os.path.join(sched_dir, 'network.xml.gz'),
-                                net_dst, pat, drop, excluded_of_mode)
+                                net_dst, pat, drop, excluded_of_mode,
+                                base_cfg.get('A.transit.walk_speed_ms'))
         price_dst = os.path.join(OUT, sid, PARK_PRICE_FILE)
         parking = write_parking_prices(net_dst, price_dst)
         entry = dict(road_variant=ref, patch_rows=len(pat),

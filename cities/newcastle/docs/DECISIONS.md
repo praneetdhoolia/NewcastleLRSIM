@@ -5807,6 +5807,100 @@ any target; the 67/143 split untouched.
 
 ---
 
+## 9.58 The walk wedge: #60 verified to be a different defect, and the four repairs (21 August 2026, issues #60, #48, #30)
+
+**The verification came first, and the filed suspicion is dead.** #60 suspected
+the walk router ignores `disallowedNextLinks` while the qsim enforces them.
+Bytecode of the pinned engine says the OPPOSITE division of labour:
+`DefaultTurnAcceptanceLogic` never reads `disallowedNextLinks` at all — its
+only refusal conditions are a null next link, a next link absent from the
+network, and a next link that does not start at the current link's end node —
+while `SpeedyGraphBuilder` applies turn restrictions PER MODE in the router
+(`TurnRestrictionsContext.build(network, mode)`). Car and bus routes comply
+with the observed restrictions because their routes are built under them; walk
+never had a restriction to violate. The filed fix (exempt walk from
+motor-vehicle turn restrictions) would have changed nothing.
+
+**What the 491,349 refusals actually are: a first-hop topology break.** All of
+them — 478,360 walk, 12,989 bike, classified against the run's own network —
+are the third refusal condition, and the broken pair is the leg's ACTIVITY
+link against the route's FIRST link. With `routing.accessEgressType = none`
+there is no access leg, and when an activity sits on a link outside the leg
+mode's subnetwork, MATSim's `decideOnLink` silently starts the route at the
+NEAREST in-network link while the qsim inserts the vehicle at the activity's
+link. The vehicle reaches the junction, the next route link does not connect,
+and the agent wedges there until the stuck timeout ABORTS it mid-day. Measured
+at iteration 100 of the aborted arm (25%): **11,402 walk and 218 bike legs per
+iteration** carry the break (the egress side mirrors it: 11,497), from
+**50,240 activities (6.81%) sitting on walk-less links** — 30,330 in pockets
+the per-mode SCC strip had severed, 19,910 on walk-excluded road classes
+(trunk 10,288, motorway 9,040 — the motorway ones almost all external cordon
+gates). The recurring hotspot pattern (many activity links funnelling into one
+nearest walk link) is also a congestion knot generator — plausibly the
+mechanism inside §9.57's 7,867 s iteration, though that remains unattributed.
+
+**Repair 1 — the pedestrian exclusion was wrong about the law, and it severed
+the walkable city.** §9.54 excluded walk from `motorway, motorway_link, trunk,
+trunk_link` claiming road rules; NSW Road Rules prohibit pedestrians on
+motorways (r. 288, signposted) and nowhere else — an urban trunk road
+(Stewart Avenue, Maitland Road) is a legal pedestrian route with footpaths.
+The over-broad list disconnected every neighbourhood whose only walk connector
+is a trunk segment, which is what the SCC strip was then reporting (16,726
+links stripped). `A.network.pedestrian_excluded_classes` is corrected to
+`[motorway, motorway_link]` — the same list bike already had, and a correction
+of a mis-stated legal fact, not a tuning.
+
+**Repair 2 — one-way streets walk both ways.** MATSim's network is directed; a
+one-way carriageway was walkable in one direction only, which is false for
+pedestrians and for a dismounted cyclist. `add_nonmotor_reverse_links`
+(assembly, before the SCC strip) adds ONE reverse link per one-way node pair
+carrying exactly the missing walk/bike modes: length, capacity and lanes
+inherited from the forward link (nothing new is decided), free speed = the
+declared `A.transit.walk_speed_ms` — a dismounted cyclist is a pedestrian —
+and no osm attributes, so an E1 patch can never touch a complement and the
+motor network is unchanged. S2 gained 16,603 complements.
+
+**Repair 3 — an activity is pinned to a link its person can actually use.**
+`ActivityLinkAssigner` (new, runs once on the loaded scenario before the
+Controler exists, so PrepareForSim's XY2Links finds nothing left to assign):
+each activity must sit on a link carrying every network mode its person can
+put on an adjacent leg — the person's own leg modes, plus, for a
+subpopulation that carries SubtourModeChoice, everything mode innovation
+could choose (`subtourModeChoice.modes ∩ routing.networkModes`). The needed
+set is DERIVED from the run's own config; nothing city-specific is declared.
+Nearest-link semantics are MATSim's own, on a subnetwork of qualifying links.
+A boundary agent's needed set is exactly the mode it arrived with, so cordon
+gate activities stay on their motorway gate links.
+
+**Repair 4 — a boundary agent's mode is data, not a choice.** The through tier
+is seeded from classified cordon vehicle counts (§9.41, §9.49), yet the
+emitter gave every subpopulation the same strategy set, so external agents
+carried SubtourModeChoice over `car,ride,pt,bike,walk`. MEASURED at iteration
+100: **405 external agents had abandoned car** — 451 walk legs, 164 bike, 62
+pt, 256 ride — i.e. 40 km boundary crossings on foot, each also wedging at a
+walk-less gate link. `RUN.replanning.strategy_subpopulations` (new,
+`{"SubtourModeChoice": ["person"]}`) withholds a strategy from named
+subpopulations through a declared `restrict` clause on the schema's
+`repeat_over`; freight was already structurally safe (truck is not in the
+choice set — its strategy block was inert) but is withheld too, as the same
+statement of the same principle.
+
+**Comparability: a new family boundary.** Repairs 1–3 change the network and
+the model; nothing after this compares to `phys50_25pct`, the aborted
+`phys1000_25pct` diagnostics, or anything older. The boundary is free
+precisely because the all-physical family has no completed run (§9.57) — this
+is the "fixing before the relaunch is free family-wise" case the handover
+named.
+
+**What this deliberately does not do.** It does not re-add access/egress
+stubs (`accessEgressType = none` stands — the repair makes the activity link
+itself usable rather than teleporting to a usable one); it does not touch the
+walk speed, the PCEs, any scoring value, any target, or the 67/143 split; and
+it does not claim the it-110 knot is explained — fewer wedged agents is a
+prediction the next run must test, not a result.
+
+---
+
 ## 10. Scenario construction (E1)
 
 All ten scenarios derive from `schedules/base2026.zip` by explicit transformation,

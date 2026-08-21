@@ -1,0 +1,16 @@
+{
+  "overlay": "phys_timing2_base_25pct",
+  "description": "A TIMING probe, not a modelling run: five iterations at the campaign fraction to measure the 9.58/9.59 model's baseline pace (walk-wedge repairs + PassingQ link dynamics + the reverse-complement network) under the declared knobs. The reference point for the other phys_timing2_* probes, which vary one knob group each. Iterations 2-4 are the comparison window (0 pays JIT and cache warmup, the last pays event writing). NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 5,
+    "RUN.machine.threads": 10,
+    "RUN.machine.xmx": "40g"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the range describes candidate MODELLING runs. This is a wall-clock measurement priced before committing tens of hours to the converged arm's relaunch. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}

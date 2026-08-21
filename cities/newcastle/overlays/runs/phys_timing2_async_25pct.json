@@ -1,0 +1,20 @@
+{
+  "overlay": "phys_timing2_async_25pct",
+  "description": "A TIMING probe, not a modelling run: phys_timing2_evt_25pct plus eventsManager.synchronizeOnSimSteps = false, decoupling the qsim from the events pipeline so the iteration wall approaches the slower of the two instead of their per-simstep maximum. Model outputs unchanged (handlers see the complete stream); the price is buffered-event memory - watch the working set - and eventually-consistent live telemetry snapshots. NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 5,
+    "RUN.machine.threads": 10,
+    "RUN.machine.replanning_threads": 20,
+    "RUN.machine.event_handler_threads": 12,
+    "RUN.machine.events_one_thread_per_handler": true,
+    "RUN.machine.events_synchronize_on_simsteps": false,
+    "RUN.machine.xmx": "40g"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the range describes candidate MODELLING runs. This is a wall-clock measurement priced before the converged arm's relaunch. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}

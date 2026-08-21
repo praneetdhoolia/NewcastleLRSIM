@@ -8,8 +8,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -135,8 +136,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -254,158 +256,14 @@
         }
       }
     },
-    "S2": {
-      "road_variant": "net_base2026",
-      "patch_rows": 0,
-      "links_touched": {
-        "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
-      },
-      "parking": {
-        "car_links": 168033,
-        "priced_links": 22577,
-        "priced_zones": 160
-      },
-      "days": {
-        "WEEKDAY": {
-          "routes_kept": 1270,
-          "routes_dropped": 444,
-          "departures": 2139,
-          "departures_dropped": 2130,
-          "routes_kept_under_a_foreign_day_id": 39,
-          "vehicles": 2139,
-          "vehicle_capacity_patched": [
-            [
-              "Bus",
-              "70",
-              "0",
-              "44",
-              "18"
-            ],
-            [
-              "Ferry",
-              "250",
-              "0",
-              "149",
-              "51"
-            ],
-            [
-              "Rail",
-              "400",
-              "0",
-              "98",
-              "48"
-            ],
-            [
-              "Tram",
-              "180",
-              "0",
-              "60",
-              "210"
-            ]
-          ],
-          "vehicle_refs": 2139,
-          "stop_facilities_kept": 4123,
-          "stop_facilities_dropped": 74,
-          "transfer_relations_kept": 1262,
-          "transfer_relations_dropped": 36
-        },
-        "SAT": {
-          "routes_kept": 405,
-          "routes_dropped": 1309,
-          "departures": 1128,
-          "departures_dropped": 3141,
-          "routes_kept_under_a_foreign_day_id": 114,
-          "vehicles": 1128,
-          "vehicle_capacity_patched": [
-            [
-              "Bus",
-              "70",
-              "0",
-              "44",
-              "18"
-            ],
-            [
-              "Ferry",
-              "250",
-              "0",
-              "149",
-              "51"
-            ],
-            [
-              "Rail",
-              "400",
-              "0",
-              "98",
-              "48"
-            ],
-            [
-              "Tram",
-              "180",
-              "0",
-              "60",
-              "210"
-            ]
-          ],
-          "vehicle_refs": 1128,
-          "stop_facilities_kept": 2148,
-          "stop_facilities_dropped": 2049,
-          "transfer_relations_kept": 268,
-          "transfer_relations_dropped": 1030
-        },
-        "SUN": {
-          "routes_kept": 314,
-          "routes_dropped": 1400,
-          "departures": 1002,
-          "departures_dropped": 3267,
-          "routes_kept_under_a_foreign_day_id": 122,
-          "vehicles": 1002,
-          "vehicle_capacity_patched": [
-            [
-              "Bus",
-              "70",
-              "0",
-              "44",
-              "18"
-            ],
-            [
-              "Ferry",
-              "250",
-              "0",
-              "149",
-              "51"
-            ],
-            [
-              "Rail",
-              "400",
-              "0",
-              "98",
-              "48"
-            ],
-            [
-              "Tram",
-              "180",
-              "0",
-              "60",
-              "210"
-            ]
-          ],
-          "vehicle_refs": 1002,
-          "stop_facilities_kept": 2170,
-          "stop_facilities_dropped": 2027,
-          "transfer_relations_kept": 264,
-          "transfer_relations_dropped": 1034
-        }
-      }
-    },
     "S2a": {
       "road_variant": "net_base2026",
       "patch_rows": 0,
       "links_touched": {
         "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -549,8 +407,9 @@
       "patch_rows": 0,
       "links_touched": {
         "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -697,8 +556,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -842,8 +702,9 @@
       "patch_rows": 0,
       "links_touched": {
         "companion_mode_links": 168033,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -968,8 +829,9 @@
         "companion_mode_links": 168033,
         "num_lanes_per_dir": 180,
         "kerbside_use": 302,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -1115,8 +977,9 @@
         "companion_mode_links": 168033,
         "num_lanes_per_dir": 280,
         "kerbside_use": 498,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,
@@ -1263,8 +1126,9 @@
         "num_lanes_per_dir": 54,
         "kerbside_use": 59,
         "banned_turns_removed": 8,
-        "walk_stripped_unreachable": 16726,
-        "bike_stripped_unreachable": 5177
+        "nonmotor_reverse_links": 16602,
+        "walk_stripped_unreachable": 5692,
+        "bike_stripped_unreachable": 5692
       },
       "parking": {
         "car_links": 168033,

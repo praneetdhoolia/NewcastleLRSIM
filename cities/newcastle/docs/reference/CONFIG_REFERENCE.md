@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 327 fields are made of
+## What the 332 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 27 | follows from another registry field by identity |
 | `literature` | 40 | a published value, not specific to this city |
 | `assumed` | 136 | chosen without direct empirical support |
-| `definition` | 98 | fixed by the formulation, not an empirical quantity |
+| `definition` | 103 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 307 | usable point value |
+| `active` | 312 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -111,7 +111,7 @@ Road graph, signal control, transit supply, light rail vehicle and dwell, parkin
 | `A.network.keep_ways_with_public_transit` | `true` | boolean | `definition` | - |
 | `A.network.max_link_length_m` | `500.0` | metres | `assumed` | 200 - 2000 |
 | `A.network.parse_turn_restrictions` | `true` | boolean | `definition` | - |
-| `A.network.pedestrian_excluded_classes` | `["motorway", "motorway_link", "trunk", "trunk_link"]` | osm_highway_classes | `definition` | - |
+| `A.network.pedestrian_excluded_classes` | `["motorway", "motorway_link"]` | osm_highway_classes | `definition` | - |
 | `A.network.railway_lane_capacity_veh_h` | `9999.0` | vehicles_per_hour | `definition` | - |
 | `A.network.railway_speed_default_kmh` | `{"rail": 160.0, "light_rail": 70.0, "tram": 70.0}` | km_per_hour | `assumed` | 40 - 180 |
 | `A.network.routable_subnetworks` | `{"car": ["car"], "bus": ["bus", "car"], "rail": ["rail", "light_rail"]}` | mode_names_by_subnetwork | `definition` | - |
@@ -371,9 +371,9 @@ Whether OSM turn restrictions become MATSim disallowed next links. The base netw
 
 #### `A.network.pedestrian_excluded_classes`
 
-Road classes a network-simulated pedestrian may not use: pedestrians are prohibited on motorways and high-speed trunk carriageways by road rules, and the walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.
+Road classes a network-simulated pedestrian may not use. NSW Road Rules prohibit pedestrians on motorways (rule 288, signposted roads) and NOWHERE ELSE: an urban trunk road (Stewart Avenue, Maitland Road) is a legal pedestrian route with footpaths, and the 9.54 list wrongly extended the motorway prohibition to trunk/trunk_link - which severed the walkable city (9.58: 16.7k walk links stripped as unreachable because whole neighbourhoods connect only through a trunk segment; 30,330 activities stranded on walk-less links at 25%). The walk mode is simulated on the road graph as the footpath proxy (the observed footway network is data, not part of the one mapped MATSim build - 3.5 forbids a remap). A vocabulary of the road rules, not a tunable.
 
-***definition** · status **active** · DECISIONS.md §9.54*
+***definition** · status **active** · DECISIONS.md §9.54, 9.58*
 
 #### `A.network.railway_lane_capacity_veh_h`
 
@@ -2152,7 +2152,7 @@ Tram service deceleration.
 
 ## Execution control
 
-*`cities/newcastle/registry/RUN_execution.json` - 56 fields*
+*`cities/newcastle/registry/RUN_execution.json` - 61 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -2165,6 +2165,9 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.controler.write_events_interval` | `10` | iterations | `definition` | - |
 | `RUN.controler.write_plans_interval` | `10` | iterations | `definition` | - |
 | `RUN.machine.event_handler_threads` | `4` | threads | `definition` | - |
+| `RUN.machine.events_one_thread_per_handler` | `false` | boolean | `definition` | - |
+| `RUN.machine.events_synchronize_on_simsteps` | `true` | boolean | `definition` | - |
+| `RUN.machine.replanning_threads` | `10` | threads | `definition` | 1 - 24 |
 | `RUN.machine.seed` | `20260810` | integer_seed | `definition` | - |
 | `RUN.machine.threads` | `10` | threads | `definition` | 1 - 24 |
 | `RUN.machine.xmx` | `14g` | jvm_heap | `definition` | - |
@@ -2181,6 +2184,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.monitor.stall_s` | `300` | seconds | `definition` | - |
 | `RUN.qsim.car_vehicle` | `{"length_m": 7.5, "width_m": 1.0, "pce": 1.0}` | metres/metres/passenger_car_equivalents | `definition` | - |
 | `RUN.qsim.end_time_h` | `30` | hours | `definition` | - |
+| `RUN.qsim.link_dynamics` | `PassingQ` | enum | `definition` | - |
 | `RUN.qsim.main_mode` | `["car", "truck", "motorbike", "walk", "bike"]` | enum | `definition` | - |
 | `RUN.qsim.snapshot_period` | `00:00:00` | hh:mm:ss | `definition` | - |
 | `RUN.qsim.start_time_h` | `0` | hours | `definition` | - |
@@ -2189,6 +2193,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.relaxation.settle_margin_iterations` | `10` | iterations | `measured` | 1 - 100 |
 | `RUN.replanning.fraction_to_disable_innovation` | `0.8` | share_of_iterations | `literature` | 0.7 - 0.9 |
 | `RUN.replanning.max_agent_plan_memory` | `5` | plans | `literature` | 3 - 10 |
+| `RUN.replanning.strategy_subpopulations` | `{"SubtourModeChoice": ["person"]}` | subpopulation_names_per_strategy | `definition` | - |
 | `RUN.replanning.subpopulations` | `["person", "external", "freight"]` | subpopulation_names | `definition` | - |
 | `RUN.replanning.weights` | `{"ChangeExpBeta": 0.7, "ReRoute": 0.15, "SubtourModeChoice": 0.1, "TimeAllocationMutator": 0.05}` | strategy_weight | `literature` | plus/minus 50% |
 | `RUN.routing.access_egress_type` | `none` | policy | `definition` | - |
@@ -2257,6 +2262,24 @@ Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is
 
 ***definition** · status **active** · DECISIONS.md §9.56 · MATSim `eventsManager.numberOfThreads`*
 
+#### `RUN.machine.events_one_thread_per_handler`
+
+Give each registered event handler its own thread instead of sharing RUN.machine.event_handler_threads workers. A wall-time knob of the same class as event_handler_threads (handlers are observers; each still sees the complete stream in order - NOT run identity). 9.56 deliberately left this alone; 9.59 declares it so a timing probe can measure it: the 9.57 arm's busiest events runnable burned ~119 s CPU against a 145 s mobsim wall, so the heaviest single handler is the next binding constraint. Default false = the 9.56 behaviour, until a probe justifies otherwise.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `eventsManager.oneThreadPerHandler`*
+
+#### `RUN.machine.events_synchronize_on_simsteps`
+
+Whether the qsim waits for the events pipeline at every sim-step. True (the MATSim default) makes the wall time max(qsim, events) at each step; false decouples them so the wall approaches the slower of the two over the whole iteration, at the price of buffered events memory and of live per-step telemetry snapshots becoming eventually-consistent (RunTelemetry is a diagnostic instrument, not a result - 9.36). Model outputs are unchanged either way: handlers see the complete stream. Default true = current behaviour, until a probe justifies otherwise.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `eventsManager.synchronizeOnSimSteps`*
+
+#### `RUN.machine.replanning_threads`
+
+Thread count for replanning, routing and everything else global.numberOfThreads governs. RUN IDENTITY like RUN.machine.threads (per-thread work partitioning changes results); split from it in 9.59 so the replanning pool can be sized to the machine independently of the mobsim's declared partitioning. Held at the mobsim value until a timing probe justifies otherwise.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `global.numberOfThreads`*
+
 #### `RUN.machine.seed`
 
 MATSim random seed. Held at the master seed unless replications are being drawn.
@@ -2265,9 +2288,9 @@ MATSim random seed. Held at the master seed unless replications are being drawn.
 
 #### `RUN.machine.threads`
 
-Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. It writes to BOTH thread parameters, which is why it is one field and not two: a config whose global and qsim counts disagree partitions differently in replanning and in the mobsim.
+Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. Until 9.59 this one field wrote global.numberOfThreads too; the pair is now two declared fields because they govern different partitionings (mobsim vs replanning/routing) with different saturation points - the 9.57 arm ran replanning at a median 59 s with 14 of 24 CPUs idle. Each field is run identity in its own right.
 
-***definition** · status **active** · DECISIONS.md §9.5 · MATSim `global.numberOfThreads, qsim.numberOfThreads`*
+***definition** · status **active** · DECISIONS.md §9.5, 9.59 · MATSim `qsim.numberOfThreads`*
 
 #### `RUN.machine.xmx`
 
@@ -2357,6 +2380,12 @@ Mobsim end. Matches B.activity.day_horizon_h; a 30-hour day catches after-midnig
 
 ***definition** · status **active** · DECISIONS.md §15 · MATSim `qsim.endTime`*
 
+#### `RUN.qsim.link_dynamics`
+
+The queue discipline vehicles obey within a link: FIFO (MATSim's default - vehicles exit in entry order), PassingQ (a faster vehicle may overtake within the link), or SeepageQ. The emitted config carried NO value, so the all-physical model ran FIFO by silent default - under which a 1.25 m/s pedestrian at the head of a shared link's queue blocks every car behind it regardless of its PCE 0.0, directly contradicting 9.54's declared semantics ('neither impeding nor impeded by motor traffic': PCE governs capacity arithmetic, not exit order). PassingQ restores the declared semantics - a car overtakes a walker on the carriageway, which is also what a street does - and is the standard setting for multimodal single-network MATSim models. A MODEL CHANGE: part of the 9.58/9.59 family boundary.
+
+***definition** · status **active** · DECISIONS.md §9.59 · MATSim `qsim.linkDynamics`*
+
 #### `RUN.qsim.main_mode`
 
 The modes physically simulated in the mobsim: car; truck (9.49) and motorbike (9.52) at their declared PCE; and walk and bike (9.54) - a pedestrian at PCE 0.0 capped at walking speed occupies the network without consuming road capacity (the sidewalk, expressed in queue arithmetic), a cyclist at the declared PCE genuinely takes road space. A car passenger is not a second vehicle: ride stays routed, with PAIRED passengers physically boarded (9.53).
@@ -2405,6 +2434,12 @@ Plans retained per agent. A property of the MATSim formulation, not of Newcastle
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `replanning.maxAgentPlanMemorySize`*
 
+#### `RUN.replanning.strategy_subpopulations`
+
+Which subpopulations each replanning strategy is emitted for; a strategy absent from this dict goes to all of them. SubtourModeChoice is restricted to `person` because an external or freight agent's mode IS its data: the through tier is seeded from classified cordon vehicle counts (9.41, 9.49), so a through car that innovates into another mode falsifies the count it was built from. MEASURED before this was declared: by iteration 100 of the first all-physical arm, 405 external agents had abandoned car - 451 walk legs, 164 bike, 62 pt, 256 ride - i.e. 40 km boundary crossings on foot, each also wedging at walk-less gate links (9.58). Read by the emitter through the schema's repeat_over.restrict clause, like RUN.replanning.subpopulations.
+
+***definition** · status **active** · DECISIONS.md §9.58*
+
 #### `RUN.replanning.subpopulations`
 
 The subpopulations the replanning strategies are applied to. A vocabulary the model is defined over, not a value to tune: `person` is a modelled resident of the study area, `external` is a boundary-tier agent, and `freight` is a heavy-vehicle background agent (9.49) whose mode is locked to truck. The strategy set is emitted once per subpopulation, so this decides HOW MANY strategysettings blocks the config carries.
@@ -2413,7 +2448,7 @@ The subpopulations the replanning strategies are applied to. A vocabulary the mo
 
 #### `RUN.replanning.weights`
 
-Replanning strategy weights, applied to both the person and external subpopulations. Properties of the scoring formulation, not observable quantities of Newcastle.
+Replanning strategy weights, applied to every subpopulation EXCEPT where RUN.replanning.strategy_subpopulations withholds a strategy (9.58: SubtourModeChoice is person-only - a boundary-tier agent's vehicle class is measured cordon data, not a choice). Properties of the scoring formulation, not observable quantities of Newcastle.
 
 ***literature** · status **active** · DECISIONS.md §9.3 · MATSim `replanning.strategysettings[*].weight`*
 
