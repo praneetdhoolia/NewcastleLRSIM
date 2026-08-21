@@ -96,6 +96,7 @@ IDENTITY = {
 # than a stress test.
 PERTURB = {
     'RUN.machine.threads': 3,
+    'RUN.machine.event_handler_threads': 2,
     'RUN.qsim.end_time_h': 28,
     'RUN.replanning.fraction_to_disable_innovation': 0.7,
     'RUN.scoring.brain_exp_beta': 1.5,
@@ -341,7 +342,13 @@ def run_checks(reference):
     check(fx['randomSeed'] == [str(IDENTITY['seed'])]
           and fx['randomSeed'] != rf['randomSeed'],
           'the seed is the fixture city\'s')
-    check(fx['numberOfThreads'] == [str(PERTURB['RUN.machine.threads'])] * 2
+    # Three numberOfThreads params, two owners: RUN.machine.threads writes the
+    # global and qsim pair (one field, deliberately - 9.5) and
+    # RUN.machine.event_handler_threads writes eventsManager's (9.56). Compared
+    # as a multiset so the assertion does not depend on module order.
+    check(sorted(fx['numberOfThreads'])
+          == sorted([str(PERTURB['RUN.machine.threads'])] * 2
+                    + [str(PERTURB['RUN.machine.event_handler_threads'])])
           and fx['numberOfThreads'] != rf['numberOfThreads'],
           'a perturbed declared value reaches the config')
     check(fx['endTime'] == ['28:00:00'] and fx['endTime'] != rf['endTime'],
