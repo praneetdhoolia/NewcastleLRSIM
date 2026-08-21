@@ -5705,6 +5705,53 @@ from the physical driver supply rather than declared.** Taken 20 August
   i). Where the displaced 30-odd percentage points of demand settle is the
   first converged run's headline measurement.
 
+## 9.56 The events pipeline gets its own threads — a wall-time knob, measured before it was turned (21 August 2026)
+
+**What was measured.** The all-physical model roughly triples the event
+stream (a million-plus walk departures at 25%, each walking the road graph
+link by link), and the first 25% shakedown of it (`phys50_25pct`, 50
+iterations, rc=0, accounting closes) ran at a median **261.1 s/iteration**
+against the §9.48 family's 105.9. The log attributes the difference: MATSim's
+default events manager runs every handler on ONE thread
+(`SimStepParallelEventsManagerImpl$ProcessEventsRunnable0`), and that thread
+burned **172–177 s CPU per ~261 s iteration** — 10 qsim threads waiting on
+one events thread at every sim-step sync, on a 24-CPU machine. On
+event-writing iterations the same thread spiked to ~342 s.
+
+**The decision.** `RUN.machine.event_handler_threads` = 4, bound to
+`eventsManager.numberOfThreads`. UNLIKE `RUN.machine.threads` (§9.5) this is
+NOT run identity: handlers are observers, each still receives the complete
+stream, so nothing the model computes can change. That claim was VERIFIED,
+not assumed, on 1% × 2-iteration twins of `allmodes_probe`: mode stats,
+score stats and the event MULTISET are bit-identical with the knob off, on,
+and on-again (`evthreads_ab`, `evthreads_ab2`).
+
+**What the knob costs.** The serialised ORDER of events within a timestep
+becomes thread-schedule-dependent: the two knob-on twins differ byte-wise in
+`output_events.xml.gz` while agreeing on the sorted stream. Every consumer
+in this repository aggregates events (summariser, metrics, telemetry), so
+nothing reads order — but byte-identical reproducibility of the events
+artefact is LOST, and this entry is where that trade is recorded. A
+consumer that ever comes to depend on within-timestep event order must
+revisit this decision.
+
+**What the knob buys, measured at scale.** `evthreads_timing` (25% × 5, same
+demand, same seed, same 10 qsim threads): iterations 2–4 ran 191/181/201 s
+against the single-thread baseline's 233/243/243 s on `phys50_25pct` —
+**~21% off the wall**. The heaviest single handler still bounds one thread
+(242 s CPU on the event-writing final iteration), which is why
+`RUN.controler.write_events_interval` and `write_plans_interval` are set to
+**100** (from 10) in the converged arm's overlay: both are declared
+wall-time-only fields (§15), the final iteration is always written
+regardless (the #54 events-based accounting gate needs it), and ten
+intermediate dumps of a 1000-iteration arm are checkpoints enough.
+
+**What was NOT done.** `oneThreadPerHandler` (experimental in the shipped
+MATSim), more qsim threads (run identity, §9.5), and any change to the
+model to buy speed. At 1% the knob is SLOWER (27.6–29.4 vs 19.9
+s/iteration — sync overhead with no saturation to relieve), so 1% probes
+remain comparable only to 1% probes, as §9.12 already requires.
+
 ---
 
 ## 10. Scenario construction (E1)

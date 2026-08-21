@@ -27,7 +27,7 @@ Three things are refused at every layer:
 2. **An overlay cannot invent a field.** A key that is not already declared is rejected.
 3. **A value cannot silently leave its sweep, and a held-fixed value cannot move at all.** Escaping a range requires `allow_outside_sweep` plus a written justification in a committed overlay - never a flag typed at a shell.
 
-## What the 326 fields are made of
+## What the 327 fields are made of
 
 | Provenance | Fields | Meaning |
 |---|---:|---|
@@ -36,11 +36,11 @@ Three things are refused at every layer:
 | `derived` | 27 | follows from another registry field by identity |
 | `literature` | 40 | a published value, not specific to this city |
 | `assumed` | 136 | chosen without direct empirical support |
-| `definition` | 97 | fixed by the formulation, not an empirical quantity |
+| `definition` | 98 | fixed by the formulation, not an empirical quantity |
 
 | Status | Fields | Meaning |
 |---|---:|---|
-| `active` | 306 | usable point value |
+| `active` | 307 | usable point value |
 | `computed` | 10 | written at run time from other fields; do not hand-edit |
 | `placeholder` | 5 | a structural stand-in; the model runs but the field is not defensible |
 | `unobtained` | 5 | the datum does not exist in the package; must be swept, never pinned |
@@ -2152,7 +2152,7 @@ Tram service deceleration.
 
 ## Execution control
 
-*`cities/newcastle/registry/RUN_execution.json` - 55 fields*
+*`cities/newcastle/registry/RUN_execution.json` - 56 fields*
 
 Everything that governs a run rather than the model it runs. Two fields here were previously set in code with no rationale and no sweep - RUN.sample.flow_capacity_factor and RUN.sample.storage_capacity_exponent - which is the exact breach of proposal 8.1 that check_package.py exists to catch. RUN.controler.last_iteration carries a null value because no justified value has been measured; the resolver will not invent one.
 
@@ -2164,6 +2164,7 @@ Everything that governs a run rather than the model it runs. Two fields here wer
 | `RUN.controler.overwrite_files` | `failIfDirectoryExists` | policy | `definition` | - |
 | `RUN.controler.write_events_interval` | `10` | iterations | `definition` | - |
 | `RUN.controler.write_plans_interval` | `10` | iterations | `definition` | - |
+| `RUN.machine.event_handler_threads` | `4` | threads | `definition` | - |
 | `RUN.machine.seed` | `20260810` | integer_seed | `definition` | - |
 | `RUN.machine.threads` | `10` | threads | `definition` | 1 - 24 |
 | `RUN.machine.xmx` | `14g` | jvm_heap | `definition` | - |
@@ -2249,6 +2250,12 @@ How often events are written. Affects disk and wall time, not the model.
 How often plans are written. Affects disk and wall time, not the model.
 
 ***definition** · status **active** · DECISIONS.md §15 · MATSim `controler.writePlansInterval`*
+
+#### `RUN.machine.event_handler_threads`
+
+Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync.
+
+***definition** · status **active** · DECISIONS.md §9.56 · MATSim `eventsManager.numberOfThreads`*
 
 #### `RUN.machine.seed`
 

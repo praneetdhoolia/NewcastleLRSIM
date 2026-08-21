@@ -1,0 +1,16 @@
+{
+  "overlay": "evthreads_timing_25pct",
+  "description": "A TIMING probe, not a modelling run: five iterations at the campaign fraction to measure what RUN.machine.event_handler_threads = 4 recovers of the wall time the all-physical model spends in the saturated single events thread (measured on phys50_25pct: 172-177 s CPU per ~261 s median iteration). The knob is verified to change no model output (DECISIONS.md 9.56: mode stats, score stats and the event multiset are bit-identical with and without it at 1%); what only scale can answer is the wall-time gain, because at 1% the parallel manager's sync overhead exceeds the saturation it relieves. Compared against the first five iterations of phys50_25pct, same demand, same seed, same threads. NOTHING PRODUCED UNDER THIS OVERLAY IS A RESULT.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 5,
+    "RUN.machine.threads": 10,
+    "RUN.machine.xmx": "40g"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the range describes candidate MODELLING runs. This is a wall-clock measurement of the events pipeline at the fraction the campaign uses, priced before committing tens of hours to the first converged arm. Five iterations bracket the steady early pace of the run it is compared against. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}

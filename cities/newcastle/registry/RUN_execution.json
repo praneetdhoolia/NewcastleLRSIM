@@ -390,6 +390,16 @@
       "matsim_param": "global.numberOfThreads, qsim.numberOfThreads",
       "description": "Mobsim thread count. PART OF THE RUN IDENTITY, NOT A PERFORMANCE KNOB: MATSim partitions the network by thread count, so changing it changes results. It writes to BOTH thread parameters, which is why it is one field and not two: a config whose global and qsim counts disagree partitions differently in replanning and in the mobsim."
     },
+    "RUN.machine.event_handler_threads": {
+      "value": 4,
+      "units": "threads",
+      "source": "definition",
+      "sweep": null,
+      "status": "active",
+      "decisions_ref": "9.56",
+      "matsim_param": "eventsManager.numberOfThreads",
+      "description": "Threads for MATSim's parallel events manager. UNLIKE RUN.machine.threads this is a wall-time knob, NOT run identity: event handlers are observers - each still receives the complete stream in per-handler order, so scores, plans and every model output are unchanged (verified bit-identical against the single-thread default, DECISIONS.md 9.56). Declared because the framework default (null = one thread) was measured saturated on the all-physical model: 172-177 s CPU per ~265 s iteration at 25%, throttling ten qsim threads at every sim-step sync."
+    },
     "RUN.machine.xmx": {
       "value": "14g",
       "units": "jvm_heap",

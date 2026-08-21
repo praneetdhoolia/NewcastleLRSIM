@@ -4,7 +4,7 @@
   "contract": "Every key below must be declared by any city, with the stated units and value type. A field whose source is measured, derived, literature or assumed MUST additionally carry a sweep, a held_fixed rule or a derived_from identity - field.schema.json enforces that, and check_city.py tests it.",
   "no_prose": "Field DESCRIPTIONS are deliberately absent. They are the reference city's own wording and would put one city's prose - its suburbs, its agencies, its datasets - inside the portable half of the contract. What a city must supply is a key, its units and its value type; WHY a particular city chose a particular value belongs in that city's docs/reference/CONFIG_REFERENCE.md.",
   "caveat": "`required` means the reference city declares it and the framework will not run without it. A field carrying `required_if_mode` is required ONLY of a city that runs that mode - the one narrowing that can be DERIVED, because the mode name is in the tool binding. The rest is not narrowed: an intervention-specific field is still listed for a city that has no such intervention, and omitting one must be justified rather than assumed.",
-  "n_fields": 326,
+  "n_fields": 327,
   "n_by_layer": {
     "A": 94,
     "B": 67,
@@ -12,7 +12,7 @@
     "CAL": 6,
     "D": 5,
     "E": 27,
-    "RUN": 72
+    "RUN": 73
   },
   "fields": {
     "A.active.footway_width_default": {
@@ -2349,6 +2349,15 @@
     "RUN.controler.write_plans_interval": {
       "layer": "RUN",
       "units": "iterations",
+      "type": "number",
+      "source_in_reference_city": "definition",
+      "sweep_required": false,
+      "unobtained_in_reference_city": false,
+      "declared_in": "RUN_execution.json"
+    },
+    "RUN.machine.event_handler_threads": {
+      "layer": "RUN",
+      "units": "threads",
       "type": "number",
       "source_in_reference_city": "definition",
       "sweep_required": false,

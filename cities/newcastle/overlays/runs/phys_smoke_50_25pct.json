@@ -1,0 +1,16 @@
+{
+  "overlay": "phys_smoke_50_25pct",
+  "description": "The owner-approved shakedown of the ALL-PHYSICAL model (DECISIONS.md 9.49-9.55) at the campaign fraction, before its first converged arm. The 2-iteration probes proved the plumbing loads and conserves; what they cannot exercise is the co-evolutionary loop at scale - fifty iterations of ReRoute and SubtourModeChoice over ~135,000 agents while JointRideEngine boards passengers, unpairable ride trips re-mode to network walk at BeforeMobsim, and walk/bike/motorbike/truck occupy queue arithmetic. What this arm tests: that the search stays stable, per-mode conservation closes under the events-based gate (issue #54's fix), the boarding-miss fallback stays at its probe-scale counts, and the s/iteration cost of the new model is MEASURED so the converged arm can be costed honestly (the 9.48 family's 105.9 s/iteration no longer applies). Nothing about this arm's mode share may be read as a result: 50 iterations is far below the measured convergence horizon and the run ends inside its own settle margin, so it carries no relaxation verdict by construction.",
+  "set": {
+    "RUN.sample.fraction": 0.25,
+    "RUN.controler.last_iteration": 50,
+    "RUN.machine.threads": 10,
+    "RUN.machine.xmx": "40g"
+  },
+  "allow_outside_sweep": [
+    "RUN.controler.last_iteration"
+  ],
+  "justification": {
+    "RUN.controler.last_iteration": "The declared sweep starts at 250 because that is the largest value MEASURED to be insufficient for convergence (DECISIONS.md 9.7, 9.43), so the range describes candidate MODELLING runs. This is not one - it is the mechanism shakedown of a model whose shape changed five times on 20 Aug with no completed run between (9.49-9.55), run before committing ~30+ hours to the first converged arm. Fifty iterations at the campaign fraction exercises innovation, re-moding and physical boarding through enough cycles to surface instability or accounting drift, and yields a trustworthy s/iteration figure for costing the converged arm. The value is deliberately far below the declared range so any output carrying it is obviously not a result."
+  }
+}
